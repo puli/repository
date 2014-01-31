@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
-
-use Webmozart\Puli\Repository\ResourceRepositoryInterface;
+namespace Webmozart\Puli\Locator;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceInterface
+interface ResourceLocatorInterface
 {
-    public function getRepositoryPath();
+    public function getResource($repositoryPath);
 
-    public function __toString();
+    public function getResources($pattern);
 
-    public function refresh(ResourceRepositoryInterface $repository);
+    public function getTaggedResources($tag);
+
+    public function listDirectory($repositoryPath);
 }

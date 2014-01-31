@@ -11,15 +11,35 @@
 
 namespace Webmozart\Puli\Repository;
 
+use Webmozart\Puli\Locator\ResourceLocatorInterface;
+
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceRepositoryInterface
+interface ResourceRepositoryInterface extends ResourceLocatorInterface
 {
-    public function getResource($repositoryPath);
+    public function addResource($repositoryPath, $realPath);
 
-    public function getResources($pattern);
+    public function addResources($repositoryPath, $pattern);
 
-    public function getTaggedResources($tag);
+    public function containsResource($repositoryPath);
+
+    public function containsResources($pattern);
+
+    public function removeResource($repositoryPath);
+
+    public function removeResources($pattern);
+
+    public function tagResource($repositoryPath, $tag);
+
+    public function tagResources($pattern, $tag);
+
+    public function untagResource($repositoryPath, $tag = null);
+
+    public function untagResources($pattern, $tag);
+
+    public function getTags($repositoryPath = null);
+
+    public function getPaths($repositoryPath);
 }

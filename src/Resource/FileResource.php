@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Resource;
 
+use Webmozart\Puli\Repository\ResourceRepositoryInterface;
+
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -61,5 +63,15 @@ class FileResource implements ResourceInterface
     public function getAlternativePaths()
     {
         return $this->alternativePaths;
+    }
+
+    public function __toString()
+    {
+        return $this->repositoryPath;
+    }
+
+    public function refresh(ResourceRepositoryInterface $repository)
+    {
+
     }
 }

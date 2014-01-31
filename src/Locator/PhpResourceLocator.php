@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Repository;
+namespace Webmozart\Puli\Locator;
 
-use Webmozart\Puli\Dumper\PhpRepositoryDumper;
+use Webmozart\Puli\Dumper\PhpResourceLocatorDumper;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceInterface;
@@ -20,7 +20,7 @@ use Webmozart\Puli\Resource\ResourceInterface;
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpDumpRepository implements ResourceRepositoryInterface
+class PhpResourceLocator implements ResourceLocatorInterface
 {
     private $dumpLocation;
 
@@ -32,9 +32,9 @@ class PhpDumpRepository implements ResourceRepositoryInterface
 
     public function __construct($dumpLocation)
     {
-        if (!file_exists($dumpLocation.PhpRepositoryDumper::PATHS_FILE) ||
+        if (!file_exists($dumpLocation.PhpResourceLocatorDumper::PATHS_FILE) ||
             !file_exists($dumpLocation.'/resources_tags.php') ||
-            !file_exists($dumpLocation.PhpRepositoryDumper::CONFIG_FILE)) {
+            !file_exists($dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE)) {
             throw new \InvalidArgumentException(sprintf(
                 'The dump at "%s" is invalid. Please try to recreate it.',
                 $dumpLocation
@@ -44,28 +44,28 @@ class PhpDumpRepository implements ResourceRepositoryInterface
         $this->dumpLocation = $dumpLocation;
     }
 
-    public function getResource($repositoryPath)
+    public function getResource($repositoryRepositoryPath)
     {
         if (null === $this->config) {
-            $this->config = require ($this->dumpLocation.PhpRepositoryDumper::CONFIG_FILE);
+            $this->config = require ($this->dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE);
         }
 
         if (null === $this->paths) {
-            $this->paths = require ($this->dumpLocation.PhpRepositoryDumper::PATHS_FILE);
+            $this->paths = require ($this->dumpLocation.PhpResourceLocatorDumper::PATHS_FILE);
         }
 
-        if (!isset($this->paths[$repositoryPath])) {
+        if (!isset($this->paths[$repositoryRepositoryPath])) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" was not found.',
-                $repositoryPath
+                $repositoryRepositoryPath
             ));
         }
 
-        if ($this->paths[$repositoryPath] instanceof ResourceInterface) {
-            return $this->paths[$repositoryPath];
+        if ($this->paths[$repositoryRepositoryPath] instanceof ResourceInterface) {
+            return $this->paths[$repositoryRepositoryPath];
         }
 
-        return $this->resolveResource($repositoryPath);
+        return $this->resolveResource($repositoryRepositoryPath);
     }
 
     public function getResources($pattern)
@@ -79,17 +79,22 @@ class PhpDumpRepository implements ResourceRepositoryInterface
         }
 
         if (null === $this->config) {
-            $this->config = require ($this->dumpLocation.PhpRepositoryDumper::CONFIG_FILE);
+            $this->config = require ($this->dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE);
         }
 
         if (null === $this->paths) {
-            $this->paths = require ($this->dumpLocation.PhpRepositoryDumper::PATHS_FILE);
+            $this->paths = require ($this->dumpLocation.PhpResourceLocatorDumper::PATHS_FILE);
         }
 
 
     }
 
     public function getTaggedResources($tag)
+    {
+
+    }
+
+    public function listDirectory($repositoryPath)
     {
 
     }

@@ -11,12 +11,12 @@
 
 namespace Webmozart\Puli\Dumper;
 
-use Webmozart\Puli\Configuration\RepositoryConfiguration;
+use Webmozart\Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpRepositoryDumper implements RepositoryDumperInterface
+class PhpResourceLocatorDumper implements LocatorDumperInterface
 {
     const PATHS_FILE = '/resources_paths.php';
 
@@ -24,13 +24,13 @@ class PhpRepositoryDumper implements RepositoryDumperInterface
 
     const CONFIG_FILE = '/resources_config.php';
 
-    public function dump(RepositoryConfiguration $config, $targetPath)
+    public function dumpLocator(ResourceRepositoryInterface $repository, $targetPath)
     {
         $paths = array();
-        $root = $config->getRootDirectory();
+        $root = $repository->getRootDirectory();
         $rootLength = strlen($root);
 
-        foreach ($config->getDirectories() as $dirRepositoryPath => $dirPaths) {
+        foreach ($repository->getDirectories() as $dirRepositoryPath => $dirPaths) {
             foreach ($dirPaths as $dirPath) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator(
@@ -70,7 +70,7 @@ class PhpRepositoryDumper implements RepositoryDumperInterface
             }
         }
 
-        foreach ($config->getFiles() as $dirRepositoryPath => $filePaths) {
+        foreach ($repository->getFiles() as $dirRepositoryPath => $filePaths) {
             foreach ($filePaths as $filePath) {
                 if (!isset($paths[$dirRepositoryPath])) {
                     $paths[$dirRepositoryPath] = array();
@@ -96,11 +96,11 @@ class PhpRepositoryDumper implements RepositoryDumperInterface
         }
 
         $dumpedConfig = array(
-            'root' => $config->getRootDirectory(),
+            'root' => $repository->getRootDirectory(),
         );
 
         file_put_contents($targetPath.self::PATHS_FILE, "<?php\n\nreturn ".var_export($paths, true).";");
-        file_put_contents($targetPath.self::TAGS_FILE, "<?php\n\nreturn ".var_export($config->getTags(), true).";");
+        file_put_contents($targetPath.self::TAGS_FILE, "<?php\n\nreturn ".var_export($repository->getTags(), true).";");
         file_put_contents($targetPath.self::CONFIG_FILE, "<?php\n\nreturn ".var_export($dumpedConfig, true).";");
     }
 }

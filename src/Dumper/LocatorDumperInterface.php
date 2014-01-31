@@ -11,13 +11,13 @@
 
 namespace Webmozart\Puli\Dumper;
 
-use Webmozart\Puli\Configuration\RepositoryConfiguration;
+use Webmozart\Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface RepositoryDumperInterface
+interface LocatorDumperInterface
 {
-    public function dump(RepositoryConfiguration $config, $targetPath);
+    public function dumpLocator(ResourceRepositoryInterface $repository, $targetPath);
 }
