@@ -58,6 +58,6 @@ class DirectoryResource implements ResourceInterface
 
     public function refresh(ResourceRepositoryInterface $repository)
     {
-
+        $this->paths = $repository->getPaths($this->repositoryPath);
     }
 }

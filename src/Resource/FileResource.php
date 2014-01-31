@@ -72,6 +72,9 @@ class FileResource implements ResourceInterface
 
     public function refresh(ResourceRepositoryInterface $repository)
     {
+        $paths = $repository->getPaths($this->repositoryPath);
 
+        $this->path = array_pop($paths);
+        $this->alternativePaths = $paths;
     }
 }

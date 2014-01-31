@@ -17,6 +17,11 @@ namespace Webmozart\Puli\Locator;
  */
 interface ResourceLocatorInterface
 {
+    /**
+     * @param string $repositoryPath
+     *
+     * @return \Webmozart\Puli\Resource\ResourceInterface
+     */
     public function getResource($repositoryPath);
 
     public function getResources($pattern);
