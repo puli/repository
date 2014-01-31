@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Dumper;
+namespace Webmozart\Puli\LocatorDumper;
 
 use Webmozart\Puli\Repository\ResourceRepositoryInterface;
 
@@ -17,7 +17,7 @@ use Webmozart\Puli\Repository\ResourceRepositoryInterface;
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface LocatorDumperInterface
+interface ResourceLocatorDumperInterface
 {
     public function dumpLocator(ResourceRepositoryInterface $repository, $targetPath);
 }

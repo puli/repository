@@ -11,7 +11,7 @@
 
 namespace Webmozart\Puli\Locator;
 
-use Webmozart\Puli\Dumper\PhpResourceLocatorDumper;
+use Webmozart\Puli\LocatorDumper\PhpResourceResourceLocatorDumper;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceInterface;
@@ -32,9 +32,9 @@ class PhpResourceLocator implements ResourceLocatorInterface
 
     public function __construct($dumpLocation)
     {
-        if (!file_exists($dumpLocation.PhpResourceLocatorDumper::PATHS_FILE) ||
+        if (!file_exists($dumpLocation.PhpResourceResourceLocatorDumper::PATHS_FILE) ||
             !file_exists($dumpLocation.'/resources_tags.php') ||
-            !file_exists($dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE)) {
+            !file_exists($dumpLocation.PhpResourceResourceLocatorDumper::CONFIG_FILE)) {
             throw new \InvalidArgumentException(sprintf(
                 'The dump at "%s" is invalid. Please try to recreate it.',
                 $dumpLocation
@@ -47,11 +47,11 @@ class PhpResourceLocator implements ResourceLocatorInterface
     public function getResource($repositoryRepositoryPath)
     {
         if (null === $this->config) {
-            $this->config = require ($this->dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE);
+            $this->config = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::CONFIG_FILE);
         }
 
         if (null === $this->paths) {
-            $this->paths = require ($this->dumpLocation.PhpResourceLocatorDumper::PATHS_FILE);
+            $this->paths = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::PATHS_FILE);
         }
 
         if (!isset($this->paths[$repositoryRepositoryPath])) {
@@ -79,11 +79,11 @@ class PhpResourceLocator implements ResourceLocatorInterface
         }
 
         if (null === $this->config) {
-            $this->config = require ($this->dumpLocation.PhpResourceLocatorDumper::CONFIG_FILE);
+            $this->config = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::CONFIG_FILE);
         }
 
         if (null === $this->paths) {
-            $this->paths = require ($this->dumpLocation.PhpResourceLocatorDumper::PATHS_FILE);
+            $this->paths = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::PATHS_FILE);
         }
 
 

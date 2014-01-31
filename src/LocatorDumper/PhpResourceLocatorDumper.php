@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Dumper;
+namespace Webmozart\Puli\LocatorDumper;
 
 use Webmozart\Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpResourceLocatorDumper implements LocatorDumperInterface
+class PhpResourceResourceLocatorDumper implements ResourceLocatorDumperInterface
 {
     const PATHS_FILE = '/resources_paths.php';
 
