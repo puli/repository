@@ -25,8 +25,8 @@ echo $repo->getResource('/webmozart/puli/trans/en.xlf')->getPath();
 
 Puli allows to dump optimized resource locators. Currently, Puli only provides
 one locator implementation that caches the repository paths in PHP files. Pass
-the path where these files are stored when you call the `dump()` method of the
-`PhpResourceLocatorDumper`:
+the path where these files are stored when you call the `dumpLocator()` method
+of the `PhpResourceLocatorDumper`:
 
 ```php
 use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
@@ -41,7 +41,7 @@ paths of the files in your repository:
 ```php
 use Webmozart\Puli\Locator\PhpResourceLocator;
 
-$locator = new PhpDumpRepository('/path/to/cache');
+$locator = new PhpResourceLocator('/path/to/cache');
 
 echo $locator->getResource('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/project/resources/assets/css/style.css
