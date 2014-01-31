@@ -89,9 +89,12 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function containsResource($repositoryPath)
     {
-
+        return isset($this->resources[$repositoryPath]);
     }
 
     public function containsResources($pattern)

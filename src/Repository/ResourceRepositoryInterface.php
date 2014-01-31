@@ -23,6 +23,11 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
 
     public function addResources($repositoryPath, $pattern);
 
+    /**
+     * @param string $repositoryPath
+     *
+     * @return boolean
+     */
     public function containsResource($repositoryPath);
 
     public function containsResources($pattern);

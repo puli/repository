@@ -102,4 +102,21 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $file2->getPath());
         $this->assertEquals(array(), $file2->getAlternativePaths());
     }
+
+    public function testContainsResource()
+    {
+        $this->assertFalse($this->repo->containsResource('/'));
+        $this->assertFalse($this->repo->containsResource('/webmozart'));
+        $this->assertFalse($this->repo->containsResource('/webmozart/puli'));
+        $this->assertFalse($this->repo->containsResource('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->containsResource('/webmozart/puli/file2'));
+
+        $this->repo->addResource('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertFalse($this->repo->containsResource('/'));
+        $this->assertFalse($this->repo->containsResource('/webmozart'));
+        $this->assertTrue($this->repo->containsResource('/webmozart/puli'));
+        $this->assertTrue($this->repo->containsResource('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->containsResource('/webmozart/puli/file2'));
+    }
 }
