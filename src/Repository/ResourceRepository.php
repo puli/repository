@@ -127,6 +127,7 @@ class ResourceRepository implements ResourceRepositoryInterface
             $regExp = $repositoryPath->getRegularExpression();
 
             foreach ($this->resources as $repositoryPath => $resource) {
+                // strpos() is slightly faster than substr() here
                 if (0 !== strpos($repositoryPath, $staticPrefix)) {
                     continue;
                 }
