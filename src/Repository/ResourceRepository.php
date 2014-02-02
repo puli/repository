@@ -62,6 +62,12 @@ class ResourceRepository implements ResourceRepositoryInterface
 
         if (is_array($realPath)) {
             foreach ($realPath as $path) {
+                if (false !== strpos($path, '*')) {
+                    $this->add($repositoryPath, $path);
+
+                    continue;
+                }
+
                 $this->add($repositoryPath.'/'.basename($path), $path);
             }
 

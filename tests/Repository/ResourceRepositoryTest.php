@@ -65,7 +65,7 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $file2->getAlternativePaths());
     }
 
-    public function testAddMany()
+    public function testAddArray()
     {
         $this->repo->add('/webmozart/puli', array(
             __DIR__.'/Fixtures/dir1/file2',
@@ -96,6 +96,28 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file1);
         $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
         $this->assertEquals(__DIR__.'/Fixtures/dir1/file1', $file1->getPath());
+        $this->assertEquals(array(), $file1->getAlternativePaths());
+
+        $file2 = $this->repo->get('/webmozart/puli/file2');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file2);
+        $this->assertEquals('/webmozart/puli/file2', $file2->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $file2->getPath());
+        $this->assertEquals(array(), $file2->getAlternativePaths());
+    }
+
+    public function testAddArrayPattern()
+    {
+        $this->repo->add('/webmozart/puli', array(
+            __DIR__.'/Fixtures/dir1/file2',
+            __DIR__.'/Fixtures/dir2/*',
+        ));
+
+        $file1 = $this->repo->get('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file1);
+        $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir2/file1', $file1->getPath());
         $this->assertEquals(array(), $file1->getAlternativePaths());
 
         $file2 = $this->repo->get('/webmozart/puli/file2');
