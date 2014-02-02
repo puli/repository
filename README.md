@@ -1,7 +1,7 @@
 Puli - Sane Resource Management for PHP
 =======================================
 
-Puli manages the file resources of you PHP project and provides access to these
+Puli manages the file resources of your PHP project and provides access to these
 resources through a unified naming system. Puli manages files in *repositories*,
 where you map them to a path:
 
@@ -9,17 +9,17 @@ where you map them to a path:
 use Webmozart\Puli\Repository\ResourceRepository;
 
 $repo = new ResourceRepository();
-$repo->addResources('/webmozart/puli', '/path/to/resources/assets/*');
-$repo->addResource('/webmozart/puli/trans', '/path/to/resources/trans');
+$repo->add('/webmozart/puli', '/path/to/resources/assets/*');
+$repo->add('/webmozart/puli/trans', '/path/to/resources/trans');
 ```
 
-You can then locate the files using the `getResource()` method:
+You can then locate the files using the `get()` method:
 
 ```php
-echo $repo->getResource('/webmozart/puli/css/style.css')->getPath();
+echo $repo->get('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/project/resources/assets/css/style.css
 
-echo $repo->getResource('/webmozart/puli/trans/en.xlf')->getPath();
+echo $repo->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/project/resources/trans/en.xlf
 ```
 
@@ -43,9 +43,9 @@ use Webmozart\Puli\Locator\PhpResourceLocator;
 
 $locator = new PhpResourceLocator('/path/to/cache');
 
-echo $locator->getResource('/webmozart/puli/css/style.css')->getPath();
+echo $locator->get('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/project/resources/assets/css/style.css
 
-echo $locator->getResource('/webmozart/puli/trans/en.xlf')->getPath();
+echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/project/resources/trans/en.xlf
 ```
