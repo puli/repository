@@ -11,6 +11,7 @@
 
 namespace Webmozart\tests\Repository;
 
+use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Repository\ResourceRepository;
 
 /**
@@ -90,6 +91,25 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testAddPattern()
     {
         $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1/*');
+
+        $file1 = $this->repo->get('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file1);
+        $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file1', $file1->getPath());
+        $this->assertEquals(array(), $file1->getAlternativePaths());
+
+        $file2 = $this->repo->get('/webmozart/puli/file2');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file2);
+        $this->assertEquals('/webmozart/puli/file2', $file2->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $file2->getPath());
+        $this->assertEquals(array(), $file2->getAlternativePaths());
+    }
+
+    public function testAddPatternInstance()
+    {
+        $this->repo->add('/webmozart/puli', new GlobPattern(__DIR__.'/Fixtures/dir1/*'));
 
         $file1 = $this->repo->get('/webmozart/puli/file1');
 
@@ -223,12 +243,27 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->repo->contains('/webmozart/puli/file*'));
         $this->assertFalse($this->repo->contains('/webmozart/*/file*'));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1/*');
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
 
         $this->assertTrue($this->repo->contains('/webmozart/*'));
         $this->assertFalse($this->repo->contains('/webmozart/file*'));
         $this->assertTrue($this->repo->contains('/webmozart/puli/file*'));
         $this->assertTrue($this->repo->contains('/webmozart/*/file*'));
+    }
+
+    public function testContainsPatternInstance()
+    {
+        $this->assertFalse($this->repo->contains(new GlobPattern('/webmozart/*')));
+        $this->assertFalse($this->repo->contains(new GlobPattern('/webmozart/file*')));
+        $this->assertFalse($this->repo->contains(new GlobPattern('/webmozart/puli/file*')));
+        $this->assertFalse($this->repo->contains(new GlobPattern('/webmozart/*/file*')));
+
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains(new GlobPattern('/webmozart/*')));
+        $this->assertFalse($this->repo->contains(new GlobPattern('/webmozart/file*')));
+        $this->assertTrue($this->repo->contains(new GlobPattern('/webmozart/puli/file*')));
+        $this->assertTrue($this->repo->contains(new GlobPattern('/webmozart/*/file*')));
     }
 
     public function testContainsArrayPattern()
@@ -238,12 +273,93 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/*2',
         )));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1/*');
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
 
         $this->assertTrue($this->repo->contains(array(
             '/webmozart/puli/file1',
             '/webmozart/puli/*2',
         )));
+    }
+
+    public function testRemovePath()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove('/webmozart/puli/file2');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemovePattern()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove('/webmozart/puli/*');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemovePatternInstance()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove(new GlobPattern('/webmozart/puli/*'));
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemoveArray()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove(array(
+            '/webmozart/puli/file1',
+            '/webmozart/puli/file2',
+        ));
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemoveArrayPattern()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove(array(
+            '/webmozart/puli/file1',
+            '/webmozart/puli/*2',
+        ));
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
     }
 
     /**

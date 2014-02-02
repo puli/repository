@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\Repository;
 
+use Symfony\Component\Finder\Expression\Glob;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
@@ -57,6 +58,18 @@ class ResourceRepository implements ResourceRepositoryInterface
     public function add($repositoryPath, $realPath)
     {
         if (is_string($realPath) && false !== strpos($realPath, '*')) {
+            $realPath = new GlobPattern($realPath);
+        }
+
+        if ($realPath instanceof PatternInterface) {
+            if (!$realPath instanceof GlobPattern) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Currently, only GlobPattern is supported by add(). The '.
+                    'passed pattern was an instance of %s.',
+                    get_class($realPath)
+                ));
+            }
+
             $realPath = glob($realPath);
         }
 
@@ -76,8 +89,9 @@ class ResourceRepository implements ResourceRepositoryInterface
 
         if (!is_string($realPath)) {
             throw new \InvalidArgumentException(sprintf(
-                'The argument $realPath should be a string or an array, but is: %s.',
-                gettype($realPath)
+                'The argument $realPath should be a string, an array or '.
+                'Webmozart\\Puli\\Pattern\\PatternInterface, but is: %s.',
+                is_object($realPath) ? get_class($realPath) : gettype($realPath)
             ));
         }
 
@@ -126,13 +140,13 @@ class ResourceRepository implements ResourceRepositoryInterface
             $staticPrefix = $repositoryPath->getStaticPrefix();
             $regExp = $repositoryPath->getRegularExpression();
 
-            foreach ($this->resources as $repositoryPath => $resource) {
+            foreach ($this->resources as $path => $resource) {
                 // strpos() is slightly faster than substr() here
-                if (0 !== strpos($repositoryPath, $staticPrefix)) {
+                if (0 !== strpos($path, $staticPrefix)) {
                     continue;
                 }
 
-                if (!preg_match($regExp, $repositoryPath)) {
+                if (!preg_match($regExp, $path)) {
                     continue;
                 }
 
@@ -157,7 +171,43 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function remove($repositoryPath)
     {
+        if (is_string($repositoryPath) && false !== strpos($repositoryPath, '*')) {
+            $repositoryPath = new GlobPattern($repositoryPath);
+        }
 
+        if ($repositoryPath instanceof PatternInterface) {
+            $staticPrefix = $repositoryPath->getStaticPrefix();
+            $regExp = $repositoryPath->getRegularExpression();
+
+            foreach ($this->resources as $path => $resource) {
+                // strpos() is slightly faster than substr() here
+                if (0 !== strpos($path, $staticPrefix)) {
+                    continue;
+                }
+
+                if (!preg_match($regExp, $path)) {
+                    continue;
+                }
+
+                unset($this->resources[$path]);
+                unset($this->paths[$path]);
+            }
+
+            return;
+        }
+
+        if (is_array($repositoryPath)) {
+            foreach ($repositoryPath as $path) {
+                $this->remove($path);
+            }
+
+            return;
+        }
+
+        if (isset($this->resources[$repositoryPath])) {
+            unset($this->resources[$repositoryPath]);
+            unset($this->paths[$repositoryPath]);
+        }
     }
 
     public function tag($repositoryPath, $tag)
