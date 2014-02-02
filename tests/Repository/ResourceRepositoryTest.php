@@ -119,4 +119,76 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->repo->containsResource('/webmozart/puli/file1'));
         $this->assertTrue($this->repo->containsResource('/webmozart/puli/file2'));
     }
+
+    public function testContainsResourcesPattern()
+    {
+        $this->assertFalse($this->repo->containsResources('/webmozart/*'));
+        $this->assertFalse($this->repo->containsResources('/webmozart/file*'));
+        $this->assertFalse($this->repo->containsResources('/webmozart/puli/file*'));
+        $this->assertFalse($this->repo->containsResources('/webmozart/*/file*'));
+
+        $this->repo->addResources('/webmozart/puli', __DIR__.'/Fixtures/dir1/*');
+
+        $this->assertTrue($this->repo->containsResources('/webmozart/*'));
+        $this->assertFalse($this->repo->containsResources('/webmozart/file*'));
+        $this->assertTrue($this->repo->containsResources('/webmozart/puli/file*'));
+        $this->assertTrue($this->repo->containsResources('/webmozart/*/file*'));
+    }
+
+    public function testAddResourcesPattern()
+    {
+        $this->repo->addResources('/webmozart/puli', __DIR__.'/Fixtures/dir1/*');
+
+        $file1 = $this->repo->getResource('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file1);
+        $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file1', $file1->getPath());
+        $this->assertEquals(array(), $file1->getAlternativePaths());
+
+        $file2 = $this->repo->getResource('/webmozart/puli/file2');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file2);
+        $this->assertEquals('/webmozart/puli/file2', $file2->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $file2->getPath());
+        $this->assertEquals(array(), $file2->getAlternativePaths());
+    }
+
+    public function testAddResourcesArray()
+    {
+        $this->repo->addResources('/webmozart/puli', array(
+            __DIR__.'/Fixtures/dir1/file2',
+            __DIR__.'/Fixtures/dir2/file1',
+        ));
+
+        $file1 = $this->repo->getResource('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file1);
+        $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir2/file1', $file1->getPath());
+        $this->assertEquals(array(), $file1->getAlternativePaths());
+
+        $file2 = $this->repo->getResource('/webmozart/puli/file2');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $file2);
+        $this->assertEquals('/webmozart/puli/file2', $file2->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $file2->getPath());
+        $this->assertEquals(array(), $file2->getAlternativePaths());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAddResourcesExpectsStringOrArray()
+    {
+        $this->repo->addResources('/webmozart/puli', 12345);
+    }
+
+    /**
+     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     */
+    public function testGetResourceExpectsValidResource()
+    {
+        $this->repo->getResource('/foo/bar');
+    }
 }

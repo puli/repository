@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Repository;
 
+use Webmozart\Puli\Pattern\GlobPattern;
+use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
 
@@ -32,6 +34,13 @@ class ResourceRepository implements ResourceRepositoryInterface
      */
     public function getResource($repositoryPath)
     {
+        if (!isset($this->resources[$repositoryPath])) {
+            throw new ResourceNotFoundException(sprintf(
+                'The resource "%s" does not exist.',
+                $repositoryPath
+            ));
+        }
+
         return $this->resources[$repositoryPath];
     }
 
@@ -86,7 +95,20 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function addResources($repositoryPath, $pattern)
     {
+        if (is_string($pattern)) {
+            $resources = glob($pattern);
+        } elseif (is_array($pattern)) {
+            $resources = $pattern;
+        } else {
+            throw new \InvalidArgumentException(sprintf(
+                'The argument $pattern should be a string or an array, but is: %s.',
+                gettype($pattern)
+            ));
+        }
 
+        foreach ($resources as $resource) {
+            $this->addResource($repositoryPath.'/'.basename($resource), $resource);
+        }
     }
 
     /**
@@ -99,7 +121,28 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function containsResources($pattern)
     {
+        if (is_string($pattern)) {
+            $pattern = new GlobPattern($pattern);
+        }
 
+        if ($pattern instanceof PatternInterface) {
+            $staticPrefix = $pattern->getStaticPrefix();
+            $regExp = $pattern->getRegularExpression();
+
+            foreach ($this->resources as $repositoryPath => $resource) {
+                if (0 !== strpos($repositoryPath, $staticPrefix)) {
+                    continue;
+                }
+
+                if (!preg_match($regExp, $repositoryPath)) {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
     }
 
     public function removeResource($repositoryPath)
