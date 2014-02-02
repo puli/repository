@@ -17,10 +17,10 @@ You can then locate the files using the `get()` method:
 
 ```php
 echo $repo->get('/webmozart/puli/css/style.css')->getPath();
-// => /path/to/project/resources/assets/css/style.css
+// => /path/to/resources/assets/css/style.css
 
 echo $repo->get('/webmozart/puli/trans/en.xlf')->getPath();
-// => /path/to/project/resources/trans/en.xlf
+// => /path/to/resources/trans/en.xlf
 ```
 
 Puli allows to dump optimized resource locators. Currently, Puli only provides
@@ -44,8 +44,8 @@ use Webmozart\Puli\Locator\PhpResourceLocator;
 $locator = new PhpResourceLocator('/path/to/cache');
 
 echo $locator->get('/webmozart/puli/css/style.css')->getPath();
-// => /path/to/project/resources/assets/css/style.css
+// => /path/to/resources/assets/css/style.css
 
 echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
-// => /path/to/project/resources/trans/en.xlf
+// => /path/to/resources/trans/en.xlf
 ```
