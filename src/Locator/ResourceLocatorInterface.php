@@ -22,11 +22,9 @@ interface ResourceLocatorInterface
      *
      * @return \Webmozart\Puli\Resource\ResourceInterface
      */
-    public function getResource($repositoryPath);
+    public function get($repositoryPath);
 
-    public function getResources($pattern);
-
-    public function getTaggedResources($tag);
+    public function getByTag($tag);
 
     public function listDirectory($repositoryPath);
 }

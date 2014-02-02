@@ -32,7 +32,7 @@ class ResourceRepository implements ResourceRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getResource($repositoryPath)
+    public function get($repositoryPath)
     {
         if (!isset($this->resources[$repositoryPath])) {
             throw new ResourceNotFoundException(sprintf(
@@ -44,12 +44,7 @@ class ResourceRepository implements ResourceRepositoryInterface
         return $this->resources[$repositoryPath];
     }
 
-    public function getResources($pattern)
-    {
-
-    }
-
-    public function getTaggedResources($tag)
+    public function getByTag($tag)
     {
 
     }
@@ -59,8 +54,27 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     }
 
-    public function addResource($repositoryPath, $realPath)
+    public function add($repositoryPath, $realPath)
     {
+        if (is_string($realPath) && false !== strpos($realPath, '*')) {
+            $realPath = glob($realPath);
+        }
+
+        if (is_array($realPath)) {
+            foreach ($realPath as $path) {
+                $this->add($repositoryPath.'/'.basename($path), $path);
+            }
+
+            return;
+        }
+
+        if (!is_string($realPath)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The argument $realPath should be a string or an array, but is: %s.',
+                gettype($realPath)
+            ));
+        }
+
         $isDirectory = is_dir($realPath);
 
         // Recursively add directory contents
@@ -68,7 +82,7 @@ class ResourceRepository implements ResourceRepositoryInterface
             $iterator = new \FilesystemIterator($realPath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::CURRENT_AS_PATHNAME);
 
             foreach ($iterator as $path) {
-                $this->addResource($repositoryPath.'/'.basename($path), $path);
+                $this->add($repositoryPath.'/'.basename($path), $path);
             }
         }
 
@@ -93,41 +107,18 @@ class ResourceRepository implements ResourceRepositoryInterface
         $this->resources[$repositoryPath]->refresh($this);
     }
 
-    public function addResources($repositoryPath, $pattern)
-    {
-        if (is_string($pattern)) {
-            $resources = glob($pattern);
-        } elseif (is_array($pattern)) {
-            $resources = $pattern;
-        } else {
-            throw new \InvalidArgumentException(sprintf(
-                'The argument $pattern should be a string or an array, but is: %s.',
-                gettype($pattern)
-            ));
-        }
-
-        foreach ($resources as $resource) {
-            $this->addResource($repositoryPath.'/'.basename($resource), $resource);
-        }
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function containsResource($repositoryPath)
+    public function contains($repositoryPath)
     {
-        return isset($this->resources[$repositoryPath]);
-    }
-
-    public function containsResources($pattern)
-    {
-        if (is_string($pattern)) {
-            $pattern = new GlobPattern($pattern);
+        if (is_string($repositoryPath) && false !== strpos($repositoryPath, '*')) {
+            $repositoryPath = new GlobPattern($repositoryPath);
         }
 
-        if ($pattern instanceof PatternInterface) {
-            $staticPrefix = $pattern->getStaticPrefix();
-            $regExp = $pattern->getRegularExpression();
+        if ($repositoryPath instanceof PatternInterface) {
+            $staticPrefix = $repositoryPath->getStaticPrefix();
+            $regExp = $repositoryPath->getRegularExpression();
 
             foreach ($this->resources as $repositoryPath => $resource) {
                 if (0 !== strpos($repositoryPath, $staticPrefix)) {
@@ -143,34 +134,31 @@ class ResourceRepository implements ResourceRepositoryInterface
 
             return false;
         }
+
+        if (is_array($repositoryPath)) {
+            foreach ($repositoryPath as $path) {
+                if (!$this->contains($path)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return isset($this->resources[$repositoryPath]);
     }
 
-    public function removeResource($repositoryPath)
+    public function remove($repositoryPath)
     {
 
     }
 
-    public function removeResources($pattern)
+    public function tag($repositoryPath, $tag)
     {
 
     }
 
-    public function tagResource($repositoryPath, $tag)
-    {
-
-    }
-
-    public function tagResources($pattern, $tag)
-    {
-
-    }
-
-    public function untagResource($repositoryPath, $tag = null)
-    {
-
-    }
-
-    public function untagResources($pattern, $tag)
+    public function untag($repositoryPath, $tag = null)
     {
 
     }

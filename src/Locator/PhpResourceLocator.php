@@ -44,7 +44,7 @@ class PhpResourceLocator implements ResourceLocatorInterface
         $this->dumpLocation = $dumpLocation;
     }
 
-    public function getResource($repositoryRepositoryPath)
+    public function get($repositoryRepositoryPath)
     {
         if (null === $this->config) {
             $this->config = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::CONFIG_FILE);
@@ -75,7 +75,7 @@ class PhpResourceLocator implements ResourceLocatorInterface
         // If the pattern contains no asterisk, it must refer to a specific
         // resource
         if (0 === $firstWildcard) {
-            return array($this->getResource($pattern));
+            return array($this->get($pattern));
         }
 
         if (null === $this->config) {
@@ -89,7 +89,7 @@ class PhpResourceLocator implements ResourceLocatorInterface
 
     }
 
-    public function getTaggedResources($tag)
+    public function getByTag($tag)
     {
 
     }
