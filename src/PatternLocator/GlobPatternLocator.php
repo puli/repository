@@ -25,7 +25,7 @@ class GlobPatternLocator implements PatternLocatorInterface
         return $pattern instanceof GlobPattern;
     }
 
-    public function locateFiles(PatternInterface $pattern)
+    public function locatePaths(PatternInterface $pattern)
     {
         return glob((string) $pattern);
     }

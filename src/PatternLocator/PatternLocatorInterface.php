@@ -21,5 +21,5 @@ interface PatternLocatorInterface
 {
     public function accepts(PatternInterface $pattern);
 
-    public function locateFiles(PatternInterface $pattern);
+    public function locatePaths(PatternInterface $pattern);
 }

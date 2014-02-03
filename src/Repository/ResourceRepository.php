@@ -86,7 +86,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
                 ));
             }
 
-            $realPath = $patternLocator->locateFiles($realPath);
+            $realPath = $patternLocator->locatePaths($realPath);
         }
 
         if (is_array($realPath)) {
