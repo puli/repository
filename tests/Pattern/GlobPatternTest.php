@@ -19,11 +19,27 @@ use Webmozart\Puli\Pattern\GlobPattern;
  */
 class GlobPatternTest extends \PHPUnit_Framework_TestCase
 {
-    public function testGetRegularExpression()
+    /**
+     * @dataProvider provideMatches
+     */
+    public function testMatchRegularExpression($path, $isMatch)
     {
         $pattern = new GlobPattern('/foo/../*/*.js~');
+        $regExp = $pattern->getRegularExpression();
 
-        $this->assertSame('~/foo/\.\./[^/]*/[^/]*\.js\~~', $pattern->getRegularExpression());
+        $this->assertSame($isMatch, preg_match($regExp, $path));
+    }
+
+    public function provideMatches()
+    {
+        return array(
+            array('/foo/../bar/baz.js~', 1),
+            array('/foo/../foo/baz.js~', 1),
+            array('/foo/../bar/baz.js', 0),
+            array('/foo/../foo/bar/baz.js~', 0),
+            array('foo/../foo/baz.js~', 0),
+            array('/bar/foo/../foo/baz.js~', 0),
+        );
     }
 
     public function testGetStaticPrefix()
