@@ -8,10 +8,14 @@
             "email": "bschussek@gmail.com"
         }
     ],
+    "require-dev": {
+        "symfony/filesystem": "~2.0"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Webmozart\\Puli\\": "src/"
+            "Webmozart\\Puli\\": "src/",
+            "Webmozart\\Puli\\Tests\\": "tests/"
         }
     }
 }

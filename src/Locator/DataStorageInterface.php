@@ -9,15 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\LocatorDumper;
-
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
+namespace Webmozart\Puli\Locator;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceLocatorDumperInterface
+interface DataStorageInterface
 {
-    public function dumpLocator(ResourceLocatorInterface $locator, $targetPath);
+    public function getAlternativePaths($repositoryPath);
+
+    public function getTags($repositoryPath);
+
+    public function getDirectoryEntries($repositoryPath);
 }

@@ -11,79 +11,45 @@
 
 namespace Webmozart\Puli\LocatorDumper;
 
-use Webmozart\Puli\Repository\ResourceRepositoryInterface;
+use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpResourceResourceLocatorDumper implements ResourceLocatorDumperInterface
+class PhpResourceLocatorDumper implements ResourceLocatorDumperInterface
 {
-    const PATHS_FILE = '/resources_paths.php';
+    const FILE_PATHS_FILE = 'resources_file_paths.php';
 
-    const TAGS_FILE = '/resources_tags.php';
+    const DIR_PATHS_FILE = 'resources_dir_paths.php';
 
-    const CONFIG_FILE = '/resources_config.php';
+    const ALTERNATIVE_PATHS_FILE = 'resources_alt_paths.php';
 
-    public function dumpLocator(ResourceRepositoryInterface $repository, $targetPath)
+    const TAGS_FILE = 'resources_tags.php';
+
+    public function dumpLocator(ResourceLocatorInterface $locator, $targetPath)
     {
-        $paths = array();
-        $root = $repository->getRootDirectory();
-        $rootLength = strlen($root);
+        $filePaths = array();
+        $dirPaths = array();
+        $alternativePaths = array();
+        $tags = array();
 
-        foreach ($repository->getDirectories() as $dirRepositoryPath => $dirPaths) {
-            foreach ($dirPaths as $dirPath) {
-                $iterator = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator(
-                        $dirPath,
-                        \FilesystemIterator::CURRENT_AS_PATHNAME |
-                        \FilesystemIterator::SKIP_DOTS |
-                        \FilesystemIterator::UNIX_PATHS
-                    ),
-                    \RecursiveIteratorIterator::SELF_FIRST
-                );
+        // Extract the paths and alternative paths of each resource
+        $this->extractPaths($locator->get('/'), $filePaths, $dirPaths, $alternativePaths);
 
-                $dirPathLength = strlen($dirPath);
+        // Remember which resource has which tag
+        foreach ($locator->getTags() as $tag) {
+            $resources = array();
 
-                if (0 === strpos($dirPath, $root)) {
-                    $dirPath = substr($dirPath, $rootLength);
-                }
-
-                if (!isset($paths[$dirRepositoryPath])) {
-                    $paths[$dirRepositoryPath] = array();
-                }
-
-                $paths[$dirRepositoryPath][] = $dirPath;
-
-                foreach ($iterator as $path) {
-                    $repositoryPath = $dirRepositoryPath.substr($path, $dirPathLength);
-
-                    if (!isset($paths[$repositoryPath])) {
-                        $paths[$repositoryPath] = array();
-                    }
-
-                    if (0 === strpos($path, $root)) {
-                        $path = substr($path, $rootLength);
-                    }
-
-                    $paths[$repositoryPath][] = $path;
-                }
+            foreach ($tag->getResources() as $resource) {
+                $resources[] = $resource->getRepositoryPath();
             }
+
+            $tags[$tag->getName()] = $resources;
         }
 
-        foreach ($repository->getFiles() as $dirRepositoryPath => $filePaths) {
-            foreach ($filePaths as $filePath) {
-                if (!isset($paths[$dirRepositoryPath])) {
-                    $paths[$dirRepositoryPath] = array();
-                }
-
-                if (0 === strpos($filePath, $root)) {
-                    $filePath = substr($filePath, $rootLength);
-                }
-
-                $paths[$dirRepositoryPath][] = $filePath;
-            }
-        }
-
+        // Create the directory if it doesn't exist
         if (!file_exists($targetPath)) {
             mkdir($targetPath, 0777, true);
         }
@@ -95,12 +61,35 @@ class PhpResourceResourceLocatorDumper implements ResourceLocatorDumperInterface
             ));
         }
 
-        $dumpedConfig = array(
-            'root' => $repository->getRootDirectory(),
-        );
+        file_put_contents($targetPath.'/'.self::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
+        file_put_contents($targetPath.'/'.self::DIR_PATHS_FILE, "<?php\n\nreturn ".var_export($dirPaths, true).";");
+        file_put_contents($targetPath.'/'.self::ALTERNATIVE_PATHS_FILE, "<?php\n\nreturn ".var_export($alternativePaths, true).";");
+        file_put_contents($targetPath.'/'.self::TAGS_FILE, "<?php\n\nreturn ".var_export($tags, true).";");
+    }
 
-        file_put_contents($targetPath.self::PATHS_FILE, "<?php\n\nreturn ".var_export($paths, true).";");
-        file_put_contents($targetPath.self::TAGS_FILE, "<?php\n\nreturn ".var_export($repository->getTags(), true).";");
-        file_put_contents($targetPath.self::CONFIG_FILE, "<?php\n\nreturn ".var_export($dumpedConfig, true).";");
+    private function extractPaths(ResourceInterface $resource, array &$filePaths, array &$dirPaths, array &$alternativePaths)
+    {
+        $repositoryPath = $resource->getRepositoryPath();
+        $altPaths = $resource->getAlternativePaths();
+
+        if ($resource instanceof DirectoryResourceInterface) {
+            $dirPaths[$repositoryPath] = $resource->getPath();
+        } else {
+            $filePaths[$repositoryPath] = $resource->getPath();
+        }
+
+        // Discard the current path, we already have that information
+        if (count($altPaths) > 1) {
+            array_pop($altPaths);
+
+            $alternativePaths[$repositoryPath] = $altPaths;
+        }
+
+        // Recurse into the contents of directories
+        if ($resource instanceof DirectoryResourceInterface) {
+            foreach ($resource as $child) {
+                $this->extractPaths($child, $filePaths, $dirPaths, $alternativePaths);
+            }
+        }
     }
 }

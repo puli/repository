@@ -21,9 +21,14 @@ interface TagInterface extends \Traversable, \Countable
 {
     public function getName();
 
+    public function __toString();
+
     public function addResource(ResourceInterface $resource);
 
     public function removeResource(ResourceInterface $resource);
 
+    /**
+     * @return ResourceInterface[]
+     */
     public function getResources();
 }

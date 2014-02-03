@@ -24,7 +24,19 @@ interface ResourceLocatorInterface
      */
     public function get($selector);
 
+    /**
+     * @param string $selector
+     *
+     * @return boolean
+     */
+    public function contains($selector);
+
     public function getByTag($tag);
 
     public function listDirectory($repositoryPath);
+
+    /**
+     * @return \Webmozart\Puli\Tag\TagInterface[]
+     */
+    public function getTags();
 }

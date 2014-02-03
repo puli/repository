@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\tests\Pattern;
+namespace Webmozart\Puli\Tests\Pattern;
 
 use Webmozart\Puli\Pattern\GlobPattern;
 
@@ -39,6 +39,7 @@ class GlobPatternTest extends \PHPUnit_Framework_TestCase
             array('/foo/../foo/bar/baz.js~', 0),
             array('foo/../foo/baz.js~', 0),
             array('/bar/foo/../foo/baz.js~', 0),
+            array('/foo/../bar/.js~', 0),
         );
     }
 

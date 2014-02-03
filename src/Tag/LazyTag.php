@@ -11,28 +11,36 @@
 
 namespace Webmozart\Puli\Tag;
 
+use Webmozart\Puli\Locator\DataStorageInterface;
+use Webmozart\Puli\Resource\LazyResourceCollection;
 use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class Tag implements \IteratorAggregate, TagInterface
+class LazyTag implements \IteratorAggregate, TagInterface
 {
+    /**
+     * @var DataStorageInterface
+     */
+    private $storage;
+
     /**
      * @var string
      */
     private $name;
 
     /**
-     * @var \SplObjectStorage
+     * @var LazyResourceCollection
      */
     private $resources;
 
-    public function __construct($name)
+    public function __construct(DataStorageInterface $storage, $name, LazyResourceCollection $resources)
     {
+        $this->storage = $storage;
         $this->name = $name;
-        $this->resources = new \SplObjectStorage();
+        $this->resources = $resources;
     }
 
     public function __toString()
@@ -47,22 +55,22 @@ class Tag implements \IteratorAggregate, TagInterface
 
     public function addResource(ResourceInterface $resource)
     {
-        $this->resources->attach($resource);
-        $resource->addTag($this);
+        throw new \BadMethodCallException(
+            'Tags fetched from a resource locator may not be modified.'
+        );
     }
 
     public function removeResource(ResourceInterface $resource)
     {
-        $this->resources->detach($resource);
-        $resource->removeTag($this);
+        throw new \BadMethodCallException(
+            'Tags fetched from a resource locator may not be modified.'
+        );
     }
 
+    /**
+     * @return ResourceInterface[]
+     */
     public function getResources()
-    {
-        return iterator_to_array($this->resources);
-    }
-
-    public function getIterator()
     {
         return $this->resources;
     }
@@ -70,5 +78,10 @@ class Tag implements \IteratorAggregate, TagInterface
     public function count()
     {
         return count($this->resources);
+    }
+
+    public function getIterator()
+    {
+        return $this->resources;
     }
 }

@@ -26,7 +26,7 @@ class GlobPattern implements PatternInterface
     public function __construct($pattern)
     {
         $this->pattern = $pattern;
-        $this->regExp = '~^'.str_replace('\*', '[^/]*', preg_quote($pattern, '~')).'$~';
+        $this->regExp = '~^'.str_replace('\*', '[^/]+', preg_quote($pattern, '~')).'$~';
 
         if (false !== ($pos = strpos($pattern, '*'))) {
             $this->staticPrefix = substr($pattern, 0, $pos);

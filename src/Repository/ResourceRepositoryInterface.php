@@ -21,21 +21,9 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
 {
     public function add($selector, $realPath);
 
-    /**
-     * @param string $selector
-     *
-     * @return boolean
-     */
-    public function contains($selector);
-
     public function remove($selector);
 
     public function tag($selector, $tag);
 
     public function untag($selector, $tag = null);
-
-    /**
-     * @return \Webmozart\Puli\Tag\TagInterface[]
-     */
-    public function getTags();
 }
