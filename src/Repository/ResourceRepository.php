@@ -15,7 +15,7 @@ use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
-use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\Tag\Tag;
 
 /**
  * @since  %%NextVersion%%
@@ -29,6 +29,11 @@ class ResourceRepository implements ResourceRepositoryInterface
      * @var \Webmozart\Puli\Resource\FileResource[]|\Webmozart\Puli\Resource\DirectoryResource[]
      */
     private $resources = array();
+
+    /**
+     * @var \Webmozart\Puli\Tag\TagInterface[]
+     */
+    private $tags = array();
 
     public function __construct()
     {
@@ -100,7 +105,11 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function getByTag($tag)
     {
+        if (!isset($this->tags[$tag])) {
+            return array();
+        }
 
+        return iterator_to_array($this->tags[$tag]);
     }
 
     public function listDirectory($repositoryPath)
@@ -119,14 +128,14 @@ class ResourceRepository implements ResourceRepositoryInterface
             ));
         }
 
-        if (!$this->resources[$repositoryPath] instanceof DirectoryResource) {
-            throw new \InvalidArgumentException(sprintf(
-                'The resource "%s" is not a directory, but a file.',
-                $repositoryPath
-            ));
+        if ($this->resources[$repositoryPath] instanceof DirectoryResource) {
+            return $this->resources[$repositoryPath]->all();
         }
 
-        return $this->resources[$repositoryPath]->all();
+        throw new \InvalidArgumentException(sprintf(
+            'The resource "%s" is not a directory, but a file.',
+            $repositoryPath
+        ));
     }
 
     public function add($selector, $realPath)
@@ -315,17 +324,70 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function tag($selector, $tag)
     {
+        $resources = $this->get($selector);
 
+        if (!is_array($resources)) {
+            $resources = array($resources);
+        }
+
+        if (!isset($this->tags[$tag])) {
+            $this->tags[$tag] = new Tag($tag);
+
+            // Maintain order
+            ksort($this->tags);
+        }
+
+        foreach ($resources as $resource) {
+            $this->tags[$tag]->add($resource);
+        }
     }
 
     public function untag($selector, $tag = null)
     {
+        $resources = $this->get($selector);
 
+        if (!is_array($resources)) {
+            $resources = array($resources);
+        }
+
+        if (null !== $tag) {
+            if (!isset($this->tags[$tag])) {
+                return;
+            }
+
+            foreach ($resources as $resource) {
+                $this->tags[$tag]->remove($resource);
+            }
+
+            // Clean up
+            if (0 === count($this->tags[$tag])) {
+                unset($this->tags[$tag]);
+            }
+
+            return;
+        }
+
+        /** @var \Webmozart\Puli\Resource\ResourceInterface $resource */
+        foreach ($resources as $resource) {
+            foreach ($resource->getTags() as $tag) {
+                $tag->remove($resource);
+
+                // Clean up
+                if (0 === count($tag)) {
+                    unset($this->tags[$tag->getName()]);
+                }
+            }
+        }
     }
 
-    public function getTags($selector = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function getTags()
     {
-
+        // Discard keys so that the using class does not depend on the internal
+        // implementation
+        return array_values($this->tags);
     }
 
     public function getPaths($selector)
@@ -337,14 +399,35 @@ class ResourceRepository implements ResourceRepositoryInterface
     {
         $resource = $this->resources[$repositoryPath];
 
+        // Remove the resource
+        unset($this->resources[$repositoryPath]);
+        unset($this->paths[$repositoryPath]);
+
+        // Detach resource from parent directory.
+        // Doing so after removing the node itself ensures that this code is
+        // not executed for the recursive child calls, because then their parent
+        // node does not exist anymore.
+        if (isset($this->resources[$parent = dirname($repositoryPath)])) {
+            $this->resources[$parent]->remove($resource->getName());
+        }
+
+        // Recursively remove all children
         if ($resource instanceof DirectoryResource) {
             foreach ($resource as $entry) {
+                /** @var \Webmozart\Puli\Resource\ResourceInterface $entry */
                 $this->removeNode($entry->getRepositoryPath());
             }
         }
 
-        unset($this->resources[$repositoryPath]);
-        unset($this->paths[$repositoryPath]);
+        // Untag resource
+        foreach ($resource->getTags() as $tag) {
+            $tag->remove($resource);
+
+            // Clean up
+            if (0 === count($tag)) {
+                unset($this->tags[$tag->getName()]);
+            }
+        }
     }
 
     private function initDirectory($repositoryPath)

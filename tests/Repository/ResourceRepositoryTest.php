@@ -580,4 +580,213 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->repo->listDirectory('/webmozart/puli/file1');
     }
+
+    public function testListDirectoryDoesNotShowRemovedFiles()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->remove('/webmozart/puli/file1');
+
+        $resources = $this->repo->listDirectory('/webmozart/puli/');
+
+        $this->assertCount(1, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $resources[0]);
+        $this->assertEquals('/webmozart/puli/file2', $resources[0]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $resources[0]->getPath());
+        $this->assertEquals(array(), $resources[0]->getAlternativePaths());
+    }
+
+    public function testTagOne()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
+
+        $results = array($this->repo->get('/webmozart/puli/file1'));
+
+        $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
+    }
+
+    /**
+     * @dataProvider provideManySelector
+     */
+    public function testTagMany($selector)
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag($selector, 'webmozart/tag');
+
+        $results = array(
+            $this->repo->get('/webmozart/puli/file1'),
+            $this->repo->get('/webmozart/puli/file2'),
+        );
+
+        $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
+    }
+
+    public function testTagDoesNotShowRemovedFiles()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
+
+        $this->repo->remove('/webmozart/puli/file1');
+
+        $this->assertEquals(array(), $this->repo->getByTag('webmozart/tag'));
+    }
+
+    /**
+     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     */
+    public function testTagExpectsValidPath()
+    {
+        $this->repo->tag('/foo/bar', 'webmozart/tag');
+    }
+
+    public function testUntagOne()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
+        $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
+
+        $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
+
+        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
+        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+
+        $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
+        $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
+    }
+
+    public function testUntagOneIgnoresIfNotTagged()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
+    }
+
+    public function testUntagOneAllTags()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
+        $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
+
+        $this->repo->untag('/webmozart/puli/file1');
+
+        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
+        $tag2 = array();
+
+        $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
+        $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
+    }
+
+    /**
+     * @dataProvider provideManySelector
+     */
+    public function testUntagMany($selector)
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
+        $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
+
+        $this->repo->untag($selector, 'webmozart/tag1');
+
+        $tag1 = array();
+        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+
+        $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
+        $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
+    }
+
+    /**
+     * @dataProvider provideManySelector
+     */
+    public function testUntagManyIgnoresIfNotTagged($selector)
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->untag($selector, 'webmozart/tag1');
+    }
+
+    /**
+     * @dataProvider provideManySelector
+     */
+    public function testUntagManyAllTags($selector)
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
+        $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
+
+        $this->repo->untag($selector);
+
+        $tag1 = array();
+        $tag2 = array();
+
+        $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
+        $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
+    }
+
+    /**
+     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     */
+    public function testUntagExpectsValidPath()
+    {
+        $this->repo->untag('/foo/bar', 'webmozart/tag');
+    }
+
+    public function testGetByTagIgnoresNonExistingTags()
+    {
+        $this->assertEquals(array(), $this->repo->getByTag('foo/bar'));
+    }
+
+    public function testGetTags()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
+
+        $tags = $this->repo->getTags();
+
+        $this->assertCount(1, $tags);
+        $this->assertEquals('webmozart/tag1', $tags[0]->getName());
+
+        $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag2');
+
+        $tags = $this->repo->getTags();
+
+        $this->assertCount(2, $tags);
+        $this->assertEquals('webmozart/tag1', $tags[0]->getName());
+        $this->assertEquals('webmozart/tag2', $tags[1]->getName());
+
+        $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
+
+        $tags = $this->repo->getTags();
+
+        $this->assertCount(1, $tags);
+        $this->assertEquals('webmozart/tag2', $tags[0]->getName());
+    }
+
+    public function testGetTagsReturnsSortedResult()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/foo');
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/bar');
+
+        $tags = $this->repo->getTags();
+
+        $this->assertCount(2, $tags);
+        $this->assertEquals('webmozart/bar', $tags[0]->getName());
+        $this->assertEquals('webmozart/foo', $tags[1]->getName());
+
+    }
 }

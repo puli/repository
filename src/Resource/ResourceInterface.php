@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Resource;
 
+use Webmozart\Puli\Tag\TagInterface;
+
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -21,7 +23,24 @@ interface ResourceInterface
 
     public function getRepositoryPath();
 
+    public function getName();
+
     public function getPath();
 
     public function getAlternativePaths();
+
+    /**
+     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::tag()}.
+     */
+    public function addTag(TagInterface $tag);
+
+    /**
+     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::untag()}.
+     */
+    public function removeTag(TagInterface $tag);
+
+    /**
+     * @return TagInterface[]
+     */
+    public function getTags();
 }

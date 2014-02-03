@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Resource;
 
+use Webmozart\Puli\Tag\TagInterface;
+
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -25,6 +27,11 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * @var string
      */
+    private $name;
+
+    /**
+     * @var string
+     */
     protected $path;
 
     /**
@@ -32,11 +39,18 @@ abstract class AbstractResource implements ResourceInterface
      */
     protected $alternativePaths;
 
+    /**
+     * @var \SplObjectStorage
+     */
+    protected $tags = array();
+
     public function __construct($repositoryPath, $path = null, array $alternativePaths = array())
     {
         $this->repositoryPath = $repositoryPath;
+        $this->name = basename($repositoryPath);
         $this->path = $path;
         $this->alternativePaths = $alternativePaths;
+        $this->tags = new \SplObjectStorage();
     }
 
     /**
@@ -45,6 +59,14 @@ abstract class AbstractResource implements ResourceInterface
     public function getRepositoryPath()
     {
         return $this->repositoryPath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -61,6 +83,24 @@ abstract class AbstractResource implements ResourceInterface
     public function getAlternativePaths()
     {
         return $this->alternativePaths;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTags()
+    {
+        return iterator_to_array($this->tags);
+    }
+
+    public function addTag(TagInterface $tag)
+    {
+        $this->tags->attach($tag);
+    }
+
+    public function removeTag(TagInterface $tag)
+    {
+        $this->tags->detach($tag);
     }
 
     public function __toString()

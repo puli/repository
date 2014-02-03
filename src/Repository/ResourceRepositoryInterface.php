@@ -34,7 +34,10 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
 
     public function untag($selector, $tag = null);
 
-    public function getTags($selector = null);
+    /**
+     * @return \Webmozart\Puli\Tag\TagInterface[]
+     */
+    public function getTags();
 
     public function getPaths($selector);
 }
