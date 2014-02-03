@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\AbstractResourceLocator;
+use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;

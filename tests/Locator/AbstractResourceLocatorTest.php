@@ -291,7 +291,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testGetExpectsValidResource()
     {
@@ -301,7 +301,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testGetExpectsValidResourceArray()
     {
@@ -381,7 +381,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testListDirectoryExpectsValidPath()
     {

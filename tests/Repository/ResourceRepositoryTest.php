@@ -12,7 +12,6 @@
 namespace Webmozart\Puli\Tests\Repository;
 
 use Webmozart\Puli\Pattern\GlobPattern;
-use Webmozart\Puli\Repository\ResourceRepository;
 use Webmozart\Puli\Tests\Locator\AbstractResourceLocatorTest;
 
 /**
@@ -137,7 +136,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testAddExpectsValidFilePath()
     {
@@ -280,7 +279,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testTagExpectsValidPath()
     {
@@ -379,7 +378,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\ResourceNotFoundException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testUntagExpectsValidPath()
     {

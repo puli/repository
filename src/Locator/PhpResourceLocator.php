@@ -14,7 +14,6 @@ namespace Webmozart\Puli\Locator;
 use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\Repository\ResourceNotFoundException;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
 use Webmozart\Puli\Resource\LazyResourceCollection;
