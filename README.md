@@ -305,6 +305,134 @@ class Translator implements ResourceDiscoveringInterface
 }
 ```
 
+Custom File Patterns
+--------------------
+
+By default, you can use Glob patterns to locate files both in the repository and
+on your filesystem:
+
+```php
+// Glob the repository
+foreach ($repo->get('/webmozart/puli/css/*.css') as $resource) {
+    // ...
+}
+
+// Glob the filesystem
+$repo->add('/webmozart/puli/css', '/path/to/resources/css/*.css');
+```
+
+If you want to use other patterns than Glob, you can create custom
+implementations of [`PatternInterface`]. As an example, look at the code of
+[`GlobPattern`]:
+
+```php
+class GlobPattern implements PatternInterface
+{
+    private $pattern;
+
+    private $staticPrefix;
+
+    private $regExp;
+
+    public function __construct($pattern)
+    {
+        $this->pattern = $pattern;
+        $this->regExp = '~^'.str_replace('\*', '[^/]+', preg_quote($pattern, '~')).'$~';
+
+        if (false !== ($pos = strpos($pattern, '*'))) {
+            $this->staticPrefix = substr($pattern, 0, $pos);
+        } else {
+            $this->staticPrefix = $pattern;
+        }
+    }
+
+    public function getStaticPrefix()
+    {
+        return $this->staticPrefix;
+    }
+
+    public function getRegularExpression()
+    {
+        return $this->regExp;
+    }
+
+    public function __toString()
+    {
+        return $this->pattern;
+    }
+}
+```
+
+The method `getRegularExpression()` returns the pattern converted to a regular
+expression. The method `getStaticPrefix()` returns the prefix of the path that
+never changes. This is used to reduce the number of internal [`preg_match()`]
+calls.
+
+In order to use custom patterns, pass the [`PatternInterface`] instance wherever
+a Glob pattern is accepted. For example, if you implement a class
+`RegExpPattern`:
+
+```php
+foreach ($repo->get(new RegExpPattern('~^/webmozart/puli/css/.+\.css$~')) as $resource) {
+    // ...
+}
+```
+
+You can tell the repository to use this pattern class by default. To do so, pass
+the fully-qualified class name of the pattern class to
+`setDefaultPatternClass()`:
+
+```php
+$repo->setDefaultPatternClass('\Acme\Pattern\RegExpPattern');
+
+foreach ($repo->get('~^/webmozart/puli/css/.+\.css$~') as $resource) {
+    // ...
+}
+```
+
+The only requirements are that the pattern class accepts the pattern string as
+first constructor argument and that it implements [`PatternInterface`].
+
+So far, the custom pattern only works for locating files in the repository. If
+you also want to use it to locate files on the filesystem, create an
+implementation of [`PatternLocatorInterface`]. As example, look at the code
+of [`GlobPatternLocator`]:
+
+```php
+class GlobPatternLocator implements PatternLocatorInterface
+{
+    public function accepts(PatternInterface $pattern)
+    {
+        return $pattern instanceof GlobPattern;
+    }
+
+    public function locatePaths(PatternInterface $pattern)
+    {
+        return glob((string) $pattern);
+    }
+}
+```
+
+The `locatePaths()` method receives the pattern instance and returns the paths
+in the file system which match the pattern. The `accepts()` method is used to
+specify which pattern classes the locator can process.
+
+To use the locator, register it with the repository using the
+`addPatternLocator()` method. Let's assume again that you implemented a
+`RegExpPatternLocator`:
+
+```php
+$repo->addPatternLocator(new RegExpPatternLocator());
+
+// Locate files using regular expressions
+$repo->add('/webmozart/puli/css', new RegExpPattern('~^/path/to/css/.+\.css$~'));
+
+// Or, if you define the pattern class as default
+$repo->setDefaultPatternClass('\Acme\Pattern\RegExpPattern');
+
+$repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
+```
+
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
@@ -313,4 +441,9 @@ class Translator implements ResourceDiscoveringInterface
 [`PhpResourceLocator`]: src/Locator/PhpResourceLocator.php
 [`PhpResourceLocatorDumper`]: src/LocatorDumper/PhpResourceLocatorDumper.php
 [`TagInterface`]: src/Tag/TagInterface.php
+[`PatternInterface`]: src/Pattern/PatternInterface.php
+[`GlobPattern`]: src/Pattern/GlobPattern.php
+[`PatternLocatorInterface`]: src/PatternLocator/PatternLocatorInterface.php
+[`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
+[`preg_match()`]: http://php.net/manual/en/function.preg_match.php
