@@ -25,9 +25,14 @@ class ResourceRepository implements ResourceRepositoryInterface
     private $paths = array();
 
     /**
-     * @var \Webmozart\Puli\Resource\ResourceInterface[]
+     * @var \Webmozart\Puli\Resource\FileResource[]|\Webmozart\Puli\Resource\DirectoryResource[]
      */
     private $resources = array();
+
+    public function __construct()
+    {
+        $this->resources['/'] = new DirectoryResource('/', null);;
+    }
 
     /**
      * {@inheritdoc}
@@ -92,7 +97,21 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     public function listDirectory($selector)
     {
+        if (!isset($this->resources[$selector])) {
+            throw new ResourceNotFoundException(sprintf(
+                'The resource "%s" does not exist.',
+                $selector
+            ));
+        }
 
+        if (!$this->resources[$selector] instanceof DirectoryResource) {
+            throw new \InvalidArgumentException(sprintf(
+                'The resource "%s" is not a directory, but a file.',
+                $selector
+            ));
+        }
+
+        return $this->resources[$selector]->all();
     }
 
     public function add($selector, $realPath)
@@ -137,15 +156,6 @@ class ResourceRepository implements ResourceRepositoryInterface
 
         $isDirectory = is_dir($realPath);
 
-        // Recursively add directory contents
-        if ($isDirectory) {
-            $iterator = new \FilesystemIterator($realPath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::CURRENT_AS_PATHNAME);
-
-            foreach ($iterator as $path) {
-                $this->add($selector.'/'.basename($path), $path);
-            }
-        }
-
         // Create new Resource instances if necessary
         if (!isset($this->paths[$selector])) {
             $this->paths[$selector] = array($realPath);
@@ -160,16 +170,33 @@ class ResourceRepository implements ResourceRepositoryInterface
                     $realPath
                 );
 
+            // Create parent directory if needed
+            $parent = dirname($selector);
+
+            if (!isset($this->resources[$parent])) {
+                $this->initDirectory($parent);
+            }
+
             // Keep the resources sorted by file name. This could probably be
             // optimized by inserting at the right position instead of
             // rearranging the complete array on every add.
             ksort($this->resources);
 
-            return;
+            // Add the new node to the parent directory
+            $this->resources[$parent]->add($this->resources[$selector]);
+        } else {
+            $this->paths[$selector][] = $realPath;
+            $this->resources[$selector]->refresh($this);
         }
 
-        $this->paths[$selector][] = $realPath;
-        $this->resources[$selector]->refresh($this);
+        // Recursively add directory contents
+        if ($isDirectory) {
+            $iterator = new \FilesystemIterator($realPath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::CURRENT_AS_PATHNAME);
+
+            foreach ($iterator as $path) {
+                $this->add($selector.'/'.basename($path), $path);
+            }
+        }
     }
 
     /**
@@ -273,5 +300,24 @@ class ResourceRepository implements ResourceRepositoryInterface
     public function getPaths($selector)
     {
         return $this->paths[$selector];
+    }
+
+    private function initDirectory($repositoryPath)
+    {
+        // Create new directory
+        $directory = new DirectoryResource($repositoryPath, null);
+
+        // Recursively initialize parent directories
+        $parent = dirname($repositoryPath);
+
+        if (!isset($this->resources[$parent])) {
+            $this->initDirectory($parent);
+        }
+
+        // Add as child node of the parent directory
+        $this->resources[$parent]->add($directory);
+
+        // Register after parent directory to keep the order
+        $this->resources[$repositoryPath] = $directory;
     }
 }
