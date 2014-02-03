@@ -1,5 +1,5 @@
-Locating Project Files with Puli
-================================
+Locating Files with Puli
+========================
 
 Puli provides access to the files (*resources*) of your PHP project through a
 unified naming system.
@@ -211,8 +211,56 @@ files that can be consumed by a class `Acme\Translator`:
 $repo->tag('/webmozart/puli/translations/*.xlf', 'acme/translator/xlf');
 ```
 
-The `Acme\Translator` class can then extract all resources marked with this tag
-from the repository:
+You can remove one or all tags from a resource using the `untag()` method:
+
+```php
+// Remove the tag "acme/translator/xlf"
+$repo->untag('/webmozart/puli/translations/*.xlf', 'acme/translator/xlf');
+
+// Remove all tags
+$repo->untag('/webmozart/puli/translations/*.xlf');
+```
+
+You can get all files that bear a specific tag with the `getByTag()` method:
+
+```php
+$resources = $repo->getByTag('acme/translator/xlf');
+```
+
+You can also read all tags that have been registered in the repository:
+
+```php
+$tags = $repo->getTags();
+```
+
+Each of these tags is an instance of [`TagInterface`]. This interface lets you
+access both the tag's name and the resources that currently bear this tag:
+
+```php
+echo $tag->getName();
+// => acme/translator/xlf
+
+foreach ($tag->getResources() as $resource) {
+    // ...
+}
+```
+
+At last, you can query the tags of an individual resource using the `getTags()`
+method in [`ResourceInterface`]:
+
+```
+foreach ($resource->getTags() as $tag) {
+    echo $tag->getName();
+}
+```
+
+Automated Resource Discovery
+----------------------------
+
+Tagging can be used to implement classes that autonomously discover the
+resources they need. For example, the `Acme\Translator` class mentioned before
+can provide a `discoverResources()` method which extracts all resources marked
+with the "acme/translator/xlf" tag from the repository:
 
 ```php
 namespace Acme;
@@ -242,24 +290,18 @@ $translator = new Translator();
 $translator->discoverResources($repo);
 ```
 
-Puli provides the interface [`ResourceDiscoveringInterface`] for marking classes
-that are able to discover their resources autonomously. Dependency Injection
-Containers can use this interface to inject the resource locator automatically.
+Puli provides an interface [`ResourceDiscoveringInterface`] for marking such
+classes. Dependency Injection Containers can rely on this interface to inject
+the resource locator automatically.
 
 ```php
 namespace Acme;
 
 use Webmozart\Puli\ResourceDiscoveringInterface;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
 
 class Translator implements ResourceDiscoveringInterface
 {
     // ...
-
-    public function discoverResources(ResourceLocatorInterface $locator)
-    {
-        // ...
-    }
 }
 ```
 
@@ -270,4 +312,5 @@ class Translator implements ResourceDiscoveringInterface
 [`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
 [`PhpResourceLocator`]: src/Locator/PhpResourceLocator.php
 [`PhpResourceLocatorDumper`]: src/LocatorDumper/PhpResourceLocatorDumper.php
+[`TagInterface`]: src/Tag/TagInterface.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
