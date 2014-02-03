@@ -32,7 +32,7 @@ abstract class AbstractResource implements ResourceInterface
      */
     protected $alternativePaths;
 
-    public function __construct($repositoryPath, $path, array $alternativePaths = array())
+    public function __construct($repositoryPath, $path = null, array $alternativePaths = array())
     {
         $this->repositoryPath = $repositoryPath;
         $this->path = $path;
