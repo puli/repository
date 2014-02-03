@@ -15,6 +15,7 @@ use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
  * @since  %%NextVersion%%
@@ -80,6 +81,13 @@ class ResourceRepository implements ResourceRepositoryInterface
             return $resources;
         }
 
+        $selector = rtrim($selector, '/');
+
+        // If the selector is empty after trimming, reset it to root.
+        if ('' === $selector) {
+            $selector = '/';
+        }
+
         if (!isset($this->resources[$selector])) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" does not exist.',
@@ -95,27 +103,37 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     }
 
-    public function listDirectory($selector)
+    public function listDirectory($repositoryPath)
     {
-        if (!isset($this->resources[$selector])) {
+        $repositoryPath = rtrim($repositoryPath, '/');
+
+        // If the selector is empty after trimming, reset it to root.
+        if ('' === $repositoryPath) {
+            $repositoryPath = '/';
+        }
+
+        if (!isset($this->resources[$repositoryPath])) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" does not exist.',
-                $selector
+                $repositoryPath
             ));
         }
 
-        if (!$this->resources[$selector] instanceof DirectoryResource) {
+        if (!$this->resources[$repositoryPath] instanceof DirectoryResource) {
             throw new \InvalidArgumentException(sprintf(
                 'The resource "%s" is not a directory, but a file.',
-                $selector
+                $repositoryPath
             ));
         }
 
-        return $this->resources[$selector]->all();
+        return $this->resources[$repositoryPath]->all();
     }
 
     public function add($selector, $realPath)
     {
+        // Discard any trailing slashes of directories. We don't need them.
+        $selector = rtrim($selector, '/');
+
         if (is_string($realPath) && false !== strpos($realPath, '*')) {
             $realPath = new GlobPattern($realPath);
         }
@@ -238,6 +256,13 @@ class ResourceRepository implements ResourceRepositoryInterface
             return true;
         }
 
+        $selector = rtrim($selector, '/');
+
+        // If the selector is empty after trimming, reset it to root.
+        if ('' === $selector) {
+            $selector = '/';
+        }
+
         return isset($this->resources[$selector]);
     }
 
@@ -261,8 +286,7 @@ class ResourceRepository implements ResourceRepositoryInterface
                     continue;
                 }
 
-                unset($this->resources[$path]);
-                unset($this->paths[$path]);
+                $this->removeNode($path);
             }
 
             return;
@@ -276,9 +300,16 @@ class ResourceRepository implements ResourceRepositoryInterface
             return;
         }
 
+        $selector = rtrim($selector, '/');
+
+        if ('' === $selector) {
+            throw new RemovalNotAllowedException(
+                'The root directory "/" must not be removed.'
+            );
+        }
+
         if (isset($this->resources[$selector])) {
-            unset($this->resources[$selector]);
-            unset($this->paths[$selector]);
+            $this->removeNode($selector);
         }
     }
 
@@ -300,6 +331,20 @@ class ResourceRepository implements ResourceRepositoryInterface
     public function getPaths($selector)
     {
         return $this->paths[$selector];
+    }
+
+    private function removeNode($repositoryPath)
+    {
+        $resource = $this->resources[$repositoryPath];
+
+        if ($resource instanceof DirectoryResource) {
+            foreach ($resource as $entry) {
+                $this->removeNode($entry->getRepositoryPath());
+            }
+        }
+
+        unset($this->resources[$repositoryPath]);
+        unset($this->paths[$repositoryPath]);
     }
 
     private function initDirectory($repositoryPath)

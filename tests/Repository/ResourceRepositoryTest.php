@@ -157,6 +157,18 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repo->add('/webmozart/puli', 12345);
     }
 
+    public function testAddTrimsTrailingSlash()
+    {
+        $this->repo->add('/webmozart/puli/', __DIR__.'/Fixtures/dir1');
+
+        $dir = $this->repo->get('/webmozart/puli');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResource', $dir);
+        $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1', $dir->getPath());
+        $this->assertEquals(array(), $dir->getAlternativePaths());
+    }
+
     public function testOverrideFile()
     {
         $this->repo->add('/webmozart/puli/file1', __DIR__.'/Fixtures/dir1/file1');
@@ -283,6 +295,18 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         )));
     }
 
+    public function testContainsDiscardsTrailingSlash()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli/'));
+    }
+
+    public function testContainsInterpretsConsecutiveSlashesAsRoot()
+    {
+        $this->assertTrue($this->repo->contains('///'));
+    }
+
     public function testRemoveOne()
     {
         $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
@@ -318,6 +342,24 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function provideDirectorySelector()
+    {
+        return array(
+            array('/webmozart/puli'),
+            array('/webmozart/pu*'),
+            array(new GlobPattern('/webmozart/pu*')),
+            array(array(
+                '/webmozart/puli',
+            )),
+            array(array(
+                '/webmozart/pu*',
+            )),
+            array(array(
+                new GlobPattern('/webmozart/pu*'),
+            )),
+        );
+    }
+
     /**
      * @dataProvider provideManySelector
      */
@@ -334,6 +376,55 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->repo->contains('/webmozart/puli'));
         $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
         $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    /**
+     * @dataProvider provideDirectorySelector
+     */
+    public function testRemoveDirectory($selector)
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove($selector);
+
+        $this->assertFalse($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemoveDiscardsTrailingSlash()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->repo->remove('/webmozart/puli/');
+
+        $this->assertFalse($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    /**
+     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     */
+    public function testRemoveDoesNotRemoveRoot()
+    {
+        $this->repo->remove('/');
+    }
+
+    /**
+     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     */
+    public function testRemoveInterpretsConsecutiveSlashesAsRoot()
+    {
+        $this->repo->remove('///');
     }
 
     /**
@@ -356,6 +447,28 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/webmozart/puli/file2', $files[1]->getRepositoryPath());
         $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $files[1]->getPath());
         $this->assertEquals(array(), $files[1]->getAlternativePaths());
+    }
+
+    public function testGetDiscardsTrailingSlash()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $dir = $this->repo->get('/webmozart/puli/');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResource', $dir);
+        $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1', $dir->getPath());
+        $this->assertEquals(array(), $dir->getAlternativePaths());
+    }
+
+    public function testGetInterpretsConsecutiveSlashesAsRoot()
+    {
+        $dir = $this->repo->get('///');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResource', $dir);
+        $this->assertEquals('/', $dir->getRepositoryPath());
+        $this->assertNull($dir->getPath());
+        $this->assertEquals(array(), $dir->getAlternativePaths());
     }
 
     public function testGetEmptyPattern()
@@ -417,6 +530,25 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $resources[0]->getAlternativePaths());
 
         $resources = $this->repo->listDirectory('/webmozart/puli');
+
+        $this->assertCount(2, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $resources[0]);
+        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file1', $resources[0]->getPath());
+        $this->assertEquals(array(), $resources[0]->getAlternativePaths());
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\FileResource', $resources[1]);
+        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1/file2', $resources[1]->getPath());
+        $this->assertEquals(array(), $resources[1]->getAlternativePaths());
+    }
+
+    public function testListDirectoryDiscardsTrailingSlash()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/Fixtures/dir1');
+
+        $resources = $this->repo->listDirectory('/webmozart/puli/');
 
         $this->assertCount(2, $resources);
 

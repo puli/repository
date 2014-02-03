@@ -44,7 +44,7 @@ class PhpResourceLocator implements ResourceLocatorInterface
         $this->dumpLocation = $dumpLocation;
     }
 
-    public function get($repositoryRepositoryPath)
+    public function get($repositorySelector)
     {
         if (null === $this->config) {
             $this->config = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::CONFIG_FILE);
@@ -54,18 +54,18 @@ class PhpResourceLocator implements ResourceLocatorInterface
             $this->paths = require ($this->dumpLocation.PhpResourceResourceLocatorDumper::PATHS_FILE);
         }
 
-        if (!isset($this->paths[$repositoryRepositoryPath])) {
+        if (!isset($this->paths[$repositorySelector])) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" was not found.',
-                $repositoryRepositoryPath
+                $repositorySelector
             ));
         }
 
-        if ($this->paths[$repositoryRepositoryPath] instanceof ResourceInterface) {
-            return $this->paths[$repositoryRepositoryPath];
+        if ($this->paths[$repositorySelector] instanceof ResourceInterface) {
+            return $this->paths[$repositorySelector];
         }
 
-        return $this->resolveResource($repositoryRepositoryPath);
+        return $this->resolveResource($repositorySelector);
     }
 
     public function getResources($pattern)

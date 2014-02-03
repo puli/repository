@@ -9,22 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Locator;
+namespace Webmozart\Puli\Repository;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceLocatorInterface
+class RemovalNotAllowedException extends \Exception
 {
-    /**
-     * @param string $selector
-     *
-     * @return \Webmozart\Puli\Resource\ResourceInterface
-     */
-    public function get($selector);
-
-    public function getByTag($tag);
-
-    public function listDirectory($repositoryPath);
 }
