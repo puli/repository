@@ -1,13 +1,13 @@
-Puli - Discovery of your Project's Resources
-============================================
+Resource Discovery with Puli
+============================
 
-Puli provides access to the file resources of your PHP project through a unified
-naming system.
+Puli provides access to the files (*resources*) of your PHP project through a
+unified naming system.
 
 Repository Management
 ---------------------
 
-Puli manages files in *repositories*, where you map them to a path:
+Puli manages files in a *repository*, where you map them to a path:
 
 ```php
 use Webmozart\Puli\Repository\ResourceRepository;
@@ -30,7 +30,7 @@ echo $repo->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
-The `get()` method accepts either the path to the resource, a glob pattern or a
+The `get()` method accepts either the path to the resource, a glob pattern or an
 array containing multiple paths or patterns. If you pass a pattern or an array,
 the method will always return an array as well.
 
@@ -43,7 +43,7 @@ foreach ($repo->get('/webmozart/puli/*') as $resource) {
 // => /webmozart/puli/trans
 ```
 
-You can remove resources from the repository with the method `remove()`:
+You can remove resources from the repository with the `remove()` method:
 
 ```php
 $repo->remove('/webmozart/puli/css');
@@ -53,15 +53,16 @@ Resource Locators
 -----------------
 
 Building and configuring a repository is expensive and should not be done on
-every request. For this reason, Puli allows to dump *resource locators* that
-are optimized for retrieving the paths to resources. All of these resource
-locators implement [`ResourceLocatorInterface`], which provides a subset of the
-methods available in the resource repository.
+every request. For this reason, Puli allows to dump *resource locators* that are
+optimized for retrieving resources. Resource locators must implement the
+interface [`ResourceLocatorInterface`], which provides a subset of the
+methods available in the resource repository. Naturally, resource locators are
+frozen and cannot be modified.
 
-Currently, Puli only provides one locator implementation that caches the
-resource paths in PHP files. These files can be stored in the cache directory of
-your application. Pass the path to this cache directory when you call the
-`dumpLocator()` method of the [`PhpResourceLocatorDumper`]:
+Currently, Puli only provides one locator implementation: [`PhpResourceLocatorDumper`].
+This locator caches the paths to the resources in your repository in PHP files.
+These files are usually stored in the cache directory of your application. Pass
+the path to this cache directory when you call the `dumpLocator()` method:
 
 ```php
 use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
@@ -70,9 +71,9 @@ $dumper = new PhpResourceLocatorDumper();
 $dumper->dumpLocator($repo, '/path/to/cache');
 ```
 
-Then create a [`PhpResourceLocator`] and pass the path to the cache directory.
-The locator lets you access the resources in the same way as the repository
-does:
+Then create a [`PhpResourceLocator`] and pass the path to the directory where
+you dumped the PHP files. The locator lets you then access the resources in the
+same way as the repository does:
 
 ```php
 use Webmozart\Puli\Locator\PhpResourceLocator;
@@ -153,7 +154,7 @@ foreach ($directory as $resource) {
 ```
 
 You can access the contents of a directory with the methods `get()`,
-`contains()` and `all()` or use the `ArrayAccess` interface:
+`contains()` and `all()` or use its `ArrayAccess` interface:
 
 ```php
 $resource = $directory->get('style.css');
@@ -197,13 +198,14 @@ print_r($resource->getAlternativePaths());
 //     [0] => /path/to/vendor/webmozart/puli/config/config.yml
 //     [1] => /path/to/app/config/config.yml
 // )
+```
 
 Tagging
 -------
 
-Resources managed by Puli can be tagged in order to facilitate the discovery of
-resources supporting specific features. For example, you can tag all XLIFF
-translation files that can be consumed by the `Acme\Translator` class:
+Resources managed by Puli can be tagged. This is useful for marking resources
+that support specific features. For example, you can tag all XLIFF translation
+files that can be consumed by a class `Acme\Translator`:
 
 ```php
 $repo->tag('/webmozart/puli/translations/*.xlf', 'acme/translator/xlf');
@@ -230,7 +232,7 @@ class Translator
 }
 ```
 
-Adding the tagged files to the translator then becomes as easy as passing the
+Adding the tagged files to the translator becomes as easy as passing the
 repository or the resource locator:
 
 ```php
@@ -241,7 +243,7 @@ $translator->discoverResources($repo);
 ```
 
 Puli provides the interface [`ResourceDiscoveringInterface`] for marking classes
-that are able to discover their resources automatically. Dependency Injection
+that are able to discover their resources autonomously. Dependency Injection
 Containers can use this interface to inject the resource locator automatically.
 
 ```php
