@@ -49,7 +49,8 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResource', $dir);
         $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
-        $this->assertEquals(array(__DIR__.'/Fixtures/dir1'), $dir->getPaths());
+        $this->assertEquals(__DIR__.'/Fixtures/dir1', $dir->getPath());
+        $this->assertEquals(array(), $dir->getAlternativePaths());
 
         $file1 = $this->repo->get('/webmozart/puli/file1');
 
@@ -177,7 +178,8 @@ class ResourceRepositoryTest extends \PHPUnit_Framework_TestCase
         $dir = $this->repo->get('/webmozart/puli');
 
         $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
-        $this->assertEquals(array(__DIR__.'/Fixtures/dir1', __DIR__.'/Fixtures/dir2'), $dir->getPaths());
+        $this->assertEquals(__DIR__.'/Fixtures/dir2', $dir->getPath());
+        $this->assertEquals(array(__DIR__.'/Fixtures/dir1'), $dir->getAlternativePaths());
 
         $file1 = $this->repo->get('/webmozart/puli/file1');
 

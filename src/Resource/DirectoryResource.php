@@ -17,47 +17,15 @@ use Webmozart\Puli\Repository\ResourceRepositoryInterface;
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource implements ResourceInterface
+class DirectoryResource extends AbstractResource
 {
-    /**
-     * @var string
-     */
-    private $repositoryPath;
-
-    /**
-     * @var string[]
-     */
-    private $paths;
-
-    public function __construct($repositoryPath, array $paths)
-    {
-        $this->repositoryPath = $repositoryPath;
-        $this->paths = $paths;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRepositoryPath()
-    {
-        return $this->repositoryPath;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getPaths()
-    {
-        return $this->paths;
-    }
-
-    public function __toString()
-    {
-        return $this->repositoryPath;
-    }
+    private $contents = array();
 
     public function refresh(ResourceRepositoryInterface $repository)
     {
-        $this->paths = $repository->getPaths($this->repositoryPath);
+        $paths = $repository->getPaths($this->repositoryPath);
+
+        $this->path = array_pop($paths);
+        $this->alternativePaths = $paths;
     }
 }

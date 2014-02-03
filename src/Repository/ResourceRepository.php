@@ -153,7 +153,7 @@ class ResourceRepository implements ResourceRepositoryInterface
             $this->resources[$selector] = $isDirectory
                 ? new DirectoryResource(
                     $selector,
-                    array($realPath)
+                    $realPath
                 )
                 : new FileResource(
                     $selector,

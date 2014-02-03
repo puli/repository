@@ -11,17 +11,17 @@
 
 namespace Webmozart\Puli\Resource;
 
-use Webmozart\Puli\Repository\ResourceRepositoryInterface;
-
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceInterface
 {
-    public function getRepositoryPath();
-
     public function __toString();
 
-    public function refresh(ResourceRepositoryInterface $repository);
+    public function getRepositoryPath();
+
+    public function getPath();
+
+    public function getAlternativePaths();
 }
