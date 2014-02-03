@@ -11,23 +11,13 @@
 
 namespace Webmozart\Puli\Resource;
 
-use Webmozart\Puli\Repository\ResourceRepositoryInterface;
-
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource extends AbstractResource implements \IteratorAggregate, \Countable, \ArrayAccess
+class DirectoryResource extends FileResource implements \IteratorAggregate, DirectoryResourceInterface
 {
     private $entries = array();
-
-    public function refresh(ResourceRepositoryInterface $repository)
-    {
-        $paths = $repository->getPaths($this->repositoryPath);
-
-        $this->path = array_pop($paths);
-        $this->alternativePaths = $paths;
-    }
 
     public function add(ResourceInterface $resource)
     {

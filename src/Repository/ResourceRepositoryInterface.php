@@ -38,6 +38,4 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
      * @return \Webmozart\Puli\Tag\TagInterface[]
      */
     public function getTags();
-
-    public function getPaths($selector);
 }

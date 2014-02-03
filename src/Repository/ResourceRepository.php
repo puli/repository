@@ -23,8 +23,6 @@ use Webmozart\Puli\Tag\Tag;
  */
 class ResourceRepository implements ResourceRepositoryInterface
 {
-    private $paths = array();
-
     /**
      * @var \Webmozart\Puli\Resource\FileResource[]|\Webmozart\Puli\Resource\DirectoryResource[]
      */
@@ -184,9 +182,7 @@ class ResourceRepository implements ResourceRepositoryInterface
         $isDirectory = is_dir($realPath);
 
         // Create new Resource instances if necessary
-        if (!isset($this->paths[$selector])) {
-            $this->paths[$selector] = array($realPath);
-
+        if (!isset($this->resources[$selector])) {
             $this->resources[$selector] = $isDirectory
                 ? new DirectoryResource(
                     $selector,
@@ -212,8 +208,7 @@ class ResourceRepository implements ResourceRepositoryInterface
             // Add the new node to the parent directory
             $this->resources[$parent]->add($this->resources[$selector]);
         } else {
-            $this->paths[$selector][] = $realPath;
-            $this->resources[$selector]->refresh($this);
+            $this->resources[$selector]->overridePath($realPath);
         }
 
         // Recursively add directory contents
@@ -390,18 +385,12 @@ class ResourceRepository implements ResourceRepositoryInterface
         return array_values($this->tags);
     }
 
-    public function getPaths($selector)
-    {
-        return $this->paths[$selector];
-    }
-
     private function removeNode($repositoryPath)
     {
         $resource = $this->resources[$repositoryPath];
 
         // Remove the resource
         unset($this->resources[$repositoryPath]);
-        unset($this->paths[$repositoryPath]);
 
         // Detach resource from parent directory.
         // Doing so after removing the node itself ensures that this code is
