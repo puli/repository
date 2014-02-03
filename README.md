@@ -1,5 +1,5 @@
-Resource Discovery with Puli
-============================
+Locating Project Files with Puli
+================================
 
 Puli provides access to the files (*resources*) of your PHP project through a
 unified naming system.
