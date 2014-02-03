@@ -11,7 +11,6 @@
 
 namespace Webmozart\Puli\Repository;
 
-use Symfony\Component\Finder\Expression\Glob;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
@@ -33,16 +32,57 @@ class ResourceRepository implements ResourceRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get($repositoryPath)
+    public function get($selector)
     {
-        if (!isset($this->resources[$repositoryPath])) {
+        if (is_string($selector) && false !== strpos($selector, '*')) {
+            $selector = new GlobPattern($selector);
+        }
+
+        if ($selector instanceof PatternInterface) {
+            $staticPrefix = $selector->getStaticPrefix();
+            $regExp = $selector->getRegularExpression();
+
+            $resources = array();
+
+            foreach ($this->resources as $path => $resource) {
+                // strpos() is slightly faster than substr() here
+                if (0 !== strpos($path, $staticPrefix)) {
+                    continue;
+                }
+
+                if (!preg_match($regExp, $path)) {
+                    continue;
+                }
+
+                $resources[] = $resource;
+            }
+
+            return $resources;
+        }
+
+        if (is_array($selector)) {
+            $resources = array();
+
+            foreach ($selector as $path) {
+                $result = $this->get($path);
+                $result = is_array($result) ? $result : array($result);
+
+                foreach ($result as $resource) {
+                    $resources[] = $resource;
+                }
+            }
+
+            return $resources;
+        }
+
+        if (!isset($this->resources[$selector])) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" does not exist.',
-                $repositoryPath
+                $selector
             ));
         }
 
-        return $this->resources[$repositoryPath];
+        return $this->resources[$selector];
     }
 
     public function getByTag($tag)
@@ -50,12 +90,12 @@ class ResourceRepository implements ResourceRepositoryInterface
 
     }
 
-    public function listDirectory($repositoryPath)
+    public function listDirectory($selector)
     {
 
     }
 
-    public function add($repositoryPath, $realPath)
+    public function add($selector, $realPath)
     {
         if (is_string($realPath) && false !== strpos($realPath, '*')) {
             $realPath = new GlobPattern($realPath);
@@ -76,12 +116,12 @@ class ResourceRepository implements ResourceRepositoryInterface
         if (is_array($realPath)) {
             foreach ($realPath as $path) {
                 if (false !== strpos($path, '*')) {
-                    $this->add($repositoryPath, $path);
+                    $this->add($selector, $path);
 
                     continue;
                 }
 
-                $this->add($repositoryPath.'/'.basename($path), $path);
+                $this->add($selector.'/'.basename($path), $path);
             }
 
             return;
@@ -102,43 +142,48 @@ class ResourceRepository implements ResourceRepositoryInterface
             $iterator = new \FilesystemIterator($realPath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::CURRENT_AS_PATHNAME);
 
             foreach ($iterator as $path) {
-                $this->add($repositoryPath.'/'.basename($path), $path);
+                $this->add($selector.'/'.basename($path), $path);
             }
         }
 
         // Create new Resource instances if necessary
-        if (!isset($this->paths[$repositoryPath])) {
-            $this->paths[$repositoryPath] = array($realPath);
+        if (!isset($this->paths[$selector])) {
+            $this->paths[$selector] = array($realPath);
 
-            $this->resources[$repositoryPath] = $isDirectory
+            $this->resources[$selector] = $isDirectory
                 ? new DirectoryResource(
-                    $repositoryPath,
+                    $selector,
                     array($realPath)
                 )
                 : new FileResource(
-                    $repositoryPath,
+                    $selector,
                     $realPath
                 );
+
+            // Keep the resources sorted by file name. This could probably be
+            // optimized by inserting at the right position instead of
+            // rearranging the complete array on every add.
+            ksort($this->resources);
 
             return;
         }
 
-        $this->paths[$repositoryPath][] = $realPath;
-        $this->resources[$repositoryPath]->refresh($this);
+        $this->paths[$selector][] = $realPath;
+        $this->resources[$selector]->refresh($this);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function contains($repositoryPath)
+    public function contains($selector)
     {
-        if (is_string($repositoryPath) && false !== strpos($repositoryPath, '*')) {
-            $repositoryPath = new GlobPattern($repositoryPath);
+        if (is_string($selector) && false !== strpos($selector, '*')) {
+            $selector = new GlobPattern($selector);
         }
 
-        if ($repositoryPath instanceof PatternInterface) {
-            $staticPrefix = $repositoryPath->getStaticPrefix();
-            $regExp = $repositoryPath->getRegularExpression();
+        if ($selector instanceof PatternInterface) {
+            $staticPrefix = $selector->getStaticPrefix();
+            $regExp = $selector->getRegularExpression();
 
             foreach ($this->resources as $path => $resource) {
                 // strpos() is slightly faster than substr() here
@@ -156,8 +201,8 @@ class ResourceRepository implements ResourceRepositoryInterface
             return false;
         }
 
-        if (is_array($repositoryPath)) {
-            foreach ($repositoryPath as $path) {
+        if (is_array($selector)) {
+            foreach ($selector as $path) {
                 if (!$this->contains($path)) {
                     return false;
                 }
@@ -166,18 +211,18 @@ class ResourceRepository implements ResourceRepositoryInterface
             return true;
         }
 
-        return isset($this->resources[$repositoryPath]);
+        return isset($this->resources[$selector]);
     }
 
-    public function remove($repositoryPath)
+    public function remove($selector)
     {
-        if (is_string($repositoryPath) && false !== strpos($repositoryPath, '*')) {
-            $repositoryPath = new GlobPattern($repositoryPath);
+        if (is_string($selector) && false !== strpos($selector, '*')) {
+            $selector = new GlobPattern($selector);
         }
 
-        if ($repositoryPath instanceof PatternInterface) {
-            $staticPrefix = $repositoryPath->getStaticPrefix();
-            $regExp = $repositoryPath->getRegularExpression();
+        if ($selector instanceof PatternInterface) {
+            $staticPrefix = $selector->getStaticPrefix();
+            $regExp = $selector->getRegularExpression();
 
             foreach ($this->resources as $path => $resource) {
                 // strpos() is slightly faster than substr() here
@@ -196,37 +241,37 @@ class ResourceRepository implements ResourceRepositoryInterface
             return;
         }
 
-        if (is_array($repositoryPath)) {
-            foreach ($repositoryPath as $path) {
+        if (is_array($selector)) {
+            foreach ($selector as $path) {
                 $this->remove($path);
             }
 
             return;
         }
 
-        if (isset($this->resources[$repositoryPath])) {
-            unset($this->resources[$repositoryPath]);
-            unset($this->paths[$repositoryPath]);
+        if (isset($this->resources[$selector])) {
+            unset($this->resources[$selector]);
+            unset($this->paths[$selector]);
         }
     }
 
-    public function tag($repositoryPath, $tag)
+    public function tag($selector, $tag)
     {
 
     }
 
-    public function untag($repositoryPath, $tag = null)
+    public function untag($selector, $tag = null)
     {
 
     }
 
-    public function getTags($repositoryPath = null)
+    public function getTags($selector = null)
     {
 
     }
 
-    public function getPaths($repositoryPath)
+    public function getPaths($selector)
     {
-        return $this->paths[$repositoryPath];
+        return $this->paths[$selector];
     }
 }

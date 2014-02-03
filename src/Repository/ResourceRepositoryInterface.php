@@ -19,22 +19,22 @@ use Webmozart\Puli\Locator\ResourceLocatorInterface;
  */
 interface ResourceRepositoryInterface extends ResourceLocatorInterface
 {
-    public function add($repositoryPath, $realPath);
+    public function add($selector, $realPath);
 
     /**
-     * @param string $repositoryPath
+     * @param string $selector
      *
      * @return boolean
      */
-    public function contains($repositoryPath);
+    public function contains($selector);
 
-    public function remove($repositoryPath);
+    public function remove($selector);
 
-    public function tag($repositoryPath, $tag);
+    public function tag($selector, $tag);
 
-    public function untag($repositoryPath, $tag = null);
+    public function untag($selector, $tag = null);
 
-    public function getTags($repositoryPath = null);
+    public function getTags($selector = null);
 
-    public function getPaths($repositoryPath);
+    public function getPaths($selector);
 }
