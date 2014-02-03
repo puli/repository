@@ -48,8 +48,12 @@ class FileResource implements ResourceInterface
     {
         $this->repositoryPath = $repositoryPath;
         $this->name = basename($repositoryPath);
-        $this->path = $path;
         $this->tags = new \SplObjectStorage();
+
+        if (null !== $path) {
+            $this->path = $path;
+            $this->alternativePaths[] = $path;
+        }
     }
 
     /**
@@ -81,11 +85,8 @@ class FileResource implements ResourceInterface
      */
     public function overridePath($path)
     {
-        if (null !== $this->path) {
-            $this->alternativePaths[] = $this->path;
-        }
-
         $this->path = $path;
+        $this->alternativePaths[] = $path;
     }
 
     /**
