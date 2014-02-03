@@ -14,6 +14,8 @@ namespace Webmozart\Puli\Repository;
 use Webmozart\Puli\Locator\AbstractResourceLocator;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
+use Webmozart\Puli\PatternLocator\GlobPatternLocator;
+use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Tag\Tag;
@@ -34,9 +36,15 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
      */
     private $tags = array();
 
+    /**
+     * @var PatternLocatorInterface[]
+     */
+    private $patternLocators = array();
+
     public function __construct()
     {
-        $this->resources['/'] = new DirectoryResource('/', null);;
+        $this->resources['/'] = new DirectoryResource('/', null);
+        $this->patternLocators[] = new GlobPatternLocator();
     }
 
     public function getByTag($tag)
@@ -58,15 +66,27 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         }
 
         if ($realPath instanceof PatternInterface) {
-            if (!$realPath instanceof GlobPattern) {
+            $patternLocator = null;
+
+            foreach ($this->patternLocators as $locator) {
+                if ($locator->accepts($realPath)) {
+                    $patternLocator = $locator;
+
+                    break;
+                }
+            }
+
+            if (null === $patternLocator) {
                 throw new \InvalidArgumentException(sprintf(
-                    'Currently, only GlobPattern is supported by add(). The '.
-                    'passed pattern was an instance of %s.',
+                    'No pattern locator was found that supports patterns of '.
+                    'type "%s". Please register a locator using the '.
+                    'addPatternLocator() method of the resource repository '.
+                    'or use patterns of a different type.',
                     get_class($realPath)
                 ));
             }
 
-            $realPath = glob($realPath);
+            $realPath = $patternLocator->locateFiles($realPath);
         }
 
         if (is_array($realPath)) {
@@ -255,57 +275,9 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return array_values($this->tags);
     }
 
-    private function removeNode($repositoryPath)
+    public function addPatternLocator(PatternLocatorInterface $patternLocator)
     {
-        $resource = $this->resources[$repositoryPath];
-
-        // Remove the resource
-        unset($this->resources[$repositoryPath]);
-
-        // Detach resource from parent directory.
-        // Doing so after removing the node itself ensures that this code is
-        // not executed for the recursive child calls, because then their parent
-        // node does not exist anymore.
-        if (isset($this->resources[$parent = dirname($repositoryPath)])) {
-            $this->resources[$parent]->remove($resource->getName());
-        }
-
-        // Recursively remove all children
-        if ($resource instanceof DirectoryResource) {
-            foreach ($resource as $entry) {
-                /** @var \Webmozart\Puli\Resource\ResourceInterface $entry */
-                $this->removeNode($entry->getRepositoryPath());
-            }
-        }
-
-        // Untag resource
-        foreach ($resource->getTags() as $tag) {
-            $tag->removeResource($resource);
-
-            // Clean up
-            if (0 === count($tag)) {
-                unset($this->tags[$tag->getName()]);
-            }
-        }
-    }
-
-    private function initDirectory($repositoryPath)
-    {
-        // Create new directory
-        $directory = new DirectoryResource($repositoryPath, null);
-
-        // Recursively initialize parent directories
-        $parent = dirname($repositoryPath);
-
-        if (!isset($this->resources[$parent])) {
-            $this->initDirectory($parent);
-        }
-
-        // Add as child node of the parent directory
-        $this->resources[$parent]->add($directory);
-
-        // Register after parent directory to keep the order
-        $this->resources[$repositoryPath] = $directory;
+        $this->patternLocators[] = $patternLocator;
     }
 
     protected function getImpl($repositoryPath)
@@ -367,5 +339,58 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         }
 
         return false;
+    }
+
+    private function removeNode($repositoryPath)
+    {
+        $resource = $this->resources[$repositoryPath];
+
+        // Remove the resource
+        unset($this->resources[$repositoryPath]);
+
+        // Detach resource from parent directory.
+        // Doing so after removing the node itself ensures that this code is
+        // not executed for the recursive child calls, because then their parent
+        // node does not exist anymore.
+        if (isset($this->resources[$parent = dirname($repositoryPath)])) {
+            $this->resources[$parent]->remove($resource->getName());
+        }
+
+        // Recursively remove all children
+        if ($resource instanceof DirectoryResource) {
+            foreach ($resource as $entry) {
+                /** @var \Webmozart\Puli\Resource\ResourceInterface $entry */
+                $this->removeNode($entry->getRepositoryPath());
+            }
+        }
+
+        // Untag resource
+        foreach ($resource->getTags() as $tag) {
+            $tag->removeResource($resource);
+
+            // Clean up
+            if (0 === count($tag)) {
+                unset($this->tags[$tag->getName()]);
+            }
+        }
+    }
+
+    private function initDirectory($repositoryPath)
+    {
+        // Create new directory
+        $directory = new DirectoryResource($repositoryPath, null);
+
+        // Recursively initialize parent directories
+        $parent = dirname($repositoryPath);
+
+        if (!isset($this->resources[$parent])) {
+            $this->initDirectory($parent);
+        }
+
+        // Add as child node of the parent directory
+        $this->resources[$parent]->add($directory);
+
+        // Register after parent directory to keep the order
+        $this->resources[$repositoryPath] = $directory;
     }
 }

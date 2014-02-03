@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 
 /**
  * @since  %%NextVersion%%
@@ -26,4 +27,6 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
     public function tag($selector, $tag);
 
     public function untag($selector, $tag = null);
+
+    public function addPatternLocator(PatternLocatorInterface $patternLocator);
 }
