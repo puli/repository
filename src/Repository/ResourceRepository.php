@@ -333,7 +333,7 @@ class ResourceRepository implements ResourceRepositoryInterface
         }
 
         foreach ($resources as $resource) {
-            $this->tags[$tag]->add($resource);
+            $this->tags[$tag]->addResource($resource);
         }
     }
 
@@ -351,7 +351,7 @@ class ResourceRepository implements ResourceRepositoryInterface
             }
 
             foreach ($resources as $resource) {
-                $this->tags[$tag]->remove($resource);
+                $this->tags[$tag]->removeResource($resource);
             }
 
             // Clean up
@@ -365,7 +365,7 @@ class ResourceRepository implements ResourceRepositoryInterface
         /** @var \Webmozart\Puli\Resource\ResourceInterface $resource */
         foreach ($resources as $resource) {
             foreach ($resource->getTags() as $tag) {
-                $tag->remove($resource);
+                $tag->removeResource($resource);
 
                 // Clean up
                 if (0 === count($tag)) {

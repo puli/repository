@@ -37,19 +37,19 @@ class Tag implements \IteratorAggregate, TagInterface
         return $this->name;
     }
 
-    public function add(ResourceInterface $resource)
+    public function addResource(ResourceInterface $resource)
     {
         $this->resources->attach($resource);
         $resource->addTag($this);
     }
 
-    public function remove(ResourceInterface $resource)
+    public function removeResource(ResourceInterface $resource)
     {
         $this->resources->detach($resource);
         $resource->removeTag($this);
     }
 
-    public function all()
+    public function getResources()
     {
         return iterator_to_array($this->resources);
     }
