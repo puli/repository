@@ -248,7 +248,7 @@ foreach ($tag->getResources() as $resource) {
 At last, you can query the tags of an individual resource using the `getTags()`
 method in [`ResourceInterface`]:
 
-```
+```php
 foreach ($resource->getTags() as $tag) {
     echo $tag->getName();
 }
