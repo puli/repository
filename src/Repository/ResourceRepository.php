@@ -13,7 +13,6 @@ namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\AbstractResourceLocator;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
-use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
@@ -42,6 +41,11 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
      */
     private $patternLocators = array();
 
+    /**
+     * @var string
+     */
+    private $defaultPatternClass = '\Webmozart\Puli\Pattern\GlobPattern';
+
     public function __construct()
     {
         $this->resources['/'] = new DirectoryResource('/', null);
@@ -63,7 +67,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         $selector = rtrim($selector, '/');
 
         if (is_string($realPath) && false !== strpos($realPath, '*')) {
-            $realPath = new GlobPattern($realPath);
+            $realPath = new $this->defaultPatternClass($realPath);
         }
 
         if ($realPath instanceof PatternInterface) {
@@ -164,7 +168,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     public function remove($selector)
     {
         if (is_string($selector) && false !== strpos($selector, '*')) {
-            $selector = new GlobPattern($selector);
+            $selector = new $this->defaultPatternClass($selector);
         }
 
         if ($selector instanceof PatternInterface) {
@@ -279,6 +283,26 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     public function addPatternLocator(PatternLocatorInterface $patternLocator)
     {
         $this->patternLocators[] = $patternLocator;
+    }
+
+    public function setDefaultPatternClass($class)
+    {
+        if (!class_exists($class)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The class "%s" does not exist.',
+                $class
+            ));
+        }
+
+        if (!is_subclass_of($class, '\Webmozart\Puli\Pattern\PatternInterface')) {
+            throw new \InvalidArgumentException(sprintf(
+                'The class "%s" does not implement '.
+                '"\Webmozart\Puli\Pattern\PatternInterface".',
+                $class
+            ));
+        }
+
+        $this->defaultPatternClass = $class;
     }
 
     protected function getImpl($repositoryPath)
