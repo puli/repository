@@ -27,12 +27,12 @@ use Webmozart\Puli\Tag\Tag;
 class ResourceRepository extends AbstractResourceLocator implements ResourceRepositoryInterface
 {
     /**
-     * @var \Webmozart\Puli\Resource\FileResource[]|\Webmozart\Puli\Resource\DirectoryResource[]
+     * @var FileResource[]|DirectoryResource[]
      */
     private $resources = array();
 
     /**
-     * @var \Webmozart\Puli\Tag\TagInterface[]
+     * @var Tag[]
      */
     private $tags = array();
 
