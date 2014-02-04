@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Resource;
 
+use Webmozart\Puli\Locator\ResourceNotFoundException;
+
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -38,7 +40,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
     public function get($name)
     {
         if (!isset($this->entries[$name])) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new ResourceNotFoundException(sprintf(
                 'The file "%s" does not exist in directory "%s".',
                 $name,
                 $this->repositoryPath
@@ -56,7 +58,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
     public function remove($name)
     {
         if (!isset($this->entries[$name])) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new ResourceNotFoundException(sprintf(
                 'The file "%s" does not exist in directory "%s".',
                 $name,
                 $this->repositoryPath

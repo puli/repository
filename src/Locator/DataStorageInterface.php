@@ -21,5 +21,10 @@ interface DataStorageInterface
 
     public function getTags($repositoryPath);
 
+    /**
+     * @param $repositoryPath
+     *
+     * @return \Webmozart\Puli\Resource\ResourceInterface[]
+     */
     public function getDirectoryEntries($repositoryPath);
 }

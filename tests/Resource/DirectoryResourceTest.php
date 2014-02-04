@@ -105,7 +105,7 @@ class DirectoryResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \OutOfBoundsException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testGetExpectsValidFile()
     {
@@ -138,7 +138,7 @@ class DirectoryResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \OutOfBoundsException
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testRemoveExpectsValidFile()
     {

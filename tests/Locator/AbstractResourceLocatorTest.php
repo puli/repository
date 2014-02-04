@@ -217,6 +217,68 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->locator->contains('///'));
     }
 
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testDirectoryContains()
+    {
+        $this->dumpLocator();
+
+        $this->assertFalse($this->locator->get('/')->contains('webmozart'));
+
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $this->assertTrue($this->locator->get('/')->contains('webmozart'));
+        $this->assertTrue($this->locator->get('/webmozart')->contains('puli'));
+        $this->assertTrue($this->locator->get('/webmozart/puli')->contains('file1'));
+        $this->assertTrue($this->locator->get('/webmozart/puli')->contains('file2'));
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testDirectoryOffsetExists()
+    {
+        $this->dumpLocator();
+
+        $directory = $this->locator->get('/');
+
+        $this->assertFalse(isset($directory['webmozart']));
+
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $directory = $this->locator->get('/');
+
+        $this->assertTrue(isset($directory['webmozart']));
+
+        $directory = $this->locator->get('/webmozart/puli');
+
+        $this->assertTrue(isset($directory['file1']));
+    }
+
+    public function testGetOne()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $file = $this->locator->get('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
+        $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+    }
+
     public function provideManySelector()
     {
         return array(
@@ -313,6 +375,62 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/file1',
             '/foo/bar',
         ));
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testGetInDirectory()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $file = $this->locator->get('/webmozart/puli')->get('file1');
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
+        $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testOffsetGetInDirectory()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $directory = $this->locator->get('/webmozart/puli');
+        $file = $directory['file1'];
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
+        $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     *
+     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
+     */
+    public function testGetInDirectoryExpectsExistingFile()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $this->locator->get('/webmozart/puli')->get('foo');
     }
 
     public function testListDirectory()
@@ -417,6 +535,98 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file2', $resources[0]->getRepositoryPath());
         $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[0]->getPath());
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testListDirectoryInstance()
+    {
+        $this->dumpLocator();
+
+        $resources = $this->locator->get('/')->all();
+
+        $this->assertCount(0, $resources);
+
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/foo/bar', __DIR__.'/../Repository/Fixtures/dir2');
+
+        $this->dumpLocator();
+
+        $resources = $this->locator->get('/')->all();
+
+        $this->assertCount(2, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
+        $this->assertEquals('/foo', $resources[0]->getRepositoryPath());
+        $this->assertNull($resources[0]->getPath());
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[1]);
+        $this->assertEquals('/webmozart', $resources[1]->getRepositoryPath());
+        $this->assertNull($resources[1]->getPath());
+
+        $resources = $this->locator->get('/webmozart')->all();
+
+        $this->assertCount(1, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
+        $this->assertEquals('/webmozart/puli', $resources[0]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1', $resources[0]->getPath());
+
+        $resources = $this->locator->get('/webmozart/puli')->all();
+
+        $this->assertCount(2, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
+        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
+        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testIterateDirectory()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $resources = iterator_to_array($this->locator->get('/webmozart/puli'));
+
+        $this->assertCount(2, $resources);
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
+        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+
+        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
+        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
+        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+    }
+
+    /**
+     * This test case actually tests the implementation of the used
+     * DirectoryResourceInterface instance. It is contained in this test
+     * because the all resource locators should behave identically when dealing
+     * with their resources.
+     */
+    public function testCountDirectory()
+    {
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+
+        $this->dumpLocator();
+
+        $this->assertCount(2, $this->locator->get('/webmozart/puli'));
     }
 
     public function testGetByTag()
