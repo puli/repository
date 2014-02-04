@@ -43,7 +43,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testOverrideFile()
     {
-        $this->repo->add('/webmozart/puli/file1', __DIR__.'/../Repository/Fixtures/dir1/file1');
+        $this->repo->add('/webmozart/puli/file1', __DIR__.'/../Fixtures/dir1/file1');
 
         $this->dumpLocator();
 
@@ -51,10 +51,10 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
         $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
-        $this->assertEquals(array(__DIR__.'/../Repository/Fixtures/dir1/file1'), $file->getAlternativePaths());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $file->getPath());
+        $this->assertEquals(array(__DIR__.'/../Fixtures/dir1/file1'), $file->getAlternativePaths());
 
-        $this->repo->add('/webmozart/puli/file1', __DIR__.'/../Repository/Fixtures/dir1/file2');
+        $this->repo->add('/webmozart/puli/file1', __DIR__.'/../Fixtures/dir1/file2');
 
         $this->dumpLocator();
 
@@ -62,36 +62,36 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
         $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $file->getPath());
-        $this->assertEquals(array(__DIR__.'/../Repository/Fixtures/dir1/file1', __DIR__.'/../Repository/Fixtures/dir1/file2'), $file->getAlternativePaths());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $file->getPath());
+        $this->assertEquals(array(__DIR__.'/../Fixtures/dir1/file1', __DIR__.'/../Fixtures/dir1/file2'), $file->getAlternativePaths());
     }
 
     public function testOverrideDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir2');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir2');
 
         $this->dumpLocator();
 
         $dir = $this->locator->get('/webmozart/puli');
 
         $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir2', $dir->getPath());
-        $this->assertEquals(array(__DIR__.'/../Repository/Fixtures/dir1', __DIR__.'/../Repository/Fixtures/dir2'), $dir->getAlternativePaths());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir2', $dir->getPath());
+        $this->assertEquals(array(__DIR__.'/../Fixtures/dir1', __DIR__.'/../Fixtures/dir2'), $dir->getAlternativePaths());
 
         $file1 = $this->locator->get('/webmozart/puli/file1');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file1);
         $this->assertEquals('/webmozart/puli/file1', $file1->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir2/file1', $file1->getPath());
-        $this->assertEquals(array(__DIR__.'/../Repository/Fixtures/dir1/file1', __DIR__.'/../Repository/Fixtures/dir2/file1'), $file1->getAlternativePaths());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir2/file1', $file1->getPath());
+        $this->assertEquals(array(__DIR__.'/../Fixtures/dir1/file1', __DIR__.'/../Fixtures/dir2/file1'), $file1->getAlternativePaths());
 
         $file2 = $this->locator->get('/webmozart/puli/file2');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file2);
         $this->assertEquals('/webmozart/puli/file2', $file2->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $file2->getPath());
-        $this->assertEquals(array(__DIR__.'/../Repository/Fixtures/dir1/file2'), $file2->getAlternativePaths());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $file2->getPath());
+        $this->assertEquals(array(__DIR__.'/../Fixtures/dir1/file2'), $file2->getAlternativePaths());
     }
 
     public function testContainsPath()
@@ -104,7 +104,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->locator->contains('/webmozart/puli/file1'));
         $this->assertFalse($this->locator->contains('/webmozart/puli/file2'));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -129,7 +129,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/file3',
         )));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1/*');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1/*');
 
         $this->dumpLocator();
 
@@ -153,7 +153,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->locator->contains('/webmozart/puli/file*'));
         $this->assertFalse($this->locator->contains('/webmozart/*/file*'));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -172,7 +172,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/puli/file*')));
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/*/file*')));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -191,7 +191,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/*2',
         )));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -203,7 +203,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -229,7 +229,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->locator->get('/')->contains('webmozart'));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -253,7 +253,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse(isset($directory['webmozart']));
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -268,7 +268,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetOne()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -276,7 +276,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
         $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $file->getPath());
     }
 
     public function provideManySelector()
@@ -304,7 +304,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMany($selector)
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -314,16 +314,16 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $files[0]);
         $this->assertEquals('/webmozart/puli/file1', $files[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $files[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $files[0]->getPath());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $files[1]);
         $this->assertEquals('/webmozart/puli/file2', $files[1]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $files[1]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $files[1]->getPath());
     }
 
     public function testGetDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -331,7 +331,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $dir);
         $this->assertEquals('/webmozart/puli', $dir->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1', $dir->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1', $dir->getPath());
     }
 
     public function testGetInterpretsConsecutiveSlashesAsRoot()
@@ -367,7 +367,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetExpectsValidResourceArray()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -385,7 +385,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -393,7 +393,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
         $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $file->getPath());
     }
 
     /**
@@ -404,7 +404,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testOffsetGetInDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -413,7 +413,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
         $this->assertEquals('/webmozart/puli/file1', $file->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $file->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $file->getPath());
     }
 
     /**
@@ -426,7 +426,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInDirectoryExpectsExistingFile()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -441,8 +441,8 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(0, $resources);
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
-        $this->repo->add('/foo/bar', __DIR__.'/../Repository/Fixtures/dir2');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
+        $this->repo->add('/foo/bar', __DIR__.'/../Fixtures/dir2');
 
         $this->dumpLocator();
 
@@ -464,7 +464,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1', $resources[0]->getPath());
 
         $resources = $this->locator->listDirectory('/webmozart/puli');
 
@@ -472,16 +472,16 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $resources[0]->getPath());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
         $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $resources[1]->getPath());
     }
 
     public function testListDirectoryDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -491,11 +491,11 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $resources[0]->getPath());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
         $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $resources[1]->getPath());
     }
 
     /**
@@ -509,11 +509,11 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Webmozart\Puli\Locator\NoDirectoryException
      */
     public function testListDirectoryExpectsDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -522,7 +522,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testListDirectoryDoesNotShowRemovedFiles()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->repo->remove('/webmozart/puli/file1');
 
@@ -534,7 +534,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file2', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $resources[0]->getPath());
     }
 
     /**
@@ -551,8 +551,8 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(0, $resources);
 
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
-        $this->repo->add('/foo/bar', __DIR__.'/../Repository/Fixtures/dir2');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
+        $this->repo->add('/foo/bar', __DIR__.'/../Fixtures/dir2');
 
         $this->dumpLocator();
 
@@ -574,7 +574,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1', $resources[0]->getPath());
 
         $resources = $this->locator->get('/webmozart/puli')->all();
 
@@ -582,11 +582,11 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $resources[0]->getPath());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
         $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $resources[1]->getPath());
     }
 
     /**
@@ -597,7 +597,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testIterateDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -607,11 +607,11 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
         $this->assertEquals('/webmozart/puli/file1', $resources[0]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file1', $resources[0]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $resources[0]->getPath());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
         $this->assertEquals('/webmozart/puli/file2', $resources[1]->getRepositoryPath());
-        $this->assertEquals(__DIR__.'/../Repository/Fixtures/dir1/file2', $resources[1]->getPath());
+        $this->assertEquals(__DIR__.'/../Fixtures/dir1/file2', $resources[1]->getPath());
     }
 
     /**
@@ -622,7 +622,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCountDirectory()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->dumpLocator();
 
@@ -631,7 +631,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetByTag()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
 
@@ -651,7 +651,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTags()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
 
@@ -684,7 +684,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTagsReturnsSortedResult()
     {
-        $this->repo->add('/webmozart/puli', __DIR__.'/../Repository/Fixtures/dir1');
+        $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/foo');
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/bar');

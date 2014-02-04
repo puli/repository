@@ -87,6 +87,29 @@ echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
+Streams
+-------
+
+Puli supports a stream wrapper that lets you access the contents of the
+repository transparently through PHP's file functions. To register the wrapper,
+call the `register()` method in [`ResourceStreamWrapper`] and pass your
+desired URL protocol and the repository or the resource locator as arguments:
+
+```php
+use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
+
+ResourceStreamWrapper::register('resource', $locator);
+```
+
+You can now use regular PHP functions to access the files and directories in
+the repository.
+
+```php
+$contents = file_get_contents('resource:///webmozart/puli/css/style.css');
+
+$entries = scandir('resource:///webmozart/puli');
+```
+
 Resources
 ---------
 
@@ -470,5 +493,6 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`GlobPattern`]: src/Pattern/GlobPattern.php
 [`PatternLocatorInterface`]: src/PatternLocator/PatternLocatorInterface.php
 [`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php
+[`ResourceStreamWrapper`]: src/StreamWrapper/ResourceStreamWrapper.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
 [`preg_match()`]: http://php.net/manual/en/function.preg_match.php
