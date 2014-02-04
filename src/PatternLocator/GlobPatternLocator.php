@@ -12,17 +12,28 @@
 namespace Webmozart\Puli\PatternLocator;
 
 use Webmozart\Puli\Pattern\GlobPattern;
+use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GlobPatternLocator implements PatternLocatorInterface
+class GlobPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
 {
-    public function accepts(PatternInterface $pattern)
+    public function acceptsSelector($selector)
     {
-        return $pattern instanceof GlobPattern;
+        return false !== strpos($selector, '*');
+    }
+
+    public function createPattern($selector)
+    {
+        return new GlobPattern($selector);
+    }
+
+    public function createPatternLocator()
+    {
+        return $this;
     }
 
     public function locatePaths(PatternInterface $pattern)

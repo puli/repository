@@ -14,6 +14,7 @@ namespace Webmozart\Puli\Locator;
 use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternInterface;
+use Webmozart\Puli\PatternLocator\PatternFactoryInterface;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
 use Webmozart\Puli\Resource\LazyResourceCollection;
@@ -37,7 +38,7 @@ class PhpResourceLocator extends AbstractResourceLocator implements DataStorageI
 
     private $tags;
 
-    public function __construct($cacheDir)
+    public function __construct($cacheDir, PatternFactoryInterface $patternFactory = null)
     {
         if (!file_exists($cacheDir.'/'.PhpResourceLocatorDumper::FILE_PATHS_FILE) ||
             !file_exists($cacheDir.'/'.PhpResourceLocatorDumper::DIR_PATHS_FILE) ||
@@ -48,6 +49,8 @@ class PhpResourceLocator extends AbstractResourceLocator implements DataStorageI
                 $cacheDir
             ));
         }
+
+        parent::__construct($patternFactory);
 
         $this->cacheDir = $cacheDir;
     }

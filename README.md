@@ -378,21 +378,6 @@ foreach ($repo->get(new RegExpPattern('~^/webmozart/puli/css/.+\.css$~')) as $re
 }
 ```
 
-You can tell the repository to use this pattern class by default. To do so, pass
-the fully-qualified class name of the pattern class to
-`setDefaultPatternClass()`:
-
-```php
-$repo->setDefaultPatternClass('\Acme\Pattern\RegExpPattern');
-
-foreach ($repo->get('~^/webmozart/puli/css/.+\.css$~') as $resource) {
-    // ...
-}
-```
-
-The only requirements are that the pattern class accepts the pattern string as
-first constructor argument and that it implements [`PatternInterface`].
-
 So far, the custom pattern only works for locating files in the repository. If
 you also want to use it to locate files on the filesystem, create an
 implementation of [`PatternLocatorInterface`]. As example, look at the code
@@ -401,10 +386,7 @@ of [`GlobPatternLocator`]:
 ```php
 class GlobPatternLocator implements PatternLocatorInterface
 {
-    public function accepts(PatternInterface $pattern)
-    {
-        return $pattern instanceof GlobPattern;
-    }
+    // ...
 
     public function locatePaths(PatternInterface $pattern)
     {
@@ -417,19 +399,61 @@ The `locatePaths()` method receives the pattern instance and returns the paths
 in the file system which match the pattern. The `accepts()` method is used to
 specify which pattern classes the locator can process.
 
-To use the locator, register it with the repository using the
-`addPatternLocator()` method. Let's assume again that you implemented a
-`RegExpPatternLocator`:
+To use the locator, create an implementation of [`PatternFactoryInterface`] and
+return the locator from the `createPatternLocator()` method. A convenient
+solution is to let the locator itself implement this interface. If we assume
+again that you implemented a `RegExpPatternLocator`, you can extend the
+implementation like this:
 
 ```php
-$repo->addPatternLocator(new RegExpPatternLocator());
+class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
+{
+    // ...
+
+    public function createPatternLocator()
+    {
+        return $this;
+    }
+}
+```
+
+Pass the factory to the constructor of the repository or the resource locator:
+
+```php
+$repo = new ResourceRepository(new RegExpPatternLocator());
 
 // Locate files using regular expressions
 $repo->add('/webmozart/puli/css', new RegExpPattern('~^/path/to/css/.+\.css$~'));
+```
 
-// Or, if you define the pattern class as default
-$repo->setDefaultPatternClass('\Acme\Pattern\RegExpPattern');
+If you try to implement the above code snippets, you will notice that the
+[`PatternFactoryInterface`] requires to implement two more methods, namely
+`acceptsSelector()` and `createPattern()`. This methods help to automatically
+create pattern instances from the string selectors passed to `add()`, `get()`
+and similar methods. You could implement the methods like this:
 
+```php
+class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
+{
+    // ...
+
+    public function acceptsSelector($selector)
+    {
+        return '~' === $selector[0];
+    }
+
+    public function createPattern($selector)
+    {
+        new RegExpPattern($selector);
+    }
+}
+```
+
+You can now pass your custom pattern as string. Internally, the methods of the
+pattern factory will be called to construct a new `RegExpPattern` instance
+automatically:
+
+```php
 $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 ```
 
@@ -442,6 +466,7 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`PhpResourceLocatorDumper`]: src/LocatorDumper/PhpResourceLocatorDumper.php
 [`TagInterface`]: src/Tag/TagInterface.php
 [`PatternInterface`]: src/Pattern/PatternInterface.php
+[`PatternFactoryInterface`]: src/Pattern/PatternFactoryInterface.php
 [`GlobPattern`]: src/Pattern/GlobPattern.php
 [`PatternLocatorInterface`]: src/PatternLocator/PatternLocatorInterface.php
 [`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php

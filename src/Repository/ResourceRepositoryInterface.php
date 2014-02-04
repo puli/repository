@@ -27,8 +27,4 @@ interface ResourceRepositoryInterface extends ResourceLocatorInterface
     public function tag($selector, $tag);
 
     public function untag($selector, $tag = null);
-
-    public function addPatternLocator(PatternLocatorInterface $patternLocator);
-
-    public function setDefaultPatternClass($class);
 }

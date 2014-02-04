@@ -19,6 +19,11 @@ use Webmozart\Puli\Pattern\PatternInterface;
  */
 class CustomPattern implements PatternInterface
 {
+    public static function accepts($pattern)
+    {
+
+    }
+
     public function getStaticPrefix()
     {
     }

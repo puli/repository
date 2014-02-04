@@ -9,15 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\PatternLocator;
-
-use Webmozart\Puli\Pattern\PatternInterface;
+namespace Webmozart\Puli\Pattern;
 
 /**
  * @since  %%NextVersion%%
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface PatternLocatorInterface
+interface PatternFactoryInterface
 {
-    public function locatePaths(PatternInterface $pattern);
+    public function acceptsSelector($selector);
+
+    public function createPattern($selector);
+
+    public function createPatternLocator();
 }

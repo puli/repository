@@ -385,27 +385,6 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
         $this->repo->untag('/foo/bar', 'webmozart/tag');
     }
 
-    public function testSetDefaultPatternClass()
-    {
-        $this->repo->setDefaultPatternClass('\Webmozart\Puli\Tests\Repository\Fixtures\CustomPattern');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetDefaultPatternClassExpectsValidClass()
-    {
-        $this->repo->setDefaultPatternClass('foobar');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetDefaultPatternClassExpectsImplementationOfPatternInterface()
-    {
-        $this->repo->setDefaultPatternClass('\stdClass');
-    }
-
     protected function dumpLocator()
     {
         $this->locator = $this->repo;

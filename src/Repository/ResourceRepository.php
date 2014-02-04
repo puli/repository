@@ -15,6 +15,7 @@ use Webmozart\Puli\Locator\AbstractResourceLocator;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;
+use Webmozart\Puli\PatternLocator\PatternFactoryInterface;
 use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
@@ -37,19 +38,15 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     private $tags = array();
 
     /**
-     * @var PatternLocatorInterface[]
+     * @var PatternLocatorInterface
      */
-    private $patternLocators = array();
+    private $patternLocator;
 
-    /**
-     * @var string
-     */
-    private $defaultPatternClass = '\Webmozart\Puli\Pattern\GlobPattern';
-
-    public function __construct()
+    public function __construct(PatternFactoryInterface $patternFactory = null)
     {
+        parent::__construct($patternFactory);
+
         $this->resources['/'] = new DirectoryResource('/', null);
-        $this->patternLocators[] = new GlobPatternLocator();
     }
 
     public function getByTag($tag)
@@ -66,38 +63,24 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         // Discard any trailing slashes of directories. We don't need them.
         $selector = rtrim($selector, '/');
 
-        if (is_string($realPath) && false !== strpos($realPath, '*')) {
-            $realPath = new $this->defaultPatternClass($realPath);
+        if (is_string($realPath) && $this->patternFactory->acceptsSelector($realPath)) {
+            $realPath = $this->patternFactory->createPattern($realPath);
         }
 
         if ($realPath instanceof PatternInterface) {
-            $patternLocator = null;
-
-            foreach ($this->patternLocators as $locator) {
-                if ($locator->accepts($realPath)) {
-                    $patternLocator = $locator;
-
-                    break;
-                }
+            if (null === $this->patternLocator) {
+                $this->patternLocator = $this->patternFactory->createPatternLocator();
             }
 
-            if (null === $patternLocator) {
-                throw new \InvalidArgumentException(sprintf(
-                    'No pattern locator was found that supports patterns of '.
-                    'type "%s". Please register a locator using the '.
-                    'addPatternLocator() method of the resource repository '.
-                    'or use patterns of a different type.',
-                    get_class($realPath)
-                ));
-            }
-
-            $realPath = $patternLocator->locatePaths($realPath);
+            $realPath = $this->patternLocator->locatePaths($realPath);
         }
 
         if (is_array($realPath)) {
             foreach ($realPath as $path) {
-                if (false !== strpos($path, '*')) {
-                    $this->add($selector, $path);
+                if (is_string($path) && $this->patternFactory->acceptsSelector($path)) {
+                    // Immediately create the pattern in order to avoid another
+                    // test of the selector in the recursive call.
+                    $this->add($selector, $this->patternFactory->createPattern($path));
 
                     continue;
                 }
@@ -167,8 +150,8 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     public function remove($selector)
     {
-        if (is_string($selector) && false !== strpos($selector, '*')) {
-            $selector = new $this->defaultPatternClass($selector);
+        if (is_string($selector) && $this->patternFactory->acceptsSelector($selector)) {
+            $selector = $this->patternFactory->createPattern($selector);
         }
 
         if ($selector instanceof PatternInterface) {
@@ -278,31 +261,6 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         // Discard keys so that the using class does not depend on the internal
         // implementation
         return array_values($this->tags);
-    }
-
-    public function addPatternLocator(PatternLocatorInterface $patternLocator)
-    {
-        $this->patternLocators[] = $patternLocator;
-    }
-
-    public function setDefaultPatternClass($class)
-    {
-        if (!class_exists($class)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The class "%s" does not exist.',
-                $class
-            ));
-        }
-
-        if (!is_subclass_of($class, '\Webmozart\Puli\Pattern\PatternInterface')) {
-            throw new \InvalidArgumentException(sprintf(
-                'The class "%s" does not implement '.
-                '"\Webmozart\Puli\Pattern\PatternInterface".',
-                $class
-            ));
-        }
-
-        $this->defaultPatternClass = $class;
     }
 
     protected function getImpl($repositoryPath)

@@ -11,8 +11,9 @@
 
 namespace Webmozart\Puli\Locator;
 
-use Webmozart\Puli\Pattern\GlobPattern;
+use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
+use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 
 /**
@@ -22,12 +23,22 @@ use Webmozart\Puli\Resource\DirectoryResourceInterface;
 abstract class AbstractResourceLocator implements ResourceLocatorInterface
 {
     /**
+     * @var PatternFactoryInterface
+     */
+    protected $patternFactory;
+
+    public function __construct(PatternFactoryInterface $patternFactory = null)
+    {
+        $this->patternFactory = $patternFactory ?: new GlobPatternLocator();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function get($selector)
     {
-        if (is_string($selector) && false !== strpos($selector, '*')) {
-            $selector = new GlobPattern($selector);
+        if (is_string($selector) && $this->patternFactory->acceptsSelector($selector)) {
+            $selector = $this->patternFactory->createPattern($selector);
         }
 
         if ($selector instanceof PatternInterface) {
@@ -85,8 +96,8 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
      */
     public function contains($selector)
     {
-        if (is_string($selector) && false !== strpos($selector, '*')) {
-            $selector = new GlobPattern($selector);
+        if (is_string($selector) && $this->patternFactory->acceptsSelector($selector)) {
+            $selector = $this->patternFactory->createPattern($selector);
         }
 
         if ($selector instanceof PatternInterface) {
