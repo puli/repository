@@ -428,9 +428,9 @@ $repo->add('/webmozart/puli/css', new RegExpPattern('~^/path/to/css/.+\.css$~'))
 
 If you try to implement the above code snippets, you will notice that the
 [`PatternFactoryInterface`] requires to implement two more methods, namely
-`acceptsSelector()` and `createPattern()`. This methods help to automatically
-create pattern instances from the string selectors passed to `add()`, `get()`
-and similar methods. You could implement the methods like this:
+`acceptsSelector()` and `createPattern()`. These methods help to automatically
+create [`PatternInterface`] instances from the string selectors passed to
+`add()`, `get()` and similar methods. You could implement the methods like this:
 
 ```php
 class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
@@ -449,9 +449,9 @@ class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInt
 }
 ```
 
-You can now pass your custom pattern as string. Internally, the methods of the
-pattern factory will be called to construct a new `RegExpPattern` instance
-automatically:
+With these additions, it's possible to pass custom patterns as strings.
+Internally, the methods of the pattern factory will be called to construct a new
+`RegExpPattern` instance automatically:
 
 ```php
 $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
