@@ -110,6 +110,9 @@ $contents = file_get_contents('resource:///webmozart/puli/css/style.css');
 $entries = scandir('resource:///webmozart/puli');
 ```
 
+Even better: If you register the stream wrapper, you can use Puli resources
+with all frameworks and libraries that use PHP's file functions under the hood.
+
 Resources
 ---------
 
