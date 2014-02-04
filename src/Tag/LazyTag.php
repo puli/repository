@@ -16,7 +16,7 @@ use Webmozart\Puli\Resource\LazyResourceCollection;
 use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LazyTag implements \IteratorAggregate, TagInterface

@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Resource;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface DirectoryResourceInterface extends ResourceInterface, \Traversable, \Countable, \ArrayAccess

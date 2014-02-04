@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Resource;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LazyResourceCollection implements \Iterator, \Countable, \ArrayAccess

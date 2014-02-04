@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\StreamWrapper;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ProtocolAlreadyRegisteredException extends \Exception

@@ -15,6 +15,7 @@ use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Tests\Locator\AbstractResourceLocatorTest;
 
 /**
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceRepositoryTest extends AbstractResourceLocatorTest

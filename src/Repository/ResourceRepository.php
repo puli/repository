@@ -21,7 +21,7 @@ use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Tag\Tag;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceRepository extends AbstractResourceLocator implements ResourceRepositoryInterface

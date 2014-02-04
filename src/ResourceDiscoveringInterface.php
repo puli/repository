@@ -14,7 +14,7 @@ namespace Webmozart\Puli;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceDiscoveringInterface

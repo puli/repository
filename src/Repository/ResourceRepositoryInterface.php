@@ -15,7 +15,7 @@ use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceRepositoryInterface extends ResourceLocatorInterface

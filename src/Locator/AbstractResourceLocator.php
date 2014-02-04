@@ -17,7 +17,7 @@ use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractResourceLocator implements ResourceLocatorInterface

@@ -16,7 +16,7 @@ use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Repository\ResourceRepository;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase

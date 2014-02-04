@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Repository;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class RemovalNotAllowedException extends \Exception

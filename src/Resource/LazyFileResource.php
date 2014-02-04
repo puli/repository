@@ -15,7 +15,7 @@ use Webmozart\Puli\Locator\DataStorageInterface;
 use Webmozart\Puli\Tag\TagInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LazyFileResource implements ResourceInterface

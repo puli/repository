@@ -21,7 +21,7 @@ use Webmozart\Puli\Resource\LazyResourceCollection;
 use Webmozart\Puli\Tag\LazyTag;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PhpResourceLocator extends AbstractResourceLocator implements DataStorageInterface

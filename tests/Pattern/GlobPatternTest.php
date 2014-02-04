@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Tests\Pattern;
 use Webmozart\Puli\Pattern\GlobPattern;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class GlobPatternTest extends \PHPUnit_Framework_TestCase

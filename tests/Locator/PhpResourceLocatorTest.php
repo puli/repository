@@ -15,7 +15,7 @@ use Webmozart\Puli\Locator\PhpResourceLocator;
 use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PhpResourceLocatorTest extends AbstractResourceLocatorTest

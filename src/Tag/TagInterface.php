@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Tag;
 use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface TagInterface extends \Traversable, \Countable

@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Resource;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LazyDirectoryResource extends LazyFileResource implements \IteratorAggregate, DirectoryResourceInterface

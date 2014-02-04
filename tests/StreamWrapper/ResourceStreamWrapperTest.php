@@ -15,7 +15,7 @@ use Webmozart\Puli\Repository\ResourceRepository;
 use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
 
 /**
- * @since  %%NextVersion%%
+ * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
