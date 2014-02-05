@@ -33,6 +33,8 @@ You can install Puli with Composer:
 }
 ```
 
+Run `composer install` or `composer update` and you're ready to start.
+
 Repository Management
 ---------------------
 
