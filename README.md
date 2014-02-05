@@ -17,6 +17,9 @@ ResourceStreamWrapper::register('resource', $locator);
 echo file_get_contents('resource:///webmozart/puli/css/style.css');
 ```
 
+This document teaches you how to create resource locators, register files with
+them and much more.
+
 Installation
 ------------
 
