@@ -11,7 +11,7 @@ use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
 echo $locator->get('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/resources/assets/css/style.css
 
-// Register a PHP stream wrapper to use the locator with PHP's file functions
+// Register a stream wrapper to use the locator with PHP's file functions
 ResourceStreamWrapper::register('resource', $locator);
 
 echo file_get_contents('resource:///webmozart/puli/css/style.css');
