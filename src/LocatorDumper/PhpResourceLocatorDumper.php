@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\LocatorDumper;
 
+use Webmozart\Puli\Locator\PhpResourceLocator;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
@@ -20,14 +21,6 @@ use Webmozart\Puli\Resource\ResourceInterface;
  */
 class PhpResourceLocatorDumper implements ResourceLocatorDumperInterface
 {
-    const FILE_PATHS_FILE = 'resources_file_paths.php';
-
-    const DIR_PATHS_FILE = 'resources_dir_paths.php';
-
-    const ALTERNATIVE_PATHS_FILE = 'resources_alt_paths.php';
-
-    const TAGS_FILE = 'resources_tags.php';
-
     public function dumpLocator(ResourceLocatorInterface $locator, $targetPath)
     {
         $filePaths = array();
@@ -61,10 +54,10 @@ class PhpResourceLocatorDumper implements ResourceLocatorDumperInterface
             ));
         }
 
-        file_put_contents($targetPath.'/'.self::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
-        file_put_contents($targetPath.'/'.self::DIR_PATHS_FILE, "<?php\n\nreturn ".var_export($dirPaths, true).";");
-        file_put_contents($targetPath.'/'.self::ALTERNATIVE_PATHS_FILE, "<?php\n\nreturn ".var_export($alternativePaths, true).";");
-        file_put_contents($targetPath.'/'.self::TAGS_FILE, "<?php\n\nreturn ".var_export($tags, true).";");
+        file_put_contents($targetPath.'/'. PhpResourceLocator::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
+        file_put_contents($targetPath.'/'. PhpResourceLocator::DIR_PATHS_FILE, "<?php\n\nreturn ".var_export($dirPaths, true).";");
+        file_put_contents($targetPath.'/'. PhpResourceLocator::ALTERNATIVE_PATHS_FILE, "<?php\n\nreturn ".var_export($alternativePaths, true).";");
+        file_put_contents($targetPath.'/'. PhpResourceLocator::TAGS_FILE, "<?php\n\nreturn ".var_export($tags, true).";");
     }
 
     private function extractPaths(ResourceInterface $resource, array &$filePaths, array &$dirPaths, array &$alternativePaths)
