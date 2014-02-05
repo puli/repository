@@ -1,9 +1,9 @@
 Locating Files with Puli
 ========================
 
-Puli provides access to the files (*resources*) of your PHP project through a
-unified naming system. Essentially, Puli lets you use a *resource locator* to
-access files like this:
+Puli returns the absolute file paths of the files (*resources*) in your PHP
+project through a unified naming system. Essentially, Puli lets you use a
+*resource locator* to access files like this:
 
 ```php
 echo $locator->get('/webmozart/puli/css/style.css')->getPath();
