@@ -1,6 +1,6 @@
 {
     "name": "webmozart/puli",
-    "description": "Puli manages the file resources of your project.",
+    "description": "Puli provides access to the files of your PHP project through a unified naming system.",
     "license": "MIT",
     "authors": [
         {
