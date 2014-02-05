@@ -35,6 +35,12 @@ You can install Puli with Composer:
 
 Run `composer install` or `composer update` and you're ready to start.
 
+Tool Integration
+----------------
+
+An experimental [Composer plugin] builds a resource locator for you by reading
+resource paths from composer.json.
+
 Repository Management
 ---------------------
 
@@ -514,6 +520,7 @@ Internally, the methods of the pattern factory will be called to construct a new
 $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 ```
 
+[Composer plugin]: https://github.com/webmozart/composer-puli-plugin
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
