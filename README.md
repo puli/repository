@@ -2,7 +2,33 @@ Locating Files with Puli
 ========================
 
 Puli provides access to the files (*resources*) of your PHP project through a
-unified naming system.
+unified naming system. Essentially, Puli lets you use a *resource locator* to
+access files like this:
+
+```php
+use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
+
+echo $locator->get('/webmozart/puli/css/style.css')->getPath();
+// => /path/to/resources/assets/css/style.css
+
+// Register a PHP stream wrapper to use the locator with PHP's file functions
+ResourceStreamWrapper::register('resource', $locator);
+
+echo file_get_contents('resource:///webmozart/puli/css/style.css');
+```
+
+Installation
+------------
+
+You can install Puli with Composer:
+
+```json
+{
+    "require": {
+        "puli": "~1.0@alpha"
+    }
+}
+```
 
 Repository Management
 ---------------------
@@ -53,7 +79,7 @@ Resource Locators
 -----------------
 
 Building and configuring a repository is expensive and should not be done on
-every request. For this reason, Puli allows to dump *resource locators* that are
+every request. For this reason, Puli allows to dump resource locators that are
 optimized for retrieving resources. Resource locators must implement the
 interface [`ResourceLocatorInterface`], which provides a subset of the
 methods available in the resource repository. Naturally, resource locators are
