@@ -1,6 +1,6 @@
 {
     "name": "webmozart/puli",
-    "description": "Puli provides access to the files of your PHP project through a unified naming system.",
+    "description": "Puli returns the absolute file paths of the files in your PHP project through a unified naming system.",
     "license": "MIT",
     "authors": [
         {
