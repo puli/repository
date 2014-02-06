@@ -41,8 +41,11 @@ Run `composer install` or `composer update` and you're ready to start.
 Tool Integration
 ----------------
 
-An experimental [Composer plugin] builds a resource locator for you by reading
-resource paths from composer.json.
+Tool        | Description                                                                               | Version
+----------- | ----------------------------------------------------------------------------------------- | ---------------
+Composer    | The [Puli plugin for Composer] builds resource locators from composer.json definitions.   | 1.0.0-alpha1
+Twig        | The [Puli extension for Twig] lets you access templates via Puli paths.                   | 1.0.0-dev
+
 
 Repository Management
 ---------------------
@@ -524,6 +527,8 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 ```
 
 [Composer plugin]: https://github.com/webmozart/composer-puli-plugin
+[Puli plugin for Composer]: https://github.com/webmozart/composer-puli-plugin
+[Puli extension for Twig]: https://github.com/webmozart/twig-puli-extension
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
