@@ -31,7 +31,7 @@ You can install Puli with Composer:
 ```json
 {
     "require": {
-        "puli": "~1.0@alpha"
+        "webmozart/puli": "~1.0@alpha"
     }
 }
 ```
