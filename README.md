@@ -465,8 +465,7 @@ class GlobPatternLocator implements PatternLocatorInterface
 ```
 
 The `locatePaths()` method receives the pattern instance and returns the paths
-in the file system which match the pattern. The `accepts()` method is used to
-specify which pattern classes the locator can process.
+in the file system which match the pattern.
 
 To use the locator, create an implementation of [`PatternFactoryInterface`] and
 return the locator from the `createPatternLocator()` method. A convenient
