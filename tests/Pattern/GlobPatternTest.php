@@ -33,19 +33,21 @@ class GlobPatternTest extends \PHPUnit_Framework_TestCase
     public function provideMatches()
     {
         return array(
-            array('/foo/../bar/baz.js~', 1),
-            array('/foo/../foo/baz.js~', 1),
-            array('/foo/../bar/baz.js', 0),
-            array('/foo/../foo/bar/baz.js~', 0),
-            array('foo/../foo/baz.js~', 0),
-            array('/bar/foo/../foo/baz.js~', 0),
-            array('/foo/../bar/.js~', 0),
+            array('/bar/baz.js~', 1),
+            array('/foo/baz.js~', 1),
+            array('/foo/../bar/baz.js~', 0),
+            array('/foo/../foo/baz.js~', 0),
+            array('/bar/baz.js', 0),
+            array('/foo/bar/baz.js~', 0),
+            array('foo/baz.js~', 0),
+            array('/bar/foo/baz.js~', 0),
+            array('/bar/.js~', 0),
         );
     }
 
     public function testGetStaticPrefix()
     {
-        $pattern = new GlobPattern('/foo/*/bar/*');
+        $pattern = new GlobPattern('/foo/baz/../*/bar/*');
 
         $this->assertSame('/foo/', $pattern->getStaticPrefix());
     }
@@ -54,6 +56,6 @@ class GlobPatternTest extends \PHPUnit_Framework_TestCase
     {
         $pattern = new GlobPattern('/foo/../*/*.js~');
 
-        $this->assertSame('/foo/../*/*.js~', $pattern->__toString());
+        $this->assertSame('/*/*.js~', $pattern->__toString());
     }
 }

@@ -13,7 +13,6 @@ namespace Webmozart\Puli\Locator;
 
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Tag\TagInterface;
 
 /**
  * @since  1.0
@@ -50,7 +49,7 @@ interface ResourceLocatorInterface
     public function listDirectory($repositoryPath);
 
     /**
-     * @return TagInterface[]
+     * @return string[]
      */
     public function getTags();
 }

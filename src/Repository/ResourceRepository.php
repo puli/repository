@@ -20,6 +20,7 @@ use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\Util\Path;
 
 /**
  * @since  1.0
@@ -60,8 +61,19 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     public function add($selector, $realPath)
     {
-        // Discard any trailing slashes of directories. We don't need them.
-        $selector = rtrim($selector, '/');
+        if ('' === $selector) {
+            throw new \InvalidArgumentException(
+                'Please pass a non-empty selector.'
+            );
+        }
+
+        $selector = Path::canonicalize($selector);
+
+        if ('/' === $selector) {
+            throw new \InvalidArgumentException(
+                'You cannot map the root directory "/".'
+            );
+        }
 
         if (is_string($realPath) && $this->patternFactory->acceptsSelector($realPath)) {
             $realPath = $this->patternFactory->createPattern($realPath);
@@ -106,6 +118,8 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             ));
         }
 
+        // Remove dot segments
+        $realPath = Path::canonicalize($realPath);
         $isDirectory = is_dir($realPath);
 
         // Create new Resource instances if necessary
@@ -147,6 +161,12 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     public function remove($selector)
     {
+        if ('' === $selector) {
+            throw new \InvalidArgumentException(
+                'Please pass a non-empty selector.'
+            );
+        }
+
         if (is_string($selector) && $this->patternFactory->acceptsSelector($selector)) {
             $selector = $this->patternFactory->createPattern($selector);
         }
@@ -179,9 +199,9 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             return;
         }
 
-        $selector = rtrim($selector, '/');
+        $selector = Path::canonicalize($selector);
 
-        if ('' === $selector) {
+        if ('/' === $selector) {
             throw new RemovalNotAllowedException(
                 'The root directory "/" must not be removed.'
             );
@@ -315,7 +335,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         // Doing so after removing the node itself ensures that this code is
         // not executed for the recursive child calls, because then their parent
         // node does not exist anymore.
-        $parentPath = $this->dirname($repositoryPath);
+        $parentPath = Path::dirname($repositoryPath);
 
         if (isset($this->resources[$parentPath])
                 && $this->resources[$parentPath] instanceof DirectoryResourceInterface) {
@@ -344,7 +364,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     private function getOrCreateDirectoryOf($repositoryPath)
     {
         // Recursively initialize parent directories
-        $parentPath = $this->dirname($repositoryPath);
+        $parentPath = Path::dirname($repositoryPath);
 
         if (!isset($this->resources[$parentPath])) {
             $grandParent = $this->getOrCreateDirectoryOf($parentPath);
@@ -389,22 +409,5 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
                 unset($this->resourcesByTag[$tag]);
             }
         }
-    }
-
-    /**
-     * @param string $repositoryPath
-     *
-     * @return string
-     */
-    private function dirname($repositoryPath)
-    {
-        $parentPath = dirname($repositoryPath);
-
-        // Fix root directory on Windows
-        if ('\\' === $parentPath) {
-            $parentPath = '/';
-        }
-
-        return $parentPath;
     }
 }

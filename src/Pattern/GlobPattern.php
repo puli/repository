@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Pattern;
 
+use Webmozart\Puli\Util\Path;
+
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -25,13 +27,13 @@ class GlobPattern implements PatternInterface
 
     public function __construct($pattern)
     {
-        $this->pattern = $pattern;
-        $this->regExp = '~^'.str_replace('\*', '[^/]+', preg_quote($pattern, '~')).'$~';
+        $this->pattern = Path::canonicalize($pattern);
+        $this->regExp = '~^'.str_replace('\*', '[^/]+', preg_quote($this->pattern, '~')).'$~';
 
-        if (false !== ($pos = strpos($pattern, '*'))) {
-            $this->staticPrefix = substr($pattern, 0, $pos);
+        if (false !== ($pos = strpos($this->pattern, '*'))) {
+            $this->staticPrefix = substr($this->pattern, 0, $pos);
         } else {
-            $this->staticPrefix = $pattern;
+            $this->staticPrefix = $this->pattern;
         }
     }
 

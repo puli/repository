@@ -16,6 +16,7 @@ use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Util\Path;
 
 /**
  * @since  1.0
@@ -61,26 +62,12 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
             return $resources;
         }
 
-        $selector = rtrim($selector, '/');
-
-        // If the selector is empty after trimming, reset it to root.
-        if ('' === $selector) {
-            $selector = '/';
-        }
-
-        return $this->getImpl($selector);
+        return $this->getImpl(Path::canonicalize($selector));
     }
 
     public function listDirectory($repositoryPath)
     {
-        $repositoryPath = rtrim($repositoryPath, '/');
-
-        // If the selector is empty after trimming, reset it to root.
-        if ('' === $repositoryPath) {
-            $repositoryPath = '/';
-        }
-
-        $resource = $this->getImpl($repositoryPath);
+        $resource = $this->getImpl(Path::canonicalize($repositoryPath));
 
         if ($resource instanceof DirectoryResourceInterface) {
             return $resource->all();
@@ -115,14 +102,7 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
             return true;
         }
 
-        $selector = rtrim($selector, '/');
-
-        // If the selector is empty after trimming, reset it to root.
-        if ('' === $selector) {
-            $selector = '/';
-        }
-
-        return $this->containsImpl($selector);
+        return $this->containsImpl(Path::canonicalize($selector));
     }
 
     abstract protected function getImpl($repositoryPath);
