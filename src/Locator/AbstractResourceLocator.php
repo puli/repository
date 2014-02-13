@@ -14,6 +14,7 @@ namespace Webmozart\Puli\Locator;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;
+use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 
 /**

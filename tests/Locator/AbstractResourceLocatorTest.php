@@ -509,7 +509,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Locator\NoDirectoryException
+     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
      */
     public function testListDirectoryExpectsDirectory()
     {

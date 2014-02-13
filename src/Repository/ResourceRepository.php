@@ -17,6 +17,7 @@ use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Tag\Tag;
 
@@ -109,6 +110,10 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
         // Create new Resource instances if necessary
         if (!isset($this->resources[$selector])) {
+            // Create parent directory if needed
+            $directory = $this->getOrCreateDirectoryOf($selector);
+
+            // Add resource after the directory to maintain the correct order
             $this->resources[$selector] = $isDirectory
                 ? new DirectoryResource(
                     $selector,
@@ -119,20 +124,13 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
                     $realPath
                 );
 
-            // Create parent directory if needed
-            $parent = dirname($selector);
-
-            if (!isset($this->resources[$parent])) {
-                $this->initDirectory($parent);
-            }
+            // Add the new node to the parent directory
+            $directory->add($this->resources[$selector]);
 
             // Keep the resources sorted by file name. This could probably be
             // optimized by inserting at the right position instead of
             // rearranging the complete array on every add.
             ksort($this->resources);
-
-            // Add the new node to the parent directory
-            $this->resources[$parent]->add($this->resources[$selector]);
         } else {
             $this->resources[$selector]->overridePath($realPath);
         }
@@ -357,22 +355,26 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         }
     }
 
-    private function initDirectory($repositoryPath)
+    private function getOrCreateDirectoryOf($repositoryPath)
     {
-        // Create new directory
-        $directory = new DirectoryResource($repositoryPath, null);
-
         // Recursively initialize parent directories
-        $parent = dirname($repositoryPath);
+        $parentPath = dirname($repositoryPath);
 
-        if (!isset($this->resources[$parent])) {
-            $this->initDirectory($parent);
+        if (!isset($this->resources[$parentPath])) {
+            $grandParent = $this->getOrCreateDirectoryOf($parentPath);
+
+            // Create new directory
+            $this->resources[$parentPath] = new DirectoryResource($parentPath, null);
+
+            // Add as child node of the parent directory
+            $grandParent->add($this->resources[$parentPath]);
+        } elseif (!$this->resources[$parentPath] instanceof DirectoryResourceInterface) {
+            throw new NoDirectoryException(sprintf(
+                'The path "%s" is not a directory.',
+                $parentPath
+            ));
         }
 
-        // Add as child node of the parent directory
-        $this->resources[$parent]->add($directory);
-
-        // Register after parent directory to keep the order
-        $this->resources[$repositoryPath] = $directory;
+        return $this->resources[$parentPath];
     }
 }

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Locator;
+namespace Webmozart\Puli\Repository;
 
 /**
  * @since  1.0

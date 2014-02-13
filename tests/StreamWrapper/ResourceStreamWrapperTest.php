@@ -222,7 +222,7 @@ FILE1;
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Not supported before PHP 5.4.0.');
         }
-        
+
         $this->handle = fopen('puli:///webmozart/puli/file1', 'r+');
 
         $this->assertFalse(ftruncate($this->handle, -4));
@@ -320,7 +320,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Locator\NoDirectoryException
+     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {

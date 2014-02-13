@@ -31,6 +31,15 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
         $this->assertEquals(__DIR__.'/../Fixtures/dir1/file1', $file->getPath());
     }
 
+    /**
+     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
+     */
+    public function testAddFileAsChildOfFile()
+    {
+        $this->repo->add('/webmozart/puli/file1', __DIR__.'/../Fixtures/dir1/file1');
+        $this->repo->add('/webmozart/puli/file1/file2', __DIR__.'/../Fixtures/dir1/file2');
+    }
+
     public function testAddDirectory()
     {
         $this->repo->add('/webmozart/puli', __DIR__.'/../Fixtures/dir1');
