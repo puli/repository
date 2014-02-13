@@ -28,6 +28,8 @@ interface ResourceInterface
     public function getPath();
 
     /**
+     * @param string $path
+     *
      * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::add()}.
      */
     public function overridePath($path);
