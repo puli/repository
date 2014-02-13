@@ -20,7 +20,6 @@ use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Tag\Tag;
 
 /**
  * @since  1.0

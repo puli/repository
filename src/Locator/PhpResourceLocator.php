@@ -293,15 +293,4 @@ class PhpResourceLocator extends AbstractResourceLocator implements DataStorageI
 
         return $this->resources[$repositoryPath];
     }
-
-    private function createTag($tag)
-    {
-        $this->tags[$tag] = new LazyTag(
-            $this,
-            $tag,
-            new LazyResourceCollection($this, $this->tags[$tag])
-        );
-
-        return $this->tags[$tag];
-    }
 }
