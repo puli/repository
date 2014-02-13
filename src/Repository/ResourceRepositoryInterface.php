@@ -13,7 +13,6 @@ namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 
 /**
  * @since  1.0
