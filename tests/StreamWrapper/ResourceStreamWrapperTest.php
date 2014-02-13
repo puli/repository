@@ -206,6 +206,10 @@ FILE1;
 
     public function testTruncate()
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Not supported before PHP 5.4.0.');
+        }
+
         $this->handle = fopen('puli:///webmozart/puli/file1', 'r+');
 
         $this->assertTrue(ftruncate($this->handle, 4));
@@ -215,6 +219,10 @@ FILE1;
 
     public function testTruncateInvalidSize()
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Not supported before PHP 5.4.0.');
+        }
+        
         $this->handle = fopen('puli:///webmozart/puli/file1', 'r+');
 
         $this->assertFalse(ftruncate($this->handle, -4));
