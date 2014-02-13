@@ -155,21 +155,37 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_close()
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return fclose($this->handle);
     }
 
     public function stream_eof()
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return feof($this->handle);
     }
 
     public function stream_flush()
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return fflush($this->handle);
     }
 
     public function stream_lock($operation)
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return flock($this->handle, $operation);
     }
 
@@ -221,11 +237,19 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_read($length)
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return fread($this->handle, $length);
     }
 
     public function stream_seek($offset, $whence = SEEK_SET)
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return 0 === fseek($this->handle, $offset, $whence);
     }
 
@@ -236,21 +260,37 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_stat()
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return fstat($this->handle);
     }
 
     public function stream_tell()
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return ftell($this->handle);
     }
 
     public function stream_truncate($newSize)
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return ftruncate($this->handle, $newSize);
     }
 
     public function stream_write($data)
     {
+        if (null === $this->handle) {
+            assert(false, 'PHP always opens the stream first.');
+        }
+
         return fwrite($this->handle, $data);
     }
 
