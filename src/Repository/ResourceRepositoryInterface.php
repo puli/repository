@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 
 /**
@@ -20,11 +21,26 @@ use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
  */
 interface ResourceRepositoryInterface extends ResourceLocatorInterface
 {
+    /**
+     * @param string $selector
+     * @param string|PatternInterface $realPath
+     */
     public function add($selector, $realPath);
 
+    /**
+     * @param string|PatternInterface $selector
+     */
     public function remove($selector);
 
+    /**
+     * @param string|PatternInterface $selector
+     * @param string $tag
+     */
     public function tag($selector, $tag);
 
+    /**
+     * @param string|PatternInterface $selector
+     * @param string|null $tag
+     */
     public function untag($selector, $tag = null);
 }
