@@ -17,7 +17,6 @@ use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
 use Webmozart\Puli\Resource\LazyResourceCollection;
-use Webmozart\Puli\Tag\LazyTag;
 
 /**
  * @since  1.0
@@ -72,15 +71,17 @@ class PhpResourceLocator extends AbstractResourceLocator implements DataStorageI
             return array();
         }
 
-        if (!$this->tags[$tag] instanceof LazyTag) {
-            return iterator_to_array($this->createTag($tag));
+        if (count($this->tags[$tag]) > 0 && is_string($this->tags[$tag][0])) {
+            foreach ($this->tags[$tag] as $key => $repositoryPath) {
+                $this->tags[$tag][$key] = $this->get($repositoryPath);
+            }
         }
 
-        return iterator_to_array($this->tags[$tag]);
+        return $this->tags[$tag];
     }
 
     /**
-     * @return \Webmozart\Puli\Tag\TagInterface[]
+     * @return string[]
      */
     public function getTags($repositoryPath = null)
     {
@@ -88,14 +89,7 @@ class PhpResourceLocator extends AbstractResourceLocator implements DataStorageI
             $this->tags = require ($this->cacheDir.'/'. self::TAGS_FILE);
         }
 
-        foreach ($this->tags as $tag => $resources) {
-            if (!$resources instanceof LazyTag) {
-                $this->createTag($tag);
-            }
-        }
-
-        // Hide the internal keys from the outside
-        return array_values($this->tags);
+        return array_keys($this->tags);
     }
 
     public function getAlternativePaths($repositoryPath)

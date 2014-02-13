@@ -660,7 +660,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $tags = $this->locator->getTags();
 
         $this->assertCount(1, $tags);
-        $this->assertEquals('webmozart/tag1', $tags[0]->getName());
+        $this->assertEquals('webmozart/tag1', $tags[0]);
 
         $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag2');
 
@@ -669,8 +669,8 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $tags = $this->locator->getTags();
 
         $this->assertCount(2, $tags);
-        $this->assertEquals('webmozart/tag1', $tags[0]->getName());
-        $this->assertEquals('webmozart/tag2', $tags[1]->getName());
+        $this->assertEquals('webmozart/tag1', $tags[0]);
+        $this->assertEquals('webmozart/tag2', $tags[1]);
 
         $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
 
@@ -679,7 +679,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $tags = $this->locator->getTags();
 
         $this->assertCount(1, $tags);
-        $this->assertEquals('webmozart/tag2', $tags[0]->getName());
+        $this->assertEquals('webmozart/tag2', $tags[0]);
     }
 
     public function testGetTagsReturnsSortedResult()
@@ -694,7 +694,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $tags = $this->locator->getTags();
 
         $this->assertCount(2, $tags);
-        $this->assertEquals('webmozart/bar', $tags[0]->getName());
-        $this->assertEquals('webmozart/foo', $tags[1]->getName());
+        $this->assertEquals('webmozart/bar', $tags[0]);
+        $this->assertEquals('webmozart/foo', $tags[1]);
     }
 }

@@ -5,6 +5,7 @@ Changelog
 
  * fixed "Maximum function nesting level" error on Windows
  * pushed minimum PHP version to 5.3.9
+ * removed `TagInterface` and descending classes
 
 * 1.0.0-alpha1 (2014-02-04)
 

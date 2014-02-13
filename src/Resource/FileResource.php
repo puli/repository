@@ -11,8 +11,6 @@
 
 namespace Webmozart\Puli\Resource;
 
-use Webmozart\Puli\Tag\TagInterface;
-
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -40,7 +38,7 @@ class FileResource implements ResourceInterface
     protected $alternativePaths = array();
 
     /**
-     * @var \SplObjectStorage
+     * @var boolean[]
      */
     protected $tags = array();
 
@@ -48,7 +46,6 @@ class FileResource implements ResourceInterface
     {
         $this->repositoryPath = $repositoryPath;
         $this->name = basename($repositoryPath);
-        $this->tags = new \SplObjectStorage();
 
         if (null !== $path) {
             $this->path = $path;
@@ -102,17 +99,17 @@ class FileResource implements ResourceInterface
      */
     public function getTags()
     {
-        return iterator_to_array($this->tags);
+        return array_keys($this->tags);
     }
 
-    public function addTag(TagInterface $tag)
+    public function addTag($tag)
     {
-        $this->tags->attach($tag);
+        $this->tags[$tag] = true;
     }
 
-    public function removeTag(TagInterface $tag)
+    public function removeTag($tag)
     {
-        $this->tags->detach($tag);
+        unset($this->tags[$tag]);
     }
 
     public function __toString()

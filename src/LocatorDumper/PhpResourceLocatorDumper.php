@@ -35,11 +35,11 @@ class PhpResourceLocatorDumper implements ResourceLocatorDumperInterface
         foreach ($locator->getTags() as $tag) {
             $resources = array();
 
-            foreach ($tag->getResources() as $resource) {
+            foreach ($locator->getByTag($tag) as $resource) {
                 $resources[] = $resource->getRepositoryPath();
             }
 
-            $tags[$tag->getName()] = $resources;
+            $tags[$tag] = $resources;
         }
 
         // Create the directory if it doesn't exist

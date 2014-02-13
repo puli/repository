@@ -24,7 +24,7 @@ interface ResourceLocatorInterface
     /**
      * @param string|PatternInterface $selector
      *
-     * @return ResourceInterface
+     * @return ResourceInterface|ResourceInterface[]
      */
     public function get($selector);
 

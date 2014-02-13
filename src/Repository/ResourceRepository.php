@@ -19,6 +19,7 @@ use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\ResourceInterface;
 use Webmozart\Puli\Tag\Tag;
 
 /**
@@ -33,9 +34,9 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     private $resources = array();
 
     /**
-     * @var Tag[]
+     * @var \SplObjectStorage[]
      */
-    private $tags = array();
+    private $resourcesByTag = array();
 
     /**
      * @var PatternLocatorInterface
@@ -51,11 +52,11 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     public function getByTag($tag)
     {
-        if (!isset($this->tags[$tag])) {
+        if (!isset($this->resourcesByTag[$tag])) {
             return array();
         }
 
-        return iterator_to_array($this->tags[$tag]);
+        return iterator_to_array($this->resourcesByTag[$tag]);
     }
 
     public function add($selector, $realPath)
@@ -200,15 +201,17 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             $resources = array($resources);
         }
 
-        if (!isset($this->tags[$tag])) {
-            $this->tags[$tag] = new Tag($tag);
+        if (!isset($this->resourcesByTag[$tag])) {
+            $this->resourcesByTag[$tag] = new \SplObjectStorage();
 
             // Maintain order
-            ksort($this->tags);
+            ksort($this->resourcesByTag);
         }
 
         foreach ($resources as $resource) {
-            $this->tags[$tag]->addResource($resource);
+            /** @var \Webmozart\Puli\Resource\ResourceInterface $resource */
+            $this->resourcesByTag[$tag]->attach($resource);
+            $resource->addTag($tag);
         }
     }
 
@@ -220,34 +223,17 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             $resources = array($resources);
         }
 
-        if (null !== $tag) {
-            if (!isset($this->tags[$tag])) {
-                return;
-            }
-
+        if (null === $tag) {
             foreach ($resources as $resource) {
-                $this->tags[$tag]->removeResource($resource);
+                $this->removeAllTagsFrom($resource);
             }
-
-            // Clean up
-            if (0 === count($this->tags[$tag])) {
-                unset($this->tags[$tag]);
-            }
-
-            return;
-        }
-
-        /** @var \Webmozart\Puli\Resource\ResourceInterface $resource */
-        foreach ($resources as $resource) {
-            foreach ($resource->getTags() as $tag) {
-                $tag->removeResource($resource);
-
-                // Clean up
-                if (0 === count($tag)) {
-                    unset($this->tags[$tag->getName()]);
-                }
+        } else {
+            foreach ($resources as $resource) {
+                $this->removeTagFrom($resource, $tag);
             }
         }
+
+        $this->discardEmptyTags();
     }
 
     /**
@@ -255,9 +241,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
      */
     public function getTags()
     {
-        // Discard keys so that the using class does not depend on the internal
-        // implementation
-        return array_values($this->tags);
+        return array_keys($this->resourcesByTag);
     }
 
     protected function getImpl($repositoryPath)
@@ -352,15 +336,8 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             }
         }
 
-        // Untag resource
-        foreach ($resource->getTags() as $tag) {
-            $tag->removeResource($resource);
-
-            // Clean up
-            if (0 === count($tag)) {
-                unset($this->tags[$tag->getName()]);
-            }
-        }
+        $this->removeAllTagsFrom($resource);
+        $this->discardEmptyTags();
     }
 
     /**
@@ -396,5 +373,32 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         }
 
         return $this->resources[$parentPath];
+    }
+
+    private function removeTagFrom(ResourceInterface $resource, $tag)
+    {
+        $resource->removeTag($tag);
+
+        if (!isset($this->resourcesByTag[$tag])) {
+            return;
+        }
+
+        $this->resourcesByTag[$tag]->detach($resource);
+    }
+
+    private function removeAllTagsFrom(ResourceInterface $resource)
+    {
+        foreach ($resource->getTags() as $tag) {
+            $this->removeTagFrom($resource, $tag);
+        }
+    }
+
+    private function discardEmptyTags()
+    {
+        foreach ($this->resourcesByTag as $tag => $resources) {
+            if (0 === count($resources)) {
+                unset($this->resourcesByTag[$tag]);
+            }
+        }
     }
 }

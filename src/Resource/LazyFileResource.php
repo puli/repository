@@ -12,7 +12,6 @@
 namespace Webmozart\Puli\Resource;
 
 use Webmozart\Puli\Locator\DataStorageInterface;
-use Webmozart\Puli\Tag\TagInterface;
 
 /**
  * @since  1.0
@@ -46,7 +45,7 @@ class LazyFileResource implements ResourceInterface
     protected $alternativePaths;
 
     /**
-     * @var TagInterface[]
+     * @var boolean[]
      */
     protected $tags;
 
@@ -95,14 +94,14 @@ class LazyFileResource implements ResourceInterface
         return $this->alternativePaths;
     }
 
-    public function addTag(TagInterface $tag)
+    public function addTag($tag)
     {
         throw new \BadMethodCallException(
             'Resources fetched from a resource locator may not be modified.'
         );
     }
 
-    public function removeTag(TagInterface $tag)
+    public function removeTag($tag)
     {
         throw new \BadMethodCallException(
             'Resources fetched from a resource locator may not be modified.'
@@ -110,7 +109,7 @@ class LazyFileResource implements ResourceInterface
     }
 
     /**
-     * @return TagInterface[]
+     * @return string[]
      */
     public function getTags()
     {
