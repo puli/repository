@@ -1,6 +1,8 @@
 Locating Files with Puli
 ========================
 
+![Travis CI build status](https://travis-ci.org/webmozart/puli.png)
+
 Puli returns the absolute file paths of the files (*resources*) in your PHP
 project through a unified naming system. Essentially, Puli lets you use a
 *resource locator* to access files like this:
