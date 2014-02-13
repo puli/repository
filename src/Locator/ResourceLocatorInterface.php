@@ -11,6 +11,10 @@
 
 namespace Webmozart\Puli\Locator;
 
+use Webmozart\Puli\Pattern\PatternInterface;
+use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\Tag\TagInterface;
+
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -18,25 +22,35 @@ namespace Webmozart\Puli\Locator;
 interface ResourceLocatorInterface
 {
     /**
-     * @param string $selector
+     * @param string|PatternInterface $selector
      *
-     * @return \Webmozart\Puli\Resource\ResourceInterface
+     * @return ResourceInterface
      */
     public function get($selector);
 
     /**
-     * @param string $selector
+     * @param string|PatternInterface $selector
      *
      * @return boolean
      */
     public function contains($selector);
 
+    /**
+     * @param string $tag
+     *
+     * @return ResourceInterface[]
+     */
     public function getByTag($tag);
 
+    /**
+     * @param string $repositoryPath
+     *
+     * @return ResourceInterface[]
+     */
     public function listDirectory($repositoryPath);
 
     /**
-     * @return \Webmozart\Puli\Tag\TagInterface[]
+     * @return TagInterface[]
      */
     public function getTags();
 }
