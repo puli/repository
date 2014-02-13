@@ -155,36 +155,28 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_close()
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return fclose($this->handle);
     }
 
     public function stream_eof()
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return feof($this->handle);
     }
 
     public function stream_flush()
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return fflush($this->handle);
     }
 
     public function stream_lock($operation)
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return flock($this->handle, $operation);
     }
@@ -237,18 +229,14 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_read($length)
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return fread($this->handle, $length);
     }
 
     public function stream_seek($offset, $whence = SEEK_SET)
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return 0 === fseek($this->handle, $offset, $whence);
     }
@@ -260,36 +248,28 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_stat()
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return fstat($this->handle);
     }
 
     public function stream_tell()
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return ftell($this->handle);
     }
 
     public function stream_truncate($newSize)
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return ftruncate($this->handle, $newSize);
     }
 
     public function stream_write($data)
     {
-        if (null === $this->handle) {
-            assert(false);
-        }
+        assert(null !== $this->handle);
 
         return fwrite($this->handle, $data);
     }
