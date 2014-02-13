@@ -311,26 +311,8 @@ You can also read all tags that have been registered in the repository:
 $tags = $repo->getTags();
 ```
 
-Each of these tags is an instance of [`TagInterface`]. This interface lets you
-access both the tag's name and the resources that currently bear this tag:
-
-```php
-echo $tag->getName();
-// => acme/translator/xlf
-
-foreach ($tag->getResources() as $resource) {
-    // ...
-}
-```
-
-At last, you can query the tags of an individual resource using the `getTags()`
-method in [`ResourceInterface`]:
-
-```php
-foreach ($resource->getTags() as $tag) {
-    echo $tag->getName();
-}
-```
+This method will return an array of strings, namely the tags that have been
+registered.
 
 Automated Resource Discovery
 ----------------------------
@@ -544,7 +526,6 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
 [`PhpResourceLocator`]: src/Locator/PhpResourceLocator.php
 [`PhpResourceLocatorDumper`]: src/LocatorDumper/PhpResourceLocatorDumper.php
-[`TagInterface`]: src/Tag/TagInterface.php
 [`PatternInterface`]: src/Pattern/PatternInterface.php
 [`PatternFactoryInterface`]: src/Pattern/PatternFactoryInterface.php
 [`GlobPattern`]: src/Pattern/GlobPattern.php
