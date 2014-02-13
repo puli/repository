@@ -23,11 +23,18 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
 
     public function add(ResourceInterface $resource)
     {
-        if ($this->repositoryPath !== dirname($resource->getRepositoryPath())) {
+        $parentPath = dirname($resource->getRepositoryPath());
+
+        // Fix root directory on Windows
+        if ('\\' === $parentPath) {
+            $parentPath = '/';
+        }
+
+        if ($this->repositoryPath !== $parentPath) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot add resource "%s" to the directory "%s", since it is '.
                 'located in a different directory.',
-                dirname($resource->getRepositoryPath()),
+                $parentPath,
                 $this->repositoryPath
             ));
         }
