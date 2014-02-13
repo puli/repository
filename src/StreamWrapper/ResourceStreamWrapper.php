@@ -156,7 +156,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_close()
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return fclose($this->handle);
@@ -165,7 +165,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_eof()
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return feof($this->handle);
@@ -174,7 +174,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_flush()
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return fflush($this->handle);
@@ -183,7 +183,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_lock($operation)
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return flock($this->handle, $operation);
@@ -238,7 +238,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_read($length)
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return fread($this->handle, $length);
@@ -247,7 +247,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_seek($offset, $whence = SEEK_SET)
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return 0 === fseek($this->handle, $offset, $whence);
@@ -261,7 +261,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_stat()
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return fstat($this->handle);
@@ -270,7 +270,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_tell()
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return ftell($this->handle);
@@ -279,7 +279,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_truncate($newSize)
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return ftruncate($this->handle, $newSize);
@@ -288,7 +288,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function stream_write($data)
     {
         if (null === $this->handle) {
-            assert(false, 'PHP always opens the stream first.');
+            assert(false);
         }
 
         return fwrite($this->handle, $data);
