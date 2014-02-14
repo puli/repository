@@ -1,7 +1,7 @@
 Changelog
 =========
 
-* 1.0.0-alpha2
+* 1.0.0-alpha2 (2014-02-14)
 
  * fixed "Maximum function nesting level" error on Windows
  * pushed minimum PHP version to 5.3.9
