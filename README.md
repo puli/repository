@@ -573,5 +573,6 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`PatternLocatorInterface`]: src/PatternLocator/PatternLocatorInterface.php
 [`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php
 [`ResourceStreamWrapper`]: src/StreamWrapper/ResourceStreamWrapper.php
+[`UriLocator`]: src/Locator/UriLocator.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
 [`preg_match()`]: http://php.net/manual/en/function.preg_match.php
