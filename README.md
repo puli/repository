@@ -139,18 +139,59 @@ echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
+URI Locators
+------------
+
+Puli allows to use multiple resource locators at the same time through the
+[`UriLocator`]. You can register multiple [`ResourceLocatorInterface`]
+instances for different URI schemes. Then you can use the [`UriLocator`]
+like a regular resource locator, except you need to pass URIs instead of
+simple paths. An example tells a thousand stories:
+
+```php
+use Webmozart\Puli\Locator\PhpResourceLocator;
+use Webmozart\Puli\Locator\UriLocator;
+
+$locator = new UriLocator();
+$locator->register('resource', new PhpResourceLocator('/cache/resource'));
+$locator->register('namespace', new PhpResourceLocator('/cache/namespace'));
+
+echo $locator->get('resource:///webmozart/puli/css/style.css')->getPath();
+// => /path/to/resources/assets/css/style.css
+
+echo $locator->get('namespace:///Webmozart/Puli/Puli.php')->getPath();
+// => /path/to/webmozart/puli/src/Puli.php
+```
+
+In this example, the URI locator routes all requests for URIs with the
+protocol "resource://" to one resource locator and requests for URIs with the
+protocol "namespace://" to the other locator.
+
+To improve performance in requests where you don't access either of the
+protocols, you can also register callbacks that create the resource locators:
+
+```php
+$locator->register('resource', function () {
+    return new PhpResourceLocator('/cache/resource')
+});
+```
+
 Streams
 -------
 
 Puli supports a stream wrapper that lets you access the contents of the
 repository transparently through PHP's file functions. To register the wrapper,
-call the `register()` method in [`ResourceStreamWrapper`] and pass your
-desired URL protocol and the repository or the resource locator as arguments:
+call the `register()` method in [`ResourceStreamWrapper`] and pass a
+configured [`UriLocator`]:
 
 ```php
+use Webmozart\Puli\Locator\UriLocator;
 use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
 
-ResourceStreamWrapper::register('resource', $locator);
+$locator = new UriLocator();
+$locator->register('resource', $repository);
+
+ResourceStreamWrapper::register($locator);
 ```
 
 You can now use regular PHP functions to access the files and directories in

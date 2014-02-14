@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\StreamWrapper;
+namespace Webmozart\Puli\Locator;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ProtocolAlreadyRegisteredException extends \Exception
+class SchemeNotSupportedException extends \Exception
 {
 }

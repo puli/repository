@@ -347,7 +347,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testRemoveDoesNotRemoveRoot()
     {
@@ -363,7 +363,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testRemoveInterpretsConsecutiveSlashesAsRoot()
     {

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Repository;
+namespace Webmozart\Puli\StreamWrapper;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class CreationNotAllowedException extends \Exception
+class StreamWrapperException extends \Exception
 {
 }

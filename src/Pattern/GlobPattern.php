@@ -11,7 +11,7 @@
 
 namespace Webmozart\Puli\Pattern;
 
-use Webmozart\Puli\Util\Path;
+use Webmozart\Puli\Path\Path;
 
 /**
  * @since  1.0

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Repository;
+namespace Webmozart\Puli\Uri;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RenameNotAllowedException extends \Exception
+class InvalidUriException extends \Exception
 {
 }

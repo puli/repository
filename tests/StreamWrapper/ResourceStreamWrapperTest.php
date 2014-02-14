@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\Tests\StreamWrapper;
 
+use Webmozart\Puli\Locator\UriLocator;
 use Webmozart\Puli\Repository\ResourceRepository;
 use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
 
@@ -46,6 +47,11 @@ FILE1;
      */
     private $dir2;
 
+    /**
+     * @var UriLocator
+     */
+    private $uriLocator;
+
     public static function setUpBeforeClass()
     {
         self::$repository = new ResourceRepository();
@@ -55,12 +61,14 @@ FILE1;
 
     protected function setUp()
     {
-        ResourceStreamWrapper::register('puli', self::$repository);
+        $this->uriLocator = new UriLocator();
+        $this->uriLocator->register('puli', self::$repository);
+        ResourceStreamWrapper::register($this->uriLocator);
     }
 
     protected function tearDown()
     {
-        ResourceStreamWrapper::unregister('puli');
+        ResourceStreamWrapper::unregister();
 
         if (is_resource($this->handle)) {
             fclose($this->handle);
@@ -237,7 +245,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testUnlinkIsProhibited()
     {
@@ -253,7 +261,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\RenameNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testRenameIsProhibited()
     {
@@ -269,7 +277,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\RemovalNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testRmdirIsProhibited()
     {
@@ -277,7 +285,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\CreationNotAllowedException
+     * @expectedException \Webmozart\Puli\Repository\UnsupportedOperationException
      */
     public function testMkdirIsProhibited()
     {
@@ -328,27 +336,27 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\StreamWrapper\ProtocolAlreadyRegisteredException
+     * @expectedException \Webmozart\Puli\StreamWrapper\StreamWrapperException
      */
-    public function testRegisterWrapperTwice()
+    public function testRegisterTwice()
     {
-        ResourceStreamWrapper::register('test', self::$repository);
-        ResourceStreamWrapper::register('test', self::$repository);
+        // first registration happens during setUp()
+        ResourceStreamWrapper::register($this->uriLocator);
+    }
+
+    public function testUnregisterIsIdempotent()
+    {
+        ResourceStreamWrapper::unregister();
+        ResourceStreamWrapper::unregister();
     }
 
     /**
-     * @expectedException \Webmozart\Puli\StreamWrapper\ProtocolNotRegisteredException
-     */
-    public function testUnregisterNonExistingWrapper()
-    {
-        ResourceStreamWrapper::unregister('foo');
-    }
-
-    /**
-     * @expectedException \RuntimeException
+     * @expectedException \Webmozart\Puli\StreamWrapper\StreamWrapperException
      */
     public function testWrapperShouldNotBeRegisteredManually()
     {
+        ResourceStreamWrapper::unregister();
+
         stream_wrapper_register('manual', '\Webmozart\Puli\StreamWrapper\ResourceStreamWrapper');
 
         fopen('manual:///webmozart/puli/file1', 'r');

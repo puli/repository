@@ -16,7 +16,7 @@ use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Util\Path;
+use Webmozart\Puli\Path\Path;
 
 /**
  * @since  1.0

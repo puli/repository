@@ -20,7 +20,7 @@ use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Util\Path;
+use Webmozart\Puli\Path\Path;
 
 /**
  * @since  1.0
@@ -202,7 +202,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         $selector = Path::canonicalize($selector);
 
         if ('/' === $selector) {
-            throw new RemovalNotAllowedException(
+            throw new UnsupportedOperationException(
                 'The root directory "/" must not be removed.'
             );
         }

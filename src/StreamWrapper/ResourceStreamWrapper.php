@@ -11,11 +11,9 @@
 
 namespace Webmozart\Puli\StreamWrapper;
 
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
-use Webmozart\Puli\Repository\CreationNotAllowedException;
-use Webmozart\Puli\Repository\RemovalNotAllowedException;
-use Webmozart\Puli\Repository\RenameNotAllowedException;
+use Webmozart\Puli\Locator\UriLocatorInterface;
+use Webmozart\Puli\Repository\UnsupportedOperationException;
 
 /**
  * @since  1.0
@@ -24,9 +22,14 @@ use Webmozart\Puli\Repository\RenameNotAllowedException;
 class ResourceStreamWrapper implements StreamWrapperInterface
 {
     /**
-     * @var ResourceLocatorInterface[]
+     * @var UriLocatorInterface
      */
-    private static $locators = array();
+    private static $locator;
+
+    /**
+     * @var array
+     */
+    private static $schemes = array();
 
     /**
      * @var resource
@@ -38,40 +41,39 @@ class ResourceStreamWrapper implements StreamWrapperInterface
      */
     private $directoryIterator;
 
-    public static function register($protocol, ResourceLocatorInterface $locator)
+    public static function register(UriLocatorInterface $locator)
     {
-        if (isset(self::$locators[$protocol])) {
-            throw new ProtocolAlreadyRegisteredException(sprintf(
-                'The protocol "%s://" was already registered.',
-                $protocol
-            ));
+        if (null !== self::$locator) {
+            throw new StreamWrapperException(
+                'You can only register one URI locator with the '.
+                'stream wrapper.'
+            );
         }
 
-        self::$locators[$protocol] = $locator;
+        foreach ($locator->getRegisteredSchemes() as $scheme) {
+            self::$schemes[$scheme] = true;
 
-        stream_wrapper_register($protocol, __CLASS__);
-    }
-
-    public static function unregister($protocol)
-    {
-        if (!isset(self::$locators[$protocol])) {
-            throw new ProtocolNotRegisteredException(sprintf(
-                'The protocol "%s://" was not registered.',
-                $protocol
-            ));
+            stream_wrapper_register($scheme, __CLASS__);
         }
 
-        stream_wrapper_unregister($protocol);
-
-        unset(self::$locators[$protocol]);
+        self::$locator = $locator;
     }
 
-    public function dir_opendir($url, $options)
+    public static function unregister()
     {
-        list($protocol, $path) = $this->parseUrl($url);
+        self::$locator = null;
 
+        foreach (self::$schemes as $scheme => $foo) {
+            stream_wrapper_unregister($scheme);
+        }
+
+        self::$schemes = array();
+    }
+
+    public function dir_opendir($uri, $options)
+    {
         $this->directoryIterator = new \ArrayIterator(
-            self::$locators[$protocol]->listDirectory($path)
+            self::$locator->listDirectory($uri)
         );
 
         $this->directoryIterator->rewind();
@@ -106,44 +108,36 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return true;
     }
 
-    public function mkdir($url, $mode, $options)
+    public function mkdir($uri, $mode, $options)
     {
-        list ($protocol) = $this->parseUrl($url);
-
-        throw new CreationNotAllowedException(sprintf(
-            'Creating new directories under the "%s" protocol is not allowed. '.
-            'Tried to create the directory "%s".',
-            $protocol,
-            $url
+        throw new UnsupportedOperationException(sprintf(
+            'The creation of new directories through the stream wrapper is '.
+            'not supported. Tried to create the directory "%s".',
+            $uri
         ));
     }
 
-    public function rename($urlFrom, $urlTo)
+    public function rename($uriFrom, $uriTo)
     {
         // validate whether the URL exists
-        $this->resolvePath($urlFrom);
+        $this->getLocator()->get($uriFrom);
 
-        list ($protocol) = $this->parseUrl($urlFrom);
-
-        throw new RenameNotAllowedException(sprintf(
-            'Resources provided by the "%s" protocol must not be renamed. '.
-            'Tried to rename "%s" to "%s".',
-            $protocol,
-            $urlFrom,
-            $urlTo
+        throw new UnsupportedOperationException(sprintf(
+            'The renaming of resources through the stream wrapper is not '.
+            'supported. Tried to rename "%s" to "%s".',
+            $uriFrom,
+            $uriTo
         ));
     }
 
-    public function rmdir($url, $options)
+    public function rmdir($uri, $options)
     {
-        list ($protocol) = $this->parseUrl($url);
-        $path = $this->resolvePath($url);
+        $path = $this->getLocator()->get($uri)->getPath();
 
-        throw new RemovalNotAllowedException(sprintf(
-            'Resources provided by the "%s" protocol must not be deleted. '.
-            'Tried to remove "%s" which points to "%s".',
-            $protocol,
-            $url,
+        throw new UnsupportedOperationException(sprintf(
+            'The removal of directories through the stream wrapper is not '.
+            'supported. Tried to remove "%s" which points to "%s".',
+            $uri,
             $path
         ));
     }
@@ -181,9 +175,9 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return flock($this->handle, $operation);
     }
 
-    public function stream_metadata($url, $option, $value)
+    public function stream_metadata($uri, $option, $value)
     {
-        $paths = $this->resolveAlternativePaths($url);
+        $paths = $this->getLocator()->get($uri)->getAlternativePaths();
 
         foreach ($paths as $path) {
             switch ($option) {
@@ -218,9 +212,9 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return true;
     }
 
-    public function stream_open($url, $mode, $options, &$openedPath)
+    public function stream_open($uri, $mode, $options, &$openedPath)
     {
-        $openedPath = $this->resolvePath($url);
+        $openedPath = $this->getLocator()->get($uri)->getPath();
 
         $this->handle = fopen($openedPath, $mode, $options & STREAM_USE_PATH) ?: null;
 
@@ -274,24 +268,22 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fwrite($this->handle, $data);
     }
 
-    public function unlink($url)
+    public function unlink($uri)
     {
-        list ($protocol) = $this->parseUrl($url);
-        $path = $this->resolvePath($url);
+        $path = $this->getLocator()->get($uri)->getPath();
 
-        throw new RemovalNotAllowedException(sprintf(
-            'Resources provided by the "%s" protocol must not be deleted. '.
-            'Tried to remove "%s" which points to "%s".',
-            $protocol,
-            $url,
+        throw new UnsupportedOperationException(sprintf(
+            'The removal of files through the stream wrapper is not '.
+            'supported. Tried to remove "%s" which points to "%s".',
+            $uri,
             $path
         ));
     }
 
-    public function url_stat($url, $flags)
+    public function url_stat($uri, $flags)
     {
         try {
-            $path = $this->resolvePath($url);
+            $path = $this->getLocator()->get($uri)->getPath();
 
             if ($flags & STREAM_URL_STAT_LINK) {
                 return lstat($path);
@@ -308,39 +300,16 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         }
     }
 
-    private function parseUrl($url)
+    private function getLocator()
     {
-        if (!preg_match('~^(?P<scheme>\w+)://(?P<path>.+)$~', $url, $parsed)) {
-            // This should never happen, given that PHP always passes valid
-            // URLs to the methods of this wrapper.
-            assert(false);
+        if (null === self::$locator) {
+            throw new StreamWrapperException(
+                'The stream wrapper has not been registered. Please call '.
+                '\Webmozart\Puli\StreamWrapper\ResourceStreamWrapper::register() '.
+                'first.'
+            );
         }
 
-        if (!isset(self::$locators[$parsed['scheme']])) {
-            throw new \RuntimeException(sprintf(
-                'Please use the method ResourceStreamWrapper::register() for '.
-                'registering streams of this type. Registering the stream '.
-                'manually with stream_wrapper_register() is not supported.'
-            ));
-        }
-
-        return array($parsed['scheme'], $parsed['path']);
-    }
-
-    private function getResource($url)
-    {
-        list($protocol, $path) = $this->parseUrl($url);
-
-        return self::$locators[$protocol]->get($path);
-    }
-
-    private function resolvePath($url)
-    {
-        return $this->getResource($url)->getPath();
-    }
-
-    private function resolveAlternativePaths($url)
-    {
-        return $this->getResource($url)->getAlternativePaths();
+        return self::$locator;
     }
 }
