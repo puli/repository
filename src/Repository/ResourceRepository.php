@@ -375,10 +375,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             // Add as child node of the parent directory
             $grandParent->add($this->resources[$parentPath]);
         } elseif (!$this->resources[$parentPath] instanceof DirectoryResourceInterface) {
-            throw new NoDirectoryException(sprintf(
-                'The path "%s" is not a directory.',
-                $parentPath
-            ));
+            throw new NoDirectoryException($parentPath);
         }
 
         return $this->resources[$parentPath];

@@ -73,10 +73,7 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
             return $resource->all();
         }
 
-        throw new NoDirectoryException(sprintf(
-            'The resource "%s" is not a directory, but a file.',
-            $repositoryPath
-        ));
+        throw new NoDirectoryException($repositoryPath);
     }
 
     /**

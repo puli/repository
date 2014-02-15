@@ -17,4 +17,11 @@ namespace Webmozart\Puli\Repository;
  */
 class NoDirectoryException extends \Exception
 {
+    public function __construct($directory, $code = 0, \Exception $previous = null)
+    {
+        parent::__construct(sprintf(
+            'The path "%s" is not a directory.',
+            $directory
+        ), $code, $previous);
+    }
 }
