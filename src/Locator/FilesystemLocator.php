@@ -28,7 +28,10 @@ class FilesystemLocator extends AbstractResourceLocator
         parent::__construct($patternFactory);
 
         if (!is_dir($rootDirectory)) {
-            // error
+            throw new \InvalidArgumentException(sprintf(
+                'The path "%s" is not a directory.',
+                $rootDirectory
+            ));
         }
 
         $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');

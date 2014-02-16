@@ -32,6 +32,22 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->locator = new FilesystemLocator($this->fixturesDir);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testPassNonExistingRootDirectory()
+    {
+        new FilesystemLocator($this->fixturesDir.'/foo');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testPassFileAsRootDirectory()
+    {
+        new FilesystemLocator($this->fixturesDir.'/dir1/file1');
+    }
+
     public function testGetDirectory()
     {
         $resource = $this->locator->get('/dir1');
