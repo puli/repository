@@ -11,15 +11,24 @@ Locating Files with Puli
 PHP >= 5.3.9
 
 Puli returns the absolute file paths of the files (*resources*) in your PHP
-project through a unified naming system. Essentially, Puli lets you use a
-*resource locator* to access files like this:
+project. You can refer to those files through simple names that look very
+much like file paths:
 
 ```php
 echo $locator->get('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/resources/assets/css/style.css
 ```
 
-This document teaches you how to use Puli in practice.
+Like this, you can use short and memorable paths whenever you need to
+reference a file in your project, for example:
+
+```yaml
+# config.yml
+import: /webmozart/puli/config/config.yml
+```
+
+The structure of these file paths can, of course, be configured by yourself.
+You will learn later in this document how to do so.
 
 Installation
 ------------
