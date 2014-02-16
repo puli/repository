@@ -129,10 +129,10 @@ echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
 
 Here is a complete list of the resource locators provided by Puli:
 
-Locator               | Dumper             | Description
---------------------- | ------------------ | -----------------------------------
-[`PhpCacheLocator`]   | [`PhpCacheDumper`] | Reads resources from generated PHP files.
-[`FilesystemLocator`] | none               | Reads resources from a filesystem path.
+Locator               | Description
+--------------------- | -----------------------------------
+[`PhpCacheLocator`]   | Reads resources from PHP files dumped by [`PhpCacheDumper`].
+[`FilesystemLocator`] | Reads resources from a filesystem path.
 
 URI Locators
 ------------
