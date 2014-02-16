@@ -108,18 +108,18 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
      */
     public function getDirectoryEntries($repositoryPath)
     {
-        // We can't use getPatternImpl() here, because we can't assume that
-        // the pattern factory accepts Globs
-        $filePath = rtrim($this->rootDirectory.Path::canonicalize($repositoryPath), '/');
-        $offset = strlen($this->rootDirectory) + 1;
+        $repositoryPath = rtrim(Path::canonicalize($repositoryPath), '/');
+        $filePath = $this->rootDirectory.$repositoryPath;
         $results = array();
 
-        foreach (glob($filePath.'/*') as $path) {
-            if ('' !== $this->rootDirectory && 0 === strpos($path, $this->rootDirectory)) {
-                $path = '/'.substr($path, $offset);
+        // We can't use glob() here, because glob() doesn't list files starting
+        // with "." by default
+        foreach (scandir($filePath) as $name) {
+            if ('.' === $name || '..' === $name) {
+                continue;
             }
 
-            $results[] = $this->getImpl($path);
+            $results[] = $this->getImpl($repositoryPath.'/'.$name);
         }
 
         return $results;

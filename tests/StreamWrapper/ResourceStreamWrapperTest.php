@@ -313,6 +313,7 @@ FILE1;
         $this->dir = opendir('puli:///webmozart/puli');
         $this->dir2 = opendir('puli:///webmozart/puli/dir2');
 
+        $this->assertSame('.dotfile', readdir($this->dir2));
         $this->assertSame('file1', readdir($this->dir2));
         $this->assertSame('dir2', readdir($this->dir));
         $this->assertSame('file1-link', readdir($this->dir2));
