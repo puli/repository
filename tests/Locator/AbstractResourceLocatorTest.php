@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\Tests\Locator;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Repository\ResourceRepository;
@@ -21,6 +22,11 @@ use Webmozart\Puli\Repository\ResourceRepository;
  */
 abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Filesystem
+     */
+    protected static $filesystem;
+
     /**
      * @var ResourceRepository
      */
@@ -35,6 +41,13 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      * @var string
      */
     protected $fixturesDir;
+
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        self::$filesystem = new Filesystem();
+    }
 
     abstract protected function dumpLocator();
 

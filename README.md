@@ -100,26 +100,26 @@ interface [`ResourceLocatorInterface`], which provides a subset of the
 methods available in the resource repository. Naturally, resource locators are
 frozen and cannot be modified.
 
-Currently, Puli only provides one locator implementation: [`PhpResourceLocatorDumper`].
+Currently, Puli only provides one locator implementation: [`PhpCacheDumper`].
 This locator caches the paths to the resources in your repository in PHP files.
 These files are usually stored in the cache directory of your application. Pass
 the path to this cache directory when you call the `dumpLocator()` method:
 
 ```php
-use Webmozart\Puli\LocatorDumper\PhpResourceLocatorDumper;
+use Webmozart\Puli\LocatorDumper\PhpCacheDumper;
 
-$dumper = new PhpResourceLocatorDumper();
+$dumper = new PhpCacheDumper();
 $dumper->dumpLocator($repo, '/path/to/cache');
 ```
 
-Then create a [`PhpResourceLocator`] and pass the path to the directory where
+Then create a [`PhpCacheLocator`] and pass the path to the directory where
 you dumped the PHP files. The locator lets you then access the resources in the
 same way as the repository does:
 
 ```php
-use Webmozart\Puli\Locator\PhpResourceLocator;
+use Webmozart\Puli\Locator\PhpCacheLocator;
 
-$locator = new PhpResourceLocator('/path/to/cache');
+$locator = new PhpCacheLocator('/path/to/cache');
 
 echo $locator->get('/webmozart/puli/css/style.css')->getPath();
 // => /path/to/resources/assets/css/style.css
@@ -138,12 +138,12 @@ like a regular resource locator, except you need to pass URIs instead of
 simple paths. An example tells a thousand stories:
 
 ```php
-use Webmozart\Puli\Locator\PhpResourceLocator;
+use Webmozart\Puli\Locator\PhpCacheLocator;
 use Webmozart\Puli\Locator\UriLocator;
 
 $locator = new UriLocator();
-$locator->register('resource', new PhpResourceLocator('/cache/resource'));
-$locator->register('namespace', new PhpResourceLocator('/cache/namespace'));
+$locator->register('resource', new PhpCacheLocator('/cache/resource'));
+$locator->register('namespace', new PhpCacheLocator('/cache/namespace'));
 
 echo $locator->get('resource:///webmozart/puli/css/style.css')->getPath();
 // => /path/to/resources/assets/css/style.css
@@ -161,7 +161,7 @@ protocols, you can also register callbacks that create the resource locators:
 
 ```php
 $locator->register('resource', function () {
-    return new PhpResourceLocator('/cache/resource')
+    return new PhpCacheLocator('/cache/resource')
 });
 ```
 
@@ -554,8 +554,8 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
 [`DirectoryResourceInterface`]: src/Resource/DirectoryResourceInterface.php
 [`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
-[`PhpResourceLocator`]: src/Locator/PhpResourceLocator.php
-[`PhpResourceLocatorDumper`]: src/LocatorDumper/PhpResourceLocatorDumper.php
+[`PhpCacheLocator`]: src/Locator/PhpCacheLocator.php
+[`PhpCacheDumper`]: src/LocatorDumper/PhpCacheDumper.php
 [`PatternInterface`]: src/Pattern/PatternInterface.php
 [`PatternFactoryInterface`]: src/Pattern/PatternFactoryInterface.php
 [`GlobPattern`]: src/Pattern/GlobPattern.php

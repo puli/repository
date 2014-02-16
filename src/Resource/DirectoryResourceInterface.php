@@ -17,10 +17,23 @@ namespace Webmozart\Puli\Resource;
  */
 interface DirectoryResourceInterface extends ResourceInterface, \Traversable, \Countable, \ArrayAccess
 {
+    /**
+     * @param string $name
+     *
+     * @return ResourceInterface|ResourceInterface[]
+     */
     public function get($name);
 
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
     public function contains($name);
 
+    /**
+     * @return ResourceInterface[]
+     */
     public function all();
 
     /**

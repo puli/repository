@@ -12,12 +12,17 @@
         "php": ">=5.3.9"
     },
     "require-dev": {
-        "symfony/filesystem": "~2.0"
+        "symfony/filesystem": "~2.0",
+        "symfony/console": "~2.0"
+    },
+    "suggest": {
+        "symfony/console": "For using the Puli console"
     },
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Webmozart\\Puli\\": "src/",
+            "Webmozart\\Pash\\": "src/Pash/",
             "Webmozart\\Puli\\Tests\\": "tests/"
         }
     },

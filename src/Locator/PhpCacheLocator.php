@@ -22,7 +22,7 @@ use Webmozart\Puli\Resource\LazyResourceCollection;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpResourceLocator extends AbstractResourceLocator implements DataStorageInterface
+class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInterface
 {
     const FILE_PATHS_FILE = 'resources_file_paths.php';
 
