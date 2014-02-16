@@ -94,16 +94,15 @@ Resource Locators
 -----------------
 
 Building and configuring a repository is expensive and should not be done on
-every request. For this reason, Puli allows to dump resource locators that are
+every request. For this reason, Puli supports resource locators that are
 optimized for retrieving resources. Resource locators must implement the
 interface [`ResourceLocatorInterface`], which provides a subset of the
 methods available in the resource repository. Naturally, resource locators are
 frozen and cannot be modified.
 
-Currently, Puli only provides one locator implementation: [`PhpCacheDumper`].
-This locator caches the paths to the resources in your repository in PHP files.
-These files are usually stored in the cache directory of your application. Pass
-the path to this cache directory when you call the `dumpLocator()` method:
+A very simple locator provided by Puli is the [`PhpCacheLocator`]. This locator
+reads the resource paths from a set of PHP files that can be dumped with
+[`PhpCacheDumper`] by calling the `dumpLocator()` method:
 
 ```php
 use Webmozart\Puli\LocatorDumper\PhpCacheDumper;
@@ -127,6 +126,13 @@ echo $locator->get('/webmozart/puli/css/style.css')->getPath();
 echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
 // => /path/to/resources/trans/en.xlf
 ```
+
+Here is a complete list of the resource locators provided by Puli:
+
+Locator               | Dumper             | Description
+--------------------- | ------------------ | -----------------------------------
+[`PhpCacheLocator`]   | [`PhpCacheDumper`] | Reads resources from generated PHP files.
+[`FilesystemLocator`] | none               | Reads resources from a filesystem path.
 
 URI Locators
 ------------
@@ -554,6 +560,7 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
 [`DirectoryResourceInterface`]: src/Resource/DirectoryResourceInterface.php
 [`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
+[`FilesystemLocator`]: src/Locator/FilesystemLocator.php
 [`PhpCacheLocator`]: src/Locator/PhpCacheLocator.php
 [`PhpCacheDumper`]: src/LocatorDumper/PhpCacheDumper.php
 [`PatternInterface`]: src/Pattern/PatternInterface.php
