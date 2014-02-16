@@ -39,10 +39,13 @@ Run `composer install` or `composer update` and you're ready to start.
 Tool Integration
 ----------------
 
-Tool        | Description                                                                               | Version
------------ | ----------------------------------------------------------------------------------------- | ---------------
-Composer    | The [Puli plugin for Composer] builds resource locators from composer.json definitions.   | 1.0.0-alpha1
-Twig        | The [Puli extension for Twig] lets you access templates via Puli paths.                   | 1.0.0-dev
+Tool               | Description                                                                             | Version
+------------------ | --------------------------------------------------------------------------------------- | ---------------
+Composer           | The [Puli plugin for Composer] builds resource locators from composer.json definitions. | 1.0.0-alpha1
+Pash               | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
+Symfony Components | The [Puli bridge] integrates Puli with the [Symfony components].                        | 1.0.0-dev
+Symfony Framework  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
+Twig               | The [Puli extension for Twig] lets you access templates via Puli paths.                 | 1.0.0-dev
 
 
 Repository Management
@@ -555,6 +558,11 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [Composer plugin]: https://github.com/webmozart/composer-puli-plugin
 [Puli plugin for Composer]: https://github.com/webmozart/composer-puli-plugin
 [Puli extension for Twig]: https://github.com/webmozart/twig-puli-extension
+[Puli bridge]: https://github.com/webmozart/symfony-puli-bridge
+[Puli bundle]: https://github.com/webmozart/symfony-puli-bundle
+[Pash shell]: https://github.com/webmozart/pash
+[Symfony full-stack framework]: http:/symfony.com
+[Symfony components]: http://symfony.com/doc/current/components/index.html
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
