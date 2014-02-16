@@ -14,14 +14,14 @@ namespace Webmozart\Puli\Locator;
 use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\LazyDirectoryResource;
+use Webmozart\Puli\Resource\LazyFileResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemLocator extends AbstractResourceLocator
+class FilesystemLocator extends AbstractResourceLocator implements DataStorageInterface
 {
     public function __construct($rootDirectory, PatternFactoryInterface $patternFactory = null)
     {
@@ -49,10 +49,10 @@ class FilesystemLocator extends AbstractResourceLocator
         }
 
         if (is_dir($filePath)) {
-            return new DirectoryResource($repositoryPath, $filePath);
+            return new LazyDirectoryResource($this, $repositoryPath, $filePath);
         }
 
-        return new FileResource($repositoryPath, $filePath);
+        return new LazyFileResource($this, $repositoryPath, $filePath);
     }
 
     protected function getPatternImpl(PatternInterface $pattern)
@@ -91,8 +91,37 @@ class FilesystemLocator extends AbstractResourceLocator
         throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
     }
 
-    public function getTags()
+    public function getTags($repositoryPath = null)
     {
         throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
+    }
+
+    public function getAlternativePaths($repositoryPath)
+    {
+        return array();
+    }
+
+    /**
+     * @param $repositoryPath
+     *
+     * @return \Webmozart\Puli\Resource\ResourceInterface[]
+     */
+    public function getDirectoryEntries($repositoryPath)
+    {
+        // We can't use getPatternImpl() here, because we can't assume that
+        // the pattern factory accepts Globs
+        $filePath = rtrim($this->rootDirectory.Path::canonicalize($repositoryPath), '/');
+        $offset = strlen($this->rootDirectory) + 1;
+        $results = array();
+
+        foreach (glob($filePath.'/*') as $path) {
+            if (0 === strpos($path, $this->rootDirectory)) {
+                $path = '/'.substr($path, $offset);
+            }
+
+            $results[] = $this->getImpl($path);
+        }
+
+        return $results;
     }
 }
