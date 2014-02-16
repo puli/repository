@@ -63,7 +63,7 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
         $results = array();
 
         foreach ($patternLocator->locatePaths($filePattern) as $path) {
-            if (0 === strpos($path, $this->rootDirectory)) {
+            if ('' !== $this->rootDirectory && 0 === strpos($path, $this->rootDirectory)) {
                 $path = '/'.substr($path, $offset);
             }
 
@@ -115,7 +115,7 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
         $results = array();
 
         foreach (glob($filePath.'/*') as $path) {
-            if (0 === strpos($path, $this->rootDirectory)) {
+            if ('' !== $this->rootDirectory && 0 === strpos($path, $this->rootDirectory)) {
                 $path = '/'.substr($path, $offset);
             }
 
