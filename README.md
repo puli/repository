@@ -8,6 +8,8 @@ Locating Files with Puli
 [![Total Downloads](https://poser.pugx.org/webmozart/puli/downloads.png)](https://packagist.org/packages/webmozart/puli)
 [![Dependency Status](https://www.versioneye.com/php/webmozart:puli/1.0.0/badge.png)](https://www.versioneye.com/php/webmozart:puli/1.0.0)
 
+Latest release: [1.0.0-alpha2](https://packagist.org/packages/webmozart/puli#1.0.0-alpha2)
+
 PHP >= 5.3.9
 
 Puli returns the absolute file paths of the files (*resources*) in your PHP
