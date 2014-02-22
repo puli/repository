@@ -69,6 +69,14 @@ class PuliExtensionTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testExtendRelativeDotDotPath()
+    {
+        $this->assertSame(
+            "PARENT\n\nCHILD\n",
+            $this->twig->render('/acme/blog/views/nested/extend-relative-dot-dot.txt.twig')
+        );
+    }
+
     public function testIncludeAbsolutePath()
     {
         $this->assertSame(
