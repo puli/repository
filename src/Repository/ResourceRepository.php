@@ -12,6 +12,8 @@
 namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Locator\AbstractResourceLocator;
+use Webmozart\Puli\Locator\FilesystemLocator;
+use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
@@ -39,14 +41,15 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     private $resourcesByTag = array();
 
     /**
-     * @var PatternLocatorInterface
+     * @var ResourceLocatorInterface
      */
-    private $patternLocator;
+    private $baseLocator;
 
-    public function __construct(PatternFactoryInterface $patternFactory = null)
+    public function __construct(ResourceLocatorInterface $baseLocator = null, PatternFactoryInterface $patternFactory = null)
     {
         parent::__construct($patternFactory);
 
+        $this->baseLocator = $baseLocator ?: new FilesystemLocator(null, $patternFactory);
         $this->resources['/'] = new DirectoryResource('/', null);
     }
 
@@ -59,103 +62,31 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return iterator_to_array($this->resourcesByTag[$tag]);
     }
 
-    public function add($selector, $realPath)
+    public function add($path, $selector)
     {
-        if ('' === $selector) {
+        if ('' === $path) {
             throw new \InvalidArgumentException(
                 'Please pass a non-empty selector.'
             );
         }
 
-        $selector = Path::canonicalize($selector);
+        $path = Path::canonicalize($path);
 
-        if ('/' === $selector) {
+        if ('/' === $path) {
             throw new \InvalidArgumentException(
                 'You cannot map the root directory "/".'
             );
         }
 
-        if (is_string($realPath) && $this->patternFactory->acceptsSelector($realPath)) {
-            $realPath = $this->patternFactory->createPattern($realPath);
-        }
+        $resource = $this->baseLocator->get($selector);
 
-        if ($realPath instanceof PatternInterface) {
-            if (null === $this->patternLocator) {
-                $this->patternLocator = $this->patternFactory->createPatternLocator();
+        if (is_array($resource)) {
+            foreach ($resource as $entry) {
+                /** @var ResourceInterface $entry */
+                $this->addResource($path.'/'.$entry->getName(), $entry);
             }
-
-            $realPath = $this->patternLocator->locatePaths($realPath);
-        }
-
-        if (is_array($realPath)) {
-            foreach ($realPath as $path) {
-                if (is_string($path) && $this->patternFactory->acceptsSelector($path)) {
-                    // Immediately create the pattern in order to avoid another
-                    // test of the selector in the recursive call.
-                    $this->add($selector, $this->patternFactory->createPattern($path));
-
-                    continue;
-                }
-
-                $this->add($selector.'/'.basename($path), $path);
-            }
-
-            return;
-        }
-
-        if (!is_string($realPath)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The argument $realPath should be a string, an array or '.
-                'Webmozart\\Puli\\Pattern\\PatternInterface, but is: %s.',
-                is_object($realPath) ? get_class($realPath) : gettype($realPath)
-            ));
-        }
-
-        if (!file_exists($realPath)) {
-            throw new ResourceNotFoundException(sprintf(
-                'The file "%s" could not be found.',
-                $realPath
-            ));
-        }
-
-        // Remove dot segments
-        $realPath = Path::canonicalize($realPath);
-        $isDirectory = is_dir($realPath);
-
-        // Create new Resource instances if necessary
-        if (!isset($this->resources[$selector])) {
-            // Create parent directory if needed
-            $directory = $this->getOrCreateDirectoryOf($selector);
-
-            // Add resource after the directory to maintain the correct order
-            $this->resources[$selector] = $isDirectory
-                ? new DirectoryResource(
-                    $selector,
-                    $realPath
-                )
-                : new FileResource(
-                    $selector,
-                    $realPath
-                );
-
-            // Add the new node to the parent directory
-            $directory->add($this->resources[$selector]);
-
-            // Keep the resources sorted by file name. This could probably be
-            // optimized by inserting at the right position instead of
-            // rearranging the complete array on every add.
-            ksort($this->resources);
         } else {
-            $this->resources[$selector]->overridePath($realPath);
-        }
-
-        // Recursively add directory contents
-        if ($isDirectory) {
-            $iterator = new \FilesystemIterator($realPath, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::CURRENT_AS_PATHNAME);
-
-            foreach ($iterator as $path) {
-                $this->add($selector.'/'.basename($path), $path);
-            }
+            $this->addResource($path, $resource);
         }
     }
 
@@ -345,7 +276,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         // Recursively remove all children
         if ($resource instanceof DirectoryResource) {
             foreach ($resource as $entry) {
-                /** @var \Webmozart\Puli\Resource\ResourceInterface $entry */
+                /** @var ResourceInterface $entry */
                 $this->removeNode($entry->getRepositoryPath());
             }
         }
@@ -404,6 +335,51 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         foreach ($this->resourcesByTag as $tag => $resources) {
             if (0 === count($resources)) {
                 unset($this->resourcesByTag[$tag]);
+            }
+        }
+    }
+
+    /**
+     * @param string            $path
+     * @param ResourceInterface $resource
+     */
+    private function addResource($path, ResourceInterface $resource)
+    {
+        $isDirectory = $resource instanceof DirectoryResourceInterface;
+
+        // Create new Resource instances if necessary
+        if (!isset($this->resources[$path])) {
+            // Create parent directory if needed
+            // Create before adding the resource itself to keep the order
+            $directory = $this->getOrCreateDirectoryOf($path);
+
+            // Add resource after the directory to maintain the correct order
+            $this->resources[$path] = $isDirectory
+                ? new DirectoryResource(
+                    $path,
+                    $resource->getPath()
+                )
+                : new FileResource(
+                    $path,
+                    $resource->getPath()
+                );
+
+            // Add the new node to the parent directory
+            $directory->add($this->resources[$path]);
+
+            // Keep the resources sorted by file name. This could probably be
+            // optimized by inserting at the right position instead of
+            // rearranging the complete array on every add.
+            ksort($this->resources);
+        } else {
+            $this->resources[$path]->overridePath($resource->getPath());
+        }
+
+        // Recursively add directory contents
+        if ($isDirectory) {
+            foreach ($resource as $entry) {
+                /** @var ResourceInterface $entry */
+                $this->addResource($path.'/'.$entry->getName(), $entry);
             }
         }
     }

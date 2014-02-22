@@ -20,6 +20,4 @@ interface PatternFactoryInterface
     public function acceptsSelector($selector);
 
     public function createPattern($selector);
-
-    public function createPatternLocator();
 }

@@ -21,10 +21,10 @@ use Webmozart\Puli\Pattern\PatternInterface;
 interface ResourceRepositoryInterface extends ResourceLocatorInterface
 {
     /**
-     * @param string $selector
-     * @param string|PatternInterface $realPath
+     * @param string $path
+     * @param string|PatternInterface $selector
      */
-    public function add($selector, $realPath);
+    public function add($path, $selector);
 
     /**
      * @param string|PatternInterface $selector

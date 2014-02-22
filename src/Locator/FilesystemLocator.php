@@ -23,18 +23,22 @@ use Webmozart\Puli\Resource\LazyFileResource;
  */
 class FilesystemLocator extends AbstractResourceLocator implements DataStorageInterface
 {
-    public function __construct($rootDirectory, PatternFactoryInterface $patternFactory = null)
+    private $rootDirectory = '';
+
+    public function __construct($rootDirectory = null, PatternFactoryInterface $patternFactory = null)
     {
         parent::__construct($patternFactory);
 
-        if (!is_dir($rootDirectory)) {
+        if ($rootDirectory && !is_dir($rootDirectory)) {
             throw new \InvalidArgumentException(sprintf(
                 'The path "%s" is not a directory.',
                 $rootDirectory
             ));
         }
 
-        $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');
+        if ($rootDirectory) {
+            $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');
+        }
     }
 
     protected function getImpl($repositoryPath)

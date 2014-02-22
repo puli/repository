@@ -182,14 +182,6 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testAddExpectsStringOrArray()
-    {
-        $this->repo->add('/webmozart/puli', 12345);
-    }
-
-    /**
      * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
      */
     public function testAddExpectsValidFilePath()
