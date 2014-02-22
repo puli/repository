@@ -50,13 +50,18 @@ Run `composer install` or `composer update` and you're ready to start.
 Bundled Extensions
 ------------------
 
+The following extensions are provided in the [`Webmozart\Puli\Extension`]
+namespace:
+
 Tool    | Description                                                                        | Stability | Documentation
 ------- | ---------------------------------------------------------------------------------- | --------- | -------------------------------
-Twig    | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
 Symfony | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/symfony.md)
+Twig    | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
 
 Tool Integration
 ----------------
+
+Puli is also integrated into several tools via external libraries:
 
 Tool     | Description                                                                             | Version
 -------- | --------------------------------------------------------------------------------------- | ---------------
@@ -623,5 +628,6 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php
 [`ResourceStreamWrapper`]: src/StreamWrapper/ResourceStreamWrapper.php
 [`UriLocator`]: src/Locator/UriLocator.php
+[`Webmozart\Puli\Extension`]: src/Extension
 [`basename()`]: http://php.net/manual/en/function.basename.php
 [`preg_match()`]: http://php.net/manual/en/function.preg_match.php
