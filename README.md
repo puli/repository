@@ -400,21 +400,6 @@ $translator = new Translator();
 $translator->discoverResources($repo);
 ```
 
-Puli provides an interface [`ResourceDiscoveringInterface`] for marking such
-classes. Dependency Injection Containers can rely on this interface to inject
-the resource locator automatically.
-
-```php
-namespace Acme;
-
-use Webmozart\Puli\ResourceDiscoveringInterface;
-
-class Translator implements ResourceDiscoveringInterface
-{
-    // ...
-}
-```
-
 Custom File Patterns
 --------------------
 
