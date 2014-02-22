@@ -31,6 +31,15 @@ You need to pass Puli's resource locator to the constructor of the
 [`PuliFileLocator`]. If you don't know how to create that locator, you can find
 more information in Puli's [main documentation].
 
+Limitations
+-----------
+
+Due to limitations with Symfony's `FileLocatorInterface`, file references
+starting with "../" are not properly supported. Let's load the routes in
+"/acme/blog/config/routing.yml" for example:
+
+```php
+
 Chained Locators
 ----------------
 
