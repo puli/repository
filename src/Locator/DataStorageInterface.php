@@ -24,7 +24,7 @@ interface DataStorageInterface
     /**
      * @param $repositoryPath
      *
-     * @return \Webmozart\Puli\Resource\ResourceInterface[]
+     * @return \Webmozart\Puli\Resource\ResourceCollectionInterface
      */
     public function getDirectoryEntries($repositoryPath);
 }

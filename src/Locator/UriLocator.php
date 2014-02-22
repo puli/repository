@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\Locator;
 
+use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Uri\Uri;
 
 /**
@@ -85,7 +86,7 @@ class UriLocator implements UriLocatorInterface
             }
         }
 
-        return $resources;
+        return new ResourceCollection($resources);
     }
 
     public function listDirectory($uri)

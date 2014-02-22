@@ -16,6 +16,7 @@ use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
+use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
@@ -74,7 +75,7 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
             $results[] = $this->getImpl($path);
         }
 
-        return $results;
+        return new ResourceCollection($results);
     }
 
     protected function containsImpl($repositoryPath)
@@ -106,15 +107,13 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
     }
 
     /**
-     * @param $repositoryPath
-     *
-     * @return \Webmozart\Puli\Resource\ResourceInterface[]
+     * {@inheritdoc}
      */
     public function getDirectoryEntries($repositoryPath)
     {
         $repositoryPath = rtrim(Path::canonicalize($repositoryPath), '/');
         $filePath = $this->rootDirectory.$repositoryPath;
-        $results = array();
+        $resources = array();
 
         // We can't use glob() here, because glob() doesn't list files starting
         // with "." by default
@@ -123,9 +122,9 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
                 continue;
             }
 
-            $results[] = $this->getImpl($repositoryPath.'/'.$name);
+            $resources[] = $this->getImpl($repositoryPath.'/'.$name);
         }
 
-        return $results;
+        return new ResourceCollection($resources);
     }
 }

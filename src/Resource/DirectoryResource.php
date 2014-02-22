@@ -79,7 +79,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
     {
         // Dismiss keys, otherwise users may rely on them and we can't change
         // the implementation anymore.
-        return array_values($this->entries);
+        return new ResourceCollection(array_values($this->entries));
     }
 
     public function getIterator()

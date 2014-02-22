@@ -15,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
@@ -407,7 +408,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     {
         $this->dumpLocator();
 
-        $this->assertEquals(array(), $this->locator->get('/foo/*'));
+        $this->assertEquals(new ResourceCollection(), $this->locator->get('/foo/*'));
     }
 
     /**
@@ -869,7 +870,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->dumpLocator();
 
-        $results = array($this->locator->get('/webmozart/puli/file1'));
+        $results = new ResourceCollection(array($this->locator->get('/webmozart/puli/file1')));
 
         $this->assertEquals($results, $this->locator->getByTag('webmozart/tag'));
     }
@@ -878,7 +879,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
     {
         $this->dumpLocator();
 
-        $this->assertEquals(array(), $this->locator->getByTag('foo/bar'));
+        $this->assertEquals(new ResourceCollection(), $this->locator->getByTag('foo/bar'));
     }
 
     public function testGetTags()

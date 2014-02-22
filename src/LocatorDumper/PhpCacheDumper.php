@@ -33,13 +33,7 @@ class PhpCacheDumper implements ResourceLocatorDumperInterface
 
         // Remember which resource has which tag
         foreach ($locator->getTags() as $tag) {
-            $resources = array();
-
-            foreach ($locator->getByTag($tag) as $resource) {
-                $resources[] = $resource->getPath();
-            }
-
-            $tags[$tag] = $resources;
+            $tags[$tag] = $locator->getByTag($tag)->getPaths();
         }
 
         // Create the directory if it doesn't exist

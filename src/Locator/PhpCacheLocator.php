@@ -17,6 +17,7 @@ use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
 use Webmozart\Puli\Resource\LazyResourceCollection;
+use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
@@ -68,7 +69,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         }
 
         if (!isset($this->tags[$tag])) {
-            return array();
+            return new ResourceCollection();
         }
 
         if (count($this->tags[$tag]) > 0 && is_string($this->tags[$tag][0])) {
@@ -77,7 +78,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
             }
         }
 
-        return $this->tags[$tag];
+        return new ResourceCollection($this->tags[$tag]);
     }
 
     /**
@@ -199,7 +200,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         ksort($resources);
 
         // Hide the keys of this implementation from accessing code
-        return array_values($resources);
+        return new ResourceCollection(array_values($resources));
     }
 
     protected function containsImpl($repositoryPath)

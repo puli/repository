@@ -72,7 +72,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function dir_opendir($uri, $options)
     {
-        $this->directoryIterator = new \ArrayIterator(
+        $this->directoryIterator = new \IteratorIterator(
             self::$locator->listDirectory($uri)
         );
 

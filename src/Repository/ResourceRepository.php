@@ -21,6 +21,8 @@ use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\ResourceCollection;
+use Webmozart\Puli\Resource\ResourceCollectionInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
 use Webmozart\Puli\Path\Path;
 
@@ -56,10 +58,10 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     public function getByTag($tag)
     {
         if (!isset($this->resourcesByTag[$tag])) {
-            return array();
+            return new ResourceCollection();
         }
 
-        return iterator_to_array($this->resourcesByTag[$tag]);
+        return new ResourceCollection(iterator_to_array($this->resourcesByTag[$tag]));
     }
 
     public function add($path, $selector)
@@ -80,7 +82,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
         $resource = $this->baseLocator->get($selector);
 
-        if (is_array($resource)) {
+        if ($resource instanceof ResourceCollectionInterface) {
             foreach ($resource as $entry) {
                 /** @var ResourceInterface $entry */
                 $this->addResource($path.'/'.$entry->getName(), $entry);
@@ -147,7 +149,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     {
         $resources = $this->get($selector);
 
-        if (!is_array($resources)) {
+        if (!$resources instanceof ResourceCollectionInterface) {
             $resources = array($resources);
         }
 
@@ -169,7 +171,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     {
         $resources = $this->get($selector);
 
-        if (!is_array($resources)) {
+        if (!$resources instanceof ResourceCollectionInterface) {
             $resources = array($resources);
         }
 
@@ -226,7 +228,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             $resources[] = $resource;
         }
 
-        return $resources;
+        return new ResourceCollection($resources);
     }
 
     protected function containsImpl($repositoryPath)

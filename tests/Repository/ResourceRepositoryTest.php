@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Tests\Repository;
 
 use Webmozart\Puli\Pattern\GlobPattern;
+use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Tests\Locator\AbstractResourceLocatorTest;
 
 /**
@@ -368,7 +369,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
 
-        $results = array($this->repo->get('/webmozart/puli/file1'));
+        $results = new ResourceCollection(array($this->repo->get('/webmozart/puli/file1')));
 
         $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
     }
@@ -379,7 +380,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->tag('/webmozart/puli/.', 'webmozart/tag');
 
-        $results = array($this->repo->get('/webmozart/puli'));
+        $results = new ResourceCollection(array($this->repo->get('/webmozart/puli')));
 
         $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
     }
@@ -390,7 +391,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->tag('/webmozart/puli/..', 'webmozart/tag');
 
-        $results = array($this->repo->get('/webmozart'));
+        $results = new ResourceCollection(array($this->repo->get('/webmozart')));
 
         $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
     }
@@ -404,10 +405,10 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->tag($selector, 'webmozart/tag');
 
-        $results = array(
+        $results = new ResourceCollection(array(
             $this->repo->get('/webmozart/puli/file1'),
             $this->repo->get('/webmozart/puli/file2'),
-        );
+        ));
 
         $this->assertEquals($results, $this->repo->getByTag('webmozart/tag'));
     }
@@ -420,7 +421,7 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->remove('/webmozart/puli/file1');
 
-        $this->assertEquals(array(), $this->repo->getByTag('webmozart/tag'));
+        $this->assertEquals(new ResourceCollection(), $this->repo->getByTag('webmozart/tag'));
     }
 
     /**
@@ -441,8 +442,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
 
-        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
-        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+        $tag1 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file2')));
+        $tag2 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file1')));
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
@@ -458,8 +459,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag('/webmozart/puli/.', 'webmozart/tag1');
 
-        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
-        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+        $tag1 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file2')));
+        $tag2 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file1')));
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
@@ -475,8 +476,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag('/webmozart/puli/..', 'webmozart/tag1');
 
-        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
-        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+        $tag1 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file2')));
+        $tag2 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file1')));
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
@@ -499,8 +500,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag('/webmozart/puli/file1');
 
-        $tag1 = array($this->repo->get('/webmozart/puli/file2'));
-        $tag2 = array();
+        $tag1 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file2')));
+        $tag2 = new ResourceCollection();
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
@@ -519,8 +520,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag($selector, 'webmozart/tag1');
 
-        $tag1 = array();
-        $tag2 = array($this->repo->get('/webmozart/puli/file1'));
+        $tag1 = new ResourceCollection();
+        $tag2 = new ResourceCollection(array($this->repo->get('/webmozart/puli/file1')));
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));
@@ -549,8 +550,8 @@ class ResourceRepositoryTest extends AbstractResourceLocatorTest
 
         $this->repo->untag($selector);
 
-        $tag1 = array();
-        $tag2 = array();
+        $tag1 = new ResourceCollection();
+        $tag2 = new ResourceCollection();
 
         $this->assertEquals($tag1, $this->repo->getByTag('webmozart/tag1'));
         $this->assertEquals($tag2, $this->repo->getByTag('webmozart/tag2'));

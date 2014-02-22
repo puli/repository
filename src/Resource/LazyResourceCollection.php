@@ -14,13 +14,15 @@ namespace Webmozart\Puli\Resource;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 
 /**
+ * A lazily loaded resource collection.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LazyResourceCollection implements \Iterator, \Countable, \ArrayAccess
+class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionInterface
 {
     /**
-     * @var string[]|\Webmozart\Puli\Resource\ResourceInterface[]
+     * @var string[]|ResourceInterface[]
      */
     private $resources;
 
@@ -29,7 +31,10 @@ class LazyResourceCollection implements \Iterator, \Countable, \ArrayAccess
      */
     private $locator;
 
-    private $cursor = 0;
+    /**
+     * @var boolean
+     */
+    private $loaded = false;
 
     public function __construct(ResourceLocatorInterface $locator, array $repositoryPaths)
     {
@@ -37,39 +42,145 @@ class LazyResourceCollection implements \Iterator, \Countable, \ArrayAccess
         $this->locator = $locator;
     }
 
-    public function offsetExists($offset)
+    public function add(ResourceInterface $resource)
     {
-        return isset($this->resources[$offset]);
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
     }
 
-    public function offsetGet($offset)
+    public function get($key)
     {
-        if (!isset($this->resources[$offset])) {
+        if (!isset($this->resources[$key])) {
             throw new \OutOfBoundsException(sprintf(
                 'The offset "%s" does not exist.',
-                $offset
+                $key
             ));
         }
 
-        if (!$this->resources[$offset] instanceof ResourceInterface) {
-            $this->resources[$offset] = $this->locator->get($this->resources[$offset]);
+        if (!$this->resources[$key] instanceof ResourceInterface) {
+            $this->resources[$key] = $this->locator->get($this->resources[$key]);
         }
 
-        return $this->resources[$offset];
+        return $this->resources[$key];
     }
 
-    public function offsetSet($offset, $value)
+    public function remove($key)
     {
         throw new \BadMethodCallException(
-            'Lazy resource collections may not be modified.'
+            'Lazy resource collections cannot be modified.'
         );
     }
 
-    public function offsetUnset($offset)
+    public function has($key)
+    {
+        return isset($this->resources[$key]);
+    }
+
+    public function clear()
     {
         throw new \BadMethodCallException(
-            'Lazy resource collections may not be modified.'
+            'Lazy resource collections cannot be modified.'
         );
+    }
+
+    public function keys()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return array_keys($this->resources);
+    }
+
+    public function replace($resources)
+    {
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
+    }
+
+    public function isEmpty()
+    {
+        return 0 === count($this->resources);
+    }
+
+    public function offsetExists($key)
+    {
+        return $this->has($key);
+    }
+
+    public function offsetGet($key)
+    {
+        return $this->get($key);
+    }
+
+    public function offsetSet($key, $value)
+    {
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
+    }
+
+    public function offsetUnset($key)
+    {
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
+    }
+
+    public function getPaths()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return array_map(
+            function (ResourceInterface $r) { return $r->getPath(); },
+            $this->resources
+        );
+    }
+
+    public function getNames()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return array_map(
+            function (ResourceInterface $r) { return $r->getName(); },
+            $this->resources
+        );
+    }
+
+    public function getRealPaths()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return array_map(
+            function (ResourceInterface $r) { return $r->getRealPath(); },
+            $this->resources
+        );
+    }
+
+    public function getIterator()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return new \ArrayIterator($this->resources);
+    }
+
+    public function toArray()
+    {
+        if (!$this->loaded) {
+            $this->load();
+        }
+
+        return $this->resources;
     }
 
     public function count()
@@ -77,28 +188,14 @@ class LazyResourceCollection implements \Iterator, \Countable, \ArrayAccess
         return count($this->resources);
     }
 
-    public function current()
+    private function load()
     {
-        return $this->offsetGet($this->cursor);
-    }
+        foreach ($this->resources as $key => $resource) {
+            if (!$resource instanceof ResourceInterface) {
+                $this->resources[$key] = $this->locator->get($resource);
+            }
+        }
 
-    public function next()
-    {
-        ++$this->cursor;
-    }
-
-    public function key()
-    {
-        return $this->cursor;
-    }
-
-    public function valid()
-    {
-        return $this->cursor < count($this->resources);
-    }
-
-    public function rewind()
-    {
-        $this->cursor = 0;
+        $this->loaded = true;
     }
 }

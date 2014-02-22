@@ -55,7 +55,7 @@ class LazyDirectoryResource extends LazyFileResource implements \IteratorAggrega
 
         // Dismiss keys, otherwise users may rely on them and we can't change
         // the implementation anymore.
-        return array_values($this->entries);
+        return new ResourceCollection(array_values($this->entries));
     }
 
     public function add(ResourceInterface $resource)

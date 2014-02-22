@@ -17,6 +17,8 @@ use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Path\Path;
+use Webmozart\Puli\Resource\ResourceCollection;
+use Webmozart\Puli\Resource\ResourceCollectionInterface;
 
 /**
  * @since  1.0
@@ -52,14 +54,14 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
 
             foreach ($selector as $path) {
                 $result = $this->get($path);
-                $result = is_array($result) ? $result : array($result);
+                $result = $result instanceof ResourceCollectionInterface ? $result : array($result);
 
                 foreach ($result as $resource) {
                     $resources[] = $resource;
                 }
             }
 
-            return $resources;
+            return new ResourceCollection($resources);
         }
 
         return $this->getImpl(Path::canonicalize($selector));

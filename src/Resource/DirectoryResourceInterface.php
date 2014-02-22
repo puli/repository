@@ -32,7 +32,7 @@ interface DirectoryResourceInterface extends ResourceInterface, \Traversable, \C
     public function contains($name);
 
     /**
-     * @return ResourceInterface[]
+     * @return ResourceCollectionInterface
      */
     public function all();
 

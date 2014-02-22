@@ -12,6 +12,8 @@
 namespace Webmozart\Puli\Tests\Locator;
 
 use Webmozart\Puli\Locator\UriLocator;
+use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
@@ -183,13 +185,18 @@ class UriLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->uriLocator->register('scheme', $locator);
 
+        $resources = new ResourceCollection(array(
+            new FileResource('foo'),
+            new FileResource('bar'),
+        ));
+
         $locator->expects($this->once())
             ->method('listDirectory')
             ->with('/path/to/resource')
-            ->will($this->returnValue(array('foo', 'bar')));
+            ->will($this->returnValue($resources));
 
         $this->assertEquals(
-             array('foo', 'bar'),
+            $resources,
             $this->uriLocator->listDirectory('scheme:///path/to/resource')
         );
     }
@@ -210,17 +217,22 @@ class UriLocatorTest extends \PHPUnit_Framework_TestCase
         $this->uriLocator->register('resource', $locator1);
         $this->uriLocator->register('namespace', $locator2);
 
+        $resources = new ResourceCollection(array(
+            new FileResource('foo'),
+            new FileResource('bar'),
+        ));
+
         $locator1->expects($this->once())
             ->method('getByTag')
             ->with('acme/tag')
-            ->will($this->returnValue(array('foo')));
+            ->will($this->returnValue(new ResourceCollection(array($resources[0]))));
         $locator2->expects($this->once())
             ->method('getByTag')
             ->with('acme/tag')
-            ->will($this->returnValue(array('bar')));
+            ->will($this->returnValue(new ResourceCollection(array($resources[1]))));
 
         $this->assertEquals(
-             array('foo', 'bar'),
+            $resources,
             $this->uriLocator->getByTag('acme/tag')
         );
     }
@@ -241,7 +253,7 @@ class UriLocatorTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(array('foo', 'bar')));
 
         $this->assertEquals(
-             array('foo', 'bar'),
+            array('foo', 'bar'),
             $this->uriLocator->getTags()
         );
     }

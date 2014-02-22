@@ -13,6 +13,7 @@ namespace Webmozart\Puli\Tests\Resource;
 
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
@@ -29,7 +30,10 @@ class DirectoryResourceTest extends \PHPUnit_Framework_TestCase
         $directory->add($child1);
         $directory->add($child2);
 
-        $this->assertEquals(array($child1, $child2), $directory->all());
+        $this->assertEquals(
+            new ResourceCollection(array($child1, $child2)),
+            $directory->all()
+        );
     }
 
     /**
@@ -61,7 +65,10 @@ class DirectoryResourceTest extends \PHPUnit_Framework_TestCase
         $directory->add($child1);
         $directory->add($child2);
 
-        $this->assertEquals(array($child2, $child1), $directory->all());
+        $this->assertEquals(
+            new ResourceCollection(array($child2, $child1)),
+            $directory->all()
+        );
     }
 
     public function testIterate()
