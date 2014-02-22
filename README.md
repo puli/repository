@@ -50,19 +50,19 @@ Run `composer install` or `composer update` and you're ready to start.
 Bundled Extensions
 ------------------
 
-Tool | Description                                                  | Stability | Documentation
----- | ------------------------------------------------------------ | --------- | ------------------------------
-Twig | The Twig extension lets you access templates via Puli paths. | alpha     | [Documentation](doc/twig.md)
+Tool    | Description                                                                        | Stability | Documentation
+------- | ---------------------------------------------------------------------------------- | --------- | -------------------------------
+Twig    | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
+Symfony | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/symfony.md)
 
 Tool Integration
 ----------------
 
-Tool               | Description                                                                             | Version
------------------- | --------------------------------------------------------------------------------------- | ---------------
-Composer           | The [Puli plugin for Composer] builds resource locators from composer.json definitions. | 1.0.0-alpha1
-Pash               | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
-Symfony Components | The [Puli bridge] integrates Puli with the [Symfony components].                        | 1.0.0-dev
-Symfony Framework  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
+Tool     | Description                                                                             | Version
+-------- | --------------------------------------------------------------------------------------- | ---------------
+Composer | The [Puli plugin for Composer] builds resource locators from composer.json definitions. | 1.0.0-alpha1
+Pash     | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
+Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
 
 Repository Management
 ---------------------
@@ -604,7 +604,9 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [Puli bundle]: https://github.com/webmozart/symfony-puli-bundle
 [Pash shell]: https://github.com/webmozart/pash
 [Symfony full-stack framework]: http:/symfony.com
-[Symfony components]: http://symfony.com/doc/current/components/index.html
+[Twig]: http://twig.sensiolabs.org
+[Config]: http://symfony.com/doc/current/components/config/introduction.html
+[HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php

@@ -12,6 +12,7 @@ Changelog
  * renamed `ResourceInterface::getPath()` to `getRealPath()`
  * renamed `ResourceInterface::getRepositoryPath()` to `getPath()`
  * added an extension for the templating engine Twig
+ * added an extension for the Symfony Config and HttpKernel components
 
 * 1.0.0-alpha2 (2014-02-14)
 
