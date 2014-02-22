@@ -63,8 +63,6 @@ Composer           | The [Puli plugin for Composer] builds resource locators fro
 Pash               | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
 Symfony Components | The [Puli bridge] integrates Puli with the [Symfony components].                        | 1.0.0-dev
 Symfony Framework  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
-Twig               | The [Puli extension for Twig] lets you access templates via Puli paths.                 | 1.0.0-alpha1
-
 
 Repository Management
 ---------------------
