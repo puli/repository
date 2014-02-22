@@ -54,6 +54,16 @@ class PuliFileLocator implements ChainableFileLocatorInterface
             return $repositoryPath;
         }
 
+        if (null !== $currentPath && file_exists($currentPath.'/'.$repositoryPath)) {
+            throw new \RuntimeException(sprintf(
+                'You tried to load the file "%s" using a relative path. '.
+                'This functionality is not supported due to a limitation in '.
+                'Symfony, because then this file cannot be overridden anymore. '.
+                'Please pass the absolute Puli path instead.',
+                $repositoryPath
+            ));
+        }
+
         try {
             $resource = $this->locator->get($repositoryPath);
 

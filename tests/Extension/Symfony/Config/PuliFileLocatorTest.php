@@ -60,6 +60,19 @@ class PuliFileLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($path, $this->locator->locate('/webmozart/puli/routing.yml'));
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testAcceptRelativePaths()
+    {
+        // Unfortunately we receive the absolute path, not the Puli path, in
+        // the second argument. For this reason, files referenced via a
+        // relative path cannot be overridden.
+
+        // The locator throws an exception in order to prevent relative paths.
+        $this->locator->locate('routing.yml', __DIR__.'/Fixtures/main');
+    }
+
     public function testReturnAllPathsIfFirstIsFalse()
     {
         $mainPath = __DIR__.'/Fixtures/main/routing.yml';
