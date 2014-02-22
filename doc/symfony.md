@@ -88,8 +88,7 @@ Limitations
 -----------
 
 Due to limitations with Symfony's `FileLocatorInterface`, relative file
-references are not properly supported. Let's load the routes in
-"/acme/blog/config/routing-dev.yml" for example:
+references are not properly supported. Let's load some routes for example:
 
 ```php
 $routes = $loader->load('/acme/blog/config/routing-dev.yml');
