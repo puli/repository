@@ -11,6 +11,7 @@ Changelog
  * instead of arrays, `ResourceCollection` objects are now returned everywhere
  * renamed `ResourceInterface::getPath()` to `getRealPath()`
  * renamed `ResourceInterface::getRepositoryPath()` to `getPath()`
+ * added an extension for the templating engine Twig
 
 * 1.0.0-alpha2 (2014-02-14)
 

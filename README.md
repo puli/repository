@@ -47,6 +47,13 @@ You can install Puli with Composer:
 
 Run `composer install` or `composer update` and you're ready to start.
 
+Bundled Extensions
+------------------
+
+Tool | Description                                                  | Documentation
+---- | ------------------------------------------------------------ | ------------------------------
+Twig | The Twig extension lets you access templates via Puli paths. | [Documentation](doc/twig.md)
+
 Tool Integration
 ----------------
 

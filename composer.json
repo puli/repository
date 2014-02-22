@@ -12,7 +12,11 @@
         "php": ">=5.3.9"
     },
     "require-dev": {
-        "symfony/filesystem": "~2.0"
+        "symfony/filesystem": "~2.0",
+        "twig/twig": "~1.0"
+    },
+    "suggest": {
+        "twig/twig": "Puli provides an extension for the Twig templating engine."
     },
     "minimum-stability": "dev",
     "autoload": {
