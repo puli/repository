@@ -8,7 +8,7 @@ Locating Files with Puli
 [![Total Downloads](https://poser.pugx.org/webmozart/puli/downloads.png)](https://packagist.org/packages/webmozart/puli)
 [![Dependency Status](https://www.versioneye.com/php/webmozart:puli/1.0.0/badge.png)](https://www.versioneye.com/php/webmozart:puli/1.0.0)
 
-Latest release: [1.0.0-alpha2](https://packagist.org/packages/webmozart/puli#1.0.0-alpha2)
+Latest release: [1.0.0-alpha3](https://packagist.org/packages/webmozart/puli#1.0.0-alpha3)
 
 PHP >= 5.3.9
 

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-* 1.0.0-alpha3 (@release_date@)
+* 1.0.0-alpha3 (2014-02-22)
 
  * renamed `PhpResourceLocator` to `PhpCacheLocator`
  * renamed `PhpResourceLocatorDumper` to `PhpCacheDumper`
