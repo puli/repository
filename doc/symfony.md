@@ -31,15 +31,6 @@ You need to pass Puli's resource locator to the constructor of the
 [`PuliFileLocator`]. If you don't know how to create that locator, you can find
 more information in Puli's [main documentation].
 
-Limitations
------------
-
-Due to limitations with Symfony's `FileLocatorInterface`, file references
-starting with "../" are not properly supported. Let's load the routes in
-"/acme/blog/config/routing.yml" for example:
-
-```php
-
 Chained Locators
 ----------------
 
@@ -92,6 +83,49 @@ $routes = $loader->load('@AcmeBlogBundle/Resources/config/routing.yml');
 ```
 
 Take care again that the [`ChainableFileLocator`] comes last in the chain.
+
+Limitations
+-----------
+
+Due to limitations with Symfony's `FileLocatorInterface`, relative file
+references are not properly supported. Let's load the routes in
+"/acme/blog/config/routing-dev.yml" for example:
+
+```php
+$routes = $loader->load('/acme/blog/config/routing-dev.yml');
+```
+
+Consider that this file contains the following import:
+
+```yaml
+# routing-dev.yml
+_main:
+    resource: routing.yml
+```
+
+What happens if we override this file in the Puli repository?
+
+```php
+// Load files from /path/to/blog
+$repo->add('/acme/blog', '/path/to/blog');
+
+// Override just routing.yml with a custom file
+$repo->add('/acme/blog/config/routing.yml', '/path/to/routing.yml');
+
+// Load the routes
+$routes = $loader->load('/acme/blog/config/routing-dev.yml');
+
+// Expected: Routes loaded from
+//  - /path/to/blog/config/routing-dev.yml
+//  - /path/to/routing.yml
+
+// Actual: Routes loaded from
+//  - /path/to/blog/config/routing-dev.yml
+//  - /path/to/blog/config/routing.yml
+```
+
+This is a limitiation in Symfony and cannot be worked around. For this
+reason, [`PuliFileLocator`] does not support relative file paths.
 
 [Symfony Config component]: http://symfony.com/doc/current/components/config/introduction.html
 [Symfony HttpKernel component]: http://symfony.com/doc/current/components/http_kernel/introduction.html
