@@ -14,8 +14,8 @@ _acme_demo:
 Installation
 ------------
 
-To use Puli in the Config component, create a new [`PuliFileLocator`] and pass
-it to your file loaders:
+To locate configuration files with Puli, create a new [`PuliFileLocator`] and
+pass it to your file loaders:
 
 ```php
 use Webmozart\Puli\Extension\Symfony\Config\PuliFileLocator;
@@ -30,6 +30,9 @@ $routes = $loader->load('/acme/blog/config/routing.yml');
 You need to pass Puli's resource locator to the constructor of the
 [`PuliFileLocator`]. If you don't know how to create that locator, you can find
 more information in Puli's [main documentation].
+
+Chained Locators
+----------------
 
 If you want to use the [`PuliFileLocator`] and Symfony's conventional
 `FileLocator` side by side, you can use them both by wrapping them into a
