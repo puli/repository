@@ -55,6 +55,7 @@ namespace:
 
 Extension | Description                                                                        | Stability | Documentation
 --------- | ---------------------------------------------------------------------------------- | --------- | -------------------------------
+Assetic   | You can create [Assetic] assets with Puli paths using the bundled asset factory.   | alpha     | -
 Symfony   | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/symfony.md)
 Twig      | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
 
@@ -612,6 +613,7 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [Twig]: http://twig.sensiolabs.org
 [Config]: http://symfony.com/doc/current/components/config/introduction.html
 [HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
+[Assetic]: https://github.com/kriswallsmith/assetic
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php

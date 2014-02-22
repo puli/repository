@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-alpha4 (@release_date@)
+
+ * implemented prototypical `PuliAssetFactory` for Assetic
+
 * 1.0.0-alpha3 (2014-02-22)
 
  * renamed `PhpResourceLocator` to `PhpCacheLocator`

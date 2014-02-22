@@ -14,13 +14,13 @@
     "require-dev": {
         "symfony/filesystem": "~2.0",
         "symfony/config": "~2.3",
-        "symfony/http-kernel": "~2.3",
-        "twig/twig": "~1.0"
+        "twig/twig": "~1.0",
+        "kriswallsmith/assetic": "~1.1"
     },
     "suggest": {
-        "symfony/config": "Puli provides an extension for the Symfony Config component.",
-        "symfony/http-kernel": "Puli provides an extension for the Symfony HttpKernel component.",
-        "twig/twig": "Puli provides an extension for the Twig templating engine."
+        "symfony/config": "Puli provides a file locator for the Symfony Config component.",
+        "twig/twig": "Puli provides an extension for the Twig templating engine.",
+        "kriswallsmith/assetic": "Puli provides an asset factory for Assetic."
     },
     "minimum-stability": "dev",
     "autoload": {
