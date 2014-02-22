@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Symfony Puli bridge.
+ * This file is part of the Puli package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *

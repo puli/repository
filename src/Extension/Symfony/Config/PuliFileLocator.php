@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Symfony Puli bridge.
+ * This file is part of the Puli package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
@@ -58,7 +58,7 @@ class PuliFileLocator implements ChainableFileLocatorInterface
             $resource = $this->locator->get($repositoryPath);
 
             return $first
-                ? $resource->getPath()
+                ? $resource->getRealPath()
                 : array_reverse($resource->getAlternativePaths());
         } catch (ResourceNotFoundException $e) {
             throw new \InvalidArgumentException(sprintf(

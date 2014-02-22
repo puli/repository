@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Twig Puli Extension.
+ * This file is part of the Puli package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
