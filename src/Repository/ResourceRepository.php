@@ -277,7 +277,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         if ($resource instanceof DirectoryResource) {
             foreach ($resource as $entry) {
                 /** @var ResourceInterface $entry */
-                $this->removeNode($entry->getRepositoryPath());
+                $this->removeNode($entry->getPath());
             }
         }
 
@@ -357,11 +357,11 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             $this->resources[$path] = $isDirectory
                 ? new DirectoryResource(
                     $path,
-                    $resource->getPath()
+                    $resource->getRealPath()
                 )
                 : new FileResource(
                     $path,
-                    $resource->getPath()
+                    $resource->getRealPath()
                 );
 
             // Add the new node to the parent directory
@@ -372,7 +372,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             // rearranging the complete array on every add.
             ksort($this->resources);
         } else {
-            $this->resources[$path]->overridePath($resource->getPath());
+            $this->resources[$path]->overridePath($resource->getRealPath());
         }
 
         // Recursively add directory contents

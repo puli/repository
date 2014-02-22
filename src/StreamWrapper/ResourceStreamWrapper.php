@@ -132,7 +132,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function rmdir($uri, $options)
     {
-        $path = $this->getLocator()->get($uri)->getPath();
+        $path = $this->getLocator()->get($uri)->getRealPath();
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of directories through the stream wrapper is not '.
@@ -214,7 +214,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_open($uri, $mode, $options, &$openedPath)
     {
-        $openedPath = $this->getLocator()->get($uri)->getPath();
+        $openedPath = $this->getLocator()->get($uri)->getRealPath();
 
         $this->handle = fopen($openedPath, $mode, $options & STREAM_USE_PATH) ?: null;
 
@@ -270,7 +270,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function unlink($uri)
     {
-        $path = $this->getLocator()->get($uri)->getPath();
+        $path = $this->getLocator()->get($uri)->getRealPath();
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of files through the stream wrapper is not '.
@@ -283,7 +283,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
     public function url_stat($uri, $flags)
     {
         try {
-            $path = $this->getLocator()->get($uri)->getPath();
+            $path = $this->getLocator()->get($uri)->getRealPath();
 
             if ($flags & STREAM_URL_STAT_LINK) {
                 return lstat($path);

@@ -36,7 +36,7 @@ class PhpCacheDumper implements ResourceLocatorDumperInterface
             $resources = array();
 
             foreach ($locator->getByTag($tag) as $resource) {
-                $resources[] = $resource->getRepositoryPath();
+                $resources[] = $resource->getPath();
             }
 
             $tags[$tag] = $resources;
@@ -62,13 +62,13 @@ class PhpCacheDumper implements ResourceLocatorDumperInterface
 
     private function extractPaths(ResourceInterface $resource, array &$filePaths, array &$dirPaths, array &$alternativePaths)
     {
-        $repositoryPath = $resource->getRepositoryPath();
+        $repositoryPath = $resource->getPath();
         $altPaths = $resource->getAlternativePaths();
 
         if ($resource instanceof DirectoryResourceInterface) {
-            $dirPaths[$repositoryPath] = $resource->getPath();
+            $dirPaths[$repositoryPath] = $resource->getRealPath();
         } else {
-            $filePaths[$repositoryPath] = $resource->getPath();
+            $filePaths[$repositoryPath] = $resource->getRealPath();
         }
 
         // Discard the current path, we already have that information

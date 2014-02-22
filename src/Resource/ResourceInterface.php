@@ -19,11 +19,11 @@ interface ResourceInterface
 {
     public function __toString();
 
-    public function getRepositoryPath();
+    public function getPath();
 
     public function getName();
 
-    public function getPath();
+    public function getRealPath();
 
     /**
      * @param string $path

@@ -17,7 +17,7 @@ project. You can refer to those files through simple names that look very
 much like file paths:
 
 ```php
-echo $locator->get('/webmozart/puli/css/style.css')->getPath();
+echo $locator->get('/webmozart/puli/css/style.css')->getRealPath();
 // => /path/to/resources/assets/css/style.css
 ```
 
@@ -78,10 +78,10 @@ only difference is that no file is ever really moved on your disk.
 You can locate the added files using the `get()` method:
 
 ```php
-echo $repo->get('/webmozart/puli/css/style.css')->getPath();
+echo $repo->get('/webmozart/puli/css/style.css')->getRealPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $repo->get('/webmozart/puli/trans/en.xlf')->getPath();
+echo $repo->get('/webmozart/puli/trans/en.xlf')->getRealPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
@@ -91,7 +91,7 @@ the method will always return an array as well.
 
 ```php
 foreach ($repo->get('/webmozart/puli/*') as $resource) {
-    echo $resource->getRepositoryPath();
+    echo $resource->getPath();
 }
 
 // => /webmozart/puli/css
@@ -134,10 +134,10 @@ use Webmozart\Puli\Locator\PhpCacheLocator;
 
 $locator = new PhpCacheLocator('/path/to/cache');
 
-echo $locator->get('/webmozart/puli/css/style.css')->getPath();
+echo $locator->get('/webmozart/puli/css/style.css')->getRealPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $locator->get('/webmozart/puli/trans/en.xlf')->getPath();
+echo $locator->get('/webmozart/puli/trans/en.xlf')->getRealPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
@@ -165,10 +165,10 @@ $locator = new UriLocator();
 $locator->register('resource', new PhpCacheLocator('/cache/resource'));
 $locator->register('namespace', new PhpCacheLocator('/cache/namespace'));
 
-echo $locator->get('resource:///webmozart/puli/css/style.css')->getPath();
+echo $locator->get('resource:///webmozart/puli/css/style.css')->getRealPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $locator->get('namespace:///Webmozart/Puli/Puli.php')->getPath();
+echo $locator->get('namespace:///Webmozart/Puli/Puli.php')->getRealPath();
 // => /path/to/webmozart/puli/src/Puli.php
 ```
 
@@ -228,10 +228,10 @@ $resource = $repo->get('/webmozart/puli/css');
 echo $resource->getName();
 // => css
 
-echo $resource->getRepositoryPath();
+echo $resource->getPath();
 // => /webmozart/puli/css
 
-echo $resource->getPath();
+echo $resource->getRealPath();
 // => /path/to/resources/assets/css
 ```
 
@@ -247,7 +247,7 @@ $resource = $repo->get('/webmozart/puli');
 echo $resource->getName();
 // => puli
 
-echo basename($resource->getPath());
+echo basename($resource->getRealPath());
 // => assets
 ```
 
@@ -317,7 +317,7 @@ $repo->add('/webmozart/puli/config', '/path/to/app/config');
 
 $resource = $repo->get('/webmozart/puli/config/config.yml');
 
-echo $resource->getPath();
+echo $resource->getRealPath();
 // => /path/to/app/config/config.yml
 
 print_r($resource->getAlternativePaths());
@@ -384,7 +384,7 @@ class Translator
     public function discoverResources(ResourceLocatorInterface $locator)
     {
         foreach ($locator->getByTag('acme/translator/xlf') as $resource) {
-            // register $resource->getPath()...
+            // register $resource->getRealPath()...
         }
     }
 }

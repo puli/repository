@@ -23,7 +23,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
 
     public function add(ResourceInterface $resource)
     {
-        $parentPath = dirname($resource->getRepositoryPath());
+        $parentPath = dirname($resource->getPath());
 
         // Fix root directory on Windows
         if ('\\' === $parentPath) {
@@ -39,7 +39,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
             ));
         }
 
-        $this->entries[basename($resource->getRepositoryPath())] = $resource;
+        $this->entries[basename($resource->getPath())] = $resource;
 
         ksort($this->entries);
     }

@@ -62,7 +62,7 @@ class LazyFileResource implements ResourceInterface
         return $this->repositoryPath;
     }
 
-    public function getRepositoryPath()
+    public function getPath()
     {
         return $this->repositoryPath;
     }
@@ -72,7 +72,7 @@ class LazyFileResource implements ResourceInterface
         return $this->name;
     }
 
-    public function getPath()
+    public function getRealPath()
     {
         return $this->path;
     }

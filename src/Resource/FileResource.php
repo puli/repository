@@ -56,7 +56,7 @@ class FileResource implements ResourceInterface
     /**
      * @return string
      */
-    public function getRepositoryPath()
+    public function getPath()
     {
         return $this->repositoryPath;
     }
@@ -72,7 +72,7 @@ class FileResource implements ResourceInterface
     /**
      * @return string
      */
-    public function getPath()
+    public function getRealPath()
     {
         return $this->path;
     }

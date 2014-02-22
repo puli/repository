@@ -53,9 +53,9 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $resource = $this->locator->get('/dir1');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resource);
-        $this->assertSame('/dir1', $resource->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resource->getPath());
-        $this->assertSame(array($resource->getPath()), $resource->getAlternativePaths());
+        $this->assertSame('/dir1', $resource->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resource->getRealPath());
+        $this->assertSame(array($resource->getRealPath()), $resource->getAlternativePaths());
     }
 
     public function testGetFile()
@@ -63,9 +63,9 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $resource = $this->locator->get('/dir1/file1');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resource);
-        $this->assertSame('/dir1/file1', $resource->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1/file1', $resource->getPath());
-        $this->assertSame(array($resource->getPath()), $resource->getAlternativePaths());
+        $this->assertSame('/dir1/file1', $resource->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $resource->getRealPath());
+        $this->assertSame(array($resource->getRealPath()), $resource->getAlternativePaths());
     }
 
     public function testGetMany()
@@ -75,14 +75,14 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $resources);
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
-        $this->assertSame('/dir1', $resources[0]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getPath());
-        $this->assertSame(array($resources[0]->getPath()), $resources[0]->getAlternativePaths());
+        $this->assertSame('/dir1', $resources[0]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getRealPath());
+        $this->assertSame(array($resources[0]->getRealPath()), $resources[0]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[1]);
-        $this->assertSame('/dir2', $resources[1]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getPath());
-        $this->assertSame(array($resources[1]->getPath()), $resources[1]->getAlternativePaths());
+        $this->assertSame('/dir2', $resources[1]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getRealPath());
+        $this->assertSame(array($resources[1]->getRealPath()), $resources[1]->getAlternativePaths());
     }
 
     public function testGetPattern()
@@ -92,14 +92,14 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $resources);
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
-        $this->assertSame('/dir1', $resources[0]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getPath());
-        $this->assertSame(array($resources[0]->getPath()), $resources[0]->getAlternativePaths());
+        $this->assertSame('/dir1', $resources[0]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getRealPath());
+        $this->assertSame(array($resources[0]->getRealPath()), $resources[0]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[1]);
-        $this->assertSame('/dir2', $resources[1]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getPath());
-        $this->assertSame(array($resources[1]->getPath()), $resources[1]->getAlternativePaths());
+        $this->assertSame('/dir2', $resources[1]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getRealPath());
+        $this->assertSame(array($resources[1]->getRealPath()), $resources[1]->getAlternativePaths());
     }
 
     /**
@@ -123,9 +123,9 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $resource = $this->locator->get('/dir1/.');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resource);
-        $this->assertSame('/dir1', $resource->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resource->getPath());
-        $this->assertSame(array($resource->getPath()), $resource->getAlternativePaths());
+        $this->assertSame('/dir1', $resource->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resource->getRealPath());
+        $this->assertSame(array($resource->getRealPath()), $resource->getAlternativePaths());
     }
 
     public function testGetDotDot()
@@ -133,9 +133,9 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $resource = $this->locator->get('/dir1/file1/..');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resource);
-        $this->assertSame('/dir1', $resource->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resource->getPath());
-        $this->assertSame(array($resource->getPath()), $resource->getAlternativePaths());
+        $this->assertSame('/dir1', $resource->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resource->getRealPath());
+        $this->assertSame(array($resource->getRealPath()), $resource->getAlternativePaths());
     }
 
     public function testGetFromDirectoryInstance()
@@ -143,9 +143,9 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $resource = $this->locator->get('/')->get('dir1');
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resource);
-        $this->assertSame('/dir1', $resource->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resource->getPath());
-        $this->assertSame(array($resource->getPath()), $resource->getAlternativePaths());
+        $this->assertSame('/dir1', $resource->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resource->getRealPath());
+        $this->assertSame(array($resource->getRealPath()), $resource->getAlternativePaths());
     }
 
     public function testContainsOne()
@@ -183,14 +183,14 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $resources);
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
-        $this->assertSame('/dir1', $resources[0]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getPath());
-        $this->assertSame(array($resources[0]->getPath()), $resources[0]->getAlternativePaths());
+        $this->assertSame('/dir1', $resources[0]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getRealPath());
+        $this->assertSame(array($resources[0]->getRealPath()), $resources[0]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[1]);
-        $this->assertSame('/dir2', $resources[1]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getPath());
-        $this->assertSame(array($resources[1]->getPath()), $resources[1]->getAlternativePaths());
+        $this->assertSame('/dir2', $resources[1]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getRealPath());
+        $this->assertSame(array($resources[1]->getRealPath()), $resources[1]->getAlternativePaths());
     }
 
     public function testListDirectoryWithDots()
@@ -200,19 +200,19 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(3, $resources);
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
-        $this->assertSame('/dir2/.dotfile', $resources[0]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2/.dotfile', $resources[0]->getPath());
-        $this->assertSame(array($resources[0]->getPath()), $resources[0]->getAlternativePaths());
+        $this->assertSame('/dir2/.dotfile', $resources[0]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2/.dotfile', $resources[0]->getRealPath());
+        $this->assertSame(array($resources[0]->getRealPath()), $resources[0]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
-        $this->assertSame('/dir2/file1', $resources[1]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2/file1', $resources[1]->getPath());
-        $this->assertSame(array($resources[1]->getPath()), $resources[1]->getAlternativePaths());
+        $this->assertSame('/dir2/file1', $resources[1]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2/file1', $resources[1]->getRealPath());
+        $this->assertSame(array($resources[1]->getRealPath()), $resources[1]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[2]);
-        $this->assertSame('/dir2/file1-link', $resources[2]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2/file1-link', $resources[2]->getPath());
-        $this->assertSame(array($resources[2]->getPath()), $resources[2]->getAlternativePaths());
+        $this->assertSame('/dir2/file1-link', $resources[2]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2/file1-link', $resources[2]->getRealPath());
+        $this->assertSame(array($resources[2]->getRealPath()), $resources[2]->getAlternativePaths());
     }
 
     public function testListDirectoryInstance()
@@ -222,13 +222,13 @@ class FilesystemLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $resources);
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[0]);
-        $this->assertSame('/dir1', $resources[0]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getPath());
-        $this->assertSame(array($resources[0]->getPath()), $resources[0]->getAlternativePaths());
+        $this->assertSame('/dir1', $resources[0]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1', $resources[0]->getRealPath());
+        $this->assertSame(array($resources[0]->getRealPath()), $resources[0]->getAlternativePaths());
 
         $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $resources[1]);
-        $this->assertSame('/dir2', $resources[1]->getRepositoryPath());
-        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getPath());
-        $this->assertSame(array($resources[1]->getPath()), $resources[1]->getAlternativePaths());
+        $this->assertSame('/dir2', $resources[1]->getPath());
+        $this->assertSame($this->fixturesDir.'/dir2', $resources[1]->getRealPath());
+        $this->assertSame(array($resources[1]->getRealPath()), $resources[1]->getAlternativePaths());
     }
 }
