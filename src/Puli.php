@@ -17,9 +17,9 @@ namespace Webmozart\Puli;
  */
 class Puli
 {
-    const VERSION = '@package_version@';
+    const VERSION = '1.0.0-alpha3';
 
-    const RELEASE_DATE = '@release_date@';
+    const RELEASE_DATE = '2014-02-22';
 
     private function __construct()
     {
