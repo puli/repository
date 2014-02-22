@@ -86,12 +86,13 @@ echo $repo->get('/webmozart/puli/trans/en.xlf')->getRealPath();
 ```
 
 The `get()` method accepts either the path to the resource, a glob pattern or an
-array containing multiple paths or patterns. If you pass a pattern or an array,
-the method will always return an array as well.
+array containing multiple paths or patterns. If you pass a single path, a
+[`ResourceInterface`] object will be returned. If you pass a pattern or an array,
+you will receive a [`ResourceCollectionInterface`].
 
 ```php
-foreach ($repo->get('/webmozart/puli/*') as $resource) {
-    echo $resource->getPath();
+foreach ($repo->get('/webmozart/puli/*')->getPaths() as $path) {
+    echo $path;
 }
 
 // => /webmozart/puli/css
@@ -302,6 +303,46 @@ $resources = $directory->all();
 Direct modifications of [`DirectoryResourceInterface`] instances are not
 allowed. You should use the methods provided by [`ResourceRepositoryInterface`]
 instead.
+
+Resource Collections
+--------------------
+
+When you fetch multiple resources from the locator, the locator will return them
+in a [`ResourceCollectionInterface`] instance. Resource collections offer
+convenience methods for accessing the names, the paths or the real paths of
+the contained resources at once:
+
+```php
+$resources = $locator->get('/webmozart/puli/css/*.css');
+
+print_r($resources->getNames());
+// Array
+// (
+//     [0] => reset.css
+//     [1] => style.css
+// )
+
+print_r($resources->getPaths());
+// Array
+// (
+//     [0] => /webmozart/puli/css/reset.css
+//     [1] => /webmozart/puli/css/style.css
+// )
+
+print_r($resources->getRealPaths());
+// Array
+// (
+//     [0] => /path/to/resources/assets/css/reset.css
+//     [1] => /path/to/resources/assets/css/style.css
+// )
+```
+
+Resource collections are traversable, countable and support `ArrayAccess`.
+When you still need the collection as array, call `toArray()`:
+
+```php
+$array = $resources->toArray();
+```
 
 Overriding Files and Directories
 --------------------------------
@@ -562,6 +603,7 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
 [`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: src/Resource/ResourceInterface.php
+[`ResourceCollectionInterface`]: src/Resource/ResourceCollectionInterface.php
 [`DirectoryResourceInterface`]: src/Resource/DirectoryResourceInterface.php
 [`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
 [`FilesystemLocator`]: src/Locator/FilesystemLocator.php
