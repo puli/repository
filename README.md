@@ -53,10 +53,10 @@ Bundled Extensions
 The following extensions are provided in the [`Webmozart\Puli\Extension`]
 namespace:
 
-Tool    | Description                                                                        | Stability | Documentation
-------- | ---------------------------------------------------------------------------------- | --------- | -------------------------------
-Symfony | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/symfony.md)
-Twig    | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
+Extension | Description                                                                        | Stability | Documentation
+--------- | ---------------------------------------------------------------------------------- | --------- | -------------------------------
+Symfony   | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/symfony.md)
+Twig      | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/twig.md)
 
 Tool Integration
 ----------------
