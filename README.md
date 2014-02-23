@@ -36,7 +36,7 @@ You will learn later in this document how to do so.
 Installation
 ------------
 
-You can install Puli with Composer:
+You can install Puli with [Composer]:
 
 ```json
 {
@@ -82,6 +82,7 @@ Composer | The [Puli plugin for Composer] builds resource locators from composer
 Pash     | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
 Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
 
+[Composer]: https://getcomposer.org
 [Basic Usage]: doc/1-basic-usage.md
 [Advanced Usage]: doc/2-advanced-usage.md
 [Composer plugin]: https://github.com/webmozart/composer-puli-plugin
