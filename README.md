@@ -3,6 +3,7 @@ Locating Files with Puli
 
 [![Build Status](https://travis-ci.org/webmozart/puli.png?branch=master)](https://travis-ci.org/webmozart/puli)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/webmozart/puli/badges/quality-score.png?s=f1fbf1884aed7f896c18fc237d3eed5823ac85eb)](https://scrutinizer-ci.com/g/webmozart/puli/)
+[![Code Coverage](https://scrutinizer-ci.com/g/webmozart/puli/badges/coverage.png?s=5d83649f6fc3a9754297da9dc0d997be212c9145)](https://scrutinizer-ci.com/g/webmozart/puli/)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/728198dc-dc0f-4bab-b5c0-c0b4e2a55bce/mini.png)](https://insight.sensiolabs.com/projects/728198dc-dc0f-4bab-b5c0-c0b4e2a55bce)
 [![Latest Stable Version](https://poser.pugx.org/webmozart/puli/v/stable.png)](https://packagist.org/packages/webmozart/puli)
 [![Total Downloads](https://poser.pugx.org/webmozart/puli/downloads.png)](https://packagist.org/packages/webmozart/puli)
