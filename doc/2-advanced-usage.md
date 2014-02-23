@@ -1,8 +1,8 @@
 Advanced Usage
 ==============
 
-Are you fully confident with Puli's [Basic Usage] and want to learn? Then read
-this guide, which introduces you to advanced functionality of Puli.
+Are you fully confident with Puli's [Basic Usage] and want to learn more? Then
+read this guide, which introduces you to advanced functionality of Puli.
 
 Custom File Patterns
 --------------------
