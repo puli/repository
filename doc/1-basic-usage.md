@@ -3,6 +3,20 @@ Basic Usage
 
 Welcome to Puli! Enjoy this guide to learn about the basics with Puli.
 
+Table of Contents
+-----------------
+
+1. [Repository Management](#repository-management)
+2. [Resource Locators](#resource-locators)
+3. [URI Locators](#uri-locators)
+4. [Streams](#streams)
+5. [Resources](#resources)
+6. [Directories](#directories)
+7. [Resource Collections](#resource-collections)
+8. [Overriding Files and Directories](#overriding-files-and-directories)
+9. [Tagging](#tagging)
+10. [Automated Resource Discovery](#automated-resource-discovery)
+
 Repository Management
 ---------------------
 

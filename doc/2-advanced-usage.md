@@ -4,6 +4,11 @@ Advanced Usage
 Are you fully confident with Puli's [Basic Usage] and want to learn more? Then
 read this guide, which introduces you to advanced functionality of Puli.
 
+Table of Contents
+-----------------
+
+1. [Custom File Patterns](#custom-file-patterns)
+
 Custom File Patterns
 --------------------
 
