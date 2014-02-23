@@ -83,7 +83,7 @@ Pash     | The [Pash shell] lets you interactively browse Puli repositories.    
 Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
 
 [Basic Usage]: doc/1-basic-usage.md
-[Advanced Usage]: doc/2-basic-usage.md
+[Advanced Usage]: doc/2-advanced-usage.md
 [Composer plugin]: https://github.com/webmozart/composer-puli-plugin
 [Puli plugin for Composer]: https://github.com/webmozart/composer-puli-plugin
 [Puli extension for Twig]: https://github.com/webmozart/twig-puli-extension

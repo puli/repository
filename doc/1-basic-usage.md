@@ -1,5 +1,8 @@
 Basic Usage
 ===========
+
+Welcome to Puli! Enjoy this guide to learn about the basics with Puli.
+
 Repository Management
 ---------------------
 
