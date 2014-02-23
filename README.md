@@ -46,7 +46,11 @@ You can install Puli with Composer:
 }
 ```
 
-Run `composer install` or `composer update` and you're ready to start.
+Run `composer install` or `composer update` to install the library. At last, include Composer's generated autoloader and you're ready to start:
+
+```php
+require_once __DIR__.'/vendor/autoload.php';
+```
 
 Bundled Extensions
 ------------------
