@@ -84,7 +84,7 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
 
     public function getIterator()
     {
-        return new \ArrayIterator(array_values($this->entries));
+        return new DirectoryResourceIterator($this, DirectoryResourceIterator::KEY_AS_CURSOR);
     }
 
     public function count()

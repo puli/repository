@@ -28,6 +28,14 @@ class ResourceCollectionIterator implements \RecursiveIterator
     const KEY_AS_PATH = 64;
 
     /**
+     * Use the cursor as key.
+     *
+     * Attention: Don't use this mode when iterating recursively, as PHP's
+     * {@link \RecursiveIteratorIterator} skips inner nodes then.
+     */
+    const KEY_AS_CURSOR = 128;
+
+    /**
      * @var ResourceInterface[]
      */
     protected $resources;
@@ -42,7 +50,7 @@ class ResourceCollectionIterator implements \RecursiveIterator
             $mode |= self::CURRENT_AS_RESOURCE;
         }
 
-        if (!($mode & (self::KEY_AS_PATH))) {
+        if (!($mode & (self::KEY_AS_PATH | self::KEY_AS_CURSOR))) {
             $mode |= self::KEY_AS_PATH;
         }
 

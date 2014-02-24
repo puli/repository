@@ -136,7 +136,7 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
 
     public function getIterator()
     {
-        return new \ArrayIterator($this->resources);
+        return new ResourceCollectionIterator($this, ResourceCollectionIterator::KEY_AS_CURSOR);
     }
 
     public function toArray()

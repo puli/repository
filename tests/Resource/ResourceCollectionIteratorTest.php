@@ -124,4 +124,23 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
     }
+
+    public function testKeyAsCursor()
+    {
+        $repo = new ResourceRepository();
+        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
+
+        $iterator = new ResourceCollectionIterator(
+            $repo->listDirectory('/webmozart/puli'),
+            ResourceCollectionIterator::CURRENT_AS_PATH
+                | ResourceCollectionIterator::KEY_AS_CURSOR
+        );
+
+        $expected = array(
+            0 => '/webmozart/puli/dir',
+            1 => '/webmozart/puli/foo',
+        );
+
+        $this->assertSame($expected, iterator_to_array($iterator));
+    }
 }
