@@ -63,7 +63,7 @@ class RelativePathResolver implements Twig_NodeVisitorInterface
             // (i.e. starting the traversal of another module while a previous
             // one is still in progress). Thus we don't need to track existing
             // values here.
-            $this->currentDir = Path::dirname($node->getAttribute('filename'));
+            $this->currentDir = Path::getDirectory($node->getAttribute('filename'));
             $this->resolvePaths = false;
         }
 

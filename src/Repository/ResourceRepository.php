@@ -268,7 +268,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         // Doing so after removing the node itself ensures that this code is
         // not executed for the recursive child calls, because then their parent
         // node does not exist anymore.
-        $parentPath = Path::dirname($repositoryPath);
+        $parentPath = Path::getDirectory($repositoryPath);
 
         if (isset($this->resources[$parentPath])
                 && $this->resources[$parentPath] instanceof DirectoryResourceInterface) {
@@ -297,7 +297,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     private function getOrCreateDirectoryOf($repositoryPath)
     {
         // Recursively initialize parent directories
-        $parentPath = Path::dirname($repositoryPath);
+        $parentPath = Path::getDirectory($repositoryPath);
 
         if (!isset($this->resources[$parentPath])) {
             $grandParent = $this->getOrCreateDirectoryOf($parentPath);
