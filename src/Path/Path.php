@@ -396,6 +396,18 @@ class Path
     }
 
     /**
+     * Returns whether the given path is on the local filesystem.
+     *
+     * @param string $path A path string
+     *
+     * @return boolean Returns true if the path is local, false for a URL
+     */
+    public static function isLocal($path)
+    {
+        return false === strpos($path, '://');
+    }
+
+    /**
      * Splits a part into its root directory and the remainder.
      *
      * If the path has no root directory, an empty root directory will be

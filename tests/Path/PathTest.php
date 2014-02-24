@@ -447,4 +447,22 @@ class PathTest extends \PHPUnit_Framework_TestCase
     {
         Path::makeRelative($absolutePath, $basePath);
     }
+
+    public function provideIsLocalTests()
+    {
+        return array(
+            array('/bg.png', true),
+            array('bg.png', true),
+            array('http://example.com/bg.png', false),
+            array('http://example.com', false),
+        );
+    }
+
+    /**
+     * @dataProvider provideIsLocalTests
+     */
+    public function testIsLocal($path, $isLocal)
+    {
+        $this->assertSame($isLocal, Path::isLocal($path));
+    }
 }
