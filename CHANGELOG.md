@@ -16,7 +16,8 @@ Changelog
    * added `ResourceCollectionIterator` and `DirectoryResourceIterator`
    * added `ResourceFilterIterator`
    * added `TwigTemplateCacheWarmer`
-   * changed `PuliLoader::getCacheKey()` to prevent cache conflicts with
+   * renamed `PuliLoader` to `PuliTemplateLoader` for clarity
+   * changed `PuliTemplateLoader::getCacheKey()` to prevent cache conflicts with
      templates loaded through a different loader
 
 * 1.0.0-alpha3 (2014-02-22)

@@ -11,16 +11,17 @@ echo $twig->render('/acme/blog/views/show.html.twig');
 Installation
 ------------
 
-In order to activate the extension, create a new [`PuliLoader`] and register it
-with Twig. The loader turns a Puli path into an absolute path when loading a
-template. Then, create a new [`PuliExtension`] and add it to Twig. The extension
-takes care that templates loaded by the [`PuliLoader`] are processed correctly.
+In order to activate the extension, create a new [`PuliTemplateLoader`] and
+register it with Twig. The loader turns a Puli path into an absolute path when
+loading a template. Then, create a new [`PuliExtension`] and add it to Twig.
+The extension takes care that templates loaded by the [`PuliTemplateLoader`]
+are processed correctly.
 
 ```php
-use Webmozart\Puli\Extension\Twig\PuliLoader;
+use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
 use Webmozart\Puli\Extension\Twig\PuliExtension;
 
-$twig = new \Twig_Environment(new PuliLoader($locator));
+$twig = new \Twig_Environment(new PuliTemplateLoader($locator));
 $twig->addExtension(new PuliExtension($locator));
 ```
 
@@ -55,5 +56,5 @@ relative paths:
 
 [Twig templating engine]: http://twig.sensiolabs.org
 [main documentation]: ../README.md
-[`PuliLoader`]: ../src/Extension/Twig/PuliLoader.php
+[`PuliTemplateLoader`]: ../src/Extension/Twig/PuliTemplateLoader.php
 [`PuliExtension`]: ../src/Extension/Twig/PuliExtension.php

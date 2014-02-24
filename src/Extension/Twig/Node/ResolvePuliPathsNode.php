@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Extension\Twig\Node;
 
 /**
- * Marks templates loaded by {@link \Webmozart\Puli\Extension\Twig\Loader\PuliLoader}.
+ * Marks templates loaded by {@link \Webmozart\Puli\Extension\Twig\Loader\PuliTemplateLoader}.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>

@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Tests\Extension\Twig;
 
 use Webmozart\Puli\Repository\ResourceRepository;
-use Webmozart\Puli\Extension\Twig\PuliLoader;
+use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
 use Webmozart\Puli\Extension\Twig\PuliExtension;
 
 /**
@@ -37,7 +37,7 @@ class PuliExtensionTest extends \PHPUnit_Framework_TestCase
         $this->repo->add('/acme/blog/views', __DIR__.'/Fixtures/puli');
 
         $this->twig = new RandomizedTwigEnvironment(new \Twig_Loader_Chain(array(
-            new PuliLoader($this->repo),
+            new PuliTemplateLoader($this->repo),
             new \Twig_Loader_Filesystem(__DIR__.'/Fixtures'),
         )));
         $this->twig->addExtension(new PuliExtension($this->repo));
@@ -94,7 +94,7 @@ class PuliExtensionTest extends \PHPUnit_Framework_TestCase
     public function testIncludeNonPuliAndRelativePath()
     {
         // Resolution of relative paths should work after including a template
-        // with a different loader than PuliLoader
+        // with a different loader than PuliTemplateLoader
         $this->assertSame(
             "TEMPLATE\n\nNON PULI REFERENCE\n\nREFERENCE\n",
             $this->twig->render('/acme/blog/views/include-non-puli-and-relative.txt.twig')

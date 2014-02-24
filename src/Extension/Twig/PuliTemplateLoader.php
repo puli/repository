@@ -18,7 +18,7 @@ use Webmozart\Puli\Locator\ResourceNotFoundException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliLoader implements \Twig_LoaderInterface
+class PuliTemplateLoader implements \Twig_LoaderInterface
 {
     private $locator;
 
