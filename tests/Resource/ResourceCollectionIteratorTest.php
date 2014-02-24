@@ -35,10 +35,17 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => $repo->get('/webmozart'),
             '/webmozart/puli' => $repo->get('/webmozart/puli'),
-            '/webmozart/puli/dir' => $repo->get('/webmozart/puli/dir'),
-            '/webmozart/puli/dir/nested' => $repo->get('/webmozart/puli/dir/nested'),
-            '/webmozart/puli/dir/nested/bar' => $repo->get('/webmozart/puli/dir/nested/bar'),
-            '/webmozart/puli/foo' => $repo->get('/webmozart/puli/foo'),
+            '/webmozart/puli/config' => $repo->get('/webmozart/puli/config'),
+            '/webmozart/puli/config/config.yml' => $repo->get('/webmozart/puli/config/config.yml'),
+            '/webmozart/puli/css' => $repo->get('/webmozart/puli/css'),
+            '/webmozart/puli/css/bootstrap' => $repo->get('/webmozart/puli/css/bootstrap'),
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => $repo->get('/webmozart/puli/css/bootstrap/bootstrap.css'),
+            '/webmozart/puli/css/fonts.css' => $repo->get('/webmozart/puli/css/fonts.css'),
+            '/webmozart/puli/css/reset.css' => $repo->get('/webmozart/puli/css/reset.css'),
+            '/webmozart/puli/css/style.css' => $repo->get('/webmozart/puli/css/style.css'),
+            '/webmozart/puli/images' => $repo->get('/webmozart/puli/images'),
+            '/webmozart/puli/images/bg.png' => $repo->get('/webmozart/puli/images/bg.png'),
+            '/webmozart/puli/installer.json' => $repo->get('/webmozart/puli/installer.json'),
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
@@ -62,10 +69,17 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => '/webmozart',
             '/webmozart/puli' => '/webmozart/puli',
-            '/webmozart/puli/dir' => '/webmozart/puli/dir',
-            '/webmozart/puli/dir/nested' => '/webmozart/puli/dir/nested',
-            '/webmozart/puli/dir/nested/bar' => '/webmozart/puli/dir/nested/bar',
-            '/webmozart/puli/foo' => '/webmozart/puli/foo',
+            '/webmozart/puli/config' => '/webmozart/puli/config',
+            '/webmozart/puli/config/config.yml' => '/webmozart/puli/config/config.yml',
+            '/webmozart/puli/css' => '/webmozart/puli/css',
+            '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
+            '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
+            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
+            '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
+            '/webmozart/puli/images' => '/webmozart/puli/images',
+            '/webmozart/puli/images/bg.png' => '/webmozart/puli/images/bg.png',
+            '/webmozart/puli/installer.json' => '/webmozart/puli/installer.json',
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
@@ -89,10 +103,17 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => null,
             '/webmozart/puli' => __DIR__.'/Fixtures',
-            '/webmozart/puli/dir' => __DIR__.'/Fixtures/dir',
-            '/webmozart/puli/dir/nested' => __DIR__.'/Fixtures/dir/nested',
-            '/webmozart/puli/dir/nested/bar' => __DIR__.'/Fixtures/dir/nested/bar',
-            '/webmozart/puli/foo' => __DIR__.'/Fixtures/foo',
+            '/webmozart/puli/config' => __DIR__.'/Fixtures/config',
+            '/webmozart/puli/config/config.yml' => __DIR__.'/Fixtures/config/config.yml',
+            '/webmozart/puli/css' => __DIR__.'/Fixtures/css',
+            '/webmozart/puli/css/bootstrap' => __DIR__.'/Fixtures/css/bootstrap',
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => __DIR__.'/Fixtures/css/bootstrap/bootstrap.css',
+            '/webmozart/puli/css/fonts.css' => __DIR__.'/Fixtures/css/fonts.css',
+            '/webmozart/puli/css/reset.css' => __DIR__.'/Fixtures/css/reset.css',
+            '/webmozart/puli/css/style.css' => __DIR__.'/Fixtures/css/style.css',
+            '/webmozart/puli/images' => __DIR__.'/Fixtures/images',
+            '/webmozart/puli/images/bg.png' => __DIR__.'/Fixtures/images/bg.png',
+            '/webmozart/puli/installer.json' => __DIR__.'/Fixtures/installer.json',
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
@@ -116,10 +137,17 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => 'webmozart',
             '/webmozart/puli' => 'puli',
-            '/webmozart/puli/dir' => 'dir',
-            '/webmozart/puli/dir/nested' => 'nested',
-            '/webmozart/puli/dir/nested/bar' => 'bar',
-            '/webmozart/puli/foo' => 'foo',
+            '/webmozart/puli/config' => 'config',
+            '/webmozart/puli/config/config.yml' => 'config.yml',
+            '/webmozart/puli/css' => 'css',
+            '/webmozart/puli/css/bootstrap' => 'bootstrap',
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => 'bootstrap.css',
+            '/webmozart/puli/css/fonts.css' => 'fonts.css',
+            '/webmozart/puli/css/reset.css' => 'reset.css',
+            '/webmozart/puli/css/style.css' => 'style.css',
+            '/webmozart/puli/images' => 'images',
+            '/webmozart/puli/images/bg.png' => 'bg.png',
+            '/webmozart/puli/installer.json' => 'installer.json',
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
@@ -137,8 +165,10 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
         );
 
         $expected = array(
-            0 => '/webmozart/puli/dir',
-            1 => '/webmozart/puli/foo',
+            0 => '/webmozart/puli/config',
+            1 => '/webmozart/puli/css',
+            2 => '/webmozart/puli/images',
+            3 => '/webmozart/puli/installer.json',
         );
 
         $this->assertSame($expected, iterator_to_array($iterator));

@@ -35,10 +35,17 @@ class DirectoryResourceIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => $repo->get('/webmozart'),
             '/webmozart/puli' => $repo->get('/webmozart/puli'),
-            '/webmozart/puli/dir' => $repo->get('/webmozart/puli/dir'),
-            '/webmozart/puli/dir/nested' => $repo->get('/webmozart/puli/dir/nested'),
-            '/webmozart/puli/dir/nested/bar' => $repo->get('/webmozart/puli/dir/nested/bar'),
-            '/webmozart/puli/foo' => $repo->get('/webmozart/puli/foo'),
+            '/webmozart/puli/config' => $repo->get('/webmozart/puli/config'),
+            '/webmozart/puli/config/config.yml' => $repo->get('/webmozart/puli/config/config.yml'),
+            '/webmozart/puli/css' => $repo->get('/webmozart/puli/css'),
+            '/webmozart/puli/css/bootstrap' => $repo->get('/webmozart/puli/css/bootstrap'),
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => $repo->get('/webmozart/puli/css/bootstrap/bootstrap.css'),
+            '/webmozart/puli/css/fonts.css' => $repo->get('/webmozart/puli/css/fonts.css'),
+            '/webmozart/puli/css/reset.css' => $repo->get('/webmozart/puli/css/reset.css'),
+            '/webmozart/puli/css/style.css' => $repo->get('/webmozart/puli/css/style.css'),
+            '/webmozart/puli/images' => $repo->get('/webmozart/puli/images'),
+            '/webmozart/puli/images/bg.png' => $repo->get('/webmozart/puli/images/bg.png'),
+            '/webmozart/puli/installer.json' => $repo->get('/webmozart/puli/installer.json'),
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
@@ -62,10 +69,17 @@ class DirectoryResourceIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart' => '/webmozart',
             '/webmozart/puli' => '/webmozart/puli',
-            '/webmozart/puli/dir' => '/webmozart/puli/dir',
-            '/webmozart/puli/dir/nested' => '/webmozart/puli/dir/nested',
-            '/webmozart/puli/dir/nested/bar' => '/webmozart/puli/dir/nested/bar',
-            '/webmozart/puli/foo' => '/webmozart/puli/foo',
+            '/webmozart/puli/config' => '/webmozart/puli/config',
+            '/webmozart/puli/config/config.yml' => '/webmozart/puli/config/config.yml',
+            '/webmozart/puli/css' => '/webmozart/puli/css',
+            '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
+            '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
+            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
+            '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
+            '/webmozart/puli/images' => '/webmozart/puli/images',
+            '/webmozart/puli/images/bg.png' => '/webmozart/puli/images/bg.png',
+            '/webmozart/puli/installer.json' => '/webmozart/puli/installer.json',
         );
 
         $this->assertSame($expected, iterator_to_array($recursiveIterator));
