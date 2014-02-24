@@ -21,6 +21,6 @@ class PuliStringAsset extends StringAsset implements PuliAssetInterface
 {
     public function __construct($path, $content, $filters = array())
     {
-        parent::__construct($content, $filters, null, $path);
+        parent::__construct($content, $filters, '/', $path);
     }
 }

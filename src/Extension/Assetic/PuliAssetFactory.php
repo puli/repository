@@ -72,7 +72,7 @@ class PuliAssetFactory extends AssetFactory
             return $this->createAssetCollection($assets, $options);
         }
 
-        return $this->createPuliAsset($resource->getRealPath(), $options['vars']);
+        return $this->createPuliAsset($resource, $options['vars']);
     }
 
     protected function createPuliAsset(ResourceInterface $resource, array $vars)

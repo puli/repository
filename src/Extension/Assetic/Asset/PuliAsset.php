@@ -21,6 +21,6 @@ class PuliAsset extends FileAsset implements PuliAssetInterface
 {
     public function __construct($path, $realPath, $filters = array(), array $vars = array())
     {
-        parent::__construct($realPath, $filters, null, $path, $vars);
+        parent::__construct($realPath, $filters, '/', $path, $vars);
     }
 }
