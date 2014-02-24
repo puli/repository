@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Assetic;
+namespace Webmozart\Puli\Tests\Extension\Assetic\Factory;
 
 use Assetic\Asset\AssetReference;
 use Assetic\Asset\FileAsset;
 use Assetic\Asset\HttpAsset;
 use Assetic\AssetManager;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
-use Webmozart\Puli\Extension\Assetic\PuliAssetFactory;
+use Webmozart\Puli\Extension\Assetic\Factory\PuliAssetFactory;
 use Webmozart\Puli\Locator\UriLocator;
 use Webmozart\Puli\Repository\ResourceRepository;
 

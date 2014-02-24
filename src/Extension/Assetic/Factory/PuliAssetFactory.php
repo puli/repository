@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic;
+namespace Webmozart\Puli\Extension\Assetic\Factory;
 
 use Assetic\Factory\AssetFactory;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
