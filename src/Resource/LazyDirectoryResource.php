@@ -111,7 +111,7 @@ class LazyDirectoryResource extends LazyFileResource implements \IteratorAggrega
             $this->loadEntries();
         }
 
-        return new \ArrayIterator(array_values($this->entries));
+        return new DirectoryResourceIterator($this, DirectoryResourceIterator::KEY_AS_CURSOR);
     }
 
     private function loadEntries()
