@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Symfony\HttpKernel\CacheWarmer;
+namespace Webmozart\Puli\Extension\Twig\CacheWarmer;
 
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Twig_Environment;

@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Symfony\HttpKernel\CacheWarmer;
+namespace Webmozart\Puli\Tests\Extension\Twig\CacheWarmer;
 
-use Webmozart\Puli\Extension\Symfony\HttpKernel\CacheWarmer\TwigTemplateCacheWarmer;
+use Webmozart\Puli\Extension\Twig\CacheWarmer\TwigTemplateCacheWarmer;
 use Webmozart\Puli\Repository\ResourceRepository;
 
 /**
