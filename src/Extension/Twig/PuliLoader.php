@@ -65,6 +65,12 @@ class PuliLoader implements Twig_LoaderInterface
         try {
             // Even thow the path and $path are the same, call the locator to
             // make sure that the path actually exists
+            // The result of this method MUST NOT be the real path (without
+            // prefix), because then the generated file has the same cache
+            // key as the same template loaded through a different loader.
+            // If loaded through a different loader, relative paths won't be
+            // resolved, so we'll have the wrong version of the template in
+            // he cache.
             return '__puli__'.$this->locator->get($path)->getPath();
         } catch (ResourceNotFoundException $e) {
             throw new Twig_Error_Loader($e->getMessage(), -1, null, $e);
