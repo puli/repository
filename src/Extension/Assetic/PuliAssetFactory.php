@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Extension\Assetic;
 
 use Assetic\Factory\AssetFactory;
+use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\UriLocatorInterface;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
@@ -65,12 +66,17 @@ class PuliAssetFactory extends AssetFactory
 
             foreach ($resource as $entry) {
                 /** @var ResourceInterface $entry */
-                $assets[] = $this->createFileAsset($entry->getRealPath(), null, null, array());
+                $assets[] = $this->createPuliAsset($entry, array());
             }
 
             return $this->createAssetCollection($assets, $options);
         }
 
-        return $this->createFileAsset($resource->getRealPath(), null, null, $options['vars']);
+        return $this->createPuliAsset($resource->getRealPath(), $options['vars']);
+    }
+
+    protected function createPuliAsset(ResourceInterface $resource, array $vars)
+    {
+        return new PuliAsset($resource->getPath(), $resource->getRealPath(), array(), $vars);
     }
 }
