@@ -14,7 +14,8 @@ namespace Webmozart\Puli\Extension\Assetic\Filter;
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\AssetInterface;
 use Assetic\AssetManager;
-use Assetic\Filter\BaseCssFilter;
+use Assetic\Filter\FilterInterface;
+use Assetic\Util\CssUtils;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAssetInterface;
 use Webmozart\Puli\Extension\Assetic\AssetException;
 use Webmozart\Puli\Path\Path;
@@ -23,7 +24,7 @@ use Webmozart\Puli\Path\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliRewriteCssFilter extends BaseCssFilter
+class PuliRewriteCssFilter implements FilterInterface
 {
     /**
      * @var AssetManager
@@ -79,7 +80,7 @@ class PuliRewriteCssFilter extends BaseCssFilter
             $targetDir = '/'.$targetDir;
         }
 
-        $content = $this->filterReferences($asset->getContent(), function($matches) use ($pathMap, $repoDir, $repoPath, $targetDir, $targetPath) {
+        $content = CssUtils::filterReferences($asset->getContent(), function($matches) use ($pathMap, $repoDir, $repoPath, $targetDir, $targetPath) {
             // The referenced path is a repository path
             // e.g. "/webmozart/puli/images/bg.png"
             $referencedPath = $matches['url'];
