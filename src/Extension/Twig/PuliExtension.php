@@ -22,10 +22,6 @@ use Webmozart\Puli\Extension\Twig\TokenParser\ResolvePuliPathsTokenParser;
  */
 class PuliExtension extends \Twig_Extension
 {
-    const VERSION = '@package_version@';
-
-    const RELEASE_DATE = '@release_date@';
-
     /**
      * @var ResourceLocatorInterface
      */
