@@ -27,8 +27,7 @@ class TwigTemplateCacheWarmerTest extends \PHPUnit_Framework_TestCase
 
         $twig = $this->getMock('Twig_Environment');
 
-        $warmer = new TwigTemplateCacheWarmer($repo);
-        $warmer->setEnvironment($twig);
+        $warmer = new TwigTemplateCacheWarmer($repo, $twig);
 
         $twig->expects($this->at(0))
             ->method('loadTemplate')
@@ -37,20 +36,6 @@ class TwigTemplateCacheWarmerTest extends \PHPUnit_Framework_TestCase
             ->method('loadTemplate')
             ->with('/webmozart/puli/views/show.json.twig');
 
-        $warmer->warmUp(null);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testFailIfEnvironmentNotSet()
-    {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
-        $twig = $this->getMock('Twig_Environment');
-
-        $warmer = new TwigTemplateCacheWarmer($repo);
         $warmer->warmUp(null);
     }
 }
