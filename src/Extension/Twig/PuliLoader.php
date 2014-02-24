@@ -32,20 +32,20 @@ class PuliLoader implements Twig_LoaderInterface
     /**
      * Gets the source code of a template, given its name.
      *
-     * @param string $name The name of the template to load
+     * @param string $path The name of the template to load
      *
      * @return string The template source code
      *
-     * @throws \Twig_Error_Loader When $name is not found
+     * @throws \Twig_Error_Loader When $path is not found
      */
-    public function getSource($name)
+    public function getSource($path)
     {
         try {
             // The "resolve_puli_paths" tag tells the RelativePathResolver that
             // it should turn relative paths into absolute paths in this file.
             // That tag is later removed from the node tree and has no effect
             // on the rendered output of the file.
-            return "{% resolve_puli_paths %}\n".file_get_contents($this->locator->get($name)->getRealPath());
+            return "{% resolve_puli_paths %}\n".file_get_contents($this->locator->get($path)->getRealPath());
         } catch (ResourceNotFoundException $e) {
             throw new Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
@@ -54,16 +54,18 @@ class PuliLoader implements Twig_LoaderInterface
     /**
      * Gets the cache key to use for the cache for a given template name.
      *
-     * @param string $name The name of the template to load
+     * @param string $path The name of the template to load
      *
      * @return string The cache key
      *
-     * @throws \Twig_Error_Loader When $name is not found
+     * @throws \Twig_Error_Loader When $path is not found
      */
-    public function getCacheKey($name)
+    public function getCacheKey($path)
     {
         try {
-            return $this->locator->get($name)->getRealPath();
+            // Even thow the path and $path are the same, call the locator to
+            // make sure that the path actually exists
+            return '__puli__'.$this->locator->get($path)->getPath();
         } catch (ResourceNotFoundException $e) {
             throw new Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
@@ -72,17 +74,17 @@ class PuliLoader implements Twig_LoaderInterface
     /**
      * Returns true if the template is still fresh.
      *
-     * @param string    $name The template name
+     * @param string    $path The template name
      * @param timestamp $time The last modification time of the cached template
      *
      * @return Boolean true if the template is fresh, false otherwise
      *
-     * @throws \Twig_Error_Loader When $name is not found
+     * @throws \Twig_Error_Loader When $path is not found
      */
-    public function isFresh($name, $time)
+    public function isFresh($path, $time)
     {
         try {
-            return filemtime($this->locator->get($name)->getRealPath()) <= $time;
+            return filemtime($this->locator->get($path)->getRealPath()) <= $time;
         } catch (ResourceNotFoundException $e) {
             throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
