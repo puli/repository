@@ -3,7 +3,21 @@ Changelog
 
 * 1.0.0-alpha4 (@release_date@)
 
- * implemented prototypical `PuliAssetFactory` for Assetic
+ * added prototypical `PuliAssetFactory` for Assetic
+ * renamed `Path::dirname()` to `Path::getDirectory()`
+ * added methods to `Path`:
+  * `getRoot()`
+  * `isAbsolute()`
+  * `isRelative()`
+  * `makeAbsolute()`
+  * `makeRelative()`
+  * `isLocal()`
+ * added `PuliCssRewriteFilter` for Assetic
+ * added `ResourceCollectionIterator` and `DirectoryResourceIterator`
+ * added `ResourceFilterIterator`
+ * added `TwigTemplateCacheWarmer`
+ * changed `PuliLoader::getCacheKey()` to prevent cache conflicts with
+   templates loaded through a different loader
 
 * 1.0.0-alpha3 (2014-02-22)
 
