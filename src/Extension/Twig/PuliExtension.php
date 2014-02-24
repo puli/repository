@@ -11,7 +11,6 @@
 
 namespace Webmozart\Puli\Extension\Twig;
 
-use Twig_NodeVisitorInterface;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Extension\Twig\NodeVisitor\RelativePathResolver;
 use Webmozart\Puli\Extension\Twig\TokenParser\ResolvePuliPathsTokenParser;
@@ -45,7 +44,7 @@ class PuliExtension extends \Twig_Extension
     /**
      * Returns the node visitor instances to add to the existing list.
      *
-     * @return Twig_NodeVisitorInterface[] An array of Twig_NodeVisitorInterface instances
+     * @return \Twig_NodeVisitorInterface[] An array of Twig_NodeVisitorInterface instances
      */
     public function getNodeVisitors()
     {

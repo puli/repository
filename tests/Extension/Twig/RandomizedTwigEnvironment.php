@@ -11,18 +11,15 @@
 
 namespace Webmozart\Puli\Tests\Extension\Twig;
 
-use Twig_Environment;
-use Twig_LoaderInterface;
-
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RandomizedTwigEnvironment extends Twig_Environment
+class RandomizedTwigEnvironment extends \Twig_Environment
 {
     private static $previousPrefixes = array();
 
-    public function __construct(Twig_LoaderInterface $loader = null, $options = array())
+    public function __construct(\Twig_LoaderInterface $loader = null, $options = array())
     {
         parent::__construct($loader, $options);
 

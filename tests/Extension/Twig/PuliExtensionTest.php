@@ -11,8 +11,6 @@
 
 namespace Webmozart\Puli\Tests\Extension\Twig;
 
-use Twig_Loader_Chain;
-use Twig_Loader_Filesystem;
 use Webmozart\Puli\Repository\ResourceRepository;
 use Webmozart\Puli\Extension\Twig\PuliLoader;
 use Webmozart\Puli\Extension\Twig\PuliExtension;
@@ -38,9 +36,9 @@ class PuliExtensionTest extends \PHPUnit_Framework_TestCase
         $this->repo = new ResourceRepository();
         $this->repo->add('/acme/blog/views', __DIR__.'/Fixtures/puli');
 
-        $this->twig = new RandomizedTwigEnvironment(new Twig_Loader_Chain(array(
+        $this->twig = new RandomizedTwigEnvironment(new \Twig_Loader_Chain(array(
             new PuliLoader($this->repo),
-            new Twig_Loader_Filesystem(__DIR__.'/Fixtures'),
+            new \Twig_Loader_Filesystem(__DIR__.'/Fixtures'),
         )));
         $this->twig->addExtension(new PuliExtension($this->repo));
     }

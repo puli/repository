@@ -11,10 +11,6 @@
 
 namespace Webmozart\Puli\Extension\Twig\TokenParser;
 
-use Twig_NodeInterface;
-use Twig_Token;
-use Twig_Error_Syntax;
-use Twig_TokenParser;
 use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
 
 /**
@@ -24,18 +20,18 @@ use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResolvePuliPathsTokenParser extends Twig_TokenParser
+class ResolvePuliPathsTokenParser extends \Twig_TokenParser
 {
     /**
      * Parses a token and returns a node.
      *
-     * @param Twig_Token $token A Twig_Token instance
+     * @param \Twig_Token $token A Twig_Token instance
      *
-     * @return Twig_NodeInterface A Twig_NodeInterface instance
+     * @return \Twig_NodeInterface A Twig_NodeInterface instance
      *
-     * @throws Twig_Error_Syntax
+     * @throws \Twig_Error_Syntax
      */
-    public function parse(Twig_Token $token)
+    public function parse(\Twig_Token $token)
     {
         $this->parser->getStream()->next();
 

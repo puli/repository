@@ -11,12 +11,6 @@
 
 namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
 
-use Twig_Environment;
-use Twig_Node_Expression_Constant;
-use Twig_Node_Include;
-use Twig_Node_Module;
-use Twig_NodeInterface;
-use Twig_NodeVisitorInterface;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
@@ -25,7 +19,7 @@ use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RelativePathResolver implements Twig_NodeVisitorInterface
+class RelativePathResolver implements \Twig_NodeVisitorInterface
 {
     /**
      * @var ResourceLocatorInterface
@@ -50,15 +44,15 @@ class RelativePathResolver implements Twig_NodeVisitorInterface
     /**
      * Called before child nodes are visited.
      *
-     * @param Twig_NodeInterface $node The node to visit
-     * @param Twig_Environment   $env  The Twig environment instance
+     * @param \Twig_NodeInterface $node The node to visit
+     * @param \Twig_Environment   $env  The Twig environment instance
      *
-     * @return Twig_NodeInterface The modified node
+     * @return \Twig_NodeInterface The modified node
      */
-    public function enterNode(Twig_NodeInterface $node, Twig_Environment $env)
+    public function enterNode(\Twig_NodeInterface $node, \Twig_Environment $env)
     {
         // Remember the directory of the current file
-        if ($node instanceof Twig_Node_Module) {
+        if ($node instanceof \Twig_Node_Module) {
             // Currently, it doesn't seem like Twig does recursive traversals
             // (i.e. starting the traversal of another module while a previous
             // one is still in progress). Thus we don't need to track existing
@@ -73,12 +67,12 @@ class RelativePathResolver implements Twig_NodeVisitorInterface
     /**
      * Called after child nodes are visited.
      *
-     * @param Twig_NodeInterface $node The node to visit
-     * @param Twig_Environment   $env  The Twig environment instance
+     * @param \Twig_NodeInterface $node The node to visit
+     * @param \Twig_Environment   $env  The Twig environment instance
      *
-     * @return Twig_NodeInterface|false The modified node or false if the node must be removed
+     * @return \Twig_NodeInterface|false The modified node or false if the node must be removed
      */
-    public function leaveNode(Twig_NodeInterface $node, Twig_Environment $env)
+    public function leaveNode(\Twig_NodeInterface $node, \Twig_Environment $env)
     {
         // Activate processing of relative paths only if the node tree contains
         // a ResolvePuliPathsNode
@@ -94,29 +88,29 @@ class RelativePathResolver implements Twig_NodeVisitorInterface
             return $node;
         }
 
-        if ($node instanceof Twig_Node_Module) {
+        if ($node instanceof \Twig_Node_Module) {
             // Resolve relative parent template paths to absolute paths
             $parentNode = $node->getNode('parent');
 
             // If the template extends another template, resolve the path
-            if ($parentNode instanceof Twig_Node_Expression_Constant) {
+            if ($parentNode instanceof \Twig_Node_Expression_Constant) {
                 $this->resolveRepositoryPath($parentNode);
             }
 
             // Resolve paths of embedded templates
             foreach ($node->getAttribute('embedded_templates') as $embeddedNode) {
-                /** @var Twig_Node_Module $embeddedNode */
+                /** @var \Twig_Node_Module $embeddedNode */
                 $embedParent = $embeddedNode->getNode('parent');
 
                 // If the template extends another template, resolve the path
-                if ($embedParent instanceof Twig_Node_Expression_Constant) {
+                if ($embedParent instanceof \Twig_Node_Expression_Constant) {
                     $this->resolveRepositoryPath($embedParent);
                 }
             }
-        } elseif ($node instanceof Twig_Node_Include) {
+        } elseif ($node instanceof \Twig_Node_Include) {
             $exprNode = $node->getNode('expr');
 
-            if ($exprNode instanceof Twig_Node_Expression_Constant) {
+            if ($exprNode instanceof \Twig_Node_Expression_Constant) {
                 $this->resolveRepositoryPath($exprNode);
             }
         }
@@ -136,7 +130,7 @@ class RelativePathResolver implements Twig_NodeVisitorInterface
         return -5;
     }
 
-    private function resolveRepositoryPath(Twig_Node_Expression_Constant $node)
+    private function resolveRepositoryPath(\Twig_Node_Expression_Constant $node)
     {
         $templatePath = $node->getAttribute('value');
 

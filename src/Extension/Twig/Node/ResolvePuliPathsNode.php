@@ -11,14 +11,12 @@
 
 namespace Webmozart\Puli\Extension\Twig\Node;
 
-use Twig_Node;
-
 /**
  * Marks templates loaded by {@link \Webmozart\Puli\Extension\Twig\Loader\PuliLoader}.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResolvePuliPathsNode extends Twig_Node
+class ResolvePuliPathsNode extends \Twig_Node
 {
 }

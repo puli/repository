@@ -12,7 +12,6 @@
 namespace Webmozart\Puli\Extension\Twig\CacheWarmer;
 
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
-use Twig_Environment;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResourceIterator;
 use Webmozart\Puli\Resource\ResourceFilterIterator;
@@ -35,7 +34,7 @@ class TwigTemplateCacheWarmer implements CacheWarmerInterface
     private $suffix;
 
     /**
-     * @var Twig_Environment
+     * @var \Twig_Environment
      */
     private $twig;
 

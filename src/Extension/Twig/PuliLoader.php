@@ -11,8 +11,6 @@
 
 namespace Webmozart\Puli\Extension\Twig;
 
-use Twig_Error_Loader;
-use Twig_LoaderInterface;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 
@@ -20,7 +18,7 @@ use Webmozart\Puli\Locator\ResourceNotFoundException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliLoader implements Twig_LoaderInterface
+class PuliLoader implements \Twig_LoaderInterface
 {
     private $locator;
 
@@ -47,7 +45,7 @@ class PuliLoader implements Twig_LoaderInterface
             // on the rendered output of the file.
             return "{% resolve_puli_paths %}\n".file_get_contents($this->locator->get($path)->getRealPath());
         } catch (ResourceNotFoundException $e) {
-            throw new Twig_Error_Loader($e->getMessage(), -1, null, $e);
+            throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
     }
 
@@ -73,7 +71,7 @@ class PuliLoader implements Twig_LoaderInterface
             // he cache.
             return '__puli__'.$this->locator->get($path)->getPath();
         } catch (ResourceNotFoundException $e) {
-            throw new Twig_Error_Loader($e->getMessage(), -1, null, $e);
+            throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
     }
 
