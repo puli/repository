@@ -24,7 +24,7 @@ use Webmozart\Puli\Path\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliRewriteCssFilter implements FilterInterface
+class PuliCssRewriteFilter implements FilterInterface
 {
     /**
      * @var AssetManager

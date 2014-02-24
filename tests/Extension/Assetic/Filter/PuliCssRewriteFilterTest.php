@@ -14,13 +14,13 @@ namespace Webmozart\Puli\Tests\Extension\Assetic\Filter;
 use Assetic\Asset\StringAsset;
 use Assetic\AssetManager;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliStringAsset;
-use Webmozart\Puli\Extension\Assetic\Filter\PuliRewriteCssFilter;
+use Webmozart\Puli\Extension\Assetic\Filter\PuliCssRewriteFilter;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliRewriteCssFilterTest extends \PHPUnit_Framework_TestCase
+class PuliCssRewriteFilterTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var AssetManager
@@ -28,14 +28,14 @@ class PuliRewriteCssFilterTest extends \PHPUnit_Framework_TestCase
     private $am;
 
     /**
-     * @var PuliRewriteCssFilter
+     * @var PuliCssRewriteFilter
      */
     private $filter;
 
     protected function setUp()
     {
         $this->am = new AssetManager();
-        $this->filter = new PuliRewriteCssFilter($this->am);
+        $this->filter = new PuliCssRewriteFilter($this->am);
     }
 
     public function provideUrls()
