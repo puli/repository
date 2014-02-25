@@ -42,7 +42,7 @@ class TemplatePathResolver extends AbstractPathResolver
 
             // If the template extends another template, resolve the path
             if ($parentNode instanceof \Twig_Node_Expression_Constant) {
-                $this->ensureAbsolutePath($parentNode);
+                $this->processConstantNode($parentNode);
             }
 
             // Resolve paths of embedded templates
@@ -52,15 +52,20 @@ class TemplatePathResolver extends AbstractPathResolver
 
                 // If the template extends another template, resolve the path
                 if ($embedParent instanceof \Twig_Node_Expression_Constant) {
-                    $this->ensureAbsolutePath($embedParent);
+                    $this->processConstantNode($embedParent);
                 }
             }
         } elseif ($node instanceof \Twig_Node_Include) {
             $exprNode = $node->getNode('expr');
 
             if ($exprNode instanceof \Twig_Node_Expression_Constant) {
-                $this->ensureAbsolutePath($exprNode);
+                $this->processConstantNode($exprNode);
             }
         }
+    }
+
+    private function processConstantNode(\Twig_Node_Expression_Constant $node)
+    {
+        $node->setAttribute('value', $this->resolvePath($node->getAttribute('value')));
     }
 }

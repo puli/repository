@@ -76,22 +76,20 @@ abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
         return $node;
     }
 
-    protected function ensureAbsolutePath(\Twig_Node_Expression_Constant $node)
+    protected function resolvePath($path)
     {
-        $templatePath = $node->getAttribute('value');
-
         // Empty path? WTF I don't want to deal with this.
-        if ('' === $templatePath) {
-            return;
+        if ('' === $path) {
+            return $path;
         }
 
         // Absolute paths are fine
-        if ('/' === $templatePath[0]) {
-            return;
+        if ('/' === $path[0]) {
+            return $path;
         }
 
         // Resolve relative paths
-        $absolutePath = $this->currentDir.'/'.$templatePath;
+        $absolutePath = $this->currentDir.'/'.$path;
 
         // With other loaders enabled, it may happen that a path looks like
         // a relative path, but is none, for example
@@ -99,8 +97,10 @@ abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
         // slash. For this reason, we should only resolve paths if they actually
         // exist in the repository.
         if ($this->locator->contains($absolutePath)) {
-            $node->setAttribute('value', $absolutePath);
+            return $absolutePath;
         }
+
+        return $path;
     }
 
     /**
