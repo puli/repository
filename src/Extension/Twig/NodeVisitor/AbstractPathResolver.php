@@ -89,7 +89,7 @@ abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
         }
 
         // Resolve relative paths
-        $absolutePath = $this->currentDir.'/'.$path;
+        $absolutePath = Path::canonicalize($this->currentDir.'/'.$path);
 
         // With other loaders enabled, it may happen that a path looks like
         // a relative path, but is none, for example
