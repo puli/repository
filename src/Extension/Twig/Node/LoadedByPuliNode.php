@@ -17,6 +17,6 @@ namespace Webmozart\Puli\Extension\Twig\Node;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResolvePuliPathsNode extends \Twig_Node
+class LoadedByPuliNode extends \Twig_Node
 {
 }

@@ -11,16 +11,16 @@
 
 namespace Webmozart\Puli\Extension\Twig\TokenParser;
 
-use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
+use Webmozart\Puli\Extension\Twig\Node\LoadedByPuliNode;
 
 /**
- * Turns the "{% resolve_puli_paths %}" token into an instance of
- * {@link ResolvePuliPathsNode}.
+ * Turns the "{% loaded_by_puli %}" token into an instance of
+ * {@link LoadedByPuliNode}.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResolvePuliPathsTokenParser extends \Twig_TokenParser
+class LoadedByPuliTokenParser extends \Twig_TokenParser
 {
     /**
      * Parses a token and returns a node.
@@ -35,7 +35,7 @@ class ResolvePuliPathsTokenParser extends \Twig_TokenParser
     {
         $this->parser->getStream()->next();
 
-        return new ResolvePuliPathsNode();
+        return new LoadedByPuliNode();
     }
 
     /**
@@ -45,6 +45,6 @@ class ResolvePuliPathsTokenParser extends \Twig_TokenParser
      */
     public function getTag()
     {
-        return 'resolve_puli_paths';
+        return 'loaded_by_puli';
     }
 }

@@ -11,9 +11,10 @@
 
 namespace Webmozart\Puli\Extension\Twig;
 
+use Webmozart\Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
-use Webmozart\Puli\Extension\Twig\NodeVisitor\RelativePathResolver;
-use Webmozart\Puli\Extension\Twig\TokenParser\ResolvePuliPathsTokenParser;
+use Webmozart\Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
+use Webmozart\Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
 
 /**
  * @since  1.0
@@ -21,6 +22,22 @@ use Webmozart\Puli\Extension\Twig\TokenParser\ResolvePuliPathsTokenParser;
  */
 class PuliExtension extends \Twig_Extension
 {
+    /**
+     * Priority for node visitors that want to work with relative path before
+     * they are turned into absolute paths.
+     */
+    const PRE_RESOLVE_PATHS = 4;
+
+    /**
+     * Priority for node visitors that turn relative paths into absolute paths.
+     */
+    const RESOLVE_PATHS = 5;
+
+    /**
+     * Priority for node visitors that want to work with absolute paths.
+     */
+    const POST_RESOLVE_PATHS = 6;
+
     /**
      * @var ResourceLocatorInterface
      */
@@ -48,7 +65,10 @@ class PuliExtension extends \Twig_Extension
      */
     public function getNodeVisitors()
     {
-        return array(new RelativePathResolver($this->locator));
+        return array(
+            new LoadedByPuliTagger(),
+            new TemplatePathResolver($this->locator)
+        );
     }
 
     /**
@@ -58,7 +78,7 @@ class PuliExtension extends \Twig_Extension
      */
     public function getTokenParsers()
     {
-        return array(new ResolvePuliPathsTokenParser());
+        return array(new LoadedByPuliTokenParser());
     }
 
 }

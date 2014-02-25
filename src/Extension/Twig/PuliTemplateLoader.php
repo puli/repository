@@ -39,11 +39,13 @@ class PuliTemplateLoader implements \Twig_LoaderInterface
     public function getSource($path)
     {
         try {
-            // The "resolve_puli_paths" tag tells the RelativePathResolver that
-            // it should turn relative paths into absolute paths in this file.
-            // That tag is later removed from the node tree and has no effect
-            // on the rendered output of the file.
-            return "{% resolve_puli_paths %}\n".file_get_contents($this->locator->get($path)->getRealPath());
+            // The "loaded_by_puli" tag makes it possible to recognize node
+            // trees of templates loaded through this loader. In this way, we
+            // can turn relative Puli paths into absolute ones in those
+            // templates. The "loaded_by_puli" tag is removed early on by the
+            // LoadedByPuliTagger visitor and does not appear in the final
+            // output.
+            return "{% loaded_by_puli %}\n".file_get_contents($this->locator->get($path)->getRealPath());
         } catch (ResourceNotFoundException $e) {
             throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }

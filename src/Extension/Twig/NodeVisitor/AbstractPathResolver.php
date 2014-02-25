@@ -13,28 +13,23 @@ namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
 
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Path\Path;
-use Webmozart\Puli\Extension\Twig\Node\ResolvePuliPathsNode;
+use Webmozart\Puli\Extension\Twig\Node\LoadedByPuliNode;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RelativePathResolver implements \Twig_NodeVisitorInterface
+abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
 {
     /**
      * @var ResourceLocatorInterface
      */
-    private $locator;
+    protected $locator;
 
     /**
      * @var string
      */
-    private $currentDir;
-
-    /**
-     * @var boolean
-     */
-    private $resolvePaths;
+    protected $currentDir;
 
     public function __construct(ResourceLocatorInterface $locator)
     {
@@ -52,13 +47,12 @@ class RelativePathResolver implements \Twig_NodeVisitorInterface
     public function enterNode(\Twig_NodeInterface $node, \Twig_Environment $env)
     {
         // Remember the directory of the current file
-        if ($node instanceof \Twig_Node_Module) {
+        if ($node instanceof \Twig_Node_Module && $node->hasAttribute('puli')) {
             // Currently, it doesn't seem like Twig does recursive traversals
             // (i.e. starting the traversal of another module while a previous
             // one is still in progress). Thus we don't need to track existing
             // values here.
             $this->currentDir = Path::getDirectory($node->getAttribute('filename'));
-            $this->resolvePaths = false;
         }
 
         return $node;
@@ -74,63 +68,15 @@ class RelativePathResolver implements \Twig_NodeVisitorInterface
      */
     public function leaveNode(\Twig_NodeInterface $node, \Twig_Environment $env)
     {
-        // Activate processing of relative paths only if the node tree contains
-        // a ResolvePuliPathsNode
-        if ($node instanceof ResolvePuliPathsNode) {
-            $this->resolvePaths = true;
-
-            // Remove that node from the final tree
-            return false;
-        }
-
-        // Ignore files without a ResolvePuliPathsNode
-        if (!$this->resolvePaths) {
-            return $node;
-        }
-
-        if ($node instanceof \Twig_Node_Module) {
-            // Resolve relative parent template paths to absolute paths
-            $parentNode = $node->getNode('parent');
-
-            // If the template extends another template, resolve the path
-            if ($parentNode instanceof \Twig_Node_Expression_Constant) {
-                $this->resolveRepositoryPath($parentNode);
-            }
-
-            // Resolve paths of embedded templates
-            foreach ($node->getAttribute('embedded_templates') as $embeddedNode) {
-                /** @var \Twig_Node_Module $embeddedNode */
-                $embedParent = $embeddedNode->getNode('parent');
-
-                // If the template extends another template, resolve the path
-                if ($embedParent instanceof \Twig_Node_Expression_Constant) {
-                    $this->resolveRepositoryPath($embedParent);
-                }
-            }
-        } elseif ($node instanceof \Twig_Node_Include) {
-            $exprNode = $node->getNode('expr');
-
-            if ($exprNode instanceof \Twig_Node_Expression_Constant) {
-                $this->resolveRepositoryPath($exprNode);
-            }
+        // Only process if the current directory was set
+        if (null !== $this->currentDir) {
+            $this->processNode($node);
         }
 
         return $node;
     }
 
-    /**
-     * Returns the priority for this visitor.
-     *
-     * Priority should be between -10 and 10 (0 is the default).
-     *
-     * @return integer The priority level
-     */
-    public function getPriority()
-    {
-        return -5;
-    }
-
-    private function resolveRepositoryPath(\Twig_Node_Expression_Constant $node)
+    protected function ensureAbsolutePath(\Twig_Node_Expression_Constant $node)
     {
         $templatePath = $node->getAttribute('value');
 
@@ -156,4 +102,11 @@ class RelativePathResolver implements \Twig_NodeVisitorInterface
             $node->setAttribute('value', $absolutePath);
         }
     }
+
+    /**
+     * @param \Twig_NodeInterface $node
+     *
+     * @return \Twig_NodeInterface
+     */
+    abstract protected function processNode(\Twig_NodeInterface $node);
 }
