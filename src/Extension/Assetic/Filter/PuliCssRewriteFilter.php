@@ -15,6 +15,7 @@ use Assetic\Asset\AssetCollection;
 use Assetic\Asset\AssetInterface;
 use Assetic\AssetManager;
 use Assetic\Filter\FilterInterface;
+use Assetic\Filter\HashableInterface;
 use Assetic\Util\CssUtils;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAssetInterface;
 use Webmozart\Puli\Extension\Assetic\AssetException;
@@ -24,7 +25,7 @@ use Webmozart\Puli\Path\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PuliCssRewriteFilter implements FilterInterface
+class PuliCssRewriteFilter implements FilterInterface, HashableInterface
 {
     /**
      * @var AssetManager
@@ -110,7 +111,7 @@ class PuliCssRewriteFilter implements FilterInterface
             if (!array_key_exists($referencedPath, $pathMap)) {
                 throw new AssetException(sprintf(
                     'The asset "%s" referenced in "%s" could not be found.',
-                    $matches['url'],
+                    $referencedPath,
                     $repoPath
                 ));
             }
@@ -165,5 +166,20 @@ class PuliCssRewriteFilter implements FilterInterface
                 $this->extractTargetPaths($entry, $array);
             }
         }
+    }
+
+    /**
+     * Generates a hash for the object
+     *
+     * @return string Object hash
+     */
+    public function hash()
+    {
+        $am = $this->am;
+        $this->am = null;
+        $hash = serialize($this);
+        $this->am = $am;
+
+        return $hash;
     }
 }
