@@ -10,6 +10,8 @@ matrix:
     allow_failures:
         - php: hhvm
 
-before_script: composer install -n
+before_script:
+  - echo "StrictHostKeyChecking no" >> ~/.ssh/config
+  - composer install -n
 
 script: phpunit
