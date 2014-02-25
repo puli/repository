@@ -12,6 +12,16 @@
 namespace Webmozart\Puli\Tests\Extension\Twig;
 
 /**
+ * Twig_Environment implementation which prevents unrepeatable tests.
+ *
+ * Twig compiles templates to classes. If a template was compiled once in a PHP
+ * process, it won't be compiled another time. If you have two different tests
+ * which compile the template in a different manner, and you run them both, the
+ * second test will fail, because the template is not compiled anymore.
+ *
+ * This class makes sure that every new instance of this class creates templates
+ * with different class names.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
