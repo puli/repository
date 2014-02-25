@@ -11,7 +11,7 @@
     "repositories": [
         {
             "type": "git",
-            "url":  "git@github.com:webmozart/assetic.git"
+            "url":  "https://github.com/webmozart/assetic.git"
         }
     ],
     "require": {
