@@ -8,6 +8,12 @@
             "email": "bschussek@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "git",
+            "url":  "git@github.com:webmozart/assetic.git"
+        }
+    ],
     "require": {
         "php": ">=5.3.9"
     },
@@ -16,7 +22,7 @@
         "symfony/config": "~2.3",
         "symfony/http-kernel": "~2.3",
         "twig/twig": "~1.0",
-        "kriswallsmith/assetic": "~1.1"
+        "kriswallsmith/assetic": "dev-lazy-assetic-node"
     },
     "suggest": {
         "symfony/config": "Puli provides a file locator for the Symfony Config component.",
