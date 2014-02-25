@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "b7555bd185b60ada870a59e6136ed842",
+    "hash": "a99547dce919036518460e8aa4837869",
     "packages": [
 
     ],
@@ -13,8 +13,8 @@
             "version": "dev-lazy-assetic-node",
             "source": {
                 "type": "git",
-                "url": "git@github.com:webmozart/assetic.git",
-                "reference": "7c32e18639af886ba4af5ca1f0023fa2087fdc3e"
+                "url": "https://github.com/webmozart/assetic.git",
+                "reference": "fbceba834178e97b4e5fe96f445e14c5ecaea447"
             },
             "require": {
                 "php": ">=5.3.1",
@@ -72,7 +72,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2014-02-25 09:43:50"
+            "time": "2014-02-25 11:20:26"
         },
         {
             "name": "psr/log",
