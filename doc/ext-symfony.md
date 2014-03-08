@@ -123,7 +123,7 @@ $routes = $loader->load('/acme/blog/config/routing-dev.yml');
 //  - /path/to/blog/config/routing.yml
 ```
 
-This is a limitiation in Symfony and cannot be worked around. For this
+This is a limitation in Symfony and cannot be worked around. For this
 reason, [`PuliFileLocator`] does not support relative file paths.
 
 [Symfony Config component]: http://symfony.com/doc/current/components/config/introduction.html
