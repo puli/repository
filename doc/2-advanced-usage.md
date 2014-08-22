@@ -161,9 +161,9 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 ```
 
 [Basic Usage]: 1-basic-usage.md
-[`PatternInterface`]: src/Pattern/PatternInterface.php
-[`PatternFactoryInterface`]: src/Pattern/PatternFactoryInterface.php
-[`GlobPattern`]: src/Pattern/GlobPattern.php
-[`PatternLocatorInterface`]: src/PatternLocator/PatternLocatorInterface.php
-[`GlobPatternLocator`]: src/PatternLocator/GlobPatternLocator.php
+[`PatternInterface`]: ../src/Pattern/PatternInterface.php
+[`PatternFactoryInterface`]: ../src/Pattern/PatternFactoryInterface.php
+[`GlobPattern`]: ../src/Pattern/GlobPattern.php
+[`PatternLocatorInterface`]: ../src/PatternLocator/PatternLocatorInterface.php
+[`GlobPatternLocator`]: ../src/PatternLocator/GlobPatternLocator.php
 [`preg_match()`]: http://php.net/manual/en/function.preg_match.php

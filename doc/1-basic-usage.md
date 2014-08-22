@@ -399,15 +399,15 @@ $translator = new Translator();
 $translator->discoverResources($repo);
 ```
 
-[`ResourceDiscoveringInterface`]: src/ResourceDiscoveringInterface.php
-[`ResourceRepositoryInterface`]: src/Repository/ResourceRepositoryInterface.php
-[`ResourceInterface`]: src/Resource/ResourceInterface.php
-[`ResourceCollectionInterface`]: src/Resource/ResourceCollectionInterface.php
-[`DirectoryResourceInterface`]: src/Resource/DirectoryResourceInterface.php
-[`ResourceLocatorInterface`]: src/Locator/ResourceLocatorInterface.php
-[`FilesystemLocator`]: src/Locator/FilesystemLocator.php
-[`PhpCacheLocator`]: src/Locator/PhpCacheLocator.php
-[`PhpCacheDumper`]: src/LocatorDumper/PhpCacheDumper.php
-[`ResourceStreamWrapper`]: src/StreamWrapper/ResourceStreamWrapper.php
-[`UriLocator`]: src/Locator/UriLocator.php
+[`ResourceDiscoveringInterface`]: ../src/ResourceDiscoveringInterface.php
+[`ResourceRepositoryInterface`]: ../src/Repository/ResourceRepositoryInterface.php
+[`ResourceInterface`]: ../src/Resource/ResourceInterface.php
+[`ResourceCollectionInterface`]: ../src/Resource/ResourceCollectionInterface.php
+[`DirectoryResourceInterface`]: ../src/Resource/DirectoryResourceInterface.php
+[`ResourceLocatorInterface`]: ../src/Locator/ResourceLocatorInterface.php
+[`FilesystemLocator`]: ../src/Locator/FilesystemLocator.php
+[`PhpCacheLocator`]: ../src/Locator/PhpCacheLocator.php
+[`PhpCacheDumper`]: ../src/LocatorDumper/PhpCacheDumper.php
+[`ResourceStreamWrapper`]: ../src/StreamWrapper/ResourceStreamWrapper.php
+[`UriLocator`]: ../src/Locator/UriLocator.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
