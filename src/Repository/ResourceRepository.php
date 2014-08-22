@@ -11,20 +11,19 @@
 
 namespace Webmozart\Puli\Repository;
 
+use Webmozart\Puli\Filesystem\FilesystemLocator;
 use Webmozart\Puli\Locator\AbstractResourceLocator;
-use Webmozart\Puli\Locator\FilesystemLocator;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
+use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\PatternLocator\PatternLocatorInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Path\Path;
 
 /**
  * @since  1.0

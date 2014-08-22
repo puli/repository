@@ -11,12 +11,12 @@
 
 namespace Webmozart\Puli\Locator;
 
+use Webmozart\Puli\Path\Path;
+use Webmozart\Puli\Pattern\GlobPatternFactory;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\PatternLocator\GlobPatternLocator;
 use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
 
@@ -33,7 +33,7 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
 
     public function __construct(PatternFactoryInterface $patternFactory = null)
     {
-        $this->patternFactory = $patternFactory ?: new GlobPatternLocator();
+        $this->patternFactory = $patternFactory ?: new GlobPatternFactory();
     }
 
     /**

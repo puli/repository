@@ -82,64 +82,16 @@ foreach ($repo->get(new RegExpPattern('~^/webmozart/puli/css/.+\.css$~')) as $re
 }
 ```
 
-So far, the custom pattern only works for locating files in the repository. If
-you also want to use it to locate files on the filesystem, create an
-implementation of [`PatternLocatorInterface`]. As example, look at the code
-of [`GlobPatternLocator`]:
+Create Patterns Automatically
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you use the same kind of pattern often, it's useful to automate the creation
+of the `RegExpPattern` instances. Create a `RegExpPatternFactory` which
+implements [`PatternFactoryInterface`]:
 
 ```php
-class GlobPatternLocator implements PatternLocatorInterface
+class RegExpPatternFactory implements PatternFactoryInterface
 {
-    // ...
-
-    public function locatePaths(PatternInterface $pattern)
-    {
-        return glob((string) $pattern);
-    }
-}
-```
-
-The `locatePaths()` method receives the pattern instance and returns the paths
-in the file system which match the pattern.
-
-To use the locator, create an implementation of [`PatternFactoryInterface`] and
-return the locator from the `createPatternLocator()` method. A convenient
-solution is to let the locator itself implement this interface. If we assume
-again that you implemented a `RegExpPatternLocator`, you can extend the
-implementation like this:
-
-```php
-class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
-{
-    // ...
-
-    public function createPatternLocator()
-    {
-        return $this;
-    }
-}
-```
-
-Pass the factory to the constructor of the repository or the resource locator:
-
-```php
-$repo = new ResourceRepository(new RegExpPatternLocator());
-
-// Locate files using regular expressions
-$repo->add('/webmozart/puli/css', new RegExpPattern('~^/path/to/css/.+\.css$~'));
-```
-
-If you try to implement the above code snippets, you will notice that the
-[`PatternFactoryInterface`] requires to implement two more methods, namely
-`acceptsSelector()` and `createPattern()`. These methods help to automatically
-create [`PatternInterface`] instances from the string selectors passed to
-`add()`, `get()` and similar methods. You could implement the methods like this:
-
-```php
-class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInterface
-{
-    // ...
-
     public function acceptsSelector($selector)
     {
         return '~' === $selector[0];
@@ -152,11 +104,65 @@ class RegExpPatternLocator implements PatternLocatorInterface, PatternFactoryInt
 }
 ```
 
-With these additions, it's possible to pass custom patterns as strings.
-Internally, the methods of the pattern factory will be called to construct a new
-`RegExpPattern` instance automatically:
+The method `acceptsSelector()` returns true whenever a string can be converted
+into a `RegExpPattern`. The method `createPattern()` returns the new instance.
+
+If you pass the pattern factory to your repository, it's possible to pass your
+custom patterns as strings. Internally, the methods of the pattern factory will
+be called to construct new `RegExpPattern` instances automatically:
 
 ```php
+foreach ($repo->get('~^/webmozart/puli/css/.+\.css$~') as $resource) {
+    // ...
+}
+```
+
+Locate Files by Patterns
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+So far, the custom pattern only works for locating files in the repository. If
+you also want to use it to locate files on the filesystem, create an
+implementation of [`PathFinderInterface`]. As example, look at the code
+of [`GlobFinder`]:
+
+```php
+class GlobFinder implements PathFinderInterface
+{
+    // ...
+
+    public function findPaths(PatternInterface $pattern)
+    {
+        return glob((string) $pattern);
+    }
+}
+```
+
+The `findPaths()` method receives the pattern instance and returns the paths
+in the file system which match the pattern.
+
+Similarly, you can implement a `RegExpFinder`. Pass the custom finder to the
+[`FilesystemLocator`] backing your resource repository:
+
+```php
+$finder = new RegExpFinder();
+$locator = new FilesystemLocator(null, null, $finder);
+$repo = new ResourceRepository($locator);
+
+// Locate files using regular expressions
+$repo->add('/webmozart/puli/css', new RegExpPattern('~^/path/to/css/.+\.css$~'));
+```
+
+Now it is possible to locate files on the filesystem with the custom pattern.
+As last step, let's use the custom pattern factory and the custom finder
+together:
+
+```php
+$patternFactory = new RegExpPatternFactory();
+$finder = new RegExpFinder();
+$locator = new FilesystemLocator(null, $patternFactory, $finder);
+$repo = new ResourceRepository($locator, $patternFactory);
+
+// The RegExpPattern is created automatically now
 $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 ```
 
@@ -164,6 +170,8 @@ $repo->add('/webmozart/puli/css', '~^/path/to/css/.+\.css$~');
 [`PatternInterface`]: ../src/Pattern/PatternInterface.php
 [`PatternFactoryInterface`]: ../src/Pattern/PatternFactoryInterface.php
 [`GlobPattern`]: ../src/Pattern/GlobPattern.php
-[`PatternLocatorInterface`]: ../src/PatternLocator/PatternLocatorInterface.php
-[`GlobPatternLocator`]: ../src/PatternLocator/GlobPatternLocator.php
+[`GlobPatternFactory`]: ../src/Pattern/GlobPatternFactory.php
+[`FilesystemLocator`]: ../src/Filesystem/FilesystemLocator.php
+[`PathFinderInterface`]: ../src/Filesystem/PathFinder/PathFinderInterface.php
+[`GlobFinder`]: ../src/Filesystem/PathFinder/GlobFinder.php
 [`preg_match()`]: http://php.net/manual/en/function.preg_match.php

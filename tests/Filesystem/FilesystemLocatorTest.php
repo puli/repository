@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Locator;
+namespace Webmozart\Puli\Tests\Filesystem;
 
-use Webmozart\Puli\Locator\FilesystemLocator;
+use Webmozart\Puli\Filesystem\FilesystemLocator;
 
 /**
  * @since  1.0

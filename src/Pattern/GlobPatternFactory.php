@@ -9,15 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\PatternLocator;
-
-use Webmozart\Puli\Pattern\PatternInterface;
+namespace Webmozart\Puli\Pattern;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface PatternLocatorInterface
+class GlobPatternFactory
 {
-    public function locatePaths(PatternInterface $pattern);
+    public function acceptsSelector($selector)
+    {
+        return false !== strpos($selector, '*');
+    }
+
+    public function createPattern($selector)
+    {
+        return new GlobPattern($selector);
+    }
 }

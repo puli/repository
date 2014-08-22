@@ -9,8 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Locator;
+namespace Webmozart\Puli\Filesystem;
 
+use Webmozart\Puli\Filesystem\PathFinder\GlobFinder;
+use Webmozart\Puli\Filesystem\PathFinder\PathFinderInterface;
+use Webmozart\Puli\Locator\AbstractResourceLocator;
+use Webmozart\Puli\Locator\DataStorageInterface;
+use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
@@ -24,9 +29,17 @@ use Webmozart\Puli\Resource\ResourceCollection;
  */
 class FilesystemLocator extends AbstractResourceLocator implements DataStorageInterface
 {
+    /**
+     * @var string
+     */
     private $rootDirectory = '';
 
-    public function __construct($rootDirectory = null, PatternFactoryInterface $patternFactory = null)
+    /**
+     * @var PathFinderInterface
+     */
+    private $pathFinder;
+
+    public function __construct($rootDirectory = null, PatternFactoryInterface $patternFactory = null, PathFinderInterface $pathFinder = null)
     {
         parent::__construct($patternFactory);
 
@@ -40,6 +53,8 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
         if ($rootDirectory) {
             $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');
         }
+
+        $this->pathFinder = $pathFinder ?: new GlobFinder();
     }
 
     protected function getImpl($repositoryPath)
@@ -63,11 +78,10 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
     protected function getPatternImpl(PatternInterface $pattern)
     {
         $filePattern = $this->patternFactory->createPattern($this->rootDirectory.$pattern);
-        $patternLocator = $this->patternFactory->createPatternLocator();
         $offset = strlen($this->rootDirectory) + 1;
         $results = array();
 
-        foreach ($patternLocator->locatePaths($filePattern) as $path) {
+        foreach ($this->pathFinder->findPaths($filePattern) as $path) {
             if ('' !== $this->rootDirectory && 0 === strpos($path, $this->rootDirectory)) {
                 $path = '/'.substr($path, $offset);
             }
@@ -86,9 +100,8 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
     protected function containsPatternImpl(PatternInterface $pattern)
     {
         $filePattern = $this->patternFactory->createPattern($this->rootDirectory.$pattern);
-        $patternLocator = $this->patternFactory->createPatternLocator();
 
-        return count($patternLocator->locatePaths($filePattern)) > 0;
+        return count($this->pathFinder->findPaths($filePattern)) > 0;
     }
 
     public function getByTag($tag)
