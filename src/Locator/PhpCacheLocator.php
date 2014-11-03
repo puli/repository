@@ -16,7 +16,6 @@ use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\LazyDirectoryResource;
 use Webmozart\Puli\Resource\LazyFileResource;
-use Webmozart\Puli\Resource\LazyResourceCollection;
 use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
@@ -47,12 +46,12 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
 
     public function __construct($cacheDir, PatternFactoryInterface $patternFactory = null)
     {
-        if (!file_exists($cacheDir.'/'. self::FILE_PATHS_FILE) ||
-            !file_exists($cacheDir.'/'. self::DIR_PATHS_FILE) ||
-            !file_exists($cacheDir.'/'. self::ALTERNATIVE_PATHS_FILE) ||
-            !file_exists($cacheDir.'/'. self::TAGS_FILE)) {
+        if (!file_exists($cacheDir.'/'.self::FILE_PATHS_FILE) ||
+            !file_exists($cacheDir.'/'.self::DIR_PATHS_FILE) ||
+            !file_exists($cacheDir.'/'.self::ALTERNATIVE_PATHS_FILE) ||
+            !file_exists($cacheDir.'/'.self::TAGS_FILE)) {
             throw new \InvalidArgumentException(sprintf(
-                'The dump at "%s" is invalid. Please try to recreate it.',
+                'The dump at "%s" is invalid.Please try to recreate it.',
                 $cacheDir
             ));
         }
@@ -65,7 +64,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     public function getByTag($tag)
     {
         if (null === $this->tags) {
-            $this->tags = require ($this->cacheDir.'/'. self::TAGS_FILE);
+            $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
         }
 
         if (!isset($this->tags[$tag])) {
@@ -87,7 +86,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     public function getTags($repositoryPath = null)
     {
         if (null === $this->tags) {
-            $this->tags = require ($this->cacheDir.'/'. self::TAGS_FILE);
+            $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
         }
 
         return array_keys($this->tags);
@@ -96,7 +95,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     public function getAlternativePaths($repositoryPath)
     {
         if (null === $this->alternativePaths) {
-            $this->alternativePaths = require ($this->cacheDir.'/'. self::ALTERNATIVE_PATHS_FILE);
+            $this->alternativePaths = require ($this->cacheDir.'/'.self::ALTERNATIVE_PATHS_FILE);
         }
 
         if (isset($this->alternativePaths[$repositoryPath])) {
@@ -120,7 +119,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
 
         // Load the mapping of repository paths to file paths if needed
         if (null === $this->filePaths) {
-            $this->filePaths = require ($this->cacheDir.'/'. self::FILE_PATHS_FILE);
+            $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
         }
 
         // Create LazyFileResource instances for files
@@ -130,7 +129,7 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
 
         // Load the mapping of repository paths to directory paths if needed
         if (null === $this->dirPaths) {
-            $this->dirPaths = require ($this->cacheDir.'/'. self::DIR_PATHS_FILE);
+            $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
         }
 
         // Create LazyDirectoryResource instances for directories
@@ -147,11 +146,11 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     protected function getPatternImpl(PatternInterface $pattern)
     {
         if (null === $this->filePaths) {
-            $this->filePaths = require ($this->cacheDir.'/'. self::FILE_PATHS_FILE);
+            $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
         }
 
         if (null === $this->dirPaths) {
-            $this->dirPaths = require ($this->cacheDir.'/'. self::DIR_PATHS_FILE);
+            $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
         }
 
         $resources = array();
@@ -206,11 +205,11 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     protected function containsImpl($repositoryPath)
     {
         if (null === $this->filePaths) {
-            $this->filePaths = require ($this->cacheDir.'/'. self::FILE_PATHS_FILE);
+            $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
         }
 
         if (null === $this->dirPaths) {
-            $this->dirPaths = require ($this->cacheDir.'/'. self::DIR_PATHS_FILE);
+            $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
         }
 
         return isset($this->resources[$repositoryPath])
@@ -222,11 +221,11 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
     protected function containsPatternImpl(PatternInterface $pattern)
     {
         if (null === $this->filePaths) {
-            $this->filePaths = require ($this->cacheDir.'/'. self::FILE_PATHS_FILE);
+            $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
         }
 
         if (null === $this->dirPaths) {
-            $this->dirPaths = require ($this->cacheDir.'/'. self::DIR_PATHS_FILE);
+            $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
         }
 
         $staticPrefix = $pattern->getStaticPrefix();

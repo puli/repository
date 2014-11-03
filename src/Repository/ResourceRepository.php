@@ -44,13 +44,13 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     /**
      * @var ResourceLocatorInterface
      */
-    private $baseLocator;
+    private $backend;
 
-    public function __construct(ResourceLocatorInterface $baseLocator = null, PatternFactoryInterface $patternFactory = null)
+    public function __construct(ResourceLocatorInterface $backend = null, PatternFactoryInterface $patternFactory = null)
     {
         parent::__construct($patternFactory);
 
-        $this->baseLocator = $baseLocator ?: new FilesystemLocator(null, $patternFactory);
+        $this->backend = $backend ?: new FilesystemLocator(null, $patternFactory);
         $this->resources['/'] = new DirectoryResource('/', null);
     }
 
@@ -79,7 +79,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             );
         }
 
-        $resource = $this->baseLocator->get($selector);
+        $resource = $this->backend->get($selector);
 
         if ($resource instanceof ResourceCollectionInterface) {
             foreach ($resource as $entry) {

@@ -13,7 +13,6 @@ namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
 
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Path\Path;
-use Webmozart\Puli\Extension\Twig\Node\LoadedByPuliNode;
 
 /**
  * @since  1.0

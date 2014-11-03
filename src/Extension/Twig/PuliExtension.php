@@ -12,9 +12,9 @@
 namespace Webmozart\Puli\Extension\Twig;
 
 use Webmozart\Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
 use Webmozart\Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
+use Webmozart\Puli\Locator\ResourceLocatorInterface;
 
 /**
  * @since  1.0
