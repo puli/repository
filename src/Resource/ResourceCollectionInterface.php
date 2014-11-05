@@ -39,7 +39,5 @@ interface ResourceCollectionInterface extends \Traversable, \ArrayAccess, \Count
 
     public function getNames();
 
-    public function getRealPaths();
-
     public function toArray();
 }

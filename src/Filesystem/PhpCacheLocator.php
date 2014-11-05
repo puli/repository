@@ -9,20 +9,28 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Locator;
+namespace Webmozart\Puli\Filesystem;
 
+use Webmozart\Puli\Filesystem\Resource\AlternativePathLoaderInterface;
+use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
+use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
+use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
+use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
+use Webmozart\Puli\Locator\AbstractResourceLocator;
+use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\Resource\LazyDirectoryResource;
-use Webmozart\Puli\Resource\LazyFileResource;
+use Webmozart\Puli\Resource\DirectoryLoaderInterface;
+use Webmozart\Puli\Resource\DirectoryResource;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInterface
+class PhpCacheLocator extends AbstractResourceLocator implements DirectoryLoaderInterface, AlternativePathLoaderInterface
 {
     const FILE_PATHS_FILE = 'resources_file_paths.php';
 
@@ -72,18 +80,18 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         }
 
         if (count($this->tags[$tag]) > 0 && is_string($this->tags[$tag][0])) {
-            foreach ($this->tags[$tag] as $key => $repositoryPath) {
-                $this->tags[$tag][$key] = $this->get($repositoryPath);
+            foreach ($this->tags[$tag] as $key => $path) {
+                $this->tags[$tag][$key] = $this->get($path);
             }
         }
 
-        return new ResourceCollection($this->tags[$tag]);
+        return new LocalResourceCollection($this->tags[$tag]);
     }
 
     /**
      * @return string[]
      */
-    public function getTags($repositoryPath = null)
+    public function getTags($path = null)
     {
         if (null === $this->tags) {
             $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
@@ -92,29 +100,31 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         return array_keys($this->tags);
     }
 
-    public function getAlternativePaths($repositoryPath)
+    public function loadDirectoryEntries(DirectoryResourceInterface $directory)
+    {
+        return $this->findImpl(new GlobPattern(rtrim($directory->getPath(), '/').'/*'));
+    }
+
+    public function loadAlternativePaths(LocalResourceInterface $resource)
     {
         if (null === $this->alternativePaths) {
             $this->alternativePaths = require ($this->cacheDir.'/'.self::ALTERNATIVE_PATHS_FILE);
         }
 
-        if (isset($this->alternativePaths[$repositoryPath])) {
-            return $this->alternativePaths[$repositoryPath];
+        $path = $resource->getPath();
+
+        if (isset($this->alternativePaths[$path])) {
+            return $this->alternativePaths[$path];
         }
 
         return array();
     }
 
-    public function getDirectoryEntries($repositoryPath)
-    {
-        return $this->getPatternImpl(new GlobPattern(rtrim($repositoryPath, '/').'/*'));
-    }
-
-    protected function getImpl($repositoryPath)
+    protected function getImpl($path)
     {
         // Return the resource if it was already loaded
-        if (isset($this->resources[$repositoryPath])) {
-            return $this->resources[$repositoryPath];
+        if (isset($this->resources[$path])) {
+            return $this->resources[$path];
         }
 
         // Load the mapping of repository paths to file paths if needed
@@ -123,8 +133,10 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         }
 
         // Create LazyFileResource instances for files
-        if (array_key_exists($repositoryPath, $this->filePaths)) {
-            return $this->createFile($repositoryPath);
+        if (array_key_exists($path, $this->filePaths)) {
+            $this->initFile($path);
+
+            return $this->resources[$path];
         }
 
         // Load the mapping of repository paths to directory paths if needed
@@ -133,17 +145,19 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         }
 
         // Create LazyDirectoryResource instances for directories
-        if (array_key_exists($repositoryPath, $this->dirPaths)) {
-            return $this->createDirectory($repositoryPath);
+        if (array_key_exists($path, $this->dirPaths)) {
+            $this->initDirectory($path);
+
+            return $this->resources[$path];
         }
 
         throw new ResourceNotFoundException(sprintf(
             'The resource "%s" was not found.',
-            $repositoryPath
+            $path
         ));
     }
 
-    protected function getPatternImpl(PatternInterface $pattern)
+    protected function findImpl(PatternInterface $pattern)
     {
         if (null === $this->filePaths) {
             $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
@@ -157,52 +171,55 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         $staticPrefix = $pattern->getStaticPrefix();
         $regExp = $pattern->getRegularExpression();
 
-        foreach ($this->resources as $repositoryPath => $resource) {
+        foreach ($this->resources as $path => $resource) {
             // strpos() is slightly faster than substr() here
-            if (0 !== strpos($repositoryPath, $staticPrefix)) {
+            if (0 !== strpos($path, $staticPrefix)) {
                 continue;
             }
 
-            if (!preg_match($regExp, $repositoryPath)) {
+            if (!preg_match($regExp, $path)) {
                 continue;
             }
 
-            $resources[$repositoryPath] = $resource;
+            $resources[$path] = $resource;
         }
 
-        foreach ($this->filePaths as $repositoryPath => $path) {
+        foreach ($this->filePaths as $path => $localPath) {
             // strpos() is slightly faster than substr() here
-            if (0 !== strpos($repositoryPath, $staticPrefix)) {
+            if (0 !== strpos($path, $staticPrefix)) {
                 continue;
             }
 
-            if (!preg_match($regExp, $repositoryPath)) {
+            if (!preg_match($regExp, $path)) {
                 continue;
             }
 
-            $resources[$repositoryPath] = $this->createFile($repositoryPath);
+            $this->initFile($path);
+
+            $resources[$path] = $this->resources[$path];
         }
 
-        foreach ($this->dirPaths as $repositoryPath => $path) {
+        foreach ($this->dirPaths as $path => $localPath) {
             // strpos() is slightly faster than substr() here
-            if (0 !== strpos($repositoryPath, $staticPrefix)) {
+            if (0 !== strpos($path, $staticPrefix)) {
                 continue;
             }
 
-            if (!preg_match($regExp, $repositoryPath)) {
+            if (!preg_match($regExp, $path)) {
                 continue;
             }
 
-            $resources[$repositoryPath] = $this->createDirectory($repositoryPath);
+            $this->initDirectory($path);
+
+            $resources[$path] = $this->resources[$path];
         }
 
         ksort($resources);
 
-        // Hide the keys of this implementation from accessing code
-        return new ResourceCollection(array_values($resources));
+        return new LocalResourceCollection(array_values($resources));
     }
 
-    protected function containsImpl($repositoryPath)
+    protected function containsImpl($path)
     {
         if (null === $this->filePaths) {
             $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
@@ -212,10 +229,10 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
             $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
         }
 
-        return isset($this->resources[$repositoryPath])
+        return isset($this->resources[$path])
             // The path may be NULL, so use array_key_exists()
-            || array_key_exists($repositoryPath, $this->filePaths)
-            || array_key_exists($repositoryPath, $this->dirPaths);
+            || array_key_exists($path, $this->filePaths)
+            || array_key_exists($path, $this->dirPaths);
     }
 
     protected function containsPatternImpl(PatternInterface $pattern)
@@ -260,37 +277,31 @@ class PhpCacheLocator extends AbstractResourceLocator implements DataStorageInte
         return false;
     }
 
-    private function createFile($repositoryPath)
+    private function initFile($path)
     {
-        $this->resources[$repositoryPath] = new LazyFileResource(
-            $this,
-            $repositoryPath,
-            $this->filePaths[$repositoryPath]
-        );
+        $this->resources[$path] = LocalFileResource::forPath($path, $this->filePaths[$path], $this);
 
         // Remove to reduce number of loops in future calls
-        unset($this->filePaths[$repositoryPath]);
+        unset($this->filePaths[$path]);
 
         // Maintain order of resources
         ksort($this->resources);
-
-        return $this->resources[$repositoryPath];
     }
 
-    private function createDirectory($repositoryPath)
+    private function initDirectory($path)
     {
-        $this->resources[$repositoryPath] = new LazyDirectoryResource(
-            $this,
-            $repositoryPath,
-            $this->dirPaths[$repositoryPath]
-        );
+        if (null !== $this->dirPaths[$path]) {
+            $directory = LocalDirectoryResource::forPath($path, $this->dirPaths[$path], $this, $this);
+        } else {
+            $directory = DirectoryResource::forPath($path, $this);
+        }
+
+        $this->resources[$path] = $directory;
 
         // Remove to reduce number of loops in future calls
-        unset($this->dirPaths[$repositoryPath]);
+        unset($this->dirPaths[$path]);
 
         // Maintain order of resources
         ksort($this->resources);
-
-        return $this->resources[$repositoryPath];
     }
 }

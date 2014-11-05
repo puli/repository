@@ -15,15 +15,7 @@ namespace Webmozart\Puli\Resource;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResourceIterator extends ResourceCollectionIterator
+interface FileResourceInterface extends ResourceInterface
 {
-    public function __construct(DirectoryResourceInterface $directory, $mode = null)
-    {
-        parent::__construct($directory->listEntries(), $mode);
-    }
-
-    public function getChildren()
-    {
-        return new static(current($this->resources), $this->mode);
-    }
+    public function getContents();
 }

@@ -12,18 +12,12 @@
 namespace Webmozart\Puli\Resource;
 
 /**
+ * Thrown when a method cannot process a specific implementation of
+ * {@link ResourceInterface}.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResourceIterator extends ResourceCollectionIterator
+class UnsupportedResourceException extends \RuntimeException
 {
-    public function __construct(DirectoryResourceInterface $directory, $mode = null)
-    {
-        parent::__construct($directory->listEntries(), $mode);
-    }
-
-    public function getChildren()
-    {
-        return new static(current($this->resources), $this->mode);
-    }
 }

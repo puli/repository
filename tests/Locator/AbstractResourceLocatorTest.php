@@ -11,10 +11,13 @@
 
 namespace Webmozart\Puli\Tests\Locator;
 
-use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Puli\Filesystem\FilesystemLocator;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Pattern\GlobPattern;
 use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\Resource\DirectoryResource;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Resource\FileResourceInterface;
 use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
@@ -24,99 +27,50 @@ use Webmozart\Puli\Resource\ResourceCollection;
 abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Filesystem
-     */
-    protected static $filesystem;
-
-    /**
      * @var ResourceRepository
      */
     protected $repo;
 
+    protected $fixturesDir;
+
     /**
      * @var ResourceLocatorInterface
      */
-    protected $locator;
+    private $locator;
 
     /**
-     * @var string
+     * @param ResourceRepository $repository
+     *
+     * @return ResourceLocatorInterface
      */
-    protected $fixturesDir;
+    abstract protected function createLocator(ResourceRepository $repository);
 
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
+    /**
+     * @param string $path
+     *
+     * @return FileResourceInterface
+     */
+    abstract protected function createFile($path);
 
-        self::$filesystem = new Filesystem();
-    }
+    /**
+     * @param string $path
+     *
+     * @return DirectoryResourceInterface
+     */
+    abstract protected function createDir($path);
 
-    abstract protected function dumpLocator();
+    abstract protected function assertResourceEquals($expected, $actual);
 
     protected function setUp()
     {
-        parent::setUp();
-
-        $this->repo = new ResourceRepository();
+        $this->fixturesDir = __DIR__.'/../Fixtures';
+        $this->repo = new ResourceRepository(new FilesystemLocator($this->fixturesDir));
         $this->locator = null;
-        $this->fixturesDir = realpath(__DIR__.'/../Fixtures');
-    }
-
-    public function testOverrideFile()
-    {
-        $this->repo->add('/webmozart/puli/file1', $this->fixturesDir.'/dir1/file1');
-
-        $this->dumpLocator();
-
-        $file = $this->locator->get('/webmozart/puli/file1');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $file->getRealPath());
-        $this->assertEquals(array($this->fixturesDir.'/dir1/file1'), $file->getAlternativePaths());
-
-        $this->repo->add('/webmozart/puli/file1', $this->fixturesDir.'/dir1/file2');
-
-        $this->dumpLocator();
-
-        $file = $this->locator->get('/webmozart/puli/file1');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $file->getRealPath());
-        $this->assertEquals(array($this->fixturesDir.'/dir1/file1', $this->fixturesDir.'/dir1/file2'), $file->getAlternativePaths());
-    }
-
-    public function testOverrideDirectory()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir2');
-
-        $this->dumpLocator();
-
-        $dir = $this->locator->get('/webmozart/puli');
-
-        $this->assertEquals('/webmozart/puli', $dir->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir2', $dir->getRealPath());
-        $this->assertEquals(array($this->fixturesDir.'/dir1', $this->fixturesDir.'/dir2'), $dir->getAlternativePaths());
-
-        $file1 = $this->locator->get('/webmozart/puli/file1');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file1);
-        $this->assertEquals('/webmozart/puli/file1', $file1->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir2/file1', $file1->getRealPath());
-        $this->assertEquals(array($this->fixturesDir.'/dir1/file1', $this->fixturesDir.'/dir2/file1'), $file1->getAlternativePaths());
-
-        $file2 = $this->locator->get('/webmozart/puli/file2');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file2);
-        $this->assertEquals('/webmozart/puli/file2', $file2->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $file2->getRealPath());
-        $this->assertEquals(array($this->fixturesDir.'/dir1/file2'), $file2->getAlternativePaths());
     }
 
     public function testContainsPath()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains('/'));
         $this->assertTrue($this->locator->contains('/.'));
@@ -144,9 +98,10 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->locator->contains('/webmozart/puli/file2/.'));
         $this->assertFalse($this->locator->contains('/webmozart/puli/file2/..'));
 
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains('/'));
         $this->assertTrue($this->locator->contains('/.'));
@@ -174,47 +129,19 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->locator->contains('/webmozart/puli/file2/..'));
     }
 
-    public function testContainsArray()
-    {
-        $this->dumpLocator();
-
-        $this->assertFalse($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/file2',
-        )));
-        $this->assertFalse($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/file2',
-            '/webmozart/puli/file3',
-        )));
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1/*');
-
-        $this->dumpLocator();
-
-        $this->assertTrue($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/file2',
-        )));
-        $this->assertFalse($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/file2',
-            '/webmozart/puli/file3',
-        )));
-    }
-
     public function testContainsPattern()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertFalse($this->locator->contains('/webmozart/*'));
         $this->assertFalse($this->locator->contains('/webmozart/file*'));
         $this->assertFalse($this->locator->contains('/webmozart/puli/file*'));
         $this->assertFalse($this->locator->contains('/webmozart/*/file*'));
 
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains('/webmozart/*'));
         $this->assertFalse($this->locator->contains('/webmozart/file*'));
@@ -224,16 +151,17 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsPatternInstance()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/*')));
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/file*')));
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/puli/file*')));
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/*/file*')));
 
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains(new GlobPattern('/webmozart/*')));
         $this->assertFalse($this->locator->contains(new GlobPattern('/webmozart/file*')));
@@ -241,174 +169,58 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->locator->contains(new GlobPattern('/webmozart/*/file*')));
     }
 
-    public function testContainsArrayPattern()
-    {
-        $this->dumpLocator();
-
-        $this->assertFalse($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/*2',
-        )));
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->assertTrue($this->locator->contains(array(
-            '/webmozart/puli/file1',
-            '/webmozart/puli/*2',
-        )));
-    }
-
     public function testContainsDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli', $this->createDir('/dir1'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains('/webmozart/puli/'));
     }
 
     public function testContainsInterpretsConsecutiveSlashesAsRoot()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->assertTrue($this->locator->contains('///'));
     }
 
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testDirectoryContains()
-    {
-        $this->dumpLocator();
-
-        $this->assertFalse($this->locator->get('/')->contains('webmozart'));
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->assertTrue($this->locator->get('/')->contains('webmozart'));
-        $this->assertTrue($this->locator->get('/webmozart')->contains('puli'));
-        $this->assertTrue($this->locator->get('/webmozart/puli')->contains('file1'));
-        $this->assertTrue($this->locator->get('/webmozart/puli')->contains('file2'));
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testDirectoryOffsetExists()
-    {
-        $this->dumpLocator();
-
-        $directory = $this->locator->get('/');
-
-        $this->assertFalse(isset($directory['webmozart']));
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $directory = $this->locator->get('/');
-
-        $this->assertTrue(isset($directory['webmozart']));
-
-        $directory = $this->locator->get('/webmozart/puli');
-
-        $this->assertTrue(isset($directory['file1']));
-    }
-
     public function testGetOne()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $file = $this->createFile('/dir1/file1');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli/file1', $file);
 
-        $file = $this->locator->get('/webmozart/puli/file1');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $file->getRealPath());
+        $this->assertResourceEquals($file->copyTo('/webmozart/puli/file1'), $this->locator->get('/webmozart/puli/file1'));
     }
 
-    public function provideManySelector()
+    public function provideSelectors()
     {
         return array(
             array('/webmozart/puli/file*'),
             array(new GlobPattern('/webmozart/puli/file*')),
-            array(array(
-                '/webmozart/puli/file1',
-                '/webmozart/puli/file2',
-            )),
-            array(array(
-                '/webmozart/puli/file1',
-                '/webmozart/puli/*2',
-            )),
-            array(array(
-                '/webmozart/puli/file1',
-                new GlobPattern('/webmozart/puli/*2'),
-            )),
         );
     }
 
-    /**
-     * @dataProvider provideManySelector
-     */
-    public function testGetMany($selector)
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $files = $this->locator->get($selector);
-
-        $this->assertCount(2, $files);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $files[0]);
-        $this->assertEquals('/webmozart/puli/file1', $files[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $files[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $files[1]);
-        $this->assertEquals('/webmozart/puli/file2', $files[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $files[1]->getRealPath());
-    }
 
     public function testGetDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $dir = $this->createDir('/dir1');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli', $dir);
 
-        $dir = $this->locator->get('/webmozart/puli/');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $dir);
-        $this->assertEquals('/webmozart/puli', $dir->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1', $dir->getRealPath());
+        $this->assertResourceEquals($dir->copyTo('/webmozart/puli'), $this->locator->get('/webmozart/puli/'));
     }
 
     public function testGetInterpretsConsecutiveSlashesAsRoot()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
-        $dir = $this->locator->get('///');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $dir);
-        $this->assertEquals('/', $dir->getPath());
-        $this->assertNull($dir->getRealPath());
-    }
-
-    public function testGetEmptyPattern()
-    {
-        $this->dumpLocator();
-
-        $this->assertEquals(new ResourceCollection(), $this->locator->get('/foo/*'));
+        $this->assertSame($this->locator->get('/'), $this->locator->get('///'));
     }
 
     /**
@@ -416,274 +228,151 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetExpectsValidResource()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->locator->get('/foo/bar');
     }
 
-    /**
-     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
-     */
-    public function testGetExpectsValidResourceArray()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->locator->get(array(
-            '/webmozart/puli/file1',
-            '/foo/bar',
-        ));
-    }
-
     public function testGetDotInDirectory()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $dir = $this->createDir('/dir1');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli', $dir);
 
-        $file = $this->locator->get('/webmozart/puli/.');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1', $file->getRealPath());
+        $this->assertResourceEquals($dir->copyTo('/webmozart/puli'), $this->locator->get('/webmozart/puli/.'));
     }
 
     public function testGetDotInFile()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $file = $this->createFile('/dir1/file1');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli/file1', $file);
+
+        $this->locator = $this->createLocator($this->repo);
 
         // We support this case even though it leads to an error if done
         // on a regular file system, because recognizing files would be too
         // big a performance impact
-        $file = $this->locator->get('/webmozart/puli/file1/.');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $file->getRealPath());
+        // You should not rely on this however, as this may change anytime
+        $this->assertResourceEquals($file->copyTo('/webmozart/puli/file1'), $this->locator->get('/webmozart/puli/file1/.'));
     }
 
     public function testGetDotInRoot()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->dumpLocator();
-
-        $file = $this->locator->get('/.');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $file);
-        $this->assertEquals('/', $file->getPath());
-        $this->assertNull($file->getRealPath());
+        $this->assertSame($this->locator->get('/'), $this->locator->get('/.'));
     }
 
     public function testGetDotDotInDirectory()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli', $this->createDir('/dir1'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
-        $file = $this->locator->get('/webmozart/puli/..');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $file);
-        $this->assertEquals('/webmozart', $file->getPath());
-        $this->assertNull($file->getRealPath());
+        $this->assertSame($this->locator->get('/webmozart'), $this->locator->get('/webmozart/puli/..'));
     }
 
     public function testGetDotDotInFile()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         // We support this case even though it leads to an error if done
         // on a regular file system, because recognizing files would be too
         // big a performance impact
-        $file = $this->locator->get('/webmozart/puli/file1/..');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1', $file->getRealPath());
+        // You should not rely on this however, as this may change anytime
+        $this->assertSame($this->locator->get('/webmozart/puli'), $this->locator->get('/webmozart/puli/file1/..'));
     }
 
     public function testGetDotDotInRoot()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->dumpLocator();
-
-        $file = $this->locator->get('/..');
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $file);
-        $this->assertEquals('/', $file->getPath());
-        $this->assertNull($file->getRealPath());
+        $this->assertSame($this->locator->get('/'), $this->locator->get('/..'));
     }
 
+    public function testGetOverriddenFile()
+    {
+        $file1 = $this->createFile('/dir1/file1');
+        $file2 = $this->createFile('/dir1/file2');
+
+        $this->repo->add('/webmozart/puli/file', $file1);
+        $this->repo->add('/webmozart/puli/file', $file2);
+
+        $this->locator = $this->createLocator($this->repo);
+
+        $expected = $file2->copyTo('/webmozart/puli/file')->override($file1->copyTo('/webmozart/puli/file'));
+
+        $this->assertResourceEquals($expected, $this->locator->get('/webmozart/puli/file'));
+        $this->assertResourceEquals($expected, $this->locator->get('/webmozart/puli')->get('file'));
+    }
+
+    public function testGetOverriddenDirectory()
+    {
+        $dir1 = $this->createDir('/dir1');
+        $dir1->add($this->createFile('/dir1/file1'));
+        $dir2 = $this->createDir('/dir2');
+        $dir2->add($this->createFile('/dir2/file1'));
+        $dir2->add($this->createFile('/dir2/file1-link'));
+
+        $this->repo->add('/webmozart/puli', $dir1);
+        $this->repo->add('/webmozart/puli', $dir2);
+
+        $this->locator = $this->createLocator($this->repo);
+
+        $expected = $dir2->copyTo('/webmozart/puli')->override($dir1->copyTo('/webmozart/puli'));
+
+        $this->assertResourceEquals($expected, $this->locator->get('/webmozart/puli'));
+        $this->assertResourceEquals($expected, $this->locator->get('/webmozart')->get('puli'));
+    }
     /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
+     * @dataProvider provideSelectors
      */
-    public function testGetInDirectoryInstance()
+    public function testFind($selector)
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
-        $file = $this->locator->get('/webmozart/puli')->get('file1');
+        $resources = $this->locator->find($selector);
 
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $file->getRealPath());
+        $this->assertCount(2, $resources);
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
+        $this->assertSame($this->locator->get('/webmozart/puli/file1'), $resources[0]);
+        $this->assertSame($this->locator->get('/webmozart/puli/file2'), $resources[1]);
     }
 
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     *
-     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
-     */
-    public function testGetDotInDirectoryInstance()
+    public function testFindEmptyPattern()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->dumpLocator();
+        $resources = $this->locator->find('/foo/*');
 
-        $this->locator->get('/webmozart/puli')->get('.');
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     *
-     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
-     */
-    public function testGetDotDotInDirectoryInstance()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->locator->get('/webmozart/puli')->get('..');
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testOffsetGetInDirectoryInstance()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $directory = $this->locator->get('/webmozart/puli');
-        $file = $directory['file1'];
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $file);
-        $this->assertEquals('/webmozart/puli/file1', $file->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $file->getRealPath());
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     *
-     * @expectedException \Webmozart\Puli\Locator\ResourceNotFoundException
-     */
-    public function testGetInDirectoryInstanceExpectsExistingFile()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->locator->get('/webmozart/puli')->get('foo');
-    }
-
-    public function testListDirectory()
-    {
-        $this->dumpLocator();
-
-        $level0 = $this->locator->listDirectory('/');
-
-        $this->assertCount(0, $level0);
-        $this->assertEquals($level0, $this->locator->listDirectory('/.'));
-        $this->assertEquals($level0, $this->locator->listDirectory('/..'));
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-        $this->repo->add('/foo/bar', $this->fixturesDir.'/dir2');
-
-        $this->dumpLocator();
-
-        $level0 = $this->locator->listDirectory('/');
-
-        $this->assertCount(2, $level0);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level0[0]);
-        $this->assertEquals('/foo', $level0[0]->getPath());
-        $this->assertNull($level0[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level0[1]);
-        $this->assertEquals('/webmozart', $level0[1]->getPath());
-        $this->assertNull($level0[1]->getRealPath());
-
-        $this->assertEquals($level0, $this->locator->listDirectory('/.'));
-        $this->assertEquals($level0, $this->locator->listDirectory('/..'));
-
-        $level1 = $this->locator->listDirectory('/webmozart');
-
-        $this->assertCount(1, $level1);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level1[0]);
-        $this->assertEquals('/webmozart/puli', $level1[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1', $level1[0]->getRealPath());
-
-        $this->assertEquals($level1, $this->locator->listDirectory('/webmozart/.'));
-        $this->assertEquals($level0, $this->locator->listDirectory('/webmozart/..'));
-
-        $level2 = $this->locator->listDirectory('/webmozart/puli');
-
-        $this->assertCount(2, $level2);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $level2[0]);
-        $this->assertEquals('/webmozart/puli/file1', $level2[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $level2[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $level2[1]);
-        $this->assertEquals('/webmozart/puli/file2', $level2[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $level2[1]->getRealPath());
-
-        $this->assertEquals($level2, $this->locator->listDirectory('/webmozart/puli/.'));
-        $this->assertEquals($level1, $this->locator->listDirectory('/webmozart/puli/..'));
+        $this->assertCount(0, $resources);
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
     }
 
     public function testListDirectoryDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $file1 = $this->createFile('/dir1/file1');
+        $file2 = $this->createFile('/dir1/file2');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli/file1', $file1);
+        $this->repo->add('/webmozart/puli/file2', $file2);
+
+        $this->locator = $this->createLocator($this->repo);
 
         $resources = $this->locator->listDirectory('/webmozart/puli/');
 
         $this->assertCount(2, $resources);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
-        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $resources[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
-        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $resources[1]->getRealPath());
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
+        $this->assertSame($this->locator->get('/webmozart/puli/file1'), $resources['file1']);
+        $this->assertSame($this->locator->get('/webmozart/puli/file2'), $resources['file2']);
     }
 
     /**
@@ -691,204 +380,107 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testListDirectoryExpectsValidPath()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->locator->listDirectory('/foo/bar');
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
+     * @expectedException \Webmozart\Puli\Resource\NoDirectoryException
      */
     public function testListDirectoryExpectsDirectory()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->locator->listDirectory('/webmozart/puli/file1');
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
+     * @expectedException \Webmozart\Puli\Resource\NoDirectoryException
      */
     public function testListDotDirectoryExpectsDirectory()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $this->locator->listDirectory('/webmozart/puli/file1/.');
     }
 
     public function testListDotDotDirectoryInFile()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $file1 = $this->createFile('/dir1/file1');
+        $file2 = $this->createFile('/dir1/file2');
 
-        $this->dumpLocator();
+        $this->repo->add('/webmozart/puli/file1', $file1);
+        $this->repo->add('/webmozart/puli/file2', $file2);
+
+        $this->locator = $this->createLocator($this->repo);
 
         // We support this case even though it leads to an error if done
         // on a regular file system, because recognizing files would be too
         // big a performance impact
+        // You should not rely on this however, as this may change anytime
         $resources = $this->locator->listDirectory('/webmozart/puli/file1/..');
 
         $this->assertCount(2, $resources);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
-        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $resources[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
-        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $resources[1]->getRealPath());
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
+        $this->assertSame($this->locator->get('/webmozart/puli/file1'), $resources['file1']);
+        $this->assertSame($this->locator->get('/webmozart/puli/file2'), $resources['file2']);
     }
 
     public function testListDirectoryDoesNotShowRemovedFiles()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $file2 = $this->createFile('/dir1/file2'));
 
         $this->repo->remove('/webmozart/puli/file1');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $resources = $this->locator->listDirectory('/webmozart/puli/');
 
         $this->assertCount(1, $resources);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
-        $this->assertEquals('/webmozart/puli/file2', $resources[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $resources[0]->getRealPath());
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testListDirectoryInstance()
-    {
-        $this->dumpLocator();
-
-        $level0 = $this->locator->get('/')->all();
-
-        $this->assertCount(0, $level0);
-        $this->assertEquals($level0, $this->locator->get('/.')->all());
-        $this->assertEquals($level0, $this->locator->get('/..')->all());
-
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-        $this->repo->add('/foo/bar', $this->fixturesDir.'/dir2');
-
-        $this->dumpLocator();
-
-        $level0 = $this->locator->get('/')->all();
-
-        $this->assertCount(2, $level0);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level0[0]);
-        $this->assertEquals('/foo', $level0[0]->getPath());
-        $this->assertNull($level0[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level0[1]);
-        $this->assertEquals('/webmozart', $level0[1]->getPath());
-        $this->assertNull($level0[1]->getRealPath());
-
-        $this->assertEquals($level0, $this->locator->get('/.')->all());
-        $this->assertEquals($level0, $this->locator->get('/..')->all());
-
-        $level1 = $this->locator->get('/webmozart')->all();
-
-        $this->assertCount(1, $level1);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\DirectoryResourceInterface', $level1[0]);
-        $this->assertEquals('/webmozart/puli', $level1[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1', $level1[0]->getRealPath());
-
-        $this->assertEquals($level1, $this->locator->get('/webmozart/.')->all());
-        $this->assertEquals($level0, $this->locator->get('/webmozart/..')->all());
-
-        $level2 = $this->locator->get('/webmozart/puli')->all();
-
-        $this->assertCount(2, $level2);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $level2[0]);
-        $this->assertEquals('/webmozart/puli/file1', $level2[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $level2[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $level2[1]);
-        $this->assertEquals('/webmozart/puli/file2', $level2[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $level2[1]->getRealPath());
-
-        $this->assertEquals($level2, $this->locator->get('/webmozart/puli/.')->all());
-        $this->assertEquals($level1, $this->locator->get('/webmozart/puli/..')->all());
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testIterateDirectory()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $resources = iterator_to_array($this->locator->get('/webmozart/puli'));
-
-        $this->assertCount(2, $resources);
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[0]);
-        $this->assertEquals('/webmozart/puli/file1', $resources[0]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file1', $resources[0]->getRealPath());
-
-        $this->assertInstanceOf('Webmozart\\Puli\\Resource\\ResourceInterface', $resources[1]);
-        $this->assertEquals('/webmozart/puli/file2', $resources[1]->getPath());
-        $this->assertEquals($this->fixturesDir.'/dir1/file2', $resources[1]->getRealPath());
-    }
-
-    /**
-     * This test case actually tests the implementation of the used
-     * DirectoryResourceInterface instance. It is contained in this test
-     * because the all resource locators should behave identically when dealing
-     * with their resources.
-     */
-    public function testCountDirectory()
-    {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
-
-        $this->dumpLocator();
-
-        $this->assertCount(2, $this->locator->get('/webmozart/puli'));
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
+        $this->assertSame($this->locator->get('/webmozart/puli/file2'), $resources['file2']);
     }
 
     public function testGetByTag()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $file1 = $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
-        $results = new ResourceCollection(array($this->locator->get('/webmozart/puli/file1')));
+        $resources = $this->locator->getByTag('webmozart/tag');
 
-        $this->assertEquals($results, $this->locator->getByTag('webmozart/tag'));
+        $this->assertCount(1, $resources);
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
+        $this->assertSame($this->locator->get('/webmozart/puli/file1'), $resources[0]);
     }
 
     public function testGetByTagIgnoresNonExistingTags()
     {
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
-        $this->assertEquals(new ResourceCollection(), $this->locator->getByTag('foo/bar'));
+        $resources = $this->locator->getByTag('foo/bar');
+
+        $this->assertCount(0, $resources);
+        $this->assertInstanceOf('Webmozart\Puli\Resource\ResourceCollectionInterface', $resources);
     }
 
     public function testGetTags()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file2', $this->createFile('/dir1/file2'));
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag1');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $tags = $this->locator->getTags();
 
@@ -897,7 +489,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag2');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $tags = $this->locator->getTags();
 
@@ -907,7 +499,7 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
         $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $tags = $this->locator->getTags();
 
@@ -917,12 +509,12 @@ abstract class AbstractResourceLocatorTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTagsReturnsSortedResult()
     {
-        $this->repo->add('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $this->repo->add('/webmozart/puli/file1', $this->createFile('/dir1/file1'));
 
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/foo');
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/bar');
 
-        $this->dumpLocator();
+        $this->locator = $this->createLocator($this->repo);
 
         $tags = $this->locator->getTags();
 

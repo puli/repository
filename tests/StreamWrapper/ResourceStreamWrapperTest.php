@@ -329,7 +329,7 @@ FILE1;
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Repository\NoDirectoryException
+     * @expectedException \Webmozart\Puli\Resource\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {

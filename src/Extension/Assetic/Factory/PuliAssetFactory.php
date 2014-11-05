@@ -13,9 +13,9 @@ namespace Webmozart\Puli\Extension\Assetic\Factory;
 
 use Assetic\Factory\AssetFactory;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
+use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\UriLocatorInterface;
-use Webmozart\Puli\Resource\ResourceCollectionInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
@@ -59,24 +59,23 @@ class PuliAssetFactory extends AssetFactory
             return $this->createFileAsset($input, null, null, $options['vars']);
         }
 
-        $resource = $this->locator->get($input);
+        $resources = $this->locator->find($input);
 
-        if ($resource instanceof ResourceCollectionInterface) {
-            $assets = array();
-
-            foreach ($resource as $entry) {
-                /** @var ResourceInterface $entry */
-                $assets[] = $this->createPuliAsset($entry, array());
-            }
-
-            return $this->createAssetCollection($assets, $options);
+        if (1 === count($resources)) {
+            return $this->createPuliAsset($resources[0], $options['vars']);
         }
 
-        return $this->createPuliAsset($resource, $options['vars']);
+        $assets = array();
+
+        foreach ($resources as $entry) {
+            $assets[] = $this->createPuliAsset($entry, array());
+        }
+
+        return $this->createAssetCollection($assets, $options);
     }
 
-    protected function createPuliAsset(ResourceInterface $resource, array $vars)
+    protected function createPuliAsset(LocalResourceInterface $resource, array $vars)
     {
-        return new PuliAsset($resource->getPath(), $resource->getRealPath(), array(), $vars);
+        return new PuliAsset($resource->getPath(), $resource->getLocalPath(), array(), $vars);
     }
 }

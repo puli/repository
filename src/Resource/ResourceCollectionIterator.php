@@ -21,9 +21,7 @@ class ResourceCollectionIterator implements \RecursiveIterator
 
     const CURRENT_AS_PATH = 2;
 
-    const CURRENT_AS_REAL_PATH = 4;
-
-    const CURRENT_AS_NAME = 8;
+    const CURRENT_AS_NAME = 4;
 
     const KEY_AS_PATH = 64;
 
@@ -40,13 +38,11 @@ class ResourceCollectionIterator implements \RecursiveIterator
      */
     protected $resources;
 
-    protected $cursor = 0;
-
     protected $mode;
 
     public function __construct(ResourceCollectionInterface $resources, $mode = null)
     {
-        if (!($mode & (self::CURRENT_AS_PATH | self::CURRENT_AS_RESOURCE | self::CURRENT_AS_REAL_PATH | self::CURRENT_AS_NAME))) {
+        if (!($mode & (self::CURRENT_AS_PATH | self::CURRENT_AS_RESOURCE | self::CURRENT_AS_NAME))) {
             $mode |= self::CURRENT_AS_RESOURCE;
         }
 
@@ -61,51 +57,56 @@ class ResourceCollectionIterator implements \RecursiveIterator
     public function current()
     {
         if ($this->mode & self::CURRENT_AS_RESOURCE) {
-            return $this->resources[$this->cursor];
+            return current($this->resources);
         }
 
         if ($this->mode & self::CURRENT_AS_PATH) {
-            return $this->resources[$this->cursor]->getPath();
+            return current($this->resources)->getPath();
         }
 
-        if ($this->mode & self::CURRENT_AS_REAL_PATH) {
-            return $this->resources[$this->cursor]->getRealPath();
-        }
-
-        return $this->resources[$this->cursor]->getName();
+        return current($this->resources)->getName();
     }
 
     public function next()
     {
-        ++$this->cursor;
+        next($this->resources);
     }
 
     public function key()
     {
-        if ($this->mode & self::KEY_AS_PATH) {
-            return $this->resources[$this->cursor]->getPath();
+        if (null === ($key = key($this->resources))) {
+            return null;
         }
 
-        return $this->cursor;
+        if ($this->mode & self::KEY_AS_PATH) {
+            return $this->resources[$key]->getPath();
+        }
+
+        return $key;
     }
 
     public function valid()
     {
-        return $this->cursor < count($this->resources);
+        return null !== key($this->resources);
     }
 
     public function rewind()
     {
-        $this->cursor = 0;
+        reset($this->resources);
     }
 
     public function hasChildren()
     {
-        return $this->resources[$this->cursor] instanceof DirectoryResourceInterface;
+        return current($this->resources) instanceof DirectoryResourceInterface;
     }
 
     public function getChildren()
     {
-        return new static($this->resources[$this->cursor]->all(), $this->mode);
+        return new static(current($this->resources)->listEntries(), $this->mode);
+    }
+
+    public function getCurrentResource()
+    {
+        return current($this->resources);
     }
 }

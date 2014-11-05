@@ -11,7 +11,6 @@
 
 namespace Webmozart\Puli\Tests\Resource;
 
-use Webmozart\Puli\Repository\ResourceRepository;
 use Webmozart\Puli\Resource\DirectoryResourceIterator;
 use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Resource\ResourceCollectionIterator;
@@ -24,6 +23,33 @@ use Webmozart\Puli\Resource\ResourceFilterIterator;
 class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var ResourceCollection
+     */
+    private $collection;
+
+    protected function setUp()
+    {
+        $this->collection = new ResourceCollection(array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestDirectory('/webmozart/puli/config', array(
+                        new TestFile('/webmozart/puli/config/config.yml'),
+                        new TestFile('/webmozart/puli/config/routing.yml'),
+                    )),
+                    new TestDirectory('/webmozart/puli/css', array(
+                        new TestDirectory('/webmozart/puli/css/bootstrap', array(
+                            new TestFile('/webmozart/puli/css/bootstrap/bootstrap.css'),
+                        )),
+                        new TestFile('/webmozart/puli/css/fonts.css'),
+                        new TestFile('/webmozart/puli/css/style.css'),
+                    )),
+                    new TestFile('/webmozart/puli/installer.json'),
+                ))
+            )),
+        ));
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      */
     public function testRejectEmptyPattern()
@@ -35,12 +61,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterPathPrefix()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
@@ -53,7 +76,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
             '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
             '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
         );
 
@@ -62,12 +84,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterPathSuffix()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '.css',
@@ -78,7 +97,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
             '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
         );
 
@@ -87,12 +105,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterPathRegexImplicit()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/\.css$/',
@@ -102,7 +117,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
             '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
         );
 
@@ -111,12 +125,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterPathRegexExplicit()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/\.css$/',
@@ -127,35 +138,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
         $expected = array(
             '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
             '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
-            '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
-        );
-
-        $this->assertSame($expected, iterator_to_array($iterator));
-    }
-
-    public function testFilterRealPathPrefix()
-    {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
-        $iterator = new ResourceFilterIterator(
-            new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
-                \RecursiveIteratorIterator::SELF_FIRST
-            ),
-            __DIR__.'/Fixtures/css',
-            ResourceFilterIterator::FILTER_BY_REAL_PATH
-                | ResourceFilterIterator::MATCH_PREFIX
-                | ResourceFilterIterator::CURRENT_AS_PATH
-        );
-
-        $expected = array(
-            '/webmozart/puli/css' => '/webmozart/puli/css',
-            '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
-            '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
         );
 
@@ -164,12 +146,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testFilterNamePrefix()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             'bootstrap',
@@ -191,28 +170,27 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCurrentAsResourceImplicit()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
             ResourceFilterIterator::MATCH_PREFIX
         );
 
+        /** @var TestDirectory $puli */
+        $puli = $this->collection->get(0)->get('puli');
+
         $expected = array(
-            '/webmozart/puli/css' => $repo->get('/webmozart/puli/css'),
-            '/webmozart/puli/css/bootstrap' => $repo->get('/webmozart/puli/css/bootstrap'),
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => $repo->get('/webmozart/puli/css/bootstrap/bootstrap.css'),
-            '/webmozart/puli/css/fonts.css' => $repo->get('/webmozart/puli/css/fonts.css'),
-            '/webmozart/puli/css/reset.css' => $repo->get('/webmozart/puli/css/reset.css'),
-            '/webmozart/puli/css/style.css' => $repo->get('/webmozart/puli/css/style.css'),
+            '/webmozart/puli/css' => $puli->get('css'),
+            '/webmozart/puli/css/bootstrap' => $puli->get('css')->get('bootstrap'),
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => $puli->get('css')->get('bootstrap')->get('bootstrap.css'),
+            '/webmozart/puli/css/fonts.css' => $puli->get('css')->get('fonts.css'),
+            '/webmozart/puli/css/style.css' => $puli->get('css')->get('style.css'),
         );
 
-        $this->assertSame($expected, iterator_to_array($iterator));
+        $this->assertEquals($expected, iterator_to_array($iterator));
     }
 
     /**
@@ -220,12 +198,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCurrentAsResourceExplicit()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
@@ -233,43 +208,15 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
                 | ResourceFilterIterator::CURRENT_AS_RESOURCE
         );
 
-        $expected = array(
-            '/webmozart/puli/css' => $repo->get('/webmozart/puli/css'),
-            '/webmozart/puli/css/bootstrap' => $repo->get('/webmozart/puli/css/bootstrap'),
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => $repo->get('/webmozart/puli/css/bootstrap/bootstrap.css'),
-            '/webmozart/puli/css/fonts.css' => $repo->get('/webmozart/puli/css/fonts.css'),
-            '/webmozart/puli/css/reset.css' => $repo->get('/webmozart/puli/css/reset.css'),
-            '/webmozart/puli/css/style.css' => $repo->get('/webmozart/puli/css/style.css'),
-        );
-
-        $this->assertSame($expected, iterator_to_array($iterator));
-    }
-
-    /**
-     * @depends testFilterPathPrefix
-     */
-    public function testCurrentAsRealPath()
-    {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
-        $iterator = new ResourceFilterIterator(
-            new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
-                \RecursiveIteratorIterator::SELF_FIRST
-            ),
-            '/webmozart/puli/css',
-            ResourceFilterIterator::MATCH_PREFIX
-                | ResourceFilterIterator::CURRENT_AS_REAL_PATH
-        );
+        /** @var TestDirectory $puli */
+        $puli = $this->collection->get(0)->get('puli');
 
         $expected = array(
-            '/webmozart/puli/css' => __DIR__.'/Fixtures/css',
-            '/webmozart/puli/css/bootstrap' => __DIR__.'/Fixtures/css/bootstrap',
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => __DIR__.'/Fixtures/css/bootstrap/bootstrap.css',
-            '/webmozart/puli/css/fonts.css' => __DIR__.'/Fixtures/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => __DIR__.'/Fixtures/css/reset.css',
-            '/webmozart/puli/css/style.css' => __DIR__.'/Fixtures/css/style.css',
+            '/webmozart/puli/css' => $puli->get('css'),
+            '/webmozart/puli/css/bootstrap' => $puli->get('css')->get('bootstrap'),
+            '/webmozart/puli/css/bootstrap/bootstrap.css' => $puli->get('css')->get('bootstrap')->get('bootstrap.css'),
+            '/webmozart/puli/css/fonts.css' => $puli->get('css')->get('fonts.css'),
+            '/webmozart/puli/css/style.css' => $puli->get('css')->get('style.css'),
         );
 
         $this->assertSame($expected, iterator_to_array($iterator));
@@ -280,12 +227,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCurrentAsNamePath()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
@@ -298,7 +242,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/css/bootstrap' => 'bootstrap',
             '/webmozart/puli/css/bootstrap/bootstrap.css' => 'bootstrap.css',
             '/webmozart/puli/css/fonts.css' => 'fonts.css',
-            '/webmozart/puli/css/reset.css' => 'reset.css',
             '/webmozart/puli/css/style.css' => 'style.css',
         );
 
@@ -310,12 +253,9 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testKeyAsPath()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($repo->get('/')),
+                new ResourceCollectionIterator($this->collection),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
@@ -329,7 +269,6 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
             '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
             '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
             '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
         );
 
@@ -341,11 +280,8 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testKeyAsCursor()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
-
         $iterator = new ResourceFilterIterator(
-            new DirectoryResourceIterator($repo->get('/webmozart/puli/css')),
+            new DirectoryResourceIterator($this->collection->get(0)->get('puli')->get('css')),
             '.css',
             ResourceFilterIterator::MATCH_SUFFIX
                 | ResourceFilterIterator::CURRENT_AS_PATH
@@ -354,8 +290,7 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 
         $expected = array(
             0 => '/webmozart/puli/css/fonts.css',
-            1 => '/webmozart/puli/css/reset.css',
-            2 => '/webmozart/puli/css/style.css',
+            1 => '/webmozart/puli/css/style.css',
         );
 
         $this->assertSame($expected, iterator_to_array($iterator));

@@ -22,66 +22,70 @@ class DirectoryResourceIteratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefaultIteration()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
+        $dir1 = new TestDirectory('/webmozart', array(
+            $dir11 = new TestDirectory('/webmozart/puli', array(
+                $dir111 = new TestDirectory('/webmozart/puli/config', array(
+                    $file1111 = new TestFile('/webmozart/puli/config/config.yml'),
+                    $file1112 = new TestFile('/webmozart/puli/config/routing.yml'),
+                )),
+                $dir112 = new TestDirectory('/webmozart/puli/css', array(
+                    $file1121 = new TestFile('/webmozart/puli/css/style.css'),
+                )),
+                $file113 = new TestFile('/webmozart/puli/installer.json'),
+            ))
+        ));
 
-        $iterator = new DirectoryResourceIterator($repo->get('/'));
-
-        $recursiveIterator = new \RecursiveIteratorIterator(
-            $iterator,
+        $iterator = new \RecursiveIteratorIterator(
+            new DirectoryResourceIterator($dir1),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
-            '/webmozart' => $repo->get('/webmozart'),
-            '/webmozart/puli' => $repo->get('/webmozart/puli'),
-            '/webmozart/puli/config' => $repo->get('/webmozart/puli/config'),
-            '/webmozart/puli/config/config.yml' => $repo->get('/webmozart/puli/config/config.yml'),
-            '/webmozart/puli/css' => $repo->get('/webmozart/puli/css'),
-            '/webmozart/puli/css/bootstrap' => $repo->get('/webmozart/puli/css/bootstrap'),
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => $repo->get('/webmozart/puli/css/bootstrap/bootstrap.css'),
-            '/webmozart/puli/css/fonts.css' => $repo->get('/webmozart/puli/css/fonts.css'),
-            '/webmozart/puli/css/reset.css' => $repo->get('/webmozart/puli/css/reset.css'),
-            '/webmozart/puli/css/style.css' => $repo->get('/webmozart/puli/css/style.css'),
-            '/webmozart/puli/images' => $repo->get('/webmozart/puli/images'),
-            '/webmozart/puli/images/bg.png' => $repo->get('/webmozart/puli/images/bg.png'),
-            '/webmozart/puli/installer.json' => $repo->get('/webmozart/puli/installer.json'),
+            '/webmozart/puli' => $dir11,
+            '/webmozart/puli/config' => $dir111,
+            '/webmozart/puli/config/config.yml' => $file1111,
+            '/webmozart/puli/config/routing.yml' => $file1112,
+            '/webmozart/puli/css' => $dir112,
+            '/webmozart/puli/css/style.css' => $file1121,
+            '/webmozart/puli/installer.json' => $file113,
         );
 
-        $this->assertSame($expected, iterator_to_array($recursiveIterator));
+        $this->assertSame($expected, iterator_to_array($iterator));
     }
 
     public function testCurrentAsPath()
     {
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli', __DIR__.'/Fixtures');
+        $dir1 = new TestDirectory('/webmozart', array(
+            $dir11 = new TestDirectory('/webmozart/puli', array(
+                $dir111 = new TestDirectory('/webmozart/puli/config', array(
+                    $file1111 = new TestFile('/webmozart/puli/config/config.yml'),
+                    $file1112 = new TestFile('/webmozart/puli/config/routing.yml'),
+                )),
+                $dir112 = new TestDirectory('/webmozart/puli/css', array(
+                    $file1121 = new TestFile('/webmozart/puli/css/style.css'),
+                )),
+                $file113 = new TestFile('/webmozart/puli/installer.json'),
+            ))
+        ));
 
-        $iterator = new DirectoryResourceIterator(
-            $repo->get('/'),
-            DirectoryResourceIterator::CURRENT_AS_PATH
-        );
-
-        $recursiveIterator = new \RecursiveIteratorIterator(
-            $iterator,
+        $iterator = new \RecursiveIteratorIterator(
+            new DirectoryResourceIterator(
+                $dir1,
+                DirectoryResourceIterator::CURRENT_AS_PATH
+            ),
             \RecursiveIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
-            '/webmozart' => '/webmozart',
             '/webmozart/puli' => '/webmozart/puli',
             '/webmozart/puli/config' => '/webmozart/puli/config',
             '/webmozart/puli/config/config.yml' => '/webmozart/puli/config/config.yml',
+            '/webmozart/puli/config/routing.yml' => '/webmozart/puli/config/routing.yml',
             '/webmozart/puli/css' => '/webmozart/puli/css',
-            '/webmozart/puli/css/bootstrap' => '/webmozart/puli/css/bootstrap',
-            '/webmozart/puli/css/bootstrap/bootstrap.css' => '/webmozart/puli/css/bootstrap/bootstrap.css',
-            '/webmozart/puli/css/fonts.css' => '/webmozart/puli/css/fonts.css',
-            '/webmozart/puli/css/reset.css' => '/webmozart/puli/css/reset.css',
             '/webmozart/puli/css/style.css' => '/webmozart/puli/css/style.css',
-            '/webmozart/puli/images' => '/webmozart/puli/images',
-            '/webmozart/puli/images/bg.png' => '/webmozart/puli/images/bg.png',
             '/webmozart/puli/installer.json' => '/webmozart/puli/installer.json',
         );
 
-        $this->assertSame($expected, iterator_to_array($recursiveIterator));
+        $this->assertSame($expected, iterator_to_array($iterator));
     }
 }

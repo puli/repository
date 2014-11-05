@@ -68,7 +68,7 @@ class PuliFileLocator implements ChainableFileLocatorInterface
             $resource = $this->locator->get($repositoryPath);
 
             return $first
-                ? $resource->getRealPath()
+                ? $resource->getLocalPath()
                 : array_reverse($resource->getAlternativePaths());
         } catch (ResourceNotFoundException $e) {
             throw new \InvalidArgumentException(sprintf(

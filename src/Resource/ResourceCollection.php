@@ -31,6 +31,11 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         $this->resources[] = $resource;
     }
 
+    /**
+     * @param $key
+     *
+     * @return ResourceInterface
+     */
     public function get($key)
     {
         if (!isset($this->resources[$key])) {
@@ -71,6 +76,16 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
                 'Got: "%s"',
                 is_object($resources) ? get_class($resources) : gettype($resources)
             ));
+        }
+
+        foreach ($resources as $resource) {
+            if (!$resource instanceof ResourceInterface) {
+                throw new UnsupportedResourceException(sprintf(
+                    'ResourceCollection supports ResourceInterface '.
+                    'implementations only. Got: %s',
+                    is_object($resource) ? get_class($resource) : gettype($resource)
+                ));
+            }
         }
 
         $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
@@ -121,22 +136,14 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         );
     }
 
-    public function getRealPaths()
-    {
-        return array_map(
-            function (ResourceInterface $r) { return $r->getRealPath(); },
-            $this->resources
-        );
-    }
-
     public function count()
     {
         return count($this->resources);
     }
 
-    public function getIterator()
+    public function getIterator($mode = ResourceCollectionIterator::KEY_AS_CURSOR)
     {
-        return new ResourceCollectionIterator($this, ResourceCollectionIterator::KEY_AS_CURSOR);
+        return new ResourceCollectionIterator($this, $mode);
     }
 
     public function toArray()

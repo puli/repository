@@ -9,22 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Locator;
+namespace Webmozart\Puli\Resource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface DataStorageInterface
+interface DirectoryLoaderInterface
 {
-    public function getAlternativePaths($repositoryPath);
-
-    public function getTags($repositoryPath);
-
     /**
-     * @param $repositoryPath
+     * @param DirectoryResourceInterface $directory
      *
-     * @return \Webmozart\Puli\Resource\ResourceCollectionInterface
+     * @return ResourceInterface[]
      */
-    public function getDirectoryEntries($repositoryPath);
+    public function loadDirectoryEntries(DirectoryResourceInterface $directory);
 }

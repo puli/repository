@@ -13,21 +13,20 @@ namespace Webmozart\Puli\Filesystem;
 
 use Webmozart\Puli\Filesystem\PathFinder\GlobFinder;
 use Webmozart\Puli\Filesystem\PathFinder\PathFinderInterface;
+use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
+use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
+use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
 use Webmozart\Puli\Locator\AbstractResourceLocator;
-use Webmozart\Puli\Locator\DataStorageInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\Resource\LazyDirectoryResource;
-use Webmozart\Puli\Resource\LazyFileResource;
-use Webmozart\Puli\Resource\ResourceCollection;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemLocator extends AbstractResourceLocator implements DataStorageInterface
+class FilesystemLocator extends AbstractResourceLocator
 {
     /**
      * @var string
@@ -57,25 +56,33 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
         $this->pathFinder = $pathFinder ?: new GlobFinder();
     }
 
-    protected function getImpl($repositoryPath)
+    public function getByTag($tag)
     {
-        $filePath = $this->rootDirectory.$repositoryPath;
+        throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
+    }
 
-        if (!file_exists($filePath)) {
+    public function getTags($path = null)
+    {
+        throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
+    }
+
+    protected function getImpl($path)
+    {
+        $localPath = $this->rootDirectory.$path;
+
+        if (!file_exists($localPath)) {
             throw new ResourceNotFoundException(sprintf(
                 'The resource "%s" does not exist.',
-                $repositoryPath
+                $path
             ));
         }
 
-        if (is_dir($filePath)) {
-            return new LazyDirectoryResource($this, $repositoryPath, $filePath);
-        }
-
-        return new LazyFileResource($this, $repositoryPath, $filePath);
+        return is_dir($localPath)
+            ? LocalDirectoryResource::forPath($path, $localPath)
+            : LocalFileResource::forPath($path, $localPath);
     }
 
-    protected function getPatternImpl(PatternInterface $pattern)
+    protected function findImpl(PatternInterface $pattern)
     {
         $filePattern = $this->patternFactory->createPattern($this->rootDirectory.$pattern);
         $offset = strlen($this->rootDirectory) + 1;
@@ -89,12 +96,12 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
             $results[] = $this->getImpl($path);
         }
 
-        return new ResourceCollection($results);
+        return new LocalResourceCollection($results);
     }
 
-    protected function containsImpl($repositoryPath)
+    protected function containsImpl($path)
     {
-        return file_exists($this->rootDirectory.$repositoryPath);
+        return file_exists($this->rootDirectory.$path);
     }
 
     protected function containsPatternImpl(PatternInterface $pattern)
@@ -102,42 +109,5 @@ class FilesystemLocator extends AbstractResourceLocator implements DataStorageIn
         $filePattern = $this->patternFactory->createPattern($this->rootDirectory.$pattern);
 
         return count($this->pathFinder->findPaths($filePattern)) > 0;
-    }
-
-    public function getByTag($tag)
-    {
-        throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
-    }
-
-    public function getTags($repositoryPath = null)
-    {
-        throw new \BadMethodCallException('The FilesystemLocator does not support tagging.');
-    }
-
-    public function getAlternativePaths($repositoryPath)
-    {
-        return array();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDirectoryEntries($repositoryPath)
-    {
-        $repositoryPath = rtrim(Path::canonicalize($repositoryPath), '/');
-        $filePath = $this->rootDirectory.$repositoryPath;
-        $resources = array();
-
-        // We can't use glob() here, because glob() doesn't list files starting
-        // with "." by default
-        foreach (scandir($filePath) as $name) {
-            if ('.' === $name || '..' === $name) {
-                continue;
-            }
-
-            $resources[] = $this->getImpl($repositoryPath.'/'.$name);
-        }
-
-        return new ResourceCollection($resources);
     }
 }

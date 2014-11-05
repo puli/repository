@@ -15,9 +15,9 @@ use Webmozart\Puli\Path\Path;
 use Webmozart\Puli\Pattern\GlobPatternFactory;
 use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
-use Webmozart\Puli\Repository\NoDirectoryException;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\ResourceCollection;
+use Webmozart\Puli\Resource\FileResourceInterface;
+use Webmozart\Puli\Resource\NoDirectoryException;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
 
 /**
@@ -36,46 +36,33 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
         $this->patternFactory = $patternFactory ?: new GlobPatternFactory();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function get($selector)
+    public function get($path)
     {
-        if (is_string($selector) && $this->patternFactory->acceptsSelector($selector)) {
+        return $this->getImpl(Path::canonicalize($path));
+    }
+
+    public function find($selector)
+    {
+        if (is_string($selector)) {
             $selector = $this->patternFactory->createPattern($selector);
         }
 
-        if ($selector instanceof PatternInterface) {
-            return $this->getPatternImpl($selector);
+        if (!$selector instanceof PatternInterface) {
+            throw new \Exception();
         }
 
-        if (is_array($selector)) {
-            $resources = array();
-
-            foreach ($selector as $path) {
-                $result = $this->get($path);
-                $result = $result instanceof ResourceCollectionInterface ? $result : array($result);
-
-                foreach ($result as $resource) {
-                    $resources[] = $resource;
-                }
-            }
-
-            return new ResourceCollection($resources);
-        }
-
-        return $this->getImpl(Path::canonicalize($selector));
+        return $this->findImpl($selector);
     }
 
-    public function listDirectory($repositoryPath)
+    public function listDirectory($path)
     {
-        $resource = $this->getImpl(Path::canonicalize($repositoryPath));
+        $resource = $this->getImpl(Path::canonicalize($path));
 
         if ($resource instanceof DirectoryResourceInterface) {
-            return $resource->all();
+            return $resource->listEntries();
         }
 
-        throw new NoDirectoryException($repositoryPath);
+        throw new NoDirectoryException($path);
     }
 
     /**
@@ -91,24 +78,34 @@ abstract class AbstractResourceLocator implements ResourceLocatorInterface
             return $this->containsPatternImpl($selector);
         }
 
-        if (is_array($selector)) {
-            foreach ($selector as $path) {
-                if (!$this->contains($path)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         return $this->containsImpl(Path::canonicalize($selector));
     }
 
-    abstract protected function getImpl($repositoryPath);
+    /**
+     * @param string $path
+     *
+     * @return FileResourceInterface|DirectoryResourceInterface
+     */
+    abstract protected function getImpl($path);
 
-    abstract protected function getPatternImpl(PatternInterface $pattern);
+    /**
+     * @param PatternInterface $pattern
+     *
+     * @return ResourceCollectionInterface|FileResourceInterface[]|DirectoryResourceInterface[]
+     */
+    abstract protected function findImpl(PatternInterface $pattern);
 
-    abstract protected function containsImpl($repositoryPath);
+    /**
+     * @param $path
+     *
+     * @return boolean
+     */
+    abstract protected function containsImpl($path);
 
+    /**
+     * @param PatternInterface $pattern
+     *
+     * @return boolean
+     */
     abstract protected function containsPatternImpl(PatternInterface $pattern);
 }

@@ -11,6 +11,7 @@
 
 namespace Webmozart\Puli\StreamWrapper;
 
+use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
 use Webmozart\Puli\Locator\UriLocatorInterface;
 use Webmozart\Puli\Repository\UnsupportedOperationException;
@@ -132,13 +133,15 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function rmdir($uri, $options)
     {
-        $path = $this->getLocator()->get($uri)->getRealPath();
+        $resource = $this->getLocator()->get($uri);
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of directories through the stream wrapper is not '.
-            'supported. Tried to remove "%s" which points to "%s".',
+            'supported. Tried to remove "%s"%s.',
             $uri,
-            $path
+            $resource instanceof LocalResourceInterface
+                ? sprintf(' which points to "%s"', $resource->getLocalPath())
+                : ''
         ));
     }
 
@@ -177,7 +180,13 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_metadata($uri, $option, $value)
     {
-        $paths = $this->getLocator()->get($uri)->getAlternativePaths();
+        $resource = $this->getLocator()->get($uri);
+
+        if (!$resource instanceof LocalResourceInterface) {
+            return true;
+        }
+
+        $paths = $resource->getAlternativePaths();
 
         foreach ($paths as $path) {
             switch ($option) {
@@ -214,7 +223,13 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_open($uri, $mode, $options, &$openedPath)
     {
-        $openedPath = $this->getLocator()->get($uri)->getRealPath();
+        $resource = $this->getLocator()->get($uri);
+
+        if (!$resource instanceof LocalResourceInterface) {
+            return false;
+        }
+
+        $openedPath = $resource->getLocalPath();
 
         $this->handle = fopen($openedPath, $mode, $options & STREAM_USE_PATH) ?: null;
 
@@ -270,20 +285,29 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function unlink($uri)
     {
-        $path = $this->getLocator()->get($uri)->getRealPath();
+        $resource = $this->getLocator()->get($uri);
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of files through the stream wrapper is not '.
-            'supported. Tried to remove "%s" which points to "%s".',
+            'supported. Tried to remove "%s"%s.',
             $uri,
-            $path
+            $resource instanceof LocalResourceInterface
+                ? sprintf(' which points to "%s"', $resource->getLocalPath())
+                : ''
         ));
     }
 
     public function url_stat($uri, $flags)
     {
         try {
-            $path = $this->getLocator()->get($uri)->getRealPath();
+            $resource = $this->getLocator()->get($uri);
+
+            if (!$resource instanceof LocalResourceInterface) {
+                // same result as stat() returns on error
+                return false;
+            }
+
+            $path = $resource->getLocalPath();
 
             if ($flags & STREAM_URL_STAT_LINK) {
                 return lstat($path);

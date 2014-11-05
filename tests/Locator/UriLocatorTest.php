@@ -12,8 +12,8 @@
 namespace Webmozart\Puli\Tests\Locator;
 
 use Webmozart\Puli\Locator\UriLocator;
-use Webmozart\Puli\Resource\FileResource;
 use Webmozart\Puli\Resource\ResourceCollection;
+use Webmozart\Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -186,8 +186,8 @@ class UriLocatorTest extends \PHPUnit_Framework_TestCase
         $this->uriLocator->register('scheme', $locator);
 
         $resources = new ResourceCollection(array(
-            new FileResource('foo'),
-            new FileResource('bar'),
+            new TestFile('foo'),
+            new TestFile('bar'),
         ));
 
         $locator->expects($this->once())
@@ -218,8 +218,8 @@ class UriLocatorTest extends \PHPUnit_Framework_TestCase
         $this->uriLocator->register('namespace', $locator2);
 
         $resources = new ResourceCollection(array(
-            new FileResource('foo'),
-            new FileResource('bar'),
+            new TestFile('foo'),
+            new TestFile('bar'),
         ));
 
         $locator1->expects($this->once())

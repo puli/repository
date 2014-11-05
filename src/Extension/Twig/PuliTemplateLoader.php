@@ -45,7 +45,7 @@ class PuliTemplateLoader implements \Twig_LoaderInterface
             // templates. The "loaded_by_puli" tag is removed early on by the
             // LoadedByPuliTagger visitor and does not appear in the final
             // output.
-            return "{% loaded_by_puli %}".file_get_contents($this->locator->get($path)->getRealPath());
+            return "{% loaded_by_puli %}".file_get_contents($this->locator->get($path)->getLocalPath());
         } catch (ResourceNotFoundException $e) {
             throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }
@@ -90,7 +90,7 @@ class PuliTemplateLoader implements \Twig_LoaderInterface
     public function isFresh($path, $time)
     {
         try {
-            return filemtime($this->locator->get($path)->getRealPath()) <= $time;
+            return filemtime($this->locator->get($path)->getLocalPath()) <= $time;
         } catch (ResourceNotFoundException $e) {
             throw new \Twig_Error_Loader($e->getMessage(), -1, null, $e);
         }

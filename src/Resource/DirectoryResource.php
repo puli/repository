@@ -17,40 +17,137 @@ use Webmozart\Puli\Locator\ResourceNotFoundException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource extends FileResource implements \IteratorAggregate, DirectoryResourceInterface
+class DirectoryResource implements DirectoryResourceInterface
 {
-    private $entries = array();
+    /**
+     * @var string
+     */
+    private $path;
 
-    public function add(ResourceInterface $resource)
+    /**
+     * @var ResourceInterface[]|null
+     */
+    private $entries;
+
+    /**
+     * @var DirectoryLoaderInterface
+     */
+    private $directoryLoader;
+
+    public static function forPath($path, DirectoryLoaderInterface $directoryLoader = null)
     {
-        $parentPath = dirname($resource->getPath());
+        $resource = new self($directoryLoader);
+        $resource->path = $path;
+
+        return $resource;
+    }
+
+    public function __construct(DirectoryLoaderInterface $directoryLoader = null)
+    {
+        $this->directoryLoader = $directoryLoader;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return basename($this->path);
+    }
+
+    public function copyTo($path)
+    {
+        $copy = clone $this;
+        $copy->path = $path;
+
+        if (null !== $copy->entries) {
+            $basePath = rtrim($path, '/');
+
+            foreach ($copy->entries as $name => $entry) {
+                $copy->entries[$name] = $entry->copyTo($basePath.'/'.$name);
+            }
+        }
+
+        return $copy;
+    }
+
+    public function override(ResourceInterface $directory)
+    {
+        if (!$directory instanceof self) {
+            throw new UnsupportedResourceException('Expected a RealDirectoryResource instance.');
+        }
+
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
+        $override = clone $directory;
+        $basePath = rtrim($override->path, '/');
+
+        // Override already contains the entries of $directory
+        // We need to add the entries of this instance yet
+        foreach ($this->entries as $name => $entry) {
+            // Override existing entries in $directory
+            if (isset($override->entries[$name])) {
+                $override->entries[$name] = $entry->override($override->entries[$name]);
+                continue;
+            }
+
+            // Copy other entries of the current directory to the correct path
+            $override->entries[$name] = $entry->copyTo($basePath.'/'.$name);
+        }
+
+        ksort($override->entries);
+
+        return $override;
+    }
+
+    public function add(ResourceInterface $entry)
+    {
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
+        $parentPath = dirname($entry->getPath());
 
         // Fix root directory on Windows
         if ('\\' === $parentPath) {
             $parentPath = '/';
         }
 
-        if ($this->repositoryPath !== $parentPath) {
+        if ($this->getPath() !== $parentPath) {
             throw new \InvalidArgumentException(sprintf(
                 'Cannot add resource "%s" to the directory "%s", since it is '.
                 'located in a different directory.',
                 $parentPath,
-                $this->repositoryPath
+                $this->getPath()
             ));
         }
 
-        $this->entries[basename($resource->getPath())] = $resource;
+        $this->entries[$entry->getName()] = $entry;
 
         ksort($this->entries);
     }
 
     public function get($name)
     {
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
         if (!isset($this->entries[$name])) {
             throw new ResourceNotFoundException(sprintf(
                 'The file "%s" does not exist in directory "%s".',
                 $name,
-                $this->repositoryPath
+                $this->getPath()
             ));
         }
 
@@ -59,56 +156,57 @@ class DirectoryResource extends FileResource implements \IteratorAggregate, Dire
 
     public function contains($name)
     {
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
         return isset($this->entries[$name]);
     }
 
     public function remove($name)
     {
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
         if (!isset($this->entries[$name])) {
             throw new ResourceNotFoundException(sprintf(
                 'The file "%s" does not exist in directory "%s".',
                 $name,
-                $this->repositoryPath
+                $this->getPath()
             ));
         }
 
         unset($this->entries[$name]);
     }
 
-    public function all()
+    /**
+     * {@inheritdoc}
+     */
+    public function listEntries()
     {
-        // Dismiss keys, otherwise users may rely on them and we can't change
-        // the implementation anymore.
-        return new ResourceCollection(array_values($this->entries));
+        if (null === $this->entries) {
+            $this->loadEntries();
+        }
+
+        return new ResourceCollection($this->entries);
     }
 
-    public function getIterator()
+    private function loadEntries()
     {
-        return new DirectoryResourceIterator($this, DirectoryResourceIterator::KEY_AS_CURSOR);
-    }
+        $this->entries = array();
 
-    public function count()
-    {
-        return count($this->entries);
-    }
+        if ($this->directoryLoader) {
+            $entries = $this->directoryLoader->loadDirectoryEntries($this);
 
-    public function offsetExists($offset)
-    {
-        return $this->contains($offset);
-    }
+            foreach ($entries as $entry) {
+                $this->entries[$entry->getName()] = $entry;
+            }
 
-    public function offsetGet($offset)
-    {
-        return $this->get($offset);
-    }
+            // Remove references to loaders
+            $this->directoryLoader = null;
 
-    public function offsetSet($offset, $value)
-    {
-        $this->add($value);
-    }
-
-    public function offsetUnset($offset)
-    {
-        $this->remove($offset);
+            return;
+        }
     }
 }

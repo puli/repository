@@ -17,35 +17,23 @@ namespace Webmozart\Puli\Resource;
  */
 interface ResourceInterface
 {
-    public function __toString();
-
     public function getPath();
 
     public function getName();
 
-    public function getRealPath();
-
     /**
-     * @param string $path
+     * @param $path
      *
-     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::add()}.
+     * @return static
      */
-    public function overridePath($path);
-
-    public function getAlternativePaths();
+    public function copyTo($path);
 
     /**
-     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::tag()}.
+     * @param ResourceInterface $resource
+     *
+     * @return static
+     *
+     * @throws UnsupportedResourceException
      */
-    public function addTag($tag);
-
-    /**
-     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::untag()}.
-     */
-    public function removeTag($tag);
-
-    /**
-     * @return string[]
-     */
-    public function getTags();
+    public function override(ResourceInterface $resource);
 }

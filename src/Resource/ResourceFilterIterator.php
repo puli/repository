@@ -23,9 +23,7 @@ class ResourceFilterIterator extends \FilterIterator
 
     const CURRENT_AS_PATH = 2;
 
-    const CURRENT_AS_REAL_PATH = 4;
-
-    const CURRENT_AS_NAME = 8;
+    const CURRENT_AS_NAME = 4;
 
     const KEY_AS_PATH = 64;
 
@@ -39,9 +37,7 @@ class ResourceFilterIterator extends \FilterIterator
 
     const FILTER_BY_PATH = 512;
 
-    const FILTER_BY_REAL_PATH = 1024;
-
-    const FILTER_BY_NAME = 2048;
+    const FILTER_BY_NAME = 1024;
 
     const MATCH_PREFIX = 8192;
 
@@ -61,7 +57,7 @@ class ResourceFilterIterator extends \FilterIterator
     {
         parent::__construct($iterator);
 
-        if (!($mode & (self::FILTER_BY_REAL_PATH | self::FILTER_BY_REAL_PATH | self::FILTER_BY_NAME))) {
+        if (!($mode & (self::FILTER_BY_PATH | self::FILTER_BY_NAME))) {
             $mode |= self::FILTER_BY_PATH;
         }
 
@@ -69,7 +65,7 @@ class ResourceFilterIterator extends \FilterIterator
             $mode |= self::MATCH_REGEX;
         }
 
-        if (!($mode & (self::CURRENT_AS_RESOURCE | self::CURRENT_AS_PATH | self::CURRENT_AS_REAL_PATH | self::CURRENT_AS_NAME))) {
+        if (!($mode & (self::CURRENT_AS_RESOURCE | self::CURRENT_AS_PATH | self::CURRENT_AS_NAME))) {
             $mode |= self::CURRENT_AS_RESOURCE;
         }
 
@@ -96,10 +92,6 @@ class ResourceFilterIterator extends \FilterIterator
 
         if ($this->mode & self::CURRENT_AS_PATH) {
             return parent::current()->getPath();
-        }
-
-        if ($this->mode & self::CURRENT_AS_REAL_PATH) {
-            return parent::current()->getRealPath();
         }
 
         return parent::current()->getName();
@@ -132,8 +124,6 @@ class ResourceFilterIterator extends \FilterIterator
     {
         if ($this->mode & self::FILTER_BY_PATH) {
             $value = parent::current()->getPath();
-        } elseif ($this->mode & self::FILTER_BY_REAL_PATH) {
-            $value = parent::current()->getRealPath();
         } else {
             $value = parent::current()->getName();
         }

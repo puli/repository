@@ -36,9 +36,9 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
      */
     private $loaded = false;
 
-    public function __construct(ResourceLocatorInterface $locator, array $repositoryPaths)
+    public function __construct(ResourceLocatorInterface $locator, array $paths)
     {
-        $this->resources = $repositoryPaths;
+        $this->resources = $paths;
         $this->locator = $locator;
     }
 
@@ -149,18 +149,6 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
 
         return array_map(
             function (ResourceInterface $r) { return $r->getName(); },
-            $this->resources
-        );
-    }
-
-    public function getRealPaths()
-    {
-        if (!$this->loaded) {
-            $this->load();
-        }
-
-        return array_map(
-            function (ResourceInterface $r) { return $r->getRealPath(); },
             $this->resources
         );
     }

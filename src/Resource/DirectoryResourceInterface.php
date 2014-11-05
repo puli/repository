@@ -15,7 +15,7 @@ namespace Webmozart\Puli\Resource;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface DirectoryResourceInterface extends ResourceInterface, \Traversable, \Countable, \ArrayAccess
+interface DirectoryResourceInterface extends ResourceInterface
 {
     /**
      * @param string $name
@@ -32,14 +32,14 @@ interface DirectoryResourceInterface extends ResourceInterface, \Traversable, \C
     public function contains($name);
 
     /**
-     * @return ResourceCollectionInterface
+     * @return ResourceCollectionInterface|ResourceInterface[]
      */
-    public function all();
+    public function listEntries();
 
     /**
      * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::add()}.
      */
-    public function add(ResourceInterface $resource);
+    public function add(ResourceInterface $entry);
 
     /**
      * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::remove()}.

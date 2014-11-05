@@ -12,8 +12,9 @@
 namespace Webmozart\Puli\Locator;
 
 use Webmozart\Puli\Pattern\PatternInterface;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Resource\FileResourceInterface;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
 
 /**
  * @since  1.0
@@ -22,11 +23,18 @@ use Webmozart\Puli\Resource\ResourceInterface;
 interface ResourceLocatorInterface
 {
     /**
+     * @param string|PatternInterface $path
+     *
+     * @return FileResourceInterface|DirectoryResourceInterface
+     */
+    public function get($path);
+
+    /**
      * @param string|PatternInterface $selector
      *
-     * @return ResourceInterface|ResourceCollectionInterface
+     * @return ResourceCollectionInterface|FileResourceInterface[]|DirectoryResourceInterface[]
      */
-    public function get($selector);
+    public function find($selector);
 
     /**
      * @param string|PatternInterface $selector

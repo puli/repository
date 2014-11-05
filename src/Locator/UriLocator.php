@@ -69,6 +69,13 @@ class UriLocator implements UriLocatorInterface
         return $this->getLocator($parts['scheme'])->get($parts['path']);
     }
 
+    public function find($uri)
+    {
+        $parts = Uri::parse($uri);
+
+        return $this->getLocator($parts['scheme'])->find($parts['path']);
+    }
+
     public function contains($uri)
     {
         $parts = Uri::parse($uri);

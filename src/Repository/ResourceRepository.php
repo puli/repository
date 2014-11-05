@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Repository;
 
 use Webmozart\Puli\Filesystem\FilesystemLocator;
+use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
 use Webmozart\Puli\Locator\AbstractResourceLocator;
 use Webmozart\Puli\Locator\ResourceLocatorInterface;
 use Webmozart\Puli\Locator\ResourceNotFoundException;
@@ -20,10 +21,12 @@ use Webmozart\Puli\Pattern\PatternFactoryInterface;
 use Webmozart\Puli\Pattern\PatternInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\FileResource;
+use Webmozart\Puli\Resource\FileResourceInterface;
+use Webmozart\Puli\Resource\NoDirectoryException;
 use Webmozart\Puli\Resource\ResourceCollection;
 use Webmozart\Puli\Resource\ResourceCollectionInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\Resource\UnsupportedResourceException;
 
 /**
  * @since  1.0
@@ -32,7 +35,7 @@ use Webmozart\Puli\Resource\ResourceInterface;
 class ResourceRepository extends AbstractResourceLocator implements ResourceRepositoryInterface
 {
     /**
-     * @var FileResource[]|DirectoryResource[]
+     * @var FileResourceInterface[]|DirectoryResourceInterface[]
      */
     private $resources = array();
 
@@ -51,7 +54,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         parent::__construct($patternFactory);
 
         $this->backend = $backend ?: new FilesystemLocator(null, $patternFactory);
-        $this->resources['/'] = new DirectoryResource('/', null);
+        $this->resources['/'] = DirectoryResource::forPath('/');
     }
 
     public function getByTag($tag)
@@ -63,7 +66,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return new ResourceCollection(iterator_to_array($this->resourcesByTag[$tag]));
     }
 
-    public function add($path, $selector)
+    public function add($path, $resource)
     {
         if ('' === $path) {
             throw new \InvalidArgumentException(
@@ -79,15 +82,17 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
             );
         }
 
-        $resource = $this->backend->get($selector);
+        if (is_string($resource)) {
+            $resource = $this->backend->get($resource);
+        }
 
         if ($resource instanceof ResourceCollectionInterface) {
             foreach ($resource as $entry) {
                 /** @var ResourceInterface $entry */
-                $this->addResource($path.'/'.$entry->getName(), $entry);
+                $this->copyToRepository($entry, $path.'/'.$entry->getName());
             }
         } else {
-            $this->addResource($path, $resource);
+            $this->copyToRepository($resource, $path);
         }
     }
 
@@ -117,7 +122,7 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
                     continue;
                 }
 
-                $this->removeNode($path);
+                $this->removeFromRepository($resource);
             }
 
             return;
@@ -140,16 +145,19 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         }
 
         if (isset($this->resources[$selector])) {
-            $this->removeNode($selector);
+            $this->removeFromRepository($this->resources[$selector]);
         }
     }
 
     public function tag($selector, $tag)
     {
-        $resources = $this->get($selector);
+        $resources = $this->find($selector);
 
-        if (!$resources instanceof ResourceCollectionInterface) {
-            $resources = array($resources);
+        if (0 === count($resources)) {
+            throw new ResourceNotFoundException(sprintf(
+                'No resource was matched by the selector "%s".',
+                $selector
+            ));
         }
 
         if (!isset($this->resourcesByTag[$tag])) {
@@ -162,16 +170,18 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         foreach ($resources as $resource) {
             /** @var \Webmozart\Puli\Resource\ResourceInterface $resource */
             $this->resourcesByTag[$tag]->attach($resource);
-            $resource->addTag($tag);
         }
     }
 
     public function untag($selector, $tag = null)
     {
-        $resources = $this->get($selector);
+        $resources = $this->find($selector);
 
-        if (!$resources instanceof ResourceCollectionInterface) {
-            $resources = array($resources);
+        if (0 === count($resources)) {
+            throw new ResourceNotFoundException(sprintf(
+                'No resource was matched by the selector "%s".',
+                $selector
+            ));
         }
 
         if (null === $tag) {
@@ -195,19 +205,19 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return array_keys($this->resourcesByTag);
     }
 
-    protected function getImpl($repositoryPath)
+    protected function getImpl($path)
     {
-        if (isset($this->resources[$repositoryPath])) {
-            return $this->resources[$repositoryPath];
+        if (isset($this->resources[$path])) {
+            return $this->resources[$path];
         }
 
         throw new ResourceNotFoundException(sprintf(
             'The resource "%s" does not exist.',
-            $repositoryPath
+            $path
         ));
     }
 
-    protected function getPatternImpl(PatternInterface $pattern)
+    protected function findImpl(PatternInterface $pattern)
     {
         $staticPrefix = $pattern->getStaticPrefix();
         $regExp = $pattern->getRegularExpression();
@@ -230,9 +240,9 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return new ResourceCollection($resources);
     }
 
-    protected function containsImpl($repositoryPath)
+    protected function containsImpl($path)
     {
-        return isset($this->resources[$repositoryPath]);
+        return isset($this->resources[$path]);
     }
 
     protected function containsPatternImpl(PatternInterface $pattern)
@@ -256,53 +266,23 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
         return false;
     }
 
-    private function removeNode($repositoryPath)
-    {
-        $resource = $this->resources[$repositoryPath];
-
-        // Remove the resource
-        unset($this->resources[$repositoryPath]);
-
-        // Detach resource from parent directory.
-        // Doing so after removing the node itself ensures that this code is
-        // not executed for the recursive child calls, because then their parent
-        // node does not exist anymore.
-        $parentPath = Path::getDirectory($repositoryPath);
-
-        if (isset($this->resources[$parentPath])
-                && $this->resources[$parentPath] instanceof DirectoryResourceInterface) {
-            $this->resources[$parentPath]->remove($resource->getName());
-        }
-
-        // Recursively remove all children
-        if ($resource instanceof DirectoryResource) {
-            foreach ($resource as $entry) {
-                /** @var ResourceInterface $entry */
-                $this->removeNode($entry->getPath());
-            }
-        }
-
-        $this->removeAllTagsFrom($resource);
-        $this->discardEmptyTags();
-    }
-
     /**
      * @param string $repositoryPath
      *
-     * @return DirectoryResource
+     * @return LocalDirectoryResource
      *
      * @throws NoDirectoryException
      */
-    private function getOrCreateDirectoryOf($repositoryPath)
+    private function getContainingDirectory($repositoryPath)
     {
         // Recursively initialize parent directories
         $parentPath = Path::getDirectory($repositoryPath);
 
         if (!isset($this->resources[$parentPath])) {
-            $grandParent = $this->getOrCreateDirectoryOf($parentPath);
+            $grandParent = $this->getContainingDirectory($parentPath);
 
             // Create new directory
-            $this->resources[$parentPath] = new DirectoryResource($parentPath, null);
+            $this->resources[$parentPath] = DirectoryResource::forPath($parentPath);
 
             // Add as child node of the parent directory
             $grandParent->add($this->resources[$parentPath]);
@@ -315,8 +295,6 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     private function removeTagFrom(ResourceInterface $resource, $tag)
     {
-        $resource->removeTag($tag);
-
         if (!isset($this->resourcesByTag[$tag])) {
             return;
         }
@@ -326,8 +304,8 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
 
     private function removeAllTagsFrom(ResourceInterface $resource)
     {
-        foreach ($resource->getTags() as $tag) {
-            $this->removeTagFrom($resource, $tag);
+        foreach ($this->resourcesByTag as $resources) {
+            $resources->detach($resource);
         }
     }
 
@@ -341,46 +319,74 @@ class ResourceRepository extends AbstractResourceLocator implements ResourceRepo
     }
 
     /**
-     * @param string            $path
      * @param ResourceInterface $resource
+     * @param string            $path
+     *
+     * @throws UnsupportedResourceException
      */
-    private function addResource($path, ResourceInterface $resource)
+    private function copyToRepository(ResourceInterface $resource, $path)
     {
-        $isDirectory = $resource instanceof DirectoryResourceInterface;
-
-        // Create new Resource instances if necessary
-        if (!isset($this->resources[$path])) {
-            // Create parent directory if needed
-            // Create before adding the resource itself to keep the order
-            $directory = $this->getOrCreateDirectoryOf($path);
-
-            // Add resource after the directory to maintain the correct order
-            $this->resources[$path] = $isDirectory
-                ? new DirectoryResource(
-                    $path,
-                    $resource->getRealPath()
-                )
-                : new FileResource(
-                    $path,
-                    $resource->getRealPath()
-                );
-
-            // Add the new node to the parent directory
-            $directory->add($this->resources[$path]);
-
-            // Keep the resources sorted by file name. This could probably be
-            // optimized by inserting at the right position instead of
-            // rearranging the complete array on every add.
-            ksort($this->resources);
+        if (isset($this->resources[$path])) {
+            // If a resource with the same path was previously registered,
+            // override it
+            $resource = $resource->override($this->resources[$path]);
         } else {
-            $this->resources[$path]->overridePath($resource->getRealPath());
+            // Get a copy of the resource with the correct path
+            $resource = $resource->copyTo($path);
         }
 
-        // Recursively add directory contents
-        if ($isDirectory) {
-            foreach ($resource as $entry) {
-                /** @var ResourceInterface $entry */
-                $this->addResource($path.'/'.$entry->getName(), $entry);
+        // Create parent directory if needed
+        // Create before adding the resource itself to keep the order
+        $directory = $this->getContainingDirectory($path);
+
+        // Add the resource
+        $this->register($resource);
+        $directory->add($resource);
+
+        // Keep the resources sorted by file name
+        ksort($this->resources);
+    }
+
+    private function removeFromRepository(ResourceInterface $resource)
+    {
+        // Detach resource from parent directory.
+        // Doing so after removing the node itself ensures that this code is
+        // not executed for the recursive child calls, because then their parent
+        // node does not exist anymore.
+        $parentPath = Path::getDirectory($resource->getPath());
+
+        if (isset($this->resources[$parentPath])
+                && $this->resources[$parentPath] instanceof DirectoryResourceInterface) {
+            $this->resources[$parentPath]->remove($resource->getName());
+        }
+
+        $this->deregister($resource);
+
+        $this->discardEmptyTags();
+    }
+
+    private function register(ResourceInterface $resource)
+    {
+        $this->resources[$resource->getPath()] = $resource;
+
+        // Recursively register directory contents
+        if ($resource instanceof DirectoryResourceInterface) {
+            foreach ($resource->listEntries() as $entry) {
+                $this->register($entry);
+            }
+        }
+    }
+
+    private function deregister(ResourceInterface $resource)
+    {
+        unset($this->resources[$resource->getPath()]);
+
+        $this->removeAllTagsFrom($resource);
+
+        // Recursively register directory contents
+        if ($resource instanceof DirectoryResourceInterface) {
+            foreach ($resource->listEntries() as $entry) {
+                $this->deregister($entry);
             }
         }
     }
