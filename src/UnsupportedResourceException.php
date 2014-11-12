@@ -12,8 +12,8 @@
 namespace Webmozart\Puli;
 
 /**
- * Thrown when a method cannot process a specific implementation of
- * {@link ResourceInterface}.
+ * Thrown when a specific implementation of {@link ResourceInterface} is not
+ * accepted by the invoked method.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>

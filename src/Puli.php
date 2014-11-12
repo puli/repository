@@ -12,6 +12,8 @@
 namespace Webmozart\Puli;
 
 /**
+ * Contains metadata of the Puli library.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */

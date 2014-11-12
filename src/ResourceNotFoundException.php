@@ -12,9 +12,11 @@
 namespace Webmozart\Puli;
 
 /**
+ * Thrown when a requested resource was not found.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceNotFoundException extends \Exception
+class ResourceNotFoundException extends \RuntimeException
 {
 }

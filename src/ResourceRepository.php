@@ -24,6 +24,40 @@ use Webmozart\Puli\Util\Path;
 use Webmozart\Puli\Util\Selector;
 
 /**
+ * An in-memory resource repository.
+ *
+ * Resources can be added with the method {@link add}:
+ *
+ * ```php
+ * use Webmozart\Puli\ResourceRepository;
+ *
+ * $repo = new ResourceRepository();
+ * $repo->add('/css', new LocalDirectoryResource('/path/to/project/assets/css'));
+ * ```
+ *
+ * Alternatively, another repository can be passed as "backend". The paths of
+ * this backend can be passed to the second argument of {@link add}. By default,
+ * a {@link FilesystemRepository} is used:
+ *
+ * ```php
+ * use Webmozart\Puli\ResourceRepository;
+ *
+ * $repo = new ResourceRepository();
+ * $repo->add('/css', '/path/to/project/assets/css');
+ * ```
+ *
+ * You can also create the backend manually and pass it to the constructor:
+ *
+ * ```php
+ * use Webmozart\Puli\Filesystem\FilesystemRepository;
+ * use Webmozart\Puli\ResourceRepository;
+ *
+ * $backend = new FilesystemRepository('/path/to/project');
+ *
+ * $repo = new ResourceRepository($backend)
+ * $repo->add('/css', '/assets/css');
+ * ```
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -44,12 +78,26 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     private $backend;
 
+    /**
+     * Creates a new repository.
+     *
+     * The backend repository is used to lookup the paths passed to the
+     * second argument of {@link add}. If none is passed, a
+     * {@link FilesystemRepository} will be used.
+     *
+     * @param ResourceRepositoryInterface $backend The backend repository.
+     *
+     * @see ResourceRepository
+     */
     public function __construct(ResourceRepositoryInterface $backend = null)
     {
         $this->backend = $backend ?: new FilesystemRepository();
         $this->resources['/'] = DirectoryResource::createAttached($this, '/');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($path)
     {
         if (isset($path[0]) && '/' !== $path[0]) {
@@ -71,15 +119,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         return $this->resources[$path];
     }
 
-    public function getByTag($tag)
-    {
-        if (!isset($this->resourcesByTag[$tag])) {
-            return new ResourceCollection();
-        }
-
-        return new ResourceCollection(iterator_to_array($this->resourcesByTag[$tag]));
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function find($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -115,6 +157,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         return new ResourceCollection($resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function contains($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -149,6 +194,17 @@ class ResourceRepository implements ManageableRepositoryInterface
         return isset($this->resources[$selector]);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * If a path is passed as second argument, the added resources are fetched
+     * from the backend passed to {@link __construct}.
+     *
+     * @param string                                                         $path     The path at which to add the resource.
+     * @param string|AttachableResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
+     *
+     * @throws InvalidPathException If the path is invalid.
+     */
     public function add($path, $resource)
     {
         if ('' === $path) {
@@ -188,6 +244,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove($selector)
     {
         if ('' === $selector) {
@@ -235,6 +294,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         return $removed;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function tag($selector, $tag)
     {
         $resources = $this->find($selector);
@@ -265,6 +327,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         return $tagged;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function untag($selector, $tag = null)
     {
         $resources = $this->find($selector);
@@ -300,17 +365,30 @@ class ResourceRepository implements ManageableRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function getByTag($tag)
+    {
+        if (!isset($this->resourcesByTag[$tag])) {
+            return new ResourceCollection();
+        }
+
+        return new ResourceCollection(iterator_to_array($this->resourcesByTag[$tag]));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getTags()
     {
         return array_keys($this->resourcesByTag);
     }
 
     /**
-     * @param string $path
+     * Recursively creates the base directories of a path.
      *
-     * @return LocalDirectoryResource
+     * @param string $path A repository path.
      *
-     * @throws NoDirectoryException
+     * @throws NoDirectoryException If a resource with one of the base paths
+     *                              exists, but is no directory.
      */
     private function initContainingDirectories($path)
     {
@@ -338,6 +416,14 @@ class ResourceRepository implements ManageableRepositoryInterface
         }
     }
 
+    /**
+     * Removes a tag from the given resource.
+     *
+     * @param ResourceInterface $resource A resource.
+     * @param string            $tag      The tag to remove.
+     *
+     * @return bool Whether any tag was removed.
+     */
     private function removeTagFrom(ResourceInterface $resource, $tag)
     {
         if (!isset($this->resourcesByTag[$tag]) || !$this->resourcesByTag[$tag]->contains($resource)) {
@@ -349,6 +435,13 @@ class ResourceRepository implements ManageableRepositoryInterface
         return true;
     }
 
+    /**
+     * Removes all tags from the given resource.
+     *
+     * @param ResourceInterface $resource A resource.
+     *
+     * @return bool Whether any tag was removed.
+     */
     private function removeAllTagsFrom(ResourceInterface $resource)
     {
         $removed = false;
@@ -363,6 +456,11 @@ class ResourceRepository implements ManageableRepositoryInterface
         return $removed;
     }
 
+    /**
+     * Removes empty tag containers from memory.
+     *
+     * Should be called after removing tags from resources.
+     */
     private function discardEmptyTags()
     {
         foreach ($this->resourcesByTag as $tag => $resources) {
@@ -373,10 +471,11 @@ class ResourceRepository implements ManageableRepositoryInterface
     }
 
     /**
-     * @param AttachableResourceInterface $resource
-     * @param string                      $path
+     * Recursively attaches a resource to the repository.
      *
-     * @throws UnsupportedResourceException
+     * @param AttachableResourceInterface $resource The resource to attach.
+     * @param string                      $path     The path at which to add
+     *                                              the resource.
      */
     private function attachResource(AttachableResourceInterface $resource, $path)
     {
@@ -389,6 +488,13 @@ class ResourceRepository implements ManageableRepositoryInterface
         ksort($this->resources);
     }
 
+    /**
+     * Recursively detaches a resource from the repository.
+     *
+     * @param AttachableResourceInterface $resource The resource to detach.
+     * @param integer                     $counter  Counts the number of detached
+     *                                              resources.
+     */
     private function detachResource(AttachableResourceInterface $resource, &$counter)
     {
         $this->detachRecursively($resource, $counter);

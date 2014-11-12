@@ -12,6 +12,10 @@
 namespace Webmozart\Puli;
 
 /**
+ * Thrown when an invalid resource path is passed.
+ *
+ * Resource paths must always be absolute (i.e. start with "/") and non-empty.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
