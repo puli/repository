@@ -12,9 +12,11 @@
 namespace Webmozart\Puli\Uri;
 
 /**
+ * Thrown if a URI scheme is not supported.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class SchemeNotSupportedException extends \Exception
+class UnsupportedSchemeException extends \Exception
 {
 }

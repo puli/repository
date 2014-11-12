@@ -35,6 +35,7 @@ Changelog
      `Selector` class
    * `ResourceRepository::remove()`, `tag()` and `untag()` now return the number
      of affected resources
+   * added `UriRepository::getDefaultScheme()` and `setDefaultScheme()`
 
 * 1.0.0-alpha3 (2014-02-22)
 

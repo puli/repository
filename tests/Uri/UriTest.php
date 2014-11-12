@@ -27,6 +27,14 @@ class UriTest extends \PHPUnit_Framework_TestCase
                 'scheme' => 'scheme',
                 'path' => '/path/to/resource',
             )),
+            array('psr4:///path/to/resource', array(
+                'scheme' => 'psr4',
+                'path' => '/path/to/resource',
+            )),
+            array('/path/to/resource', array(
+                'scheme' => '',
+                'path' => '/path/to/resource',
+            )),
         );
     }
 
@@ -41,6 +49,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
     public function provideInvalidUris()
     {
         return array(
+            array(''),
+            array(null),
+            array(123),
+            array(new \stdClass()),
+            array(':///path/to/resource'),
+            array('1foo:///path/to/resource'),
+            array('foo@:///path/to/resource'),
             array('scheme:/path/to/resource'),
             array('scheme//path/to/resource'),
             array('scheme:://path/to/resource'),

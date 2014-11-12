@@ -12,6 +12,8 @@
 namespace Webmozart\Puli\Uri;
 
 /**
+ * Thrown if a factory closure did not create valid repository.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
