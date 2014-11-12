@@ -79,6 +79,8 @@ echo $repo->get('/acme/blog/css/style.css')->getLocalPath();
 // => /path/to/project/vendor/acme/blog/resources/css/style.css
 ```
 
+Was it ever easier to access the files of a Composer package?
+
 Read on to learn more about Puli.
 
 Installation
