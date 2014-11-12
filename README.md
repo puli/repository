@@ -39,6 +39,13 @@ Or in templates:
 </div>
 ```
 
+Individual resources can be overridden, if necessary:
+
+```php
+$repo->add('/views', '/path/to/views');
+$repo->add('/views/menu.html.twig', '/path/to/custom/menu.html.twig');
+```
+
 However, Puli only unleashes its full power once you use it together with its
 [Composer plugin]. The plugin allows to register resources in the composer.json
 file of each package:
