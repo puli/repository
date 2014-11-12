@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Tests\Extension\Twig\CacheWarmer;
 
 use Webmozart\Puli\Extension\Twig\CacheWarmer\TwigTemplateCacheWarmer;
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
 
 /**
  * @since  1.0

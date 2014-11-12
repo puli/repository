@@ -12,7 +12,8 @@
 namespace Webmozart\Puli\Tests\Extension\Symfony\Config;
 
 use Webmozart\Puli\Extension\Symfony\Config\PuliFileLocator;
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
+use Webmozart\Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -95,5 +96,15 @@ class PuliFileLocatorTest extends \PHPUnit_Framework_TestCase
     public function testRejectUnknownPaths()
     {
         $this->locator->locate('/foo/bar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRejectNonLocalPaths()
+    {
+        $this->repo->add('/webmozart/puli', new TestFile());
+
+        $this->locator->locate('/webmozart/puli');
     }
 }

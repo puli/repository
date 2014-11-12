@@ -12,9 +12,9 @@
 namespace Webmozart\Puli\Extension\Twig\CacheWarmer;
 
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
-use Webmozart\Puli\Resource\DirectoryResourceIterator;
-use Webmozart\Puli\Resource\ResourceFilterIterator;
+use Webmozart\Puli\Resource\Iterator\DirectoryResourceIterator;
+use Webmozart\Puli\Resource\Iterator\ResourceFilterIterator;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * Generates the Twig cache for all templates in the resource repository.
@@ -24,9 +24,9 @@ use Webmozart\Puli\Resource\ResourceFilterIterator;
 class TwigTemplateCacheWarmer implements CacheWarmerInterface
 {
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    private $locator;
+    private $repo;
 
     /**
      * @var string
@@ -38,9 +38,9 @@ class TwigTemplateCacheWarmer implements CacheWarmerInterface
      */
     private $twig;
 
-    public function __construct(ResourceLocatorInterface $locator, \Twig_Environment $twig, $suffix = '.twig')
+    public function __construct(ResourceRepositoryInterface $repo, \Twig_Environment $twig, $suffix = '.twig')
     {
-        $this->locator = $locator;
+        $this->repo = $repo;
         $this->suffix = $suffix;
         $this->twig = $twig;
     }
@@ -56,7 +56,7 @@ class TwigTemplateCacheWarmer implements CacheWarmerInterface
     {
         $iterator = new ResourceFilterIterator(
             new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($this->locator->get('/')),
+                new DirectoryResourceIterator($this->repo->get('/')),
                 \RecursiveIteratorIterator::SELF_FIRST
             ),
             $this->suffix,

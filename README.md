@@ -13,25 +13,33 @@ Latest release: [1.0.0-alpha3](https://packagist.org/packages/webmozart/puli#1.0
 
 PHP >= 5.3.9
 
-Puli returns the absolute file paths of the files (*resources*) in your PHP
-project. You can refer to those files through simple names that look very
-much like file paths:
+Puli manages files and directories in a virtual repository. Whenever you need
+to access these resources in your project, you can find them by their Puli path:
 
 ```php
-echo $locator->get('/webmozart/puli/css/style.css')->getRealPath();
-// => /path/to/resources/assets/css/style.css
+$repo = new ResourceRepository();
+$repo->add('/css', '/path/to/assets/css');
+
+echo $repo->get('/css/style.css')->getLocalPath();
+// => /path/to/assets/css/style.css
 ```
 
-Like this, you can use short and memorable paths whenever you need to
-reference a file in your project, for example:
+This is useful when you have to hard-code paths in configuration files:
 
 ```yaml
 # config.yml
 import: /webmozart/puli/config/config.yml
 ```
 
-The structure of these file paths can, of course, be configured by yourself.
-You will learn later in this document how to do so.
+Or in templates:
+
+```jinja
+<div>
+    {% include '/webmozart/puli/views/menu.html.twig' %}
+</div>
+```
+
+Read on to learn more about Puli.
 
 Installation
 ------------

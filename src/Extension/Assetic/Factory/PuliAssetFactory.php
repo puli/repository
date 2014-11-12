@@ -14,9 +14,8 @@ namespace Webmozart\Puli\Extension\Assetic\Factory;
 use Assetic\Factory\AssetFactory;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
 use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
-use Webmozart\Puli\Locator\UriLocatorInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\Uri\UriRepositoryInterface;
 
 /**
  * @since  1.0
@@ -25,15 +24,15 @@ use Webmozart\Puli\Resource\ResourceInterface;
 class PuliAssetFactory extends AssetFactory
 {
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    private $locator;
+    private $repo;
 
-    public function __construct(ResourceLocatorInterface $locator, $debug = false)
+    public function __construct(ResourceRepositoryInterface $repo, $debug = false)
     {
         parent::__construct('', $debug);
 
-        $this->locator = $locator;
+        $this->repo = $repo;
     }
 
     protected function parseInput($input, array $options = array())
@@ -48,8 +47,8 @@ class PuliAssetFactory extends AssetFactory
 
         if (false !== ($offset = strpos($input, '://'))) {
             $scheme = substr($input, 0, $offset);
-            $knownScheme = $this->locator instanceof UriLocatorInterface
-                && in_array($scheme, $this->locator->getRegisteredSchemes());
+            $knownScheme = $this->repo instanceof UriRepositoryInterface
+                && in_array($scheme, $this->repo->getSupportedSchemes());
 
             if (!$knownScheme) {
                 return $this->createHttpAsset($input, $options['vars']);
@@ -59,7 +58,7 @@ class PuliAssetFactory extends AssetFactory
             return $this->createFileAsset($input, null, null, $options['vars']);
         }
 
-        $resources = $this->locator->find($input);
+        $resources = $this->repo->find($input);
 
         if (1 === count($resources)) {
             return $this->createPuliAsset($resources[0], $options['vars']);

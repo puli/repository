@@ -18,4 +18,10 @@ namespace Webmozart\Puli\Resource;
 interface FileResourceInterface extends ResourceInterface
 {
     public function getContents();
+
+    public function getSize();
+
+    public function getLastAccessedAt();
+
+    public function getLastModifiedAt();
 }

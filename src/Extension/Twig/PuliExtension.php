@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Extension\Twig;
 use Webmozart\Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
 use Webmozart\Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
 use Webmozart\Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -39,13 +39,13 @@ class PuliExtension extends \Twig_Extension
     const POST_RESOLVE_PATHS = 6;
 
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    private $locator;
+    private $repo;
 
-    public function __construct(ResourceLocatorInterface $locator)
+    public function __construct(ResourceRepositoryInterface $repo)
     {
-        $this->locator = $locator;
+        $this->repo = $repo;
     }
 
     /**
@@ -67,7 +67,7 @@ class PuliExtension extends \Twig_Extension
     {
         return array(
             new LoadedByPuliTagger(),
-            new TemplatePathResolver($this->locator)
+            new TemplatePathResolver($this->repo)
         );
     }
 

@@ -11,19 +11,24 @@
 
 namespace Webmozart\Puli\Tests\Resource;
 
-use Webmozart\Puli\Resource\DirectoryLoaderInterface;
 use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\Resource\FileResourceInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResourceTest extends AbstractDirectoryResourceTest
+class DirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
 {
-    protected function createDir($path, DirectoryLoaderInterface $loader = null)
+    protected function createDir()
     {
-        return DirectoryResource::forPath($path, $loader);
+        return new DirectoryResource();
+    }
+
+    protected function createAttachedDir(ResourceRepositoryInterface $repo, $path)
+    {
+        return DirectoryResource::createAttached($repo, $path);
     }
 
     protected function createFile($path)

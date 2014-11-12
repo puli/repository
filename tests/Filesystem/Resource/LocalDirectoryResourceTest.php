@@ -13,43 +13,36 @@ namespace Webmozart\Puli\Tests\Filesystem\Resource;
 
 use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
 use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Resource\DirectoryLoaderInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\Tests\Resource\AbstractAttachableDirectoryResourceTest;
 use Webmozart\Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalDirectoryResourceTest extends AbstractDirectoryResourceTest
+class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
 {
     private $fixturesDir;
 
     protected function setUp()
     {
-        $this->fixturesDir = realpath(__DIR__.'/../../Fixtures');
+        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
         parent::setUp();
     }
 
-    protected function createDir($path, DirectoryLoaderInterface $loader = null)
+    protected function createDir()
     {
-        if (null === $loader) {
-            $loader = $this->getMock('Webmozart\Puli\Resource\DirectoryLoaderInterface');
-
-            $loader->expects($this->any())
-                ->method('loadDirectoryEntries')
-                ->will($this->returnValue(array()));
-        }
-
-        return LocalDirectoryResource::forPath($path, $this->fixturesDir.'/dir1', null, $loader);
+        return new LocalDirectoryResource($this->fixturesDir.'/dir1');
     }
 
-    protected function createFile($path)
+    protected function createAttachedDir(ResourceRepositoryInterface $repo, $path)
     {
-        return LocalFileResource::forPath($path, $this->fixturesDir.'/file3');
+        return LocalDirectoryResource::createAttached($repo, $path, $this->fixturesDir.'/dir1');
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalResource()
     {
@@ -59,7 +52,7 @@ class LocalDirectoryResourceTest extends AbstractDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalFileResource()
     {
@@ -76,7 +69,7 @@ class LocalDirectoryResourceTest extends AbstractDirectoryResourceTest
         new LocalDirectoryResource($this->fixturesDir.'/dir1/file1');
     }
 
-    public function testListEntriesLoadsFilesystemIfNoLoaderAdded()
+    public function testListEntriesDetached()
     {
         $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
 
@@ -88,14 +81,21 @@ class LocalDirectoryResourceTest extends AbstractDirectoryResourceTest
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
     }
 
-    public function testListEntriesCorrectsPath()
+    public function testGetDetached()
     {
-        $directory = LocalDirectoryResource::forPath('/webmozart/puli', $this->fixturesDir.'/dir1');
+        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
 
-        $entries = $directory->listEntries();
+        $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $directory->get('file1'));
+    }
 
-        $this->assertCount(2, $entries);
-        $this->assertSame('/webmozart/puli/file1', $entries['file1']->getPath());
-        $this->assertSame('/webmozart/puli/file2', $entries['file2']->getPath());
+    public function testContainsDetached()
+    {
+        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
+
+        $this->assertTrue($directory->contains('file1'));
+        $this->assertTrue($directory->contains('file2'));
+        $this->assertTrue($directory->contains('.'));
+        $this->assertTrue($directory->contains('..'));
+        $this->assertFalse($directory->contains('foobar'));
     }
 }

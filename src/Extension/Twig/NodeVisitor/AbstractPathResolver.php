@@ -11,8 +11,8 @@
 
 namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
 
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
-use Webmozart\Puli\Path\Path;
+use Webmozart\Puli\Path;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -21,18 +21,18 @@ use Webmozart\Puli\Path\Path;
 abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
 {
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    protected $locator;
+    protected $repo;
 
     /**
      * @var string
      */
     protected $currentDir;
 
-    public function __construct(ResourceLocatorInterface $locator)
+    public function __construct(ResourceRepositoryInterface $repo)
     {
-        $this->locator = $locator;
+        $this->repo = $repo;
     }
 
     /**
@@ -95,7 +95,7 @@ abstract class AbstractPathResolver implements \Twig_NodeVisitorInterface
         // "AcmeBlogBundle::index.html.twig", which doesn't start with a forward
         // slash. For this reason, we should only resolve paths if they actually
         // exist in the repository.
-        if ($this->locator->contains($absolutePath)) {
+        if ($this->repo->contains($absolutePath)) {
             return $absolutePath;
         }
 

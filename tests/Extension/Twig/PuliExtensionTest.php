@@ -13,7 +13,7 @@ namespace Webmozart\Puli\Tests\Extension\Twig;
 
 use Webmozart\Puli\Extension\Twig\PuliExtension;
 use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
 
 /**
  * @since  1.0

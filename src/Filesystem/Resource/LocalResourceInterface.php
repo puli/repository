@@ -27,5 +27,5 @@ interface LocalResourceInterface extends ResourceInterface
     /**
      * @return string[]
      */
-    public function getAlternativePaths();
+    public function getAllLocalPaths();
 }

@@ -17,8 +17,8 @@ use Assetic\Asset\HttpAsset;
 use Assetic\AssetManager;
 use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
 use Webmozart\Puli\Extension\Assetic\Factory\PuliAssetFactory;
-use Webmozart\Puli\Locator\UriLocator;
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
+use Webmozart\Puli\Uri\UriRepository;
 
 /**
  * @since  1.0
@@ -145,7 +145,7 @@ class PuliAssetFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateHttpAssetWithUriLocator($sourceUrl, $sourceRoot, $sourcePath)
     {
-        $uriLocator = new UriLocator();
+        $uriLocator = new UriRepository();
         $uriLocator->register('resource', $this->repo);
         $this->factory = new PuliAssetFactory($uriLocator);
 
@@ -167,7 +167,7 @@ class PuliAssetFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreatePuliUriAsset()
     {
-        $uriLocator = new UriLocator();
+        $uriLocator = new UriRepository();
         $uriLocator->register('resource', $this->repo);
         $this->factory = new PuliAssetFactory($uriLocator);
 

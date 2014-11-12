@@ -1,0 +1,172 @@
+<?php
+
+/*
+ * This file is part of the Puli package.
+ *
+ * (c) Bernhard Schussek <bschussek@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Webmozart\Puli\Tests\Filesystem;
+
+use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Puli\Filesystem\FilesystemRepository;
+use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
+use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Resource\Iterator\DirectoryResourceIterator;
+use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\Tests\AbstractRepositoryTest;
+
+/**
+ * @since  1.0
+ * @author Bernhard Schussek <bschussek@gmail.com>
+ */
+class FilesystemRepositoryTest extends AbstractRepositoryTest
+{
+    /**
+     * @var Filesystem
+     */
+    private $filesystem;
+
+    private $root;
+
+    protected function setUp()
+    {
+        $this->filesystem = new Filesystem();
+
+        while (false === mkdir($root = sys_get_temp_dir().'/puli/FilesystemRepositoryTest'.rand(10000, 99999), 0777, true)) {}
+
+        $this->root = $root;
+
+        parent::setUp();
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $this->filesystem->remove($this->root);
+    }
+
+    /**
+     * @param DirectoryResourceInterface $root
+     *
+     * @return ResourceRepositoryInterface
+     */
+    protected function createRepository(DirectoryResourceInterface $root, array $tags = array())
+    {
+        $iterator = new \RecursiveIteratorIterator(
+            new DirectoryResourceIterator($root),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $resource) {
+            if ($resource instanceof DirectoryResourceInterface) {
+                $this->filesystem->mkdir($this->root.$resource->getPath());
+            } else {
+                file_put_contents($this->root.$resource->getPath(), $resource->getContents());
+            }
+        }
+
+        return new FilesystemRepository($this->root);
+    }
+
+    protected function assertSameResource($expected, $actual)
+    {
+        // Don't use assertSame(), because FilesystemRepository always creates
+        // new resources without caching them
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testPassNonExistingRootDirectory()
+    {
+        new FilesystemRepository($this->root.'/foo');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testPassFileAsRootDirectory()
+    {
+        touch($this->root.'/file');
+
+        new FilesystemRepository($this->root.'/file');
+    }
+
+    public function testGetFile()
+    {
+        touch($this->root.'/file');
+
+        $repo = new FilesystemRepository($this->root);
+
+        $expected = LocalFileResource::createAttached($repo, '/file', $this->root.'/file');
+
+        $this->assertEquals($expected, $repo->get('/file'));
+    }
+
+    public function testGetDirectory()
+    {
+        mkdir($this->root.'/dir');
+
+        $repo = new FilesystemRepository($this->root);
+
+        $expected = LocalDirectoryResource::createAttached($repo, '/dir', $this->root.'/dir');
+
+        $this->assertEquals($expected, $repo->get('/dir'));
+    }
+
+    public function testGetLink()
+    {
+        touch($this->root.'/file');
+        symlink($this->root.'/file', $this->root.'/link');
+
+        $repo = new FilesystemRepository($this->root);
+
+        $expected = LocalFileResource::createAttached($repo, '/link', $this->root.'/link');
+
+        $this->assertEquals($expected, $repo->get('/link'));
+    }
+
+    public function testGetOverriddenFile()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testGetOverriddenDirectory()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testGetByTag()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testGetByTagIgnoresNonExistingTags()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testGetTags()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testGetTagsReturnsSortedResult()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+}

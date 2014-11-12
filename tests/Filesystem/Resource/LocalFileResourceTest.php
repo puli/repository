@@ -19,13 +19,13 @@ use Webmozart\Puli\Tests\Resource\AbstractFileResourceTest;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalFileResourceTest extends AbstractFileResourceTest
+class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
 {
     private $fixturesDir;
 
     protected function setUp()
     {
-        $this->fixturesDir = realpath(__DIR__.'/../../Fixtures');
+        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
         parent::setUp();
     }
 
@@ -35,7 +35,7 @@ class LocalFileResourceTest extends AbstractFileResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalResource()
     {
@@ -45,7 +45,7 @@ class LocalFileResourceTest extends AbstractFileResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalDirectoryResource()
     {

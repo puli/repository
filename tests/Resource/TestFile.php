@@ -11,27 +11,48 @@
 
 namespace Webmozart\Puli\Tests\Resource;
 
+use Webmozart\Puli\Resource\AttachableResourceInterface;
 use Webmozart\Puli\Resource\FileResourceInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestFile implements FileResourceInterface
+class TestFile implements FileResourceInterface, AttachableResourceInterface
 {
+    const CONTENTS = "LINE 1\nLINE 2\n";
+
     private $path;
+
+    private $repo;
 
     private $overrides;
 
-    public function __construct($path)
+    public function __construct($path = null)
     {
         $this->path = $path;
     }
 
     public function getContents()
     {
-        return file_get_contents($this->path);
+        return self::CONTENTS;
+    }
+
+    public function getSize()
+    {
+        return strlen(self::CONTENTS);
+    }
+
+    public function getLastAccessedAt()
+    {
+        return 0;
+    }
+
+    public function getLastModifiedAt()
+    {
+        return 0;
     }
 
     public function getPath()
@@ -44,20 +65,30 @@ class TestFile implements FileResourceInterface
         return basename($this->path);
     }
 
-    public function copyTo($path)
+    public function attachTo(ResourceRepositoryInterface $repo, $path)
     {
-        $copy = clone $this;
-        $copy->path = $path;
+        $this->path = $path;
+        $this->repo = $repo;
+    }
 
-        return $copy;
+    public function detach()
+    {
+        $this->path = null;
+        $this->repo = null;
     }
 
     public function override(ResourceInterface $resource)
     {
-        $copy = clone $this;
-        $copy->path = $resource->getPath();
-        $copy->overrides = $resource;
+        $this->overrides = $resource;
+    }
 
-        return $copy;
+    public function getAttachedRepository()
+    {
+        return $this->repo;
+    }
+
+    public function getOverriddenResource()
+    {
+        return $this->overrides;
     }
 }

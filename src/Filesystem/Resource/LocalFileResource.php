@@ -14,7 +14,7 @@ namespace Webmozart\Puli\Filesystem\Resource;
 use Webmozart\Puli\Filesystem\FilesystemException;
 use Webmozart\Puli\Resource\FileResourceInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Resource\UnsupportedResourceException;
+use Webmozart\Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0
@@ -22,9 +22,9 @@ use Webmozart\Puli\Resource\UnsupportedResourceException;
  */
 class LocalFileResource extends LocalResource implements FileResourceInterface
 {
-    public function __construct($localPath, AlternativePathLoaderInterface $alternativesLoader = null)
+    public function __construct($localPath)
     {
-        parent::__construct($localPath, $alternativesLoader);
+        parent::__construct($localPath);
 
         if (!is_file($localPath)) {
             throw new FilesystemException(sprintf(
@@ -39,12 +39,27 @@ class LocalFileResource extends LocalResource implements FileResourceInterface
         return file_get_contents($this->getLocalPath());
     }
 
+    public function getSize()
+    {
+        return filesize($this->getLocalPath());
+    }
+
+    public function getLastAccessedAt()
+    {
+        return fileatime($this->getLocalPath());
+    }
+
+    public function getLastModifiedAt()
+    {
+        return filemtime($this->getLocalPath());
+    }
+
     public function override(ResourceInterface $file)
     {
         if (!($file instanceof FileResourceInterface && $file instanceof LocalResourceInterface)) {
             throw new UnsupportedResourceException('Can only override other local file resources.');
         }
 
-        return parent::override($file);
+        parent::override($file);
     }
 }

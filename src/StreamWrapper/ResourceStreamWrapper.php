@@ -12,9 +12,14 @@
 namespace Webmozart\Puli\StreamWrapper;
 
 use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\Locator\ResourceNotFoundException;
-use Webmozart\Puli\Locator\UriLocatorInterface;
-use Webmozart\Puli\Repository\UnsupportedOperationException;
+use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Webmozart\Puli\Resource\FileResourceInterface;
+use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
+use Webmozart\Puli\Resource\NoDirectoryException;
+use Webmozart\Puli\ResourceNotFoundException;
+use Webmozart\Puli\UnsupportedOperationException;
+use Webmozart\Puli\UnsupportedResourceException;
+use Webmozart\Puli\Uri\UriRepositoryInterface;
 
 /**
  * @since  1.0
@@ -22,15 +27,74 @@ use Webmozart\Puli\Repository\UnsupportedOperationException;
  */
 class ResourceStreamWrapper implements StreamWrapperInterface
 {
+    const DEVICE_ASSOC = 'dev';
+    const DEVICE_NUM = 0;
+    const INODE_ASSOC = 'ino';
+    const INODE_NUM = 1;
+    const MODE_ASSOC = 'mode';
+    const MODE_NUM = 2;
+    const NUM_LINKS_ASSOC = 'nlink';
+    const NUM_LINK_NUM = 3;
+    const UID_ASSOC = 'uid';
+    const UID_NUM = 4;
+    const GID_ASSOC = 'gid';
+    const GID_NUM = 5;
+    const DEVICE_TYPE_ASSOC = 'rdev';
+    const DEVICE_TYPE_NUM = 6;
+    const SIZE_ASSOC = 'size';
+    const SIZE_NUM = 7;
+    const ACCESS_TIME_ASSOC = 'atime';
+    const ACCESS_TIME_NUM = 8;
+    const MODIFY_TIME_ASSOC = 'mtime';
+    const MODIFY_TIME_NUM = 9;
+    const CHANGE_TIME_ASSOC = 'ctime';
+    const CHANGE_TIME_NUM = 10;
+    const BLOCK_SIZE_ASSOC = 'blksize';
+    const BLOCK_SIZE_NUM = 11;
+    const NUM_BLOCKS_ASSOC = 'blocks';
+    const NUM_BLOCKS_NUM = 12;
+
     /**
-     * @var UriLocatorInterface
+     * @var UriRepositoryInterface
      */
-    private static $locator;
+    private static $repo;
 
     /**
      * @var array
      */
     private static $schemes = array();
+
+    /**
+     * @var array
+     */
+    private static $defaultStat = array(
+        self::DEVICE_ASSOC => -1,
+        self::DEVICE_NUM => -1,
+        self::INODE_ASSOC => -1,
+        self::INODE_NUM => -1,
+        self::MODE_ASSOC => -1,
+        self::MODE_NUM => -1,
+        self::NUM_LINKS_ASSOC => -1,
+        self::NUM_LINK_NUM => -1,
+        self::UID_ASSOC => 0,
+        self::UID_NUM => 0,
+        self::GID_ASSOC => 0,
+        self::GID_NUM => 0,
+        self::DEVICE_TYPE_ASSOC => -1,
+        self::DEVICE_TYPE_NUM => -1,
+        self::SIZE_ASSOC => 0,
+        self::SIZE_NUM => 0,
+        self::ACCESS_TIME_ASSOC => -1,
+        self::ACCESS_TIME_NUM => -1,
+        self::MODIFY_TIME_ASSOC => -1,
+        self::MODIFY_TIME_NUM => -1,
+        self::CHANGE_TIME_ASSOC => -1,
+        self::CHANGE_TIME_NUM => -1,
+        self::BLOCK_SIZE_ASSOC => -1,
+        self::BLOCK_SIZE_NUM => -1,
+        self::NUM_BLOCKS_ASSOC => 0,
+        self::NUM_BLOCKS_NUM => 0,
+    );
 
     /**
      * @var resource
@@ -42,27 +106,27 @@ class ResourceStreamWrapper implements StreamWrapperInterface
      */
     private $directoryIterator;
 
-    public static function register(UriLocatorInterface $locator)
+    public static function register(UriRepositoryInterface $repo)
     {
-        if (null !== self::$locator) {
+        if (null !== self::$repo) {
             throw new StreamWrapperException(
                 'You can only register one URI locator with the '.
                 'stream wrapper.'
             );
         }
 
-        foreach ($locator->getRegisteredSchemes() as $scheme) {
+        foreach ($repo->getSupportedSchemes() as $scheme) {
             self::$schemes[$scheme] = true;
 
             stream_wrapper_register($scheme, __CLASS__);
         }
 
-        self::$locator = $locator;
+        self::$repo = $repo;
     }
 
     public static function unregister()
     {
-        self::$locator = null;
+        self::$repo = null;
 
         foreach (self::$schemes as $scheme => $foo) {
             stream_wrapper_unregister($scheme);
@@ -73,11 +137,17 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function dir_opendir($uri, $options)
     {
-        $this->directoryIterator = new \IteratorIterator(
-            self::$locator->listDirectory($uri)
-        );
+        // Provoke ResourceNotFoundException if not found
+        $directory = self::$repo->get($uri);
 
-        $this->directoryIterator->rewind();
+        if (!$directory instanceof DirectoryResourceInterface) {
+            throw new NoDirectoryException($uri);
+        }
+
+        $this->directoryIterator = new ResourceCollectionIterator(
+            $directory->listEntries(),
+            ResourceCollectionIterator::CURRENT_AS_NAME
+        );
 
         return true;
     }
@@ -95,7 +165,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
             return false;
         }
 
-        $name = $this->directoryIterator->current()->getName();
+        $name = $this->directoryIterator->current();
 
         $this->directoryIterator->next();
 
@@ -133,6 +203,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function rmdir($uri, $options)
     {
+        // validate whether the URL exists
         $resource = $this->getLocator()->get($uri);
 
         throw new UnsupportedOperationException(sprintf(
@@ -173,67 +244,80 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function stream_lock($operation)
     {
-        assert(null !== $this->handle);
-
-        return flock($this->handle, $operation);
+        throw new UnsupportedOperationException(
+            'The locking of files through the stream wrapper is not '.
+            'supported.'
+        );
     }
 
     public function stream_metadata($uri, $option, $value)
     {
-        $resource = $this->getLocator()->get($uri);
+        switch ($option) {
+            case STREAM_META_TOUCH:
+                throw new UnsupportedOperationException(sprintf(
+                    'Touching files through the stream wrapper is not '.
+                    'supported. Tried to touch "%s".',
+                    $uri
+                ));
 
-        if (!$resource instanceof LocalResourceInterface) {
-            return true;
+            case STREAM_META_OWNER:
+            case STREAM_META_OWNER_NAME:
+                throw new UnsupportedOperationException(sprintf(
+                    'Changing file ownership through the stream wrapper '.
+                    'is not supported. Tried to chown "%s".',
+                    $uri
+                ));
+
+            case STREAM_META_GROUP:
+            case STREAM_META_GROUP_NAME:
+                throw new UnsupportedOperationException(sprintf(
+                    'Changing file groups through the stream wrapper '.
+                    'is not supported. Tried to chgrp "%s".',
+                    $uri
+                ));
+
+            case STREAM_META_ACCESS:
+                throw new UnsupportedOperationException(sprintf(
+                    'Changing file permissions through the stream wrapper '.
+                    'is not supported. Tried to chmod "%s".',
+                    $uri
+                ));
         }
-
-        $paths = $resource->getAlternativePaths();
-
-        foreach ($paths as $path) {
-            switch ($option) {
-                case STREAM_META_TOUCH:
-                    if (!touch($path, $value[0], $value[1])) {
-                        return false;
-                    }
-                    break;
-
-                case STREAM_META_OWNER:
-                case STREAM_META_OWNER_NAME:
-                    if (!chown($path, $value)) {
-                        return false;
-                    }
-                    break;
-
-                case STREAM_META_GROUP:
-                case STREAM_META_GROUP_NAME:
-                    if (!chgrp($path, $value)) {
-                        return false;
-                    }
-                    break;
-
-                case STREAM_META_ACCESS:
-                    if (!chmod($path, $value)) {
-                        return false;
-                    }
-                    break;
-            }
-        }
-
-        return true;
     }
 
     public function stream_open($uri, $mode, $options, &$openedPath)
     {
-        $resource = $this->getLocator()->get($uri);
-
-        if (!$resource instanceof LocalResourceInterface) {
-            return false;
+        if ('r' !== $mode) {
+            throw new UnsupportedOperationException(sprintf(
+                'Resources can only be opened for reading. Tried to open "%s" '.
+                'with mode "%s".',
+                $uri,
+                $mode
+            ));
         }
 
-        $openedPath = $resource->getLocalPath();
+        $resource = $this->getLocator()->get($uri);
 
-        $this->handle = fopen($openedPath, $mode, $options & STREAM_USE_PATH) ?: null;
+        if (!$resource instanceof FileResourceInterface) {
+            throw new UnsupportedResourceException(sprintf(
+                'Can only open file resources for reading. Tried to open "%s" '.
+                'of type %s which does not implement FileResourceInterface.',
+                $uri,
+                get_class($resource)
+            ));
+        }
 
-        return null !== $this->handle;
+        if ($resource instanceof LocalResourceInterface) {
+            $this->handle = fopen($resource->getLocalPath(), 'r', $options & STREAM_USE_PATH) ?: null;
+
+            return null !== $this->handle;
+        }
+
+        $this->handle = fopen('php://temp', 'r+', $options & STREAM_USE_PATH);
+        fputs($this->handle, $resource->getContents());
+        rewind($this->handle);
+
+        return true;
     }
 
     public function stream_read($length)
@@ -285,15 +369,10 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     public function unlink($uri)
     {
-        $resource = $this->getLocator()->get($uri);
-
         throw new UnsupportedOperationException(sprintf(
             'The removal of files through the stream wrapper is not '.
-            'supported. Tried to remove "%s"%s.',
-            $uri,
-            $resource instanceof LocalResourceInterface
-                ? sprintf(' which points to "%s"', $resource->getLocalPath())
-                : ''
+            'supported. Tried to remove "%s".',
+            $uri
         ));
     }
 
@@ -302,21 +381,32 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         try {
             $resource = $this->getLocator()->get($uri);
 
-            if (!$resource instanceof LocalResourceInterface) {
-                // same result as stat() returns on error
-                return false;
+            if ($resource instanceof LocalResourceInterface) {
+                $path = $resource->getLocalPath();
+
+                if ($flags & STREAM_URL_STAT_LINK) {
+                    return lstat($path);
+                }
+
+                return stat($path);
             }
 
-            $path = $resource->getLocalPath();
+            if ($resource instanceof FileResourceInterface) {
+                $stat = self::$defaultStat;
+                $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $resource->getSize();
+                $stat[self::ACCESS_TIME_NUM] = $stat[self::ACCESS_TIME_ASSOC] = $resource->getLastAccessedAt();
+                $stat[self::MODIFY_TIME_NUM] = $stat[self::MODIFY_TIME_ASSOC] = $resource->getLastModifiedAt();
 
-            if ($flags & STREAM_URL_STAT_LINK) {
-                return lstat($path);
+                return $stat;
             }
 
-            return stat($path);
+            // Return the default stats, otherwise file_exists() returns false
+            // for non-local, non-file resources
+            return self::$defaultStat;
         } catch (ResourceNotFoundException $e) {
             if ($flags & STREAM_URL_STAT_QUIET) {
-                // same result as stat() returns on error
+                // Same result as stat() returns on error
+                // file_exists() returns false for this resource
                 return false;
             }
 
@@ -326,7 +416,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
     private function getLocator()
     {
-        if (null === self::$locator) {
+        if (null === self::$repo) {
             throw new StreamWrapperException(
                 'The stream wrapper has not been registered. Please call '.
                 '\Webmozart\Puli\StreamWrapper\ResourceStreamWrapper::register() '.
@@ -334,6 +424,6 @@ class ResourceStreamWrapper implements StreamWrapperInterface
             );
         }
 
-        return self::$locator;
+        return self::$repo;
     }
 }

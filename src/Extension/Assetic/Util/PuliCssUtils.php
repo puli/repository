@@ -12,7 +12,6 @@
 namespace Webmozart\Puli\Extension\Assetic\Util;
 
 use Assetic\Util\CssUtils;
-use Webmozart\Puli\Path\Path;
 
 /**
  * @since  1.0
@@ -33,7 +32,7 @@ class PuliCssUtils
             }
 
             // Ignore non-local paths
-            if (!Path::isLocal($referencedPath)) {
+            if (!\Webmozart\Puli\Path::isLocal($referencedPath)) {
                 return $matches[0];
             }
 
@@ -44,8 +43,8 @@ class PuliCssUtils
 
             // If the referenced path is not absolute, resolve it relative to
             // the directory of the source file
-            if (!Path::isAbsolute($referencedPath)) {
-                $referencedPath = Path::makeAbsolute($referencedPath, $repoDir);
+            if (!\Webmozart\Puli\Path::isAbsolute($referencedPath)) {
+                $referencedPath = \Webmozart\Puli\Path::makeAbsolute($referencedPath, $repoDir);
             }
 
             // The referenced asset must be known
@@ -81,7 +80,7 @@ class PuliCssUtils
 
             // Get the relative path from the source directory to the reference
             // e.g. "/css/style.css" + "/images/bg.png" = "../images/bg.png"
-            $relativePath = Path::makeRelative($pathMap[$referencedPath], $targetDir);
+            $relativePath = \Webmozart\Puli\Path::makeRelative($pathMap[$referencedPath], $targetDir);
 
             return str_replace($matches['url'], $relativePath, $matches[0]);
         });

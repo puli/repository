@@ -12,7 +12,7 @@
 namespace Webmozart\Puli\Extension\Assetic\Twig;
 
 use Webmozart\Puli\Extension\Assetic\Twig\NodeVisitor\AssetPathResolver;
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -21,13 +21,13 @@ use Webmozart\Puli\Locator\ResourceLocatorInterface;
 class PuliAsseticExtension extends \Twig_Extension
 {
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    private $locator;
+    private $repo;
 
-    public function __construct(ResourceLocatorInterface $locator)
+    public function __construct(ResourceRepositoryInterface $repo)
     {
-        $this->locator = $locator;
+        $this->repo = $repo;
     }
 
     /**
@@ -42,6 +42,6 @@ class PuliAsseticExtension extends \Twig_Extension
 
     public function getNodeVisitors()
     {
-        return array(new AssetPathResolver($this->locator));
+        return array(new AssetPathResolver($this->repo));
     }
 }

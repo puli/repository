@@ -16,7 +16,7 @@ use Webmozart\Puli\Extension\Assetic\Factory\PuliAssetFactory;
 use Webmozart\Puli\Extension\Assetic\Twig\PuliAsseticExtension;
 use Webmozart\Puli\Extension\Twig\PuliExtension;
 use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
 use Webmozart\Puli\Tests\Extension\Twig\RandomizedTwigEnvironment;
 
 /**

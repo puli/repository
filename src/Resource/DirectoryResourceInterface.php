@@ -11,6 +11,8 @@
 
 namespace Webmozart\Puli\Resource;
 
+use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
+
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -35,14 +37,4 @@ interface DirectoryResourceInterface extends ResourceInterface
      * @return ResourceCollectionInterface|ResourceInterface[]
      */
     public function listEntries();
-
-    /**
-     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::add()}.
-     */
-    public function add(ResourceInterface $entry);
-
-    /**
-     * @internal You should use {@link \Webmozart\Puli\Repository\ResourceRepositoryInterface::remove()}.
-     */
-    public function remove($name);
 }

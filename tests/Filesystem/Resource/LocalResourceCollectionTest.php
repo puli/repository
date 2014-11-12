@@ -25,7 +25,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->fixturesDir = __DIR__.'/../../Fixtures';
+        $this->fixturesDir = __DIR__.'/Fixtures';
     }
 
     public function testConstruct()
@@ -50,7 +50,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testConstructFailsIfNoLocalResource()
     {
@@ -87,7 +87,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testReplaceFailsIfNoLocalResource()
     {
@@ -113,7 +113,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testAddFailsIfNoLocalResource()
     {

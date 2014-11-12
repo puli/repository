@@ -11,40 +11,32 @@
 
 namespace Webmozart\Puli\Resource;
 
-use Webmozart\Puli\Locator\ResourceNotFoundException;
+use Webmozart\Puli\Resource\Collection\ResourceCollection;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource implements DirectoryResourceInterface
+class DirectoryResource implements DirectoryResourceInterface, AttachableResourceInterface
 {
+    /**
+     * @var ResourceRepositoryInterface
+     */
+    private $repo;
+
     /**
      * @var string
      */
     private $path;
 
-    /**
-     * @var ResourceInterface[]|null
-     */
-    private $entries;
-
-    /**
-     * @var DirectoryLoaderInterface
-     */
-    private $directoryLoader;
-
-    public static function forPath($path, DirectoryLoaderInterface $directoryLoader = null)
+    public static function createAttached(ResourceRepositoryInterface $repo, $path)
     {
-        $resource = new self($directoryLoader);
+        $resource = new self();
+        $resource->repo = $repo;
         $resource->path = $path;
 
         return $resource;
-    }
-
-    public function __construct(DirectoryLoaderInterface $directoryLoader = null)
-    {
-        $this->directoryLoader = $directoryLoader;
     }
 
     /**
@@ -63,150 +55,52 @@ class DirectoryResource implements DirectoryResourceInterface
         return basename($this->path);
     }
 
-    public function copyTo($path)
-    {
-        $copy = clone $this;
-        $copy->path = $path;
-
-        if (null !== $copy->entries) {
-            $basePath = rtrim($path, '/');
-
-            foreach ($copy->entries as $name => $entry) {
-                $copy->entries[$name] = $entry->copyTo($basePath.'/'.$name);
-            }
-        }
-
-        return $copy;
-    }
-
-    public function override(ResourceInterface $directory)
-    {
-        if (!$directory instanceof self) {
-            throw new UnsupportedResourceException('Expected a RealDirectoryResource instance.');
-        }
-
-        if (null === $this->entries) {
-            $this->loadEntries();
-        }
-
-        $override = clone $directory;
-        $basePath = rtrim($override->path, '/');
-
-        // Override already contains the entries of $directory
-        // We need to add the entries of this instance yet
-        foreach ($this->entries as $name => $entry) {
-            // Override existing entries in $directory
-            if (isset($override->entries[$name])) {
-                $override->entries[$name] = $entry->override($override->entries[$name]);
-                continue;
-            }
-
-            // Copy other entries of the current directory to the correct path
-            $override->entries[$name] = $entry->copyTo($basePath.'/'.$name);
-        }
-
-        ksort($override->entries);
-
-        return $override;
-    }
-
-    public function add(ResourceInterface $entry)
-    {
-        if (null === $this->entries) {
-            $this->loadEntries();
-        }
-
-        $parentPath = dirname($entry->getPath());
-
-        // Fix root directory on Windows
-        if ('\\' === $parentPath) {
-            $parentPath = '/';
-        }
-
-        if ($this->getPath() !== $parentPath) {
-            throw new \InvalidArgumentException(sprintf(
-                'Cannot add resource "%s" to the directory "%s", since it is '.
-                'located in a different directory.',
-                $parentPath,
-                $this->getPath()
-            ));
-        }
-
-        $this->entries[$entry->getName()] = $entry;
-
-        ksort($this->entries);
-    }
-
     public function get($name)
     {
-        if (null === $this->entries) {
-            $this->loadEntries();
+        if (!$this->repo) {
+            throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        if (!isset($this->entries[$name])) {
-            throw new ResourceNotFoundException(sprintf(
-                'The file "%s" does not exist in directory "%s".',
-                $name,
-                $this->getPath()
-            ));
-        }
-
-        return $this->entries[$name];
+        return $this->repo->get($this->path.'/'.$name);
     }
 
     public function contains($name)
     {
-        if (null === $this->entries) {
-            $this->loadEntries();
+        if (!$this->repo) {
+            throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return isset($this->entries[$name]);
+        return $this->repo->contains($this->path.'/'.$name);
     }
 
-    public function remove($name)
-    {
-        if (null === $this->entries) {
-            $this->loadEntries();
-        }
-
-        if (!isset($this->entries[$name])) {
-            throw new ResourceNotFoundException(sprintf(
-                'The file "%s" does not exist in directory "%s".',
-                $name,
-                $this->getPath()
-            ));
-        }
-
-        unset($this->entries[$name]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function listEntries()
     {
-        if (null === $this->entries) {
-            $this->loadEntries();
+        if (!$this->repo) {
+            throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return new ResourceCollection($this->entries);
+        $entries = new ResourceCollection();
+
+        foreach ($this->repo->find($this->path.'/*') as $entry) {
+            $entries[$entry->getName()] = $entry;
+        }
+
+        return $entries;
     }
 
-    private function loadEntries()
+    public function attachTo(ResourceRepositoryInterface $repo, $path)
     {
-        $this->entries = array();
+        $this->repo = $repo;
+        $this->path = $path;
+    }
 
-        if ($this->directoryLoader) {
-            $entries = $this->directoryLoader->loadDirectoryEntries($this);
+    public function detach()
+    {
+        $this->repo = null;
+        $this->path = null;
+    }
 
-            foreach ($entries as $entry) {
-                $this->entries[$entry->getName()] = $entry;
-            }
-
-            // Remove references to loaders
-            $this->directoryLoader = null;
-
-            return;
-        }
+    public function override(ResourceInterface $resource)
+    {
     }
 }

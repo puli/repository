@@ -11,6 +11,9 @@
 
 namespace Webmozart\Puli\Tests\Filesystem\Resource;
 
+use Webmozart\Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Webmozart\Puli\ResourceRepositoryInterface;
+
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -21,7 +24,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->fixturesDir = realpath(__DIR__.'/../../Fixtures');
+        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }
 
     /**
@@ -32,37 +35,134 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
         new TestLocalResource($this->fixturesDir.'/foo/bar');
     }
 
-    public function testGetLocalPath()
+    public function testCreateAttached()
     {
-        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
 
+        $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame('/path', $file->getPath());
         $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
     }
 
-    public function testGetAlternativePaths()
+    public function testCreateAttachedWithPathLoader()
     {
-        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+        $repo = $this->getMock(__NAMESPACE__.'\TestPathLoader');
 
-        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAlternativePaths());
-    }
-
-    public function testGetAlternativePathsWithLoader()
-    {
-        $loader = $this->getMock('Webmozart\Puli\Filesystem\Resource\AlternativePathLoaderInterface');
-
-        $loader->expects($this->once())
-            ->method('loadAlternativePaths')
+        $repo->expects($this->once())
+            ->method('loadOverriddenPaths')
             ->with($this->isInstanceOf('Webmozart\Puli\Tests\Filesystem\Resource\TestLocalResource'))
             ->will($this->returnValue(array('/loaded/path')));
 
-        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1', $loader);
+        $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
 
+        $this->assertSame('/path', $file->getPath());
         $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
-        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAlternativePaths());
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+
+        // Loader is called only once even for multiple calls
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testCreateDetached()
+    {
+        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+
+        $this->assertNull($file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testAttach()
+    {
+        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+
+        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+        $file->attachTo($repo, '/path');
+
+        $this->assertSame('/path', $file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testAttachToPathLoader()
+    {
+        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+        $repo = $this->getMock(__NAMESPACE__.'\TestPathLoader');
+
+        $repo->expects($this->once())
+            ->method('loadOverriddenPaths')
+            ->with($file)
+            ->will($this->returnValue(array('/loaded/path')));
+
+        $file->attachTo($repo, '/path');
+
+        $this->assertSame('/path', $file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+
+        // Loader is called only once even for multiple calls
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testDetach()
+    {
+        $repo = $this->getMock(__NAMESPACE__.'\TestPathLoader');
+
+        $repo->expects($this->never())
+            ->method('loadOverriddenPaths');
+
+        $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
+        $file->detach();
+
+        $this->assertNull($file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testDetachAfterLoadingOverriddenPaths()
+    {
+        $repo = $this->getMock(__NAMESPACE__.'\TestPathLoader');
+
+        $repo->expects($this->once())
+            ->method('loadOverriddenPaths')
+            ->with($this->isInstanceOf('Webmozart\Puli\Tests\Filesystem\Resource\TestLocalResource'))
+            ->will($this->returnValue(array('/loaded/path')));
+
+        $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+
+        $file->detach();
+
+        $this->assertNull($file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+        $this->assertSame(array('/loaded/path', $this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+    }
+
+    public function testAttachAfterLoadingOverriddenPaths()
+    {
+        $repo = $this->getMock(__NAMESPACE__.'\TestPathLoader');
+
+        $repo->expects($this->never())
+            ->method('loadOverriddenPaths');
+
+        $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
+
+        $file->attachTo($repo, '/path');
+
+        $this->assertSame('/path', $file->getPath());
+        $this->assertSame($this->fixturesDir.'/dir1/file1', $file->getLocalPath());
+
+        // The loader is not called anymore as paths have been loaded already
+        $this->assertSame(array($this->fixturesDir.'/dir1/file1'), $file->getAllLocalPaths());
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\UnsupportedResourceException
+     * @expectedException \Webmozart\Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfNotLocalResource()
     {
@@ -71,47 +171,46 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
         $directory->override($this->getMock('Webmozart\Puli\Resource\ResourceInterface'));
     }
 
-    public function testAddAlternativePathOnOverride()
+    public function testOverrideDetached()
     {
         $file = new TestLocalResource($this->fixturesDir.'/dir2');
         $overridden = new TestLocalResource($this->fixturesDir.'/dir1');
 
-        $override = $file->override($overridden);
+        $file->override($overridden);
 
-        $this->assertSame($this->fixturesDir.'/dir2', $override->getLocalPath());
+        $this->assertSame($this->fixturesDir.'/dir2', $file->getLocalPath());
         $this->assertSame(array(
             $this->fixturesDir.'/dir1',
             $this->fixturesDir.'/dir2',
-        ), $override->getAlternativePaths());
+        ), $file->getAllLocalPaths());
 
-        $file = new TestLocalResource($this->fixturesDir.'/file3');
-        $override = $file->override($override);
+        $file2 = new TestLocalResource($this->fixturesDir.'/file3');
+        $file2->override($file);
 
-        $this->assertSame($this->fixturesDir.'/file3', $override->getLocalPath());
+        $this->assertSame($this->fixturesDir.'/file3', $file2->getLocalPath());
         $this->assertSame(array(
             $this->fixturesDir.'/dir1',
             $this->fixturesDir.'/dir2',
             $this->fixturesDir.'/file3',
-        ), $override->getAlternativePaths());
+        ), $file2->getAllLocalPaths());
     }
 
-    public function testOverrideWithOverride()
+    public function testOverrideTwiceDetached()
     {
         $file = new TestLocalResource($this->fixturesDir.'/file3');
-        $override = $file->override(new TestLocalResource($this->fixturesDir.'/dir2'));
+        $overridden1 = new TestLocalResource($this->fixturesDir.'/dir1');
+        $overridden2 = new TestLocalResource($this->fixturesDir.'/dir2');
 
+        $file->override($overridden1);
+        $file->override($overridden2);
+
+        $this->assertSame($this->fixturesDir.'/file3', $file->getLocalPath());
         $this->assertSame(array(
             $this->fixturesDir.'/dir2',
-            $this->fixturesDir.'/file3',
-        ), $override->getAlternativePaths());
-
-        $file = new TestLocalResource($this->fixturesDir.'/dir1');
-        $override = $override->override($file);
-
-        $this->assertSame(array(
             $this->fixturesDir.'/dir1',
-            $this->fixturesDir.'/dir2',
             $this->fixturesDir.'/file3',
-        ), $override->getAlternativePaths());
+        ), $file->getAllLocalPaths());
     }
 }
+
+interface TestPathLoader extends ResourceRepositoryInterface, OverriddenPathLoaderInterface {}

@@ -11,9 +11,9 @@
 
 namespace Webmozart\Puli\Filesystem\Resource;
 
-use Webmozart\Puli\Resource\ResourceCollection;
+use Webmozart\Puli\Resource\Collection\ResourceCollection;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Resource\UnsupportedResourceException;
+use Webmozart\Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

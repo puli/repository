@@ -20,20 +20,4 @@ interface ResourceInterface
     public function getPath();
 
     public function getName();
-
-    /**
-     * @param $path
-     *
-     * @return static
-     */
-    public function copyTo($path);
-
-    /**
-     * @param ResourceInterface $resource
-     *
-     * @return static
-     *
-     * @throws UnsupportedResourceException
-     */
-    public function override(ResourceInterface $resource);
 }

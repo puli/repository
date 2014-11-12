@@ -12,14 +12,16 @@
 namespace Webmozart\Puli\Filesystem\Resource;
 
 use Webmozart\Puli\Filesystem\FilesystemException;
+use Webmozart\Puli\Resource\AttachableResourceInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Resource\UnsupportedResourceException;
+use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class LocalResource implements LocalResourceInterface
+abstract class LocalResource implements LocalResourceInterface, AttachableResourceInterface
 {
     /**
      * @var string
@@ -32,31 +34,35 @@ abstract class LocalResource implements LocalResourceInterface
     private $localPath;
 
     /**
+     * @var OverriddenPathLoaderInterface|null
+     */
+    private $pathLoader;
+
+    /**
      * @var string[]|null
      */
-    private $alternativePaths;
+    private $overriddenPaths;
 
     /**
-     * @var AlternativePathLoaderInterface
-     */
-    private $alternativesLoader;
-
-    /**
-     * @param                                $path
-     * @param                                $localPath
-     * @param AlternativePathLoaderInterface $alternativesLoader
+     * @param ResourceRepositoryInterface $repo
+     * @param                          $path
+     * @param                          $localPath
      *
      * @return static
      */
-    public static function forPath($path, $localPath, AlternativePathLoaderInterface $alternativesLoader = null)
+    public static function createAttached(ResourceRepositoryInterface $repo, $path, $localPath)
     {
-        $resource = new static($localPath, $alternativesLoader);
+        $resource = new static($localPath);
         $resource->path = $path;
+
+        if ($repo instanceof OverriddenPathLoaderInterface) {
+            $resource->pathLoader = $repo;
+        }
 
         return $resource;
     }
 
-    public function __construct($localPath, AlternativePathLoaderInterface $alternativesLoader = null)
+    public function __construct($localPath)
     {
         if (!file_exists($localPath)) {
             throw new FilesystemException(sprintf(
@@ -65,9 +71,7 @@ abstract class LocalResource implements LocalResourceInterface
             ));
         }
 
-        $this->path = $localPath;
         $this->localPath = $localPath;
-        $this->alternativesLoader = $alternativesLoader;
     }
 
     /**
@@ -94,31 +98,31 @@ abstract class LocalResource implements LocalResourceInterface
         return $this->localPath;
     }
 
-    /**
-     * @return string[]
-     */
-    public function getAlternativePaths()
+    public function getAllLocalPaths()
     {
-        if (null === $this->alternativePaths) {
-            $this->alternativePaths = $this->alternativesLoader
-                ? $this->alternativesLoader->loadAlternativePaths($this)
-                : array();
-
-            $this->alternativePaths[] = $this->localPath;
-
-            // Remove the now unneeded reference
-            $this->alternativesLoader = null;
+        if (null === $this->overriddenPaths) {
+            $this->loadOverriddenPaths();
         }
 
-        return $this->alternativePaths;
+        $paths = $this->overriddenPaths;
+        $paths[] = $this->localPath;
+
+        return $paths;
     }
 
-    public function copyTo($path)
+    public function attachTo(ResourceRepositoryInterface $repo, $path)
     {
-        $copy = clone $this;
-        $copy->path = $path;
+        $this->path = $path;
 
-        return $copy;
+        if ($repo instanceof OverriddenPathLoaderInterface) {
+            $this->pathLoader = $repo;
+        }
+    }
+
+    public function detach()
+    {
+        $this->path = null;
+        $this->pathLoader = null;
     }
 
     public function override(ResourceInterface $resource)
@@ -127,13 +131,21 @@ abstract class LocalResource implements LocalResourceInterface
             throw new UnsupportedResourceException('Can only override other local resources.');
         }
 
-        $override = clone $this;
-        $override->path = $resource->getPath();
-        $override->alternativePaths = array_merge(
-            $resource->getAlternativePaths(),
-            $override->getAlternativePaths()
-        );
+        if (null === $this->overriddenPaths) {
+            $this->loadOverriddenPaths();
+        }
 
-        return $override;
+        $this->overriddenPaths = array_merge(
+            $resource->getAllLocalPaths(),
+            $this->overriddenPaths
+        );
+    }
+
+    private function loadOverriddenPaths()
+    {
+        $this->overriddenPaths = $this->pathLoader
+            ? $this->pathLoader->loadOverriddenPaths($this)
+            : array();
+        $this->pathLoader = null;
     }
 }

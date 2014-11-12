@@ -11,8 +11,9 @@
 
 namespace Webmozart\Puli\Extension\Symfony\Config;
 
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
-use Webmozart\Puli\Locator\ResourceNotFoundException;
+use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
+use Webmozart\Puli\ResourceNotFoundException;
+use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -21,13 +22,13 @@ use Webmozart\Puli\Locator\ResourceNotFoundException;
 class PuliFileLocator implements ChainableFileLocatorInterface
 {
     /**
-     * @var ResourceLocatorInterface
+     * @var ResourceRepositoryInterface
      */
-    private $locator;
+    private $repo;
 
-    public function __construct(ResourceLocatorInterface $locator)
+    public function __construct(ResourceRepositoryInterface $repo)
     {
-        $this->locator = $locator;
+        $this->repo = $repo;
     }
 
     public function supports($path)
@@ -38,7 +39,7 @@ class PuliFileLocator implements ChainableFileLocatorInterface
     /**
      * Returns a full path for a given Puli path.
      *
-     * @param mixed   $repositoryPath The Puli path to locate
+     * @param mixed   $path The Puli path to locate
      * @param string  $currentPath    The current path
      * @param boolean $first          Whether to return the first occurrence or
      *                                an array of file names
@@ -47,33 +48,40 @@ class PuliFileLocator implements ChainableFileLocatorInterface
      *
      * @throws \InvalidArgumentException When the path is not found
      */
-    public function locate($repositoryPath, $currentPath = null, $first = true)
+    public function locate($path, $currentPath = null, $first = true)
     {
         // Accept actual file paths
-        if (file_exists($repositoryPath)) {
-            return $repositoryPath;
+        if (file_exists($path)) {
+            return $path;
         }
 
-        if (null !== $currentPath && file_exists($currentPath.'/'.$repositoryPath)) {
+        if (null !== $currentPath && file_exists($currentPath.'/'.$path)) {
             throw new \RuntimeException(sprintf(
                 'You tried to load the file "%s" using a relative path. '.
                 'This functionality is not supported due to a limitation in '.
                 'Symfony, because then this file cannot be overridden anymore. '.
                 'Please pass the absolute Puli path instead.',
-                $repositoryPath
+                $path
             ));
         }
 
         try {
-            $resource = $this->locator->get($repositoryPath);
+            $resource = $this->repo->get($path);
+
+            if (!$resource instanceof LocalResourceInterface) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The file "%s" is not a local file.',
+                    $path
+                ));
+            }
 
             return $first
                 ? $resource->getLocalPath()
-                : array_reverse($resource->getAlternativePaths());
+                : array_reverse($resource->getAllLocalPaths());
         } catch (ResourceNotFoundException $e) {
             throw new \InvalidArgumentException(sprintf(
                 'The file "%s" could not be found.',
-                $repositoryPath
+                $path
             ), 0, $e);
         }
     }
