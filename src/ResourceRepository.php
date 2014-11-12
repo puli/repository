@@ -206,6 +206,7 @@ class ResourceRepository implements ManageableRepositoryInterface
         }
 
         $staticPrefix = Selector::getStaticPrefix($selector);
+        $removed = 0;
 
         // Is there a dynamic part ("*") in the selector?
         if (strlen($selector) > strlen($staticPrefix)) {
@@ -221,15 +222,17 @@ class ResourceRepository implements ManageableRepositoryInterface
                     continue;
                 }
 
-                $this->detachResource($resource);
+                $this->detachResource($resource, $removed);
             }
 
-            return;
+            return $removed;
         }
 
         if (isset($this->resources[$selector])) {
-            $this->detachResource($this->resources[$selector]);
+            $this->detachResource($this->resources[$selector], $removed);
         }
+
+        return $removed;
     }
 
     public function tag($selector, $tag)
@@ -362,9 +365,9 @@ class ResourceRepository implements ManageableRepositoryInterface
         ksort($this->resources);
     }
 
-    private function detachResource(AttachableResourceInterface $resource)
+    private function detachResource(AttachableResourceInterface $resource, &$counter)
     {
-        $this->detachRecursively($resource);
+        $this->detachRecursively($resource, $counter);
 
         $this->discardEmptyTags();
     }
@@ -396,12 +399,12 @@ class ResourceRepository implements ManageableRepositoryInterface
         $resource->attachTo($this, $path);
     }
 
-    private function detachRecursively(AttachableResourceInterface $resource)
+    private function detachRecursively(AttachableResourceInterface $resource, &$counter)
     {
         // Recursively register directory contents
         if ($resource instanceof DirectoryResourceInterface) {
             foreach ($this->find($resource->getPath().'/*') as $entry) {
-                $this->detachRecursively($entry);
+                $this->detachRecursively($entry, $counter);
             }
         }
 
@@ -411,5 +414,8 @@ class ResourceRepository implements ManageableRepositoryInterface
 
         // Detach from locator
         $resource->detach($this);
+
+        // Keep track of the number of removed resources
+        ++$counter;
     }
 }

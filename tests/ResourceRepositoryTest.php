@@ -305,7 +305,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
         $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
 
-        $this->repo->remove('/webmozart/puli/file1');
+        $this->assertSame(1, $this->repo->remove('/webmozart/puli/file1'));
 
         $this->assertTrue($this->repo->contains('/webmozart'));
         $this->assertTrue($this->repo->contains('/webmozart/puli'));
@@ -322,7 +322,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
         $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
 
-        $this->repo->remove('/webmozart/puli/file*');
+        $this->assertSame(2, $this->repo->remove('/webmozart/puli/file*'));
 
         $this->assertTrue($this->repo->contains('/webmozart/puli'));
         $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));

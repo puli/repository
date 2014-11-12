@@ -33,6 +33,7 @@ Changelog
      `getLastModifiedAt()` to `FileResourceInterface`
    * removed all pattern-related classes. This logic is now provided by the
      `Selector` class
+   * `ResourceRepository::remove()` now returns the number of removed resources
 
 * 1.0.0-alpha3 (2014-02-22)
 
