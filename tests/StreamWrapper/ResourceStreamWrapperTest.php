@@ -318,6 +318,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testTouchExistingIsProhibited($path)
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Only supported in PHP 5.4+.');
+            return;
+        }
+
         touch($path);
     }
 
@@ -326,6 +331,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testTouchNewIsProhibited()
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Only supported in PHP 5.4+.');
+            return;
+        }
+
         touch('puli:///webmozart/puli/new');
     }
 
@@ -335,6 +345,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testChownIsProhibited($path)
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Only supported in PHP 5.4+.');
+            return;
+        }
+
         chown($path, 'root');
     }
 
@@ -344,6 +359,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testChgrpIsProhibited($path)
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Only supported in PHP 5.4+.');
+            return;
+        }
+
         chgrp($path, 'root');
     }
 
@@ -353,6 +373,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testChmodIsProhibited($path)
     {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $this->markTestSkipped('Only supported in PHP 5.4+.');
+            return;
+        }
+
         chmod($path, 0777);
     }
 
