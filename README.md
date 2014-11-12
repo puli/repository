@@ -28,15 +28,48 @@ This is useful when you have to hard-code paths in configuration files:
 
 ```yaml
 # config.yml
-import: /webmozart/puli/config/config.yml
+import: /config/routing.yml
 ```
 
 Or in templates:
 
 ```jinja
 <div>
-    {% include '/webmozart/puli/views/menu.html.twig' %}
+    {% include '/views/menu.html.twig' %}
 </div>
+```
+
+However, Puli only unleashes its full power once you use it together with its
+[Composer plugin]. The plugin allows to register resources in the composer.json
+file of each package:
+
+```json
+{
+    "name": "acme/blog",
+    "extra": {
+        "resources": {
+            "export": {
+                "/acme/blog": "resources"
+            }
+        }
+    }
+}
+```
+
+Here, the "acme/blog" package maps its own `resources/` directory to the
+repository path `/acme/blog`. The Composer plugin then generate a resource
+repository which gives you easy access to the resources of all Puli-enabled
+packages:
+
+```php
+// Composer autoloader
+require_once __DIR__.'/vendor/autoload.php';
+
+// Composer resource repository
+$repo = require __DIR__.'/vendor/resource-repository.php';
+
+echo $repo->get('/acme/blog/css/style.css')->getLocalPath();
+// => /path/to/project/vendor/acme/blog/resources/css/style.css
 ```
 
 Read on to learn more about Puli.
