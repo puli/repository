@@ -19,6 +19,20 @@ Changelog
    * renamed `PuliLoader` to `PuliTemplateLoader` for clarity
    * changed `PuliTemplateLoader::getCacheKey()` to prevent cache conflicts with
      templates loaded through a different loader
+   * moved declarations in`ResourceRepositoryInterface` to a new
+     `ManageableRepositoryInterface`
+   * moved declarations in `ResourceLocatorInterface` to
+     `ResourceRepositoryInterface` and removed `ResourceLocatorInterface`
+   * all "locators" are now called "repositories"
+   * rearranged the directory structure
+   * made `ResourceInterface` independent of the filesystem. The filesystem
+     specific methods are now in `LocalResourceInterface`
+   * `getAlternativePaths()` is now called `getAllLocalPaths()`
+   * all filesystem specific code was moved to the `Filesystem` namespace
+   * added `getContents()`, `getSize()`, `getLastAccessedAt()` and 
+     `getLastModifiedAt()` to `FileResourceInterface`
+   * removed all pattern-related classes. This logic is now provided by the
+     `Selector` class
 
 * 1.0.0-alpha3 (2014-02-22)
 
