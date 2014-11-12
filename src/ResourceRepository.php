@@ -20,6 +20,8 @@ use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\NoDirectoryException;
 use Webmozart\Puli\Resource\ResourceInterface;
+use Webmozart\Puli\Util\Path;
+use Webmozart\Puli\Util\Selector;
 
 /**
  * @since  1.0

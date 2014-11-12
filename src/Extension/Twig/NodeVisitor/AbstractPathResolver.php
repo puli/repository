@@ -11,7 +11,7 @@
 
 namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
 
-use Webmozart\Puli\Path;
+use Webmozart\Puli\Util\Path;
 use Webmozart\Puli\ResourceRepositoryInterface;
 
 /**

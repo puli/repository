@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli;
+namespace Webmozart\Puli\Util;
 
 /**
  * Utility methods for handling path strings.

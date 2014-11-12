@@ -11,7 +11,7 @@
 
 namespace Webmozart\Puli\Tests;
 
-use Webmozart\Puli\Path;
+use Webmozart\Puli\Util\Path;
 
 /**
  * @since  1.0

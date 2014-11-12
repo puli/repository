@@ -11,7 +11,7 @@
 
 namespace Webmozart\Puli\Tests;
 
-use Webmozart\Puli\Selector;
+use Webmozart\Puli\Util\Selector;
 
 /**
  * @since  1.0

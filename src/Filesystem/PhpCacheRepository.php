@@ -18,13 +18,13 @@ use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
 use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
 use Webmozart\Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
 use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Path;
+use Webmozart\Puli\Util\Path;
 use Webmozart\Puli\Resource\DirectoryResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 use Webmozart\Puli\Resource\ResourceInterface;
 use Webmozart\Puli\ResourceNotFoundException;
 use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Selector;
+use Webmozart\Puli\Util\Selector;
 use Webmozart\Puli\UnsupportedResourceException;
 
 /**
