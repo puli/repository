@@ -12,7 +12,8 @@
 namespace Webmozart\Puli\Extension\Twig\CacheWarmer;
 
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
-use Webmozart\Puli\Resource\Iterator\DirectoryResourceIterator;
+use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
+use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
 use Webmozart\Puli\Resource\Iterator\ResourceFilterIterator;
 use Webmozart\Puli\ResourceRepositoryInterface;
 
@@ -55,14 +56,15 @@ class TwigTemplateCacheWarmer implements CacheWarmerInterface
     public function warmUp($cacheDir)
     {
         $iterator = new ResourceFilterIterator(
-            new \RecursiveIteratorIterator(
-                new DirectoryResourceIterator($this->repo->get('/')),
-                \RecursiveIteratorIterator::SELF_FIRST
+            new RecursiveResourceIterator(
+                new ResourceCollectionIterator(
+                    $this->repo->get('/')->listEntries(),
+                    ResourceCollectionIterator::CURRENT_AS_PATH
+                ),
+                RecursiveResourceIterator::SELF_FIRST
             ),
             $this->suffix,
-            ResourceFilterIterator::CURRENT_AS_PATH
-                | ResourceFilterIterator::FILTER_BY_NAME
-                | ResourceFilterIterator::MATCH_SUFFIX
+            ResourceFilterIterator::FILTER_BY_NAME | ResourceFilterIterator::MATCH_SUFFIX
         );
 
         foreach ($iterator as $path) {

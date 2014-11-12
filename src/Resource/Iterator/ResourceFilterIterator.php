@@ -11,50 +11,99 @@
 
 namespace Webmozart\Puli\Resource\Iterator;
 
-use FilterIterator;
-use Iterator;
-
 /**
+ * Iterates over a {@link ResourceIteratorInterface} and filters out individual
+ * entries.
+ *
+ * You can use the iterator to filter files with a specific extension:
+ *
+ * ```php
+ * $iterator = new ResourceFilterIterator(
+ *     new RecursiveResourceIterator(
+ *         new ResourceCollectionIterator($collection),
+ *     ),
+ *     '.css',
+ *     ResourceFilterIterator::MATCH_SUFFIX
+ * );
+ *
+ * foreach ($iterator as $path => $resource) {
+ *     // ...
+ * }
+ * ```
+ *
+ * See {@link __construct} for more information on the filter options.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceFilterIterator extends \FilterIterator
+class ResourceFilterIterator extends \FilterIterator implements ResourceIteratorInterface
 {
-    const CURRENT_AS_RESOURCE = 1;
-
-    const CURRENT_AS_PATH = 2;
-
-    const CURRENT_AS_NAME = 4;
-
-    const KEY_AS_PATH = 64;
+    /**
+     * Matches the pattern against the resource path.
+     */
+    const FILTER_BY_PATH = 1;
 
     /**
-     * Use the cursor as key.
-     *
-     * Attention: Don't use this mode when iterating recursively, as PHP's
-     * {@link \RecursiveIteratorIterator} skips inner nodes then.
+     * Matches the pattern against the resource name.
      */
-    const KEY_AS_CURSOR = 128;
+    const FILTER_BY_NAME = 2;
 
-    const FILTER_BY_PATH = 512;
+    /**
+     * Includes resources if the pattern is a prefix of the matched text.
+     */
+    const MATCH_PREFIX = 32;
 
-    const FILTER_BY_NAME = 1024;
+    /**
+     * Includes resources if the pattern is a suffix of the matched text.
+     */
+    const MATCH_SUFFIX = 64;
 
-    const MATCH_PREFIX = 8192;
+    /**
+     * Includes resources if the matched text satisfies the pattern as regular
+     * expression.
+     */
+    const MATCH_REGEX = 128;
 
-    const MATCH_SUFFIX = 16384;
-
-    const MATCH_REGEX = 32768;
-
+    /**
+     * @var string
+     */
     private $pattern;
 
+    /**
+     * @var int
+     */
     private $patternLength;
 
+    /**
+     * @var int
+     */
     private $mode;
 
-    private $cursor = 0;
-
-    public function __construct(Iterator $iterator, $pattern, $mode = null)
+    /**
+     * Creates a new iterator.
+     *
+     * The following constants can be used to configure what to filter by:
+     *
+     *  * {@link FILTER_BY_PATH}: The pattern is matched against the paths;
+     *  * {@link FILTER_BY_NAME}: The pattern is matched against the names.
+     *
+     * The following constants can be used to configure how to match the
+     * selected text:
+     *
+     *  * {@link MATCH_PREFIX}: Tests whether the pattern is a prefix of the
+     *                          matched text;
+     *  * {@link MATCH_SUFFIX}: Tests whether the pattern is a suffix of the
+     *                          matched text;
+     *  * {@link MATCH_REGEX}: Treats the pattern as regular expression.
+     *
+     * By default, the mode `FILTER_BY_PATH | MATCH_REGEX` is used.
+     *
+     * @param ResourceIteratorInterface $iterator The filtered iterator.
+     * @param string                    $pattern  The pattern to match.
+     * @param int|null                  $mode     A bitwise combination of the
+     *                                            mode constants.
+     */
+    public function __construct(ResourceIteratorInterface $iterator, $pattern, $mode = null)
     {
         parent::__construct($iterator);
 
@@ -64,14 +113,6 @@ class ResourceFilterIterator extends \FilterIterator
 
         if (!($mode & (self::MATCH_PREFIX | self::MATCH_SUFFIX | self::MATCH_REGEX))) {
             $mode |= self::MATCH_REGEX;
-        }
-
-        if (!($mode & (self::CURRENT_AS_RESOURCE | self::CURRENT_AS_PATH | self::CURRENT_AS_NAME))) {
-            $mode |= self::CURRENT_AS_RESOURCE;
-        }
-
-        if (!($mode & (self::KEY_AS_PATH | self::KEY_AS_CURSOR))) {
-            $mode |= self::KEY_AS_PATH;
         }
 
         $pattern = (string) $pattern;
@@ -85,48 +126,17 @@ class ResourceFilterIterator extends \FilterIterator
         $this->mode = $mode;
     }
 
-    public function current()
-    {
-        if ($this->mode & self::CURRENT_AS_RESOURCE) {
-            return parent::current();
-        }
-
-        if ($this->mode & self::CURRENT_AS_PATH) {
-            return parent::current()->getPath();
-        }
-
-        return parent::current()->getName();
-    }
-
-    public function key()
-    {
-        if ($this->mode & self::KEY_AS_PATH) {
-            return parent::current()->getPath();
-        }
-
-        return $this->cursor;
-    }
-
-    public function next()
-    {
-        parent::next();
-
-        ++$this->cursor;
-    }
-
-    public function rewind()
-    {
-        parent::rewind();
-
-        $this->cursor = 0;
-    }
-
+    /**
+     * Returns whether the current element should be accepted.
+     *
+     * @return bool Returns `false` if the current element should be filtered out.
+     */
     public function accept()
     {
         if ($this->mode & self::FILTER_BY_PATH) {
-            $value = parent::current()->getPath();
+            $value = $this->getCurrentResource()->getPath();
         } else {
-            $value = parent::current()->getName();
+            $value = $this->getCurrentResource()->getName();
         }
 
         if ($this->mode & self::MATCH_PREFIX) {
@@ -136,5 +146,13 @@ class ResourceFilterIterator extends \FilterIterator
         } else {
             return preg_match($this->pattern, $value);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrentResource()
+    {
+        return $this->getInnerIterator()->getCurrentResource();
     }
 }

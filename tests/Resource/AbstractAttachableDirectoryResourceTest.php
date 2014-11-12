@@ -35,6 +35,28 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
      */
     abstract protected function createAttachedDir(ResourceRepositoryInterface $repo, $path);
 
+    public function testGetPathAndName()
+    {
+        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $dir = $this->createAttachedDir($repo, '/path/dir');
+
+        $this->assertSame('/path/dir', $dir->getPath());
+        $this->assertSame('dir', $dir->getName());
+
+        $dir->detach();
+
+        $this->assertNull($dir->getPath());
+        $this->assertNull($dir->getName());
+    }
+
+    public function testGetPathAndNameDetached()
+    {
+        $dir = $this->createDir();
+
+        $this->assertNull($dir->getPath());
+        $this->assertNull($dir->getName());
+    }
+
     public function testListEntries()
     {
         $file1 = new TestFile('/file1');

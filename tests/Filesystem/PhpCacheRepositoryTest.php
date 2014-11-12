@@ -17,7 +17,8 @@ use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
 use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
 use Webmozart\Puli\Filesystem\Resource\LocalResource;
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\Iterator\DirectoryResourceIterator;
+use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
+use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
 use Webmozart\Puli\ResourceRepository;
 use Webmozart\Puli\Tests\AbstractRepositoryTest;
 
@@ -63,9 +64,9 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
 
     protected function createRepository(DirectoryResourceInterface $root, array $tags = array())
     {
-        $iterator = new \RecursiveIteratorIterator(
-            new DirectoryResourceIterator($root),
-            \RecursiveIteratorIterator::SELF_FIRST
+        $iterator = new RecursiveResourceIterator(
+            new ResourceCollectionIterator($root->listEntries()),
+            RecursiveResourceIterator::SELF_FIRST
         );
 
         foreach ($iterator as $resource) {

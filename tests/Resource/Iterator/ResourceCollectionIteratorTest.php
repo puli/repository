@@ -12,6 +12,7 @@
 namespace Webmozart\Puli\Tests\Resource\Iterator;
 
 use Webmozart\Puli\Resource\Collection\ResourceCollection;
+use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
 use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
 use Webmozart\Puli\Tests\Resource\TestDirectory;
 use Webmozart\Puli\Tests\Resource\TestFile;
@@ -39,9 +40,9 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator($collection),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveResourceIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -75,12 +76,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_RESOURCE
             ),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveResourceIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -114,12 +115,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_PATH
             ),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveResourceIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -153,12 +154,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $recursiveIterator = new \RecursiveIteratorIterator(
+        $recursiveIterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_NAME
             ),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveResourceIterator::SELF_FIRST
         );
 
         $expected = array(

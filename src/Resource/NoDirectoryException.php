@@ -14,16 +14,25 @@ namespace Webmozart\Puli\Resource;
 use Exception;
 
 /**
+ * Thrown when a resource was expected to be a directory, but is none.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class NoDirectoryException extends \Exception
 {
-    public function __construct($directory, $code = 0, \Exception $previous = null)
+    /**
+     * Creates a new exception.
+     *
+     * @param string    $path     The path which was supposed to be a directory.
+     * @param int       $code     The error code.
+     * @param Exception $previous The exception that caused this exception.
+     */
+    public function __construct($path, $code = 0, \Exception $previous = null)
     {
         parent::__construct(sprintf(
             'The path "%s" is not a directory.',
-            $directory
+            $path
         ), $code, $previous);
     }
 }

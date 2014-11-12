@@ -87,7 +87,7 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
      */
     public function getName()
     {
-        return basename($this->path);
+        return $this->path ? basename($this->path) : null;
     }
 
     /**

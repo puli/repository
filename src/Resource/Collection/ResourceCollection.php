@@ -16,29 +16,47 @@ use Webmozart\Puli\Resource\ResourceInterface;
 use Webmozart\Puli\UnsupportedResourceException;
 
 /**
- * A collection of resources.
+ * A basic collection of {@link ResourceInterface} instances.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterface
 {
+    /**
+     * @var ResourceInterface[]
+     */
     private $resources;
 
+    /**
+     * Creates a new collection.
+     *
+     * You can pass the resources that you want to initially store in the
+     * collection as argument.
+     *
+     * @param ResourceInterface[] $resources The resources to store in the
+     *                                       collection.
+     *
+     * @throws \InvalidArgumentException If the resources are not an array and
+     *                                   not a traversable object.
+     * @throws UnsupportedResourceException If a resource does not implement
+     *                                      {@link ResourceInterface}.
+     */
     public function __construct($resources = array())
     {
         $this->replace($resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function add(ResourceInterface $resource)
     {
         $this->resources[] = $resource;
     }
 
     /**
-     * @param $key
-     *
-     * @return ResourceInterface
+     * {@inheritdoc}
      */
     public function get($key)
     {
@@ -52,26 +70,41 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         return $this->resources[$key];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove($key)
     {
         unset($this->resources[$key]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function has($key)
     {
         return isset($this->resources[$key]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function clear()
     {
         $this->resources = array();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function keys()
     {
         return array_keys($this->resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function replace($resources)
     {
         if (!is_array($resources) && !$resources instanceof \Traversable) {
@@ -95,21 +128,33 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isEmpty()
     {
         return 0 === count($this->resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetExists($key)
     {
         return $this->has($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetGet($key)
     {
         return $this->get($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetSet($key, $value)
     {
         if (null !== $key) {
@@ -119,11 +164,17 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function offsetUnset($key)
     {
         $this->remove($key);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getPaths()
     {
         return array_map(
@@ -132,6 +183,9 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getNames()
     {
         return array_map(

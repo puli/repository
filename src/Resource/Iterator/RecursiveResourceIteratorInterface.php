@@ -9,15 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
+namespace Webmozart\Puli\Resource\Iterator;
 
 /**
- * Thrown when an operation is requested that requires a resource to be
- * attached to a repository.
+ * A resource iterator that can be iterated recursively.
+ *
+ * Use {@link RecursiveResourceIterator} to iterate over the iterator.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DetachedException extends \RuntimeException
+interface RecursiveResourceIteratorInterface extends ResourceIteratorInterface, \RecursiveIterator
 {
 }
