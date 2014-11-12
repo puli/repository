@@ -110,7 +110,7 @@ class UriRepository implements UriRepositoryInterface
                 && !is_callable($repositoryFactory)) {
             throw new \InvalidArgumentException(
                 'The locator factory should be a callable or an instance '.
-                'of "Webmozart\Puli\Locator\ResourceLocatorInterface".'
+                'of "Webmozart\Puli\ResourceRepositoryInterface".'
             );
         }
 
@@ -336,7 +336,7 @@ class UriRepository implements UriRepositoryInterface
                 throw new RepositoryFactoryException(sprintf(
                     'The value of type "%s" returned by the locator factory '.
                     'registered for scheme "%s" does not implement '.
-                    '"\Webmozart\Puli\Locator\ResourceLocatorInterface".',
+                    '"\Webmozart\Puli\ResourceRepositoryInterface".',
                     gettype($result),
                     $scheme
                 ));
