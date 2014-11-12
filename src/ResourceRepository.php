@@ -253,9 +253,16 @@ class ResourceRepository implements ManageableRepositoryInterface
             ksort($this->resourcesByTag);
         }
 
+        $tagged = 0;
+
         foreach ($resources as $resource) {
-            $this->resourcesByTag[$tag]->attach($resource);
+            if (!$this->resourcesByTag[$tag]->contains($resource)) {
+                $this->resourcesByTag[$tag]->attach($resource);
+                ++$tagged;
+            }
         }
+
+        return $tagged;
     }
 
     public function untag($selector, $tag = null)
@@ -269,17 +276,25 @@ class ResourceRepository implements ManageableRepositoryInterface
             ));
         }
 
+        $untagged = 0;
+
         if (null === $tag) {
             foreach ($resources as $resource) {
-                $this->removeAllTagsFrom($resource);
+                if ($this->removeAllTagsFrom($resource)) {
+                    ++$untagged;
+                }
             }
         } else {
             foreach ($resources as $resource) {
-                $this->removeTagFrom($resource, $tag);
+                if ($this->removeTagFrom($resource, $tag)) {
+                    ++$untagged;
+                }
             }
         }
 
         $this->discardEmptyTags();
+
+        return $untagged;
     }
 
     /**
@@ -325,18 +340,27 @@ class ResourceRepository implements ManageableRepositoryInterface
 
     private function removeTagFrom(ResourceInterface $resource, $tag)
     {
-        if (!isset($this->resourcesByTag[$tag])) {
-            return;
+        if (!isset($this->resourcesByTag[$tag]) || !$this->resourcesByTag[$tag]->contains($resource)) {
+            return false;
         }
 
         $this->resourcesByTag[$tag]->detach($resource);
+
+        return true;
     }
 
     private function removeAllTagsFrom(ResourceInterface $resource)
     {
+        $removed = false;
+
         foreach ($this->resourcesByTag as $resources) {
-            $resources->detach($resource);
+            if ($resources->contains($resource)) {
+                $resources->detach($resource);
+                $removed = true;
+            }
         }
+
+        return $removed;
     }
 
     private function discardEmptyTags()

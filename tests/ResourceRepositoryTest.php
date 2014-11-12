@@ -447,12 +447,20 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->repo->add('/webmozart/puli/file1', $file1 = new TestFile());
         $this->repo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
+        $this->assertSame(1, $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag'));
 
         $resources = $this->repo->getByTag('webmozart/tag');
 
         $this->assertCount(1, $resources);
         $this->assertSame($file1, $resources[0]);
+    }
+
+    public function testTagTwice()
+    {
+        $this->repo->add('/webmozart/puli/file1', new TestFile());
+
+        $this->assertSame(1, $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag'));
+        $this->assertSame(0, $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag'));
     }
 
     public function testTagDot()
@@ -484,7 +492,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->repo->add('/webmozart/puli/file1', $file1 = new TestFile());
         $this->repo->add('/webmozart/puli/file2', $file2 = new TestFile());
 
-        $this->repo->tag('/webmozart/puli/file*', 'webmozart/tag');
+        $this->assertSame(2, $this->repo->tag('/webmozart/puli/file*', 'webmozart/tag'));
 
         $resources = $this->repo->getByTag('webmozart/tag');
 
@@ -529,7 +537,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
         $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
 
-        $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1');
+        $this->assertSame(1, $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag1'));
 
         $resources = $this->repo->getByTag('webmozart/tag1');
 
@@ -540,6 +548,16 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
         $this->assertCount(1, $resources);
         $this->assertSame($file1, $resources[0]);
+    }
+
+    public function testUntagTwice()
+    {
+        $this->repo->add('/webmozart/puli/file1', new TestFile());
+
+        $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag');
+
+        $this->assertSame(1, $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag'));
+        $this->assertSame(0, $this->repo->untag('/webmozart/puli/file1', 'webmozart/tag'));
     }
 
     public function testUntagDot()
@@ -602,7 +620,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
         $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
 
-        $this->repo->untag('/webmozart/puli/file1');
+        $this->assertSame(1, $this->repo->untag('/webmozart/puli/file1'));
 
         $resources = $this->repo->getByTag('webmozart/tag1');
 
@@ -621,7 +639,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->repo->tag('/webmozart/puli/file1', 'webmozart/tag2');
         $this->repo->tag('/webmozart/puli/file2', 'webmozart/tag1');
 
-        $this->repo->untag('/webmozart/puli/file*', 'webmozart/tag1');
+        $this->assertSame(2, $this->repo->untag('/webmozart/puli/file*', 'webmozart/tag1'));
 
         $this->assertCount(0, $this->repo->getByTag('webmozart/tag1'));
 
