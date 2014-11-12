@@ -21,13 +21,13 @@ are processed correctly.
 use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
 use Webmozart\Puli\Extension\Twig\PuliExtension;
 
-$twig = new \Twig_Environment(new PuliTemplateLoader($locator));
-$twig->addExtension(new PuliExtension($locator));
+$twig = new \Twig_Environment(new PuliTemplateLoader($repo));
+$twig->addExtension(new PuliExtension($repo));
 ```
 
-As you see in this code snippet, you need to pass Puli's resource locator to
-both the loader and the extension. If you don't know how to create that
-locator, you can find more information in Puli's [main documentation].
+As you see in this code snippet, you need to pass the Puli repository to
+both the loader and the extension. If you don't know how to create that, you can 
+find more information in Puli's [main documentation].
 
 Usage
 -----

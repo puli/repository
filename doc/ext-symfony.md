@@ -21,15 +21,15 @@ pass it to your file loaders:
 use Webmozart\Puli\Extension\Symfony\Config\PuliFileLocator;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 
-$loader = new YamlFileLoader(new PuliFileLocator($locator));
+$loader = new YamlFileLoader(new PuliFileLocator($repo));
 
-// Locates the file with Puli's resource locator
+// Locates the file from Puli's repository
 $routes = $loader->load('/acme/blog/config/routing.yml');
 ```
 
-You need to pass Puli's resource locator to the constructor of the
-[`PuliFileLocator`]. If you don't know how to create that locator, you can find
-more information in Puli's [main documentation].
+You need to pass Puli's resource repository to the constructor of the
+[`PuliFileLocator`]. If you don't know how to create that repository, you can 
+find more information in Puli's [main documentation].
 
 Chained Locators
 ----------------
@@ -45,7 +45,7 @@ use Webmozart\Puli\Extension\Symfony\Config\ChainableFileLocator;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 
 $locatorChain = new FileLocatorChain(array(
-    new PuliFileLocator($locator),
+    new PuliFileLocator($repo),
     // Symfony's FileLocator expects a list of paths
     new ChainableFileLocator(array(__DIR__)),
 ));
@@ -71,7 +71,7 @@ use Webmozart\Puli\Extension\Symfony\Config\ChainableFileLocator;
 use Webmozart\Puli\Extension\Symfony\HttpKernel\ChainableKernelFileLocator;
 
 $locatorChain = new FileLocatorChain(array(
-    new PuliFileLocator($locator),
+    new PuliFileLocator($repo),
     new ChainableKernelFileLocator($httpKernel),
     new ChainableFileLocator(array(__DIR__)),
 ));

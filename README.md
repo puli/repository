@@ -64,8 +64,6 @@ Documentation
 -------------
 
 1. [Basic Usage]: Teaches you about the basic use of Puli.
-2. [Advanced Usage]: Teaches you about advanced features and extension points
-   in Puli.
 
 Bundled Extensions
 ------------------

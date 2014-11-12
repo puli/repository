@@ -23,11 +23,11 @@ Repository Management
 Puli manages files in a *repository*, where you map them to a path:
 
 ```php
-use Webmozart\Puli\Repository\ResourceRepository;
+use Webmozart\Puli\ResourceRepository;
 
 $repo = new ResourceRepository();
-$repo->add('/webmozart/puli', '/path/to/resources/assets/*');
-$repo->add('/webmozart/puli/trans', '/path/to/resources/trans');
+$repo->add('/', '/path/to/resources/assets/*');
+$repo->add('/trans', '/path/to/resources/trans');
 ```
 
 The method `add()` works very much like copying on your local file system. The
@@ -36,127 +36,124 @@ only difference is that no file is ever really moved on your disk.
 You can locate the added files using the `get()` method:
 
 ```php
-echo $repo->get('/webmozart/puli/css/style.css')->getRealPath();
+echo $repo->get('/css/style.css')->getLocalPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $repo->get('/webmozart/puli/trans/en.xlf')->getRealPath();
+echo $repo->get('/trans/en.xlf')->getLocalPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
-The `get()` method accepts either the path to the resource, a glob pattern or an
-array containing multiple paths or patterns. If you pass a single path, a
-[`ResourceInterface`] object will be returned. If you pass a pattern or an array,
-you will receive a [`ResourceCollectionInterface`].
+The `get()` method accepts the path of a resource and returns a 
+[`ResourceInterface`]. If you want to retrieve multiple resources, use `find()`.
+This method accepts a glob pattern and returns a [`ResourceCollectionInterface`].
 
 ```php
-foreach ($repo->get('/webmozart/puli/*')->getPaths() as $path) {
+foreach ($repo->find('/*')->getPaths() as $path) {
     echo $path;
 }
 
-// => /webmozart/puli/css
-// => /webmozart/puli/trans
+// => /css
+// => /trans
 ```
 
 You can remove resources from the repository with the `remove()` method:
 
 ```php
-$repo->remove('/webmozart/puli/css');
+$repo->remove('/css');
 ```
 
-Resource Locators
------------------
+Read-Only Repositories
+----------------------
 
 Building and configuring a repository is expensive and should not be done on
-every request. For this reason, Puli supports resource locators that are
-optimized for retrieving resources. Resource locators must implement the
-interface [`ResourceLocatorInterface`], which provides a subset of the
-methods available in the resource repository. Naturally, resource locators are
-frozen and cannot be modified.
+every request. For this reason, Puli supports repositories that are optimized 
+for reading and cannot be modified.
 
-A very simple locator provided by Puli is the [`PhpCacheLocator`]. This locator
-reads the resource paths from a set of PHP files that can be dumped with
-[`PhpCacheDumper`] by calling the `dumpLocator()` method:
+A very simple example is the [`PhpCacheRepository`]. This repository reads the
+resource paths from a set of PHP files. These files are created with the
+`dumpRepository()` method:
 
 ```php
-use Webmozart\Puli\LocatorDumper\PhpCacheDumper;
+use Webmozart\Puli\Filesystem\PhpCacheRepository;
+use Webmozart\Puli\ResourceRepository;
 
-$dumper = new PhpCacheDumper();
-$dumper->dumpLocator($repo, '/path/to/cache');
+$repo = new ResourceRepository(),
+// configure repository...
+
+PhpCacheRepository::dumpRepository($repo, '/path/to/cache');
 ```
 
-Then create a [`PhpCacheLocator`] and pass the path to the directory where
-you dumped the PHP files. The locator lets you then access the resources in the
-same way as the repository does:
+Then create a [`PhpCacheRepository`] and pass the path to the directory where
+you dumped the PHP files:
 
 ```php
-use Webmozart\Puli\Locator\PhpCacheLocator;
+$repo = new PhpCacheRepository('/path/to/cache');
 
-$locator = new PhpCacheLocator('/path/to/cache');
-
-echo $locator->get('/webmozart/puli/css/style.css')->getRealPath();
+echo $repo->get('/css/style.css')->getLocalPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $locator->get('/webmozart/puli/trans/en.xlf')->getRealPath();
+echo $repo->get('/trans/en.xlf')->getLocalPath();
 // => /path/to/resources/trans/en.xlf
 ```
 
-Here is a complete list of the resource locators provided by Puli:
+The following repositories are provided by Puli:
 
-Locator               | Description
---------------------- | -----------------------------------
-[`PhpCacheLocator`]   | Reads resources from PHP files dumped by [`PhpCacheDumper`].
-[`FilesystemLocator`] | Reads resources from a filesystem path.
+Repository               | Description                            | Writable
+------------------------ | -------------------------------------- | --------
+[`ResourceRepository`]   | Manages resources in memory.           | Yes
+[`PhpCacheRepository`]   | Reads resources from dumped PHP files. | No
+[`FilesystemRepository`] | Reads resources from the filesystem.   | No
 
-URI Locators
-------------
+URI Repositories
+----------------
 
-Puli allows to use multiple resource locators at the same time through the
-[`UriLocator`]. You can register multiple [`ResourceLocatorInterface`]
-instances for different URI schemes. Then you can use the [`UriLocator`]
-like a regular resource locator, except you need to pass URIs instead of
-simple paths. An example tells a thousand stories:
+Puli allows to use multiple repositories at the same time through the
+[`UriRepository`]. You can register multiple [`ResourceRepositoryInterface`]
+instances for different URI schemes. Then you can use the [`UriRepository`]
+like a regular repository, except that you pass URIs instead of paths.
+An example tells a thousand stories:
 
 ```php
-use Webmozart\Puli\Locator\PhpCacheLocator;
-use Webmozart\Puli\Locator\UriLocator;
+use Webmozart\Puli\Filesystem\PhpCacheRepository;
+use Webmozart\Puli\Uri\UriRepository;
 
-$locator = new UriLocator();
-$locator->register('resource', new PhpCacheLocator('/cache/resource'));
-$locator->register('namespace', new PhpCacheLocator('/cache/namespace'));
+$locator = new UriRepository();
+$locator->register('resource', new PhpCacheRepository('/cache/resource'));
+$locator->register('namespace', new PhpCacheRepository('/cache/namespace'));
 
-echo $locator->get('resource:///webmozart/puli/css/style.css')->getRealPath();
+echo $locator->get('resource:///css/style.css')->getLocalPath();
 // => /path/to/resources/assets/css/style.css
 
-echo $locator->get('namespace:///Webmozart/Puli/Puli.php')->getRealPath();
-// => /path/to/webmozart/puli/src/Puli.php
+echo $locator->get('namespace:///Webmozart/Puli/Puli.php')->getLocalPath();
+// => /path/to/src/Puli.php
 ```
 
 In this example, the URI locator routes all requests for URIs with the
 protocol "resource://" to one resource locator and requests for URIs with the
 protocol "namespace://" to the other locator.
 
-To improve performance in requests where you don't access either of the
-protocols, you can also register callbacks that create the resource locators:
+To improve performance in requests where you don't access all of the protocols, 
+you can also register callbacks that create the repositories on demand:
 
 ```php
 $locator->register('resource', function () {
-    return new PhpCacheLocator('/cache/resource')
+    return new PhpCacheRepository('/cache/resource')
 });
 ```
 
-Streams
--------
+Stream Wrapper
+--------------
 
 Puli supports a stream wrapper that lets you access the contents of the
 repository transparently through PHP's file functions. To register the wrapper,
 call the `register()` method in [`ResourceStreamWrapper`] and pass a
-configured [`UriLocator`]:
+configured [`UriRepository`]:
 
 ```php
-use Webmozart\Puli\Locator\UriLocator;
+use Webmozart\Puli\Locator\UriRepository;
 use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
 
-$locator = new UriLocator();
+$locator = new UriRepository();
 $locator->register('resource', $repository);
 
 ResourceStreamWrapper::register($locator);
@@ -166,9 +163,9 @@ You can now use regular PHP functions to access the files and directories in
 the repository.
 
 ```php
-$contents = file_get_contents('resource:///webmozart/puli/css/style.css');
+$contents = file_get_contents('resource:///css/style.css');
 
-$entries = scandir('resource:///webmozart/puli');
+$entries = scandir('resource:///css');
 ```
 
 Even better: If you register the stream wrapper, you can use Puli resources
@@ -178,36 +175,27 @@ Resources
 ---------
 
 The `get()` method returns one or more [`ResourceInterface`] instances. This
-interface lets you access the name, the repository path and the real file path
-of the resource:
+interface lets you access the name and the repository path of the resource:
 
 ```php
-$resource = $repo->get('/webmozart/puli/css');
+$resource = $repo->get('/css');
 
 echo $resource->getName();
 // => css
 
 echo $resource->getPath();
-// => /webmozart/puli/css
-
-echo $resource->getRealPath();
-// => /path/to/resources/assets/css
+// => /css
 ```
 
-The method `getName()` will always return the name of the resource in the
-repository. If you want to retrieve the name of the resource on the filesystem,
-use [`basename()`] instead:
+Resources don't necessarily have to be located on the file system. But those
+that do implement [`LocalResourceInterface`], which lets you access the
+filesystem path with `getLocalPath()`:
 
 ```php
-$repo->add('/webmozart/puli', '/path/to/resources/assets');
+$resource = $repo->get('/css/style.css');
 
-$resource = $repo->get('/webmozart/puli');
-
-echo $resource->getName();
-// => puli
-
-echo basename($resource->getRealPath());
-// => assets
+echo $resource->getLocalPath();
+// => /path/to/resources/assets/css/style.css
 ```
 
 Directories
@@ -220,58 +208,38 @@ from files:
 ```php
 use Webmozart\Puli\Resource\DirectoryResourceInterface;
 
-$resource = $repo->get('/webmozart/puli/css');
+$resource = $repo->get('/css');
 
 if ($resource instanceof DirectoryResourceInterface) {
     // ...
 }
 ```
 
-Directories are traversable and countable:
-
-```php
-$directory = $repo->get('/webmozart/puli/css');
-
-echo count($directory);
-// => 2
-
-foreach ($directory as $resource) {
-    // ...
-}
-```
-
 You can access the contents of a directory with the methods `get()`,
-`contains()` and `all()` or use its `ArrayAccess` interface:
+`contains()` and `listEntries()`:
 
 ```php
 $resource = $directory->get('style.css');
-$resource = $directory['style.css'];
 
 if ($directory->contains('style.css')) {
     // ...
 }
 
-if (isset($directory['style.css'])) {
+foreach ($directory->listEntries() as $name => $resource) {
     // ...
 }
-
-$resources = $directory->all();
 ```
-
-Direct modifications of [`DirectoryResourceInterface`] instances are not
-allowed. You should use the methods provided by [`ResourceRepositoryInterface`]
-instead.
 
 Resource Collections
 --------------------
 
-When you fetch multiple resources from the locator, the locator will return them
+When you fetch multiple resources from the repository, they will be returned
 in a [`ResourceCollectionInterface`] instance. Resource collections offer
-convenience methods for accessing the names, the paths or the real paths of
-the contained resources at once:
+convenience methods for accessing the names and the paths of the contained 
+resources at once:
 
 ```php
-$resources = $locator->get('/webmozart/puli/css/*.css');
+$resources = $locator->get('/css/*.css');
 
 print_r($resources->getNames());
 // Array
@@ -283,15 +251,8 @@ print_r($resources->getNames());
 print_r($resources->getPaths());
 // Array
 // (
-//     [0] => /webmozart/puli/css/reset.css
-//     [1] => /webmozart/puli/css/style.css
-// )
-
-print_r($resources->getRealPaths());
-// Array
-// (
-//     [0] => /path/to/resources/assets/css/reset.css
-//     [1] => /path/to/resources/assets/css/style.css
+//     [0] => /css/reset.css
+//     [1] => /css/style.css
 // )
 ```
 
@@ -307,19 +268,19 @@ Overriding Files and Directories
 
 Puli lets you override files and directories without losing the original paths.
 This is very useful if you want to remember a cascade of files in order to merge
-them later on. The method `getAlternativePaths()` returns all paths that were
+them later on. The method `getAllLocalPaths()` returns all paths that were
 registered for a resource, in the order of their registration:
 
 ```php
-$repo->add('/webmozart/puli/config', '/path/to/vendor/webmozart/puli/config');
-$repo->add('/webmozart/puli/config', '/path/to/app/config');
+$repo->add('/config', '/path/to/vendor/webmozart/puli/config');
+$repo->add('/config', '/path/to/app/config');
 
-$resource = $repo->get('/webmozart/puli/config/config.yml');
+$resource = $repo->get('/config/config.yml');
 
-echo $resource->getRealPath();
+echo $resource->getLocalPath();
 // => /path/to/app/config/config.yml
 
-print_r($resource->getAlternativePaths());
+print_r($resource->getAllLocalPaths());
 // Array
 // (
 //     [0] => /path/to/vendor/webmozart/puli/config/config.yml
@@ -335,17 +296,17 @@ that support specific features. For example, you can tag all XLIFF translation
 files that can be consumed by a class `Acme\Translator`:
 
 ```php
-$repo->tag('/webmozart/puli/translations/*.xlf', 'acme/translator/xlf');
+$repo->tag('/translations/*.xlf', 'acme/translator/xlf');
 ```
 
 You can remove one or all tags from a resource using the `untag()` method:
 
 ```php
 // Remove the tag "acme/translator/xlf"
-$repo->untag('/webmozart/puli/translations/*.xlf', 'acme/translator/xlf');
+$repo->untag('/translations/*.xlf', 'acme/translator/xlf');
 
 // Remove all tags
-$repo->untag('/webmozart/puli/translations/*.xlf');
+$repo->untag('/translations/*.xlf');
 ```
 
 You can get all files that bear a specific tag with the `getByTag()` method:
@@ -374,16 +335,16 @@ with the "acme/translator/xlf" tag from the repository:
 ```php
 namespace Acme;
 
-use Webmozart\Puli\Locator\ResourceLocatorInterface;
+use Webmozart\Puli\Locator\ResourceRepositoryInterface;
 
 class Translator
 {
     // ...
 
-    public function discoverResources(ResourceLocatorInterface $locator)
+    public function discoverResources(ResourceRepositoryInterface $locator)
     {
         foreach ($locator->getByTag('acme/translator/xlf') as $resource) {
-            // register $resource->getRealPath()...
+            // register $resource->getLocalPath()...
         }
     }
 }
@@ -399,15 +360,13 @@ $translator = new Translator();
 $translator->discoverResources($repo);
 ```
 
-[`ResourceDiscoveringInterface`]: ../src/ResourceDiscoveringInterface.php
-[`ResourceRepositoryInterface`]: ../src/Repository/ResourceRepositoryInterface.php
+[`ResourceRepositoryInterface`]: ../src/ResourceRepositoryInterface.php
 [`ResourceInterface`]: ../src/Resource/ResourceInterface.php
-[`ResourceCollectionInterface`]: ../src/Resource/ResourceCollectionInterface.php
+[`LocalResourceInterface`]: ../src/Filesystem/Resource/LocalResourceInterface.php
+[`ResourceCollectionInterface`]: ../src/Resource/Collection/ResourceCollectionInterface.php
 [`DirectoryResourceInterface`]: ../src/Resource/DirectoryResourceInterface.php
-[`ResourceLocatorInterface`]: ../src/Locator/ResourceLocatorInterface.php
-[`FilesystemLocator`]: ../src/Locator/FilesystemLocator.php
-[`PhpCacheLocator`]: ../src/Locator/PhpCacheLocator.php
-[`PhpCacheDumper`]: ../src/LocatorDumper/PhpCacheDumper.php
+[`FilesystemRepository`]: ../src/Filesystem/FilesystemRepository.php
+[`PhpCacheRepository`]: ../src/Filesystem/PhpCacheRepository.php
 [`ResourceStreamWrapper`]: ../src/StreamWrapper/ResourceStreamWrapper.php
-[`UriLocator`]: ../src/Locator/UriLocator.php
+[`UriRepository`]: ../src/Uri/UriRepository.php
 [`basename()`]: http://php.net/manual/en/function.basename.php
