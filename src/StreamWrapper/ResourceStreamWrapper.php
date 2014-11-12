@@ -22,36 +22,83 @@ use Webmozart\Puli\UnsupportedResourceException;
 use Webmozart\Puli\Uri\UriRepositoryInterface;
 
 /**
+ * Registers a PHP stream wrapper for a {@link UriRepositoryInterface}.
+ *
+ * To register the stream wrapper, call {@link register}:
+ *
+ * ```php
+ * use Webmozart\Puli\ResourceRepository;
+ * use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
+ * use Webmozart\Puli\Uri\UriRepository;
+ *
+ * $puliRepo = new ResourceRepository();
+ *
+ * $repo = new UriRepository();
+ * $repo->register('puli', $puliRepo);
+ *
+ * ResourceStreamWrapper::register($repo);
+ *
+ * file_get_contents('puli:///css/style.css');
+ * // => $puliRepo->get('/css/style.css')->getContents()
+ * ```
+ *
+ * The stream wrapper can only be used for reading, not writing.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceStreamWrapper implements StreamWrapperInterface
 {
     const DEVICE_ASSOC = 'dev';
+
     const DEVICE_NUM = 0;
+
     const INODE_ASSOC = 'ino';
+
     const INODE_NUM = 1;
+
     const MODE_ASSOC = 'mode';
+
     const MODE_NUM = 2;
+
     const NUM_LINKS_ASSOC = 'nlink';
+
     const NUM_LINK_NUM = 3;
+
     const UID_ASSOC = 'uid';
+
     const UID_NUM = 4;
+
     const GID_ASSOC = 'gid';
+
     const GID_NUM = 5;
+
     const DEVICE_TYPE_ASSOC = 'rdev';
+
     const DEVICE_TYPE_NUM = 6;
+
     const SIZE_ASSOC = 'size';
+
     const SIZE_NUM = 7;
+
     const ACCESS_TIME_ASSOC = 'atime';
+
     const ACCESS_TIME_NUM = 8;
+
     const MODIFY_TIME_ASSOC = 'mtime';
+
     const MODIFY_TIME_NUM = 9;
+
     const CHANGE_TIME_ASSOC = 'ctime';
+
     const CHANGE_TIME_NUM = 10;
+
     const BLOCK_SIZE_ASSOC = 'blksize';
+
     const BLOCK_SIZE_NUM = 11;
+
     const NUM_BLOCKS_ASSOC = 'blocks';
+
     const NUM_BLOCKS_NUM = 12;
 
     /**
@@ -106,6 +153,16 @@ class ResourceStreamWrapper implements StreamWrapperInterface
      */
     private $directoryIterator;
 
+    /**
+     * Registers a URI repository as PHP stream wrapper.
+     *
+     * @param UriRepositoryInterface $repo The repository.
+     *
+     * @throws StreamWrapperException If a repository was previously registered.
+     *                                Only one repository can be registered at
+     *                                a time. Call {@link unregister} to
+     *                                unregister.
+     */
     public static function register(UriRepositoryInterface $repo)
     {
         if (null !== self::$repo) {
@@ -124,6 +181,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         self::$repo = $repo;
     }
 
+    /**
+     * Unregisters the stream wrapper.
+     *
+     * If no stream wrapper was registered, this method does nothing.
+     */
     public static function unregister()
     {
         self::$repo = null;
@@ -135,6 +197,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         self::$schemes = array();
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function dir_opendir($uri, $options)
     {
         // Provoke ResourceNotFoundException if not found
@@ -152,6 +219,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function dir_closedir()
     {
         $this->directoryIterator = null;
@@ -159,6 +231,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function dir_readdir()
     {
         if (!$this->directoryIterator->valid()) {
@@ -172,6 +249,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return $name;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function dir_rewinddir()
     {
         $this->directoryIterator->rewind();
@@ -179,6 +261,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function mkdir($uri, $mode, $options)
     {
         throw new UnsupportedOperationException(sprintf(
@@ -188,10 +275,15 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function rename($uriFrom, $uriTo)
     {
         // validate whether the URL exists
-        $this->getLocator()->get($uriFrom);
+        $this->getRepository()->get($uriFrom);
 
         throw new UnsupportedOperationException(sprintf(
             'The renaming of resources through the stream wrapper is not '.
@@ -201,10 +293,15 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function rmdir($uri, $options)
     {
         // validate whether the URL exists
-        $resource = $this->getLocator()->get($uri);
+        $resource = $this->getRepository()->get($uri);
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of directories through the stream wrapper is not '.
@@ -216,11 +313,21 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_cast($castAs)
     {
         return $this->handle;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_close()
     {
         assert(null !== $this->handle);
@@ -228,6 +335,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fclose($this->handle);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_eof()
     {
         assert(null !== $this->handle);
@@ -235,6 +347,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return feof($this->handle);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_flush()
     {
         assert(null !== $this->handle);
@@ -242,6 +359,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fflush($this->handle);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_lock($operation)
     {
         throw new UnsupportedOperationException(
@@ -250,6 +372,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         );
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_metadata($uri, $option, $value)
     {
         switch ($option) {
@@ -285,6 +412,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_open($uri, $mode, $options, &$openedPath)
     {
         if ('r' !== $mode) {
@@ -296,7 +428,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
             ));
         }
 
-        $resource = $this->getLocator()->get($uri);
+        $resource = $this->getRepository()->get($uri);
 
         if (!$resource instanceof FileResourceInterface) {
             throw new UnsupportedResourceException(sprintf(
@@ -320,6 +452,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return true;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_read($length)
     {
         assert(null !== $this->handle);
@@ -327,6 +464,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fread($this->handle, $length);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_seek($offset, $whence = SEEK_SET)
     {
         assert(null !== $this->handle);
@@ -334,11 +476,21 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return 0 === fseek($this->handle, $offset, $whence);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_set_option($option, $arg1, $arg2)
     {
         // noop
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_stat()
     {
         assert(null !== $this->handle);
@@ -346,6 +498,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fstat($this->handle);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_tell()
     {
         assert(null !== $this->handle);
@@ -353,6 +510,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return ftell($this->handle);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_truncate($newSize)
     {
         assert(null !== $this->handle);
@@ -360,6 +522,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return ftruncate($this->handle, $newSize);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function stream_write($data)
     {
         assert(null !== $this->handle);
@@ -367,6 +534,11 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         return fwrite($this->handle, $data);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function unlink($uri)
     {
         throw new UnsupportedOperationException(sprintf(
@@ -376,10 +548,15 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @internal
+     */
     public function url_stat($uri, $flags)
     {
         try {
-            $resource = $this->getLocator()->get($uri);
+            $resource = $this->getRepository()->get($uri);
 
             if ($resource instanceof LocalResourceInterface) {
                 $path = $resource->getLocalPath();
@@ -414,7 +591,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         }
     }
 
-    private function getLocator()
+    private function getRepository()
     {
         if (null === self::$repo) {
             throw new StreamWrapperException(

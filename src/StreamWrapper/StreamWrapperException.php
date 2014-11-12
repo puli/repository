@@ -12,6 +12,8 @@
 namespace Webmozart\Puli\StreamWrapper;
 
 /**
+ * Thrown when the stream wrapper was not registered or is registered twice.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
