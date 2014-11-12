@@ -15,10 +15,10 @@ use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
 use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
 use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
 use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Util\Path;
 use Webmozart\Puli\Resource\Collection\ResourceCollection;
 use Webmozart\Puli\ResourceNotFoundException;
 use Webmozart\Puli\ResourceRepositoryInterface;
+use Webmozart\Puli\Util\Path;
 use Webmozart\Puli\Util\Selector;
 
 /**

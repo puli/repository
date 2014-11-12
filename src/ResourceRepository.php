@@ -12,7 +12,6 @@
 namespace Webmozart\Puli;
 
 use Webmozart\Puli\Filesystem\FilesystemRepository;
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
 use Webmozart\Puli\Resource\AttachableResourceInterface;
 use Webmozart\Puli\Resource\Collection\ResourceCollection;
 use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
