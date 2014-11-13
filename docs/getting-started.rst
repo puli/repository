@@ -2,6 +2,8 @@
     single: Getting Started
     single: Installation
 
+.. |trade| unicode:: U+2122
+
 Getting Started
 ===============
 
@@ -12,15 +14,23 @@ Getting Started
    getting-started/package-devs
 
 We have several guides that show how to get started quickly with Puli_. If you
-don't know what Puli is, read :doc:`at-a-glance` first.
+don't know what Puli is or why you should use it, read :doc:`at-a-glance` first.
 
-The right guide depends on what you develop:
+Requirements
+------------
+
+Puli requires PHP 5.3.9 or higher.
+
+Guides
+------
+
+We have different "Getting Started" guides for different kinds of developers:
 
 * :doc:`getting-started/application-devs` explains how to use Puli in
   applications that use Composer_ to load their required packages.
 
 * :doc:`getting-started/package-devs` explains how to use Puli in reusable
-  Composer_ packages, sometimes also called "libraries".
+  Composer packages, sometimes also called "libraries".
 
 If you are not sure, start with :doc:`getting-started/application-devs`.
 

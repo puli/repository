@@ -1,0 +1,2 @@
+Puli for Composer Agnostics
+===========================
