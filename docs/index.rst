@@ -9,9 +9,10 @@ Welcome to Puli's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    at-a-glance
+   getting-started
 
 Indices and tables
 ==================

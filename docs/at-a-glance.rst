@@ -1,7 +1,7 @@
 Puli at a Glance
 ================
 
-What is Puli?
+Why Puli?
 
 Puli_ is a PHP library that manages files, directories and other resources in
 a repository - much like a virtual file system. *Resources* can be anything,
@@ -12,7 +12,11 @@ Many people use Composer_ to distribute their packages. These packages contain
 both PHP files and resources that are used by the application. Loading PHP files
 is easy, thanks to PSR-4_ and Composer's generated autoloader. Loading resources,
 however, requires using absolute file paths with plenty of ".." segments or
-inventing some sort of naming convention, which varies from project to project.
+inventing some sort of naming convention, which varies from project to project:
+
+.. code-block:: jinja
+
+    {% include 'AcmeBlogBundle::footer.html.twig' %}
 
 Enter Puli.
 
