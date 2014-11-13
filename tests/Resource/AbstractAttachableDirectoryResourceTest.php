@@ -14,7 +14,7 @@ namespace Puli\Tests\Resource;
 use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\DirectoryResourceInterface;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -37,7 +37,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testGetPathAndName()
     {
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $dir = $this->createAttachedDir($repo, '/path/dir');
 
         $this->assertSame('/path/dir', $dir->getPath());
@@ -62,7 +62,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
         $resources = new ResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('find')
@@ -89,7 +89,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
     public function testGet()
     {
         $entry = $this->getMock('Puli\Resource\ResourceInterface');
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('get')
@@ -113,7 +113,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testContains()
     {
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('contains')
@@ -137,7 +137,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testDetach()
     {
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $directory = $this->createAttachedDir($repo, '/path');
 
         $this->assertSame('/path', $directory->getPath());

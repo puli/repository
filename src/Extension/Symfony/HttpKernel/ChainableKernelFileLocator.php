@@ -11,8 +11,8 @@
 
 namespace Puli\Extension\Symfony\HttpKernel;
 
-use Symfony\Component\HttpKernel\Config\FileLocator;
 use Puli\Extension\Symfony\Config\ChainableFileLocatorInterface;
+use Symfony\Component\HttpKernel\Config\FileLocator;
 
 /**
  * @since  1.0

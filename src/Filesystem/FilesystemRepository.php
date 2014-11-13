@@ -14,10 +14,10 @@ namespace Puli\Filesystem;
 use Puli\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Filesystem\Resource\LocalFileResource;
 use Puli\Filesystem\Resource\LocalResourceCollection;
-use Puli\InvalidPathException;
+use Puli\Repository\InvalidPathException;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Collection\ResourceCollection;
-use Puli\ResourceNotFoundException;
-use Puli\ResourceRepositoryInterface;
 use Puli\Util\Path;
 use Puli\Util\Selector;
 

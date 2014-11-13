@@ -11,8 +11,8 @@
 
 namespace Puli\Resource;
 
+use Puli\Repository\ResourceNotFoundException;
 use Puli\Resource\Collection\ResourceCollectionInterface;
-use Puli\ResourceNotFoundException;
 
 /**
  * A resource which acts as directory in the repository.
@@ -31,7 +31,7 @@ interface DirectoryResourceInterface extends ResourceInterface
      *
      * @return ResourceInterface The resource with the given name.
      *
-     * @throws ResourceNotFoundException If the resource cannot be found.
+     * @throws \Puli\Repository\ResourceNotFoundException If the resource cannot be found.
      */
     public function get($name);
 

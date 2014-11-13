@@ -12,13 +12,13 @@
 namespace Puli\StreamWrapper;
 
 use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\UnsupportedOperationException;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\FileResourceInterface;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Resource\NoDirectoryException;
-use Puli\ResourceNotFoundException;
-use Puli\UnsupportedOperationException;
-use Puli\UnsupportedResourceException;
 use Puli\Uri\UriRepositoryInterface;
 
 /**
@@ -27,7 +27,7 @@ use Puli\Uri\UriRepositoryInterface;
  * To register the stream wrapper, call {@link register}:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  * use Puli\StreamWrapper\ResourceStreamWrapper;
  * use Puli\Uri\UriRepository;
  *

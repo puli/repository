@@ -12,7 +12,7 @@
 namespace Puli\Tests\Filesystem\Resource;
 
 use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -37,7 +37,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateAttached()
     {
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
 
@@ -76,7 +76,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
     public function testAttach()
     {
-        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
         $file->attachTo($repo, '/path');
@@ -162,7 +162,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOverrideFailsIfNotLocalResource()
     {

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 /**
  * Thrown when an invalid resource path is passed.

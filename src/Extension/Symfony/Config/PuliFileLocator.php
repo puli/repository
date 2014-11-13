@@ -12,8 +12,8 @@
 namespace Puli\Extension\Symfony\Config;
 
 use Puli\Filesystem\Resource\LocalResourceInterface;
-use Puli\ResourceNotFoundException;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

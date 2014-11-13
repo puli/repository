@@ -12,10 +12,10 @@
 namespace Puli\Filesystem\Resource;
 
 use Puli\Filesystem\FilesystemException;
+use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceRepositoryInterface;
-use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0
@@ -45,8 +45,8 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
 
     /**
      * @param ResourceRepositoryInterface $repo
-     * @param                          $path
-     * @param                          $localPath
+     * @param                             $path
+     * @param                             $localPath
      *
      * @return static
      */

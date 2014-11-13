@@ -23,7 +23,7 @@ Repository Management
 Puli manages files in a *repository*, where you map them to a path:
 
 ```php
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 
 $repo = new ResourceRepository();
 $repo->add('/', '/path/to/resources/assets/*');
@@ -75,7 +75,7 @@ resource paths from a set of PHP files. These files are created with the
 
 ```php
 use Puli\Filesystem\PhpCacheRepository;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 
 $repo = new ResourceRepository(),
 // configure repository...
@@ -360,7 +360,8 @@ $translator = new Translator();
 $translator->discoverResources($repo);
 ```
 
-[`ResourceRepositoryInterface`]: ../src/ResourceRepositoryInterface.php
+[`ResourceRepository`]: ../src/Repository/ResourceRepository.php
+[`ResourceRepositoryInterface`]: ../src/Repository/ResourceRepositoryInterface.php
 [`ResourceInterface`]: ../src/Resource/ResourceInterface.php
 [`LocalResourceInterface`]: ../src/Filesystem/Resource/LocalResourceInterface.php
 [`ResourceCollectionInterface`]: ../src/Resource/Collection/ResourceCollectionInterface.php

@@ -11,9 +11,9 @@
 
 namespace Puli\Filesystem\Resource;
 
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\ResourceInterface;
-use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

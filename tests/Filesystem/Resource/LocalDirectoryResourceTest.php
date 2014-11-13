@@ -13,7 +13,7 @@ namespace Puli\Tests\Filesystem\Resource;
 
 use Puli\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Filesystem\Resource\LocalFileResource;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Tests\Resource\AbstractAttachableDirectoryResourceTest;
 use Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
@@ -42,7 +42,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalResource()
     {
@@ -52,7 +52,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalFileResource()
     {

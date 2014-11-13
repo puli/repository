@@ -11,8 +11,8 @@
 
 namespace Puli\Resource;
 
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Collection\ResourceCollection;
-use Puli\ResourceRepositoryInterface;
 
 /**
  * An in-memory directory in the repository.
@@ -21,7 +21,7 @@ use Puli\ResourceRepositoryInterface;
  * demand:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/webmozart/puli/file', $resource);

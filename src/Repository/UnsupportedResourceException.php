@@ -9,14 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 /**
- * Thrown when a requested resource was not found.
+ * Thrown when a specific implementation of {@link ResourceInterface} is not
+ * accepted by the invoked method.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceNotFoundException extends \RuntimeException
+class UnsupportedResourceException extends \RuntimeException
 {
 }

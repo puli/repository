@@ -12,12 +12,12 @@
 namespace Puli\Filesystem\Resource;
 
 use Puli\Filesystem\FilesystemException;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\DirectoryResource;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceNotFoundException;
-use Puli\ResourceRepositoryInterface;
-use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

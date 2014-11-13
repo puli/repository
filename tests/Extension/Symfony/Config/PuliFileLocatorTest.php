@@ -12,7 +12,7 @@
 namespace Puli\Tests\Extension\Symfony\Config;
 
 use Puli\Extension\Symfony\Config\PuliFileLocator;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 use Puli\Tests\Resource\TestFile;
 
 /**

@@ -35,7 +35,7 @@ class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalResource()
     {
@@ -45,7 +45,7 @@ class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalDirectoryResource()
     {

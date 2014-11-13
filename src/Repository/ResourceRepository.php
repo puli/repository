@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 use Puli\Filesystem\FilesystemRepository;
 use Puli\Resource\AttachableResourceInterface;
@@ -28,7 +28,7 @@ use Puli\Util\Selector;
  * Resources can be added with the method {@link add}:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/css', new LocalDirectoryResource('/path/to/project/assets/css'));
@@ -39,7 +39,7 @@ use Puli\Util\Selector;
  * a {@link FilesystemRepository} is used:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/css', '/path/to/project/assets/css');
@@ -49,7 +49,7 @@ use Puli\Util\Selector;
  *
  * ```php
  * use Puli\Filesystem\FilesystemRepository;
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  *
  * $backend = new FilesystemRepository('/path/to/project');
  *

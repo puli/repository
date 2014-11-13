@@ -13,7 +13,7 @@ namespace Puli\Tests\Extension\Twig;
 
 use Puli\Extension\Twig\PuliExtension;
 use Puli\Extension\Twig\PuliTemplateLoader;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 
 /**
  * @since  1.0

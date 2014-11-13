@@ -12,7 +12,7 @@
 namespace Puli\Extension\Assetic\Twig;
 
 use Puli\Extension\Assetic\Twig\NodeVisitor\AssetPathResolver;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

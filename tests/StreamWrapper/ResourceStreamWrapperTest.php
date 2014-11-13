@@ -11,7 +11,7 @@
 
 namespace Puli\Tests\StreamWrapper;
 
-use Puli\ResourceNotFoundException;
+use Puli\Repository\ResourceNotFoundException;
 use Puli\StreamWrapper\ResourceStreamWrapper;
 use Puli\Tests\Filesystem\TestLocalFile;
 use Puli\Tests\Resource\TestDirectory;
@@ -41,7 +41,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     private $dir2;
 
     /**
-     * @var \Puli\\Puli\Uri\UriRepository
+     * @var UriRepository
      */
     private $repo;
 
@@ -111,7 +111,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testOpenNonFile()
     {
@@ -280,7 +280,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideWriteModes
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testCannotOpenForWriting($mode)
     {
@@ -304,7 +304,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testLockIsProhibited($path)
     {
@@ -314,7 +314,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testTouchExistingIsProhibited($path)
     {
@@ -327,7 +327,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testTouchNewIsProhibited()
     {
@@ -341,7 +341,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testChownIsProhibited($path)
     {
@@ -355,7 +355,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testChgrpIsProhibited($path)
     {
@@ -369,7 +369,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testChmodIsProhibited($path)
     {
@@ -383,7 +383,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testUnlinkIsProhibited($path)
     {
@@ -391,7 +391,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testRenameIsProhibited()
     {
@@ -399,7 +399,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testRmdirIsProhibited()
     {
@@ -407,7 +407,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedOperationException
+     * @expectedException \Puli\Repository\UnsupportedOperationException
      */
     public function testMkdirIsProhibited()
     {
@@ -444,7 +444,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\ResourceNotFoundException
+     * @expectedException \Puli\Repository\ResourceNotFoundException
      */
     public function testOpenNonExistingDirectory()
     {

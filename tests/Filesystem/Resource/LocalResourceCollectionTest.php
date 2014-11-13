@@ -50,7 +50,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testConstructFailsIfNoLocalResource()
     {
@@ -87,7 +87,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testReplaceFailsIfNoLocalResource()
     {
@@ -113,7 +113,7 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testAddFailsIfNoLocalResource()
     {

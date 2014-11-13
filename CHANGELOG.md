@@ -43,6 +43,7 @@ Changelog
    * removed code from `ResourceFilterIterator` that is duplicated in
      `ResourceCollectionIterator`
    * moved all code to the `Puli\` top-level namespace
+   * moved `ResourceRepository` and related classes to `Puli\Repository\`
 
 * 1.0.0-alpha3 (2014-02-22)
 

@@ -17,13 +17,13 @@ use Puli\Filesystem\Resource\LocalResource;
 use Puli\Filesystem\Resource\LocalResourceCollection;
 use Puli\Filesystem\Resource\LocalResourceInterface;
 use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
-use Puli\InvalidPathException;
+use Puli\Repository\InvalidPathException;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\DirectoryResource;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceNotFoundException;
-use Puli\ResourceRepositoryInterface;
-use Puli\UnsupportedResourceException;
 use Puli\Util\Path;
 use Puli\Util\Selector;
 

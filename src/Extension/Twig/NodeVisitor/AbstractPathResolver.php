@@ -11,7 +11,7 @@
 
 namespace Puli\Extension\Twig\NodeVisitor;
 
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Util\Path;
 
 /**

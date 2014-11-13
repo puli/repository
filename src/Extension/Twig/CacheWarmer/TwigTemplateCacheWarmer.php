@@ -11,11 +11,11 @@
 
 namespace Puli\Extension\Twig\CacheWarmer;
 
-use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Resource\Iterator\ResourceFilterIterator;
-use Puli\ResourceRepositoryInterface;
+use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 /**
  * Generates the Twig cache for all templates in the resource repository.

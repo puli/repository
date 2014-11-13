@@ -9,15 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 /**
- * Thrown when a specific implementation of {@link ResourceInterface} is not
- * accepted by the invoked method.
+ * Thrown when the requested operation is not supported by the repository.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UnsupportedResourceException extends \RuntimeException
+class UnsupportedOperationException extends \Exception
 {
 }

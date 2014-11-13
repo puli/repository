@@ -18,8 +18,8 @@ use Puli\Filesystem\Resource\LocalFileResource;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\ResourceRepositoryInterface;
-use Puli\Tests\AbstractRepositoryTest;
+use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Tests\Repository\AbstractRepositoryTest;
 
 /**
  * @since  1.0

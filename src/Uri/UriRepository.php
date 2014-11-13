@@ -11,12 +11,12 @@
 
 namespace Puli\Uri;
 
-use Puli\InvalidPathException;
+use Puli\Repository\InvalidPathException;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\Collection\ResourceCollectionInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceNotFoundException;
-use Puli\ResourceRepositoryInterface;
 
 /**
  * A repository which delegates to other repositories based on URI schemes.
@@ -26,7 +26,7 @@ use Puli\ResourceRepositoryInterface;
  * repository:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  * use Puli\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
@@ -47,7 +47,7 @@ use Puli\ResourceRepositoryInterface;
  * which create the repository on demand:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  * use Puli\Uri\UriRepository;
  *
  * $repo = new UriRepository();
@@ -63,7 +63,7 @@ use Puli\ResourceRepositoryInterface;
  * reading paths from that scheme, the protocol may be omitted:
  *
  * ```php
- * use Puli\ResourceRepository;
+ * use Puli\Repository\ResourceRepository;
  * use Puli\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
@@ -84,7 +84,7 @@ use Puli\ResourceRepositoryInterface;
 class UriRepository implements UriRepositoryInterface
 {
     /**
-     * @var callable[]|ResourceRepositoryInterface[]
+     * @var callable[]|\Puli\Repository\ResourceRepositoryInterface[]
      */
     private $repos = array();
 
@@ -102,7 +102,7 @@ class UriRepository implements UriRepositoryInterface
      * {@link ResourceRepositoryInterface} object.
      *
      * @param string                               $scheme            A URI scheme
-     * @param callable|ResourceRepositoryInterface $repositoryFactory The repository to use
+     * @param callable|\Puli\Repository\ResourceRepositoryInterface $repositoryFactory The repository to use
      */
     public function register($scheme, $repositoryFactory)
     {
@@ -110,7 +110,7 @@ class UriRepository implements UriRepositoryInterface
                 && !is_callable($repositoryFactory)) {
             throw new \InvalidArgumentException(
                 'The locator factory should be a callable or an instance '.
-                'of "Puli\ResourceRepositoryInterface".'
+                'of "Puli\Repository\ResourceRepositoryInterface".'
             );
         }
 
@@ -336,7 +336,7 @@ class UriRepository implements UriRepositoryInterface
                 throw new RepositoryFactoryException(sprintf(
                     'The value of type "%s" returned by the locator factory '.
                     'registered for scheme "%s" does not implement '.
-                    '"\Puli\ResourceRepositoryInterface".',
+                    '"\Puli\Repository\ResourceRepositoryInterface".',
                     gettype($result),
                     $scheme
                 ));

@@ -16,7 +16,7 @@ use Puli\Extension\Assetic\Factory\PuliAssetFactory;
 use Puli\Extension\Assetic\Twig\PuliAsseticExtension;
 use Puli\Extension\Twig\PuliExtension;
 use Puli\Extension\Twig\PuliTemplateLoader;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 use Puli\Tests\Extension\Twig\RandomizedTwigEnvironment;
 
 /**

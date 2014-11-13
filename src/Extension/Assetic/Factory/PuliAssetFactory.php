@@ -14,7 +14,7 @@ namespace Puli\Extension\Assetic\Factory;
 use Assetic\Factory\AssetFactory;
 use Puli\Extension\Assetic\Asset\PuliAsset;
 use Puli\Filesystem\Resource\LocalResourceInterface;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Uri\UriRepositoryInterface;
 
 /**

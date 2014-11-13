@@ -12,7 +12,7 @@
 namespace Puli\Tests\Extension\Twig;
 
 use Puli\Extension\Twig\PuliTemplateLoader;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Tests\Resource\TestDirectory;
 
 /**
@@ -33,7 +33,7 @@ class PuliTemplateLoaderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->repo = $this->getMock('Puli\ResourceRepositoryInterface');
+        $this->repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $this->loader = new PuliTemplateLoader($this->repo);
     }
 

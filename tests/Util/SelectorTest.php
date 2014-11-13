@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests;
+namespace Puli\Tests\Util;
 
 use Puli\Util\Selector;
 

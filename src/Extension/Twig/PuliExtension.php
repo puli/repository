@@ -14,7 +14,7 @@ namespace Puli\Extension\Twig;
 use Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
 use Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
 use Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

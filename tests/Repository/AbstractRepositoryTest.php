@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests;
+namespace Puli\Tests\Repository;
 
 use Puli\Resource\DirectoryResourceInterface;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Tests\Resource\TestDirectory;
 use Puli\Tests\Resource\TestFile;
 
@@ -142,7 +142,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testContainsExpectsAbsolutePath()
     {
@@ -204,7 +204,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\ResourceNotFoundException
+     * @expectedException \Puli\Repository\ResourceNotFoundException
      */
     public function testGetExpectsExistingResource()
     {
@@ -214,7 +214,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testGetExpectsAbsolutePath()
     {
@@ -375,7 +375,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testFindExpectsAbsolutePath()
     {

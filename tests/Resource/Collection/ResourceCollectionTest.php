@@ -41,7 +41,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testConstructFailsIfNoResource()
     {
@@ -79,7 +79,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\UnsupportedResourceException
+     * @expectedException \Puli\Repository\UnsupportedResourceException
      */
     public function testReplaceFailsIfNoResource()
     {

@@ -11,9 +11,9 @@
 
 namespace Puli\Resource\Collection;
 
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceRepositoryInterface;
 
 /**
  * A resource collection which loads its resources on demand.

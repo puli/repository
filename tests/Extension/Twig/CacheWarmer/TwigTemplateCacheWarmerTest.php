@@ -12,7 +12,7 @@
 namespace Puli\Tests\Extension\Twig\CacheWarmer;
 
 use Puli\Extension\Twig\CacheWarmer\TwigTemplateCacheWarmer;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
 
 /**
  * @since  1.0

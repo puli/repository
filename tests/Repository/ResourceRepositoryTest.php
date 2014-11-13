@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests;
+namespace Puli\Tests\Repository;
 
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\DirectoryResourceInterface;
-use Puli\ResourceRepository;
+use Puli\Repository\ResourceRepository;
+use Puli\Tests\Repository\AbstractRepositoryTest;
 use Puli\Tests\Resource\TestDirectory;
 use Puli\Tests\Resource\TestFile;
 
@@ -203,7 +204,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddOneFromBackend()
     {
-        $backend = $this->getMock('Puli\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $file = new TestFile();
         $file->attachTo($backend, '/dir1/file1');
 
@@ -226,7 +227,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddManyFromBackend()
     {
-        $backend = $this->getMock('Puli\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $file1 = new TestFile();
         $file1->attachTo($backend, '/dir1/file1');
         $file2 = new TestFile();
@@ -256,7 +257,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testAddExpectsNonEmptyRepositoryPath()
     {
@@ -286,7 +287,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testAddExpectsAbsolutePath()
     {
@@ -427,7 +428,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testRemoveExpectsNonEmptyPath()
     {
@@ -435,7 +436,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testRemoveExpectsAbsolutePath()
     {
@@ -513,7 +514,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\ResourceNotFoundException
+     * @expectedException \Puli\Repository\ResourceNotFoundException
      */
     public function testTagExpectsValidPath()
     {
@@ -521,7 +522,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testTagExpectsAbsolutePath()
     {
@@ -673,7 +674,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\ResourceNotFoundException
+     * @expectedException \Puli\Repository\ResourceNotFoundException
      */
     public function testUntagExpectsValidPath()
     {
@@ -681,7 +682,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\InvalidPathException
+     * @expectedException \Puli\Repository\InvalidPathException
      */
     public function testUntagExpectsAbsolutePath()
     {

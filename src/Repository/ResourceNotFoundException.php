@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 /**
- * Thrown when the requested operation is not supported by the repository.
+ * Thrown when a requested resource was not found.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UnsupportedOperationException extends \Exception
+class ResourceNotFoundException extends \RuntimeException
 {
 }

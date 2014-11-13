@@ -15,7 +15,7 @@ use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

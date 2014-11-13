@@ -12,9 +12,9 @@
 namespace Puli\Filesystem\Resource;
 
 use Puli\Filesystem\FilesystemException;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\FileResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

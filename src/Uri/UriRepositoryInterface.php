@@ -11,7 +11,7 @@
 
 namespace Puli\Uri;
 
-use Puli\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * A repository which supports URIs for retrieving resources.

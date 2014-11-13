@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli;
+namespace Puli\Repository;
 
 use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\Collection\ResourceCollectionInterface;
