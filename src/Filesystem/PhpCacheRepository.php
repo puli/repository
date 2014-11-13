@@ -23,24 +23,72 @@ use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
 use Puli\Resource\DirectoryResource;
 use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\NoDirectoryException;
 use Puli\Resource\ResourceInterface;
 use Puli\Util\Path;
 use Puli\Util\Selector;
 
 /**
+ * A repository that reads from a PHP file cache.
+ *
+ * The cache can be populated using another repository with the
+ * {@link dumpRepository} method:
+ *
+ * ```php
+ * use Puli\Filesystem\PhpCacheRepository;
+ * use Puli\Repository\ResourceRepository;
+ *
+ * $repo = new ResourceRepository();
+ * $repo->add('/css', '/path/to/css');
+ *
+ * PhpCacheRepository::dumpRepository($repo, '/path/to/cache');
+ * ```
+ *
+ * This method generates a couple of ".php" files in the given cache directory.
+ * Pass this directory to the {@link __construct}:
+ *
+ * ```php
+ * use Puli\Filesystem\PhpCacheRepository;
+ *
+ * $repo = new PhpCacheRepository('/path/to/cache');
+ *
+ * echo $repo->get('/css/style.css')->getLocalPath();
+ * // => /path/to/css/style.css
+ * ```
+ *
+ * All resources contained in the repository passed to {@link dumpRepository}
+ * can be accessed. Note that only resources implementing either
+ * {@link LocalResourceInterface} or {@link DirectoryResourceInterface} are
+ * included in the dump.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathLoaderInterface
 {
+    /**
+     * The name of the file caching the paths of all files.
+     */
     const FILE_PATHS_FILE = 'resources_file_paths.php';
 
+    /**
+     * The name of the file caching the paths of all directories.
+     */
     const DIR_PATHS_FILE = 'resources_dir_paths.php';
 
+    /**
+     * The name of the file caching the overridden paths.
+     */
     const OVERRIDDEN_PATHS_FILE = 'resources_overridden_paths.php';
 
+    /**
+     * The name of the file caching the tag assignments.
+     */
     const TAGS_FILE = 'resources_tags.php';
 
+    /**
+     * @var string
+     */
     private $cacheDir;
 
     /**
@@ -48,14 +96,44 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      */
     private $resources = array();
 
+    /**
+     * @var string[]
+     */
     private $filePaths;
 
+    /**
+     * @var string[]
+     */
     private $dirPaths;
 
+    /**
+     * @var array[]
+     */
     private $overriddenPaths;
 
+    /**
+     * @var array[]
+     */
     private $tags;
 
+    /**
+     * Dumps a repository into the given target path.
+     *
+     * The target path can then be passed to {@link __construct}.
+     *
+     * This method creates a list of ".php" files that contain mappings of
+     * repository paths to local file paths. Hence any resources that don't
+     * implement {@link LocalResourceInterface} are ignored. Resources that
+     * implement {@link DirectoryResourceInterface} are always included, but
+     * their local path may be empty.
+     *
+     * @param ResourceRepositoryInterface $repo       The dumped repository.
+     * @param string                      $targetPath The path to the directory
+     *                                                where the dumped files
+     *                                                should be stored.
+     *
+     * @throws NoDirectoryException If the target path is not a directory.
+     */
     public static function dumpRepository(ResourceRepositoryInterface $repo, $targetPath)
     {
         $filePaths = array();
@@ -77,10 +155,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         }
 
         if (!is_dir($targetPath)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The path "%s" is not a directory.',
-                $targetPath
-            ));
+            throw new NoDirectoryException($targetPath);
         }
 
         file_put_contents($targetPath.'/'.self::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
@@ -89,6 +164,14 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         file_put_contents($targetPath.'/'.self::TAGS_FILE, "<?php\n\nreturn ".var_export($tags, true).";");
     }
 
+    /**
+     * Extracts path information of a resource.
+     *
+     * @param ResourceInterface $resource        The resource.
+     * @param array             $filePaths       Collects the paths of all files.
+     * @param array             $dirPaths        Collects the paths of all directories.
+     * @param array             $overriddenPaths Collects the overridden paths.
+     */
     private static function extractPaths(ResourceInterface $resource, array &$filePaths, array &$dirPaths, array &$overriddenPaths)
     {
         $path = $resource->getPath();
@@ -128,6 +211,18 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         }
     }
 
+    /**
+     * Creates a new repository.
+     *
+     * You should pass the same directory that you previously passed to
+     * {@link dumpRepository} as target path. If that directory does not exist
+     * or if cache files are missing, an exception is thrown.
+     *
+     * @param string $cacheDir The path to the directory that contains the
+     *                         dumped files.
+     *
+     * @throws \RuntimeException If the dump is invalid.
+     */
     public function __construct($cacheDir)
     {
         if (!file_exists($cacheDir.'/'.self::FILE_PATHS_FILE) ||
@@ -143,6 +238,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         $this->cacheDir = $cacheDir;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($path)
     {
         if (isset($path[0]) && '/' !== $path[0]) {
@@ -189,6 +287,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         ));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function find($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -281,6 +382,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         return new LocalResourceCollection($resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function contains($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -339,6 +443,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
             || array_key_exists($selector, $this->dirPaths);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getByTag($tag)
     {
         if (null === $this->tags) {
@@ -359,7 +466,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     }
 
     /**
-     * @return string[]
+     * {@inheritdoc}
      */
     public function getTags($path = null)
     {
@@ -370,6 +477,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         return array_keys($this->tags);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function loadOverriddenPaths(LocalResourceInterface $resource)
     {
         if (null === $this->overriddenPaths) {

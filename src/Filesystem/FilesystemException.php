@@ -12,6 +12,8 @@
 namespace Puli\Filesystem;
 
 /**
+ * Thrown when filesystem-related errors occur.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */

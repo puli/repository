@@ -17,11 +17,16 @@ use Puli\Resource\FileResourceInterface;
 use Puli\Resource\ResourceInterface;
 
 /**
+ * Represents a file on the local file system.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LocalFileResource extends LocalResource implements FileResourceInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function __construct($localPath)
     {
         parent::__construct($localPath);
@@ -34,26 +39,41 @@ class LocalFileResource extends LocalResource implements FileResourceInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getContents()
     {
         return file_get_contents($this->getLocalPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSize()
     {
         return filesize($this->getLocalPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getLastAccessedAt()
     {
         return fileatime($this->getLocalPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getLastModifiedAt()
     {
         return filemtime($this->getLocalPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function override(ResourceInterface $file)
     {
         if (!($file instanceof FileResourceInterface && $file instanceof LocalResourceInterface)) {

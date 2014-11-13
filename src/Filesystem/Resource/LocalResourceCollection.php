@@ -16,11 +16,25 @@ use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\ResourceInterface;
 
 /**
+ * A resource collection that contains {@link LocalResourceInterface} instances
+ * only.
+ *
+ * The resource collection contains the additional method {@link getLocalPaths}
+ * for batch collecting the local paths of all contained resources.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LocalResourceCollection extends ResourceCollection
 {
+    /**
+     * {@inheritdoc}
+     *
+     * Supports {@link LocalResourceInterface} instances only.
+     *
+     * @throws UnsupportedResourceException If the passed resource does not
+     *                                      implement {@link LocalResourceInterface}.
+     */
     public function add(ResourceInterface $resource)
     {
         if (!$resource instanceof LocalResourceInterface) {
@@ -34,6 +48,14 @@ class LocalResourceCollection extends ResourceCollection
         parent::add($resource);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * Supports {@link LocalResourceInterface} instances only.
+     *
+     * @throws UnsupportedResourceException If the passed resource does not
+     *                                      implement {@link LocalResourceInterface}.
+     */
     public function replace($resources)
     {
         if (!is_array($resources) && !$resources instanceof \Traversable) {
@@ -57,6 +79,13 @@ class LocalResourceCollection extends ResourceCollection
         parent::replace($resources);
     }
 
+    /**
+     * Returns the local paths of all contained resources.
+     *
+     * The paths are contained in order of the resources.
+     *
+     * @return string[] The local paths.
+     */
     public function getLocalPaths()
     {
         return array_map(

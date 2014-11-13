@@ -22,6 +22,30 @@ use Puli\Util\Path;
 use Puli\Util\Selector;
 
 /**
+ * A repository reading from the local file system.
+ *
+ * Resources can be read using their absolute file system paths:
+ *
+ * ```php
+ * use Puli\Filesystem\FilesystemRepository;
+ *
+ * $repo = new FilesystemRepository();
+ * $resource = $repo->get('/home/puli/.gitconfig');
+ * ```
+ *
+ * The returned resources implement {@link LocalResourceInterface}.
+ *
+ * Optionally, a root directory can be passed to the constructor. Then all paths
+ * will be read relative to that directory:
+ *
+ * ```php
+ * $repo = new FilesystemRepository('/home/puli');
+ * $resource = $repo->get('/.gitconfig');
+ * ```
+ *
+ * While "." and ".." segments are supported, files outside the root directory
+ * cannot be read. Any leading ".." segments will simply be stripped off.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -32,6 +56,12 @@ class FilesystemRepository implements ResourceRepositoryInterface
      */
     private $rootDirectory = '';
 
+    /**
+     * Creates a new repository.
+     *
+     * @param string|null $rootDirectory The root directory of the repository
+     *                                   on the local file system.
+     */
     public function __construct($rootDirectory = null)
     {
         if ($rootDirectory && !is_dir($rootDirectory)) {
@@ -46,6 +76,9 @@ class FilesystemRepository implements ResourceRepositoryInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($path)
     {
         if (isset($path[0]) && '/' !== $path[0]) {
@@ -70,6 +103,9 @@ class FilesystemRepository implements ResourceRepositoryInterface
             : LocalFileResource::createAttached($this, $path, $localPath);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function find($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -97,6 +133,9 @@ class FilesystemRepository implements ResourceRepositoryInterface
         return new LocalResourceCollection($resources);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function contains($selector)
     {
         if (isset($selector[0]) && '/' !== $selector[0]) {
@@ -112,11 +151,17 @@ class FilesystemRepository implements ResourceRepositoryInterface
         return count(glob($glob, GLOB_BRACE)) > 0;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getByTag($tag)
     {
         return new ResourceCollection();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getTags($path = null)
     {
         return array();

@@ -20,6 +20,8 @@ use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\ResourceInterface;
 
 /**
+ * Represents a directory on the local file system.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -30,6 +32,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
      */
     private $repo;
 
+    /**
+     * {@inheritdoc}
+     */
     public static function createAttached(ResourceRepositoryInterface $repo, $path, $localPath)
     {
         $resource = parent::createAttached($repo, $path, $localPath);
@@ -38,6 +43,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         return $resource;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct($localPath)
     {
         parent::__construct($localPath);
@@ -50,6 +58,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($name)
     {
         // Use attached locator if possible
@@ -71,6 +82,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
             : new LocalFileResource($localPath);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function contains($name)
     {
         // Use attached locator if possible
@@ -81,6 +95,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         return file_exists($this->getLocalPath().'/'.$name);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listEntries()
     {
         // Use attached locator if possible
@@ -113,6 +130,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
 
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function attachTo(ResourceRepositoryInterface $repo, $path)
     {
         parent::attachTo($repo, $path);
@@ -120,6 +140,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         $this->repo = $repo;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function detach()
     {
         parent::detach();
@@ -127,6 +150,9 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         $this->repo = null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function override(ResourceInterface $resource)
     {
         // Virtual directories may be overridden

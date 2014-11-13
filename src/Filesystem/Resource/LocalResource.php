@@ -18,6 +18,8 @@ use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\ResourceInterface;
 
 /**
+ * Base class for local resources.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -44,11 +46,14 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     private $overriddenPaths;
 
     /**
-     * @param ResourceRepositoryInterface $repo
-     * @param                             $path
-     * @param                             $localPath
+     * Creates a directory that is already attached to a repository.
      *
-     * @return static
+     * @param ResourceRepositoryInterface $repo      The repository.
+     * @param string                      $path      The path in the repository.
+     * @param string                      $localPath The path on the local file
+     *                                               system.
+     *
+     * @return static The created resource.
      */
     public static function createAttached(ResourceRepositoryInterface $repo, $path, $localPath)
     {
@@ -62,6 +67,13 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
         return $resource;
     }
 
+    /**
+     * Creates a new local resource.
+     *
+     * @param string $localPath The path on the local file system.
+     *
+     * @throws FilesystemException If the path does not exist.
+     */
     public function __construct($localPath)
     {
         if (!file_exists($localPath)) {
@@ -75,7 +87,7 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getPath()
     {
@@ -83,7 +95,7 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -91,13 +103,16 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getLocalPath()
     {
         return $this->localPath;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getAllLocalPaths()
     {
         if (null === $this->overriddenPaths) {
@@ -110,6 +125,9 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
         return $paths;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function attachTo(ResourceRepositoryInterface $repo, $path)
     {
         $this->path = $path;
@@ -119,12 +137,18 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function detach()
     {
         $this->path = null;
         $this->pathLoader = null;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function override(ResourceInterface $resource)
     {
         if (!$resource instanceof LocalResourceInterface) {
