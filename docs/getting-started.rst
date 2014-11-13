@@ -2,14 +2,14 @@
     single: Getting Started
     single: Installation
 
+Getting Started
+===============
+
 .. toctree::
    :hidden:
 
    getting-started/application-devs
    getting-started/package-devs
-
-Getting Started
-===============
 
 We have several guides that show how to get started quickly with Puli_. If you
 don't know what Puli is, read :doc:`at-a-glance` first.
