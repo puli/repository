@@ -1,15 +1,15 @@
 Locating Files with Puli
 ========================
 
-[![Build Status](https://travis-ci.org/webmozart/puli.png?branch=master)](https://travis-ci.org/webmozart/puli)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/webmozart/puli/badges/quality-score.png?s=f1fbf1884aed7f896c18fc237d3eed5823ac85eb)](https://scrutinizer-ci.com/g/webmozart/puli/)
-[![Code Coverage](https://scrutinizer-ci.com/g/webmozart/puli/badges/coverage.png?s=5d83649f6fc3a9754297da9dc0d997be212c9145)](https://scrutinizer-ci.com/g/webmozart/puli/)
+[![Build Status](https://travis-ci.org/puli/puli.png?branch=master)](https://travis-ci.org/puli/puli)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/puli/puli/badges/quality-score.png?s=f1fbf1884aed7f896c18fc237d3eed5823ac85eb)](https://scrutinizer-ci.com/g/puli/puli/)
+[![Code Coverage](https://scrutinizer-ci.com/g/puli/puli/badges/coverage.png?s=5d83649f6fc3a9754297da9dc0d997be212c9145)](https://scrutinizer-ci.com/g/puli/puli/)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/728198dc-dc0f-4bab-b5c0-c0b4e2a55bce/mini.png)](https://insight.sensiolabs.com/projects/728198dc-dc0f-4bab-b5c0-c0b4e2a55bce)
-[![Latest Stable Version](https://poser.pugx.org/webmozart/puli/v/stable.png)](https://packagist.org/packages/webmozart/puli)
-[![Total Downloads](https://poser.pugx.org/webmozart/puli/downloads.png)](https://packagist.org/packages/webmozart/puli)
-[![Dependency Status](https://www.versioneye.com/php/webmozart:puli/1.0.0/badge.png)](https://www.versioneye.com/php/webmozart:puli/1.0.0)
+[![Latest Stable Version](https://poser.pugx.org/puli/puli/v/stable.png)](https://packagist.org/packages/puli/puli)
+[![Total Downloads](https://poser.pugx.org/puli/puli/downloads.png)](https://packagist.org/packages/puli/puli)
+[![Dependency Status](https://www.versioneye.com/php/puli:puli/1.0.0/badge.png)](https://www.versioneye.com/php/puli:puli/1.0.0)
 
-Latest release: [1.0.0-alpha3](https://packagist.org/packages/webmozart/puli#1.0.0-alpha3)
+Latest release: [1.0.0-alpha3](https://packagist.org/packages/puli/puli#1.0.0-alpha3)
 
 PHP >= 5.3.9
 
