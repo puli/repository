@@ -8,26 +8,11 @@
             "email": "bschussek@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "git",
-            "url":  "https://github.com/webmozart/assetic.git"
-        }
-    ],
     "require": {
         "php": ">=5.3.9"
     },
     "require-dev": {
-        "symfony/filesystem": "~2.0",
-        "symfony/config": "~2.3",
-        "symfony/http-kernel": "~2.3",
-        "twig/twig": "~1.0",
-        "kriswallsmith/assetic": "dev-lazy-assetic-node"
-    },
-    "suggest": {
-        "symfony/config": "Puli provides a file locator for the Symfony Config component.",
-        "twig/twig": "Puli provides an extension for the Twig templating engine.",
-        "kriswallsmith/assetic": "Puli provides an asset factory for Assetic."
+        "symfony/filesystem": "~2.0"
     },
     "minimum-stability": "dev",
     "autoload": {

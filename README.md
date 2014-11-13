@@ -107,39 +107,30 @@ Documentation
 
 1. [Basic Usage]: Teaches you about the basic use of Puli.
 
-Bundled Extensions
-------------------
-
-The following extensions are provided in the [`Puli\Extension`]
-namespace:
-
-Extension | Description                                                                        | Stability | Documentation
---------- | ---------------------------------------------------------------------------------- | --------- | -----------------------------------
-Assetic   | You can create [Assetic] assets with Puli paths using the bundled asset factory.   | alpha     | -
-Symfony   | Puli provides a file locator for the Symfony [Config] and [HttpKernel] components. | alpha     | [Documentation](doc/ext-symfony.md)
-Twig      | The [Twig] extension lets you access templates via Puli paths.                     | alpha     | [Documentation](doc/ext-twig.md)
-
 Tool Integration
 ----------------
 
-Puli is also integrated into several tools via external libraries:
+Puli is integrated into several tools and libraries:
 
 Tool     | Description                                                                             | Version
 -------- | --------------------------------------------------------------------------------------- | ---------------
 Composer | The [Puli plugin for Composer] builds resource locators from composer.json definitions. | 1.0.0-alpha1
+Twig     | The [Twig extension] lets you access templates via Puli paths.                          | 1.0.0-dev
 Pash     | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
-Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framework].              | 1.0.0-dev
+Symfony  | The [Puli bridge] and [Puli bundle] integrate Puli with [Symfony].                      | 1.0.0-dev
+Assetic  | You can create [Assetic] assets with Puli paths using the [Assetic extension].          | 1.0.0-dev
 
 [Composer]: https://getcomposer.org
 [Basic Usage]: doc/1-basic-usage.md
 [Advanced Usage]: doc/2-advanced-usage.md
 [Composer plugin]: https://github.com/puli/composer-puli-plugin
 [Puli plugin for Composer]: https://github.com/puli/composer-puli-plugin
-[Puli extension for Twig]: https://github.com/puli/twig-puli-extension
+[Twig extension]: https://github.com/puli/twig-puli-extension
 [Puli bridge]: https://github.com/puli/symfony-puli-bridge
 [Puli bundle]: https://github.com/puli/symfony-puli-bundle
 [Pash shell]: https://github.com/puli/pash
-[Symfony full-stack framework]: http://symfony.com
+[Assetic extension]: https://github.com/puli/assetic-puli-extension
+[Symfony]: http://symfony.com
 [Twig]: http://twig.sensiolabs.org
 [Config]: http://symfony.com/doc/current/components/config/introduction.html
 [HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
