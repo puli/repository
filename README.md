@@ -91,7 +91,7 @@ You can install Puli with [Composer]:
 ```json
 {
     "require": {
-        "webmozart/puli": "~1.0@dev"
+        "puli/puli": "~1.0@dev"
     }
 }
 ```
@@ -133,13 +133,13 @@ Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framew
 [Composer]: https://getcomposer.org
 [Basic Usage]: doc/1-basic-usage.md
 [Advanced Usage]: doc/2-advanced-usage.md
-[Composer plugin]: https://github.com/webmozart/composer-puli-plugin
-[Puli plugin for Composer]: https://github.com/webmozart/composer-puli-plugin
-[Puli extension for Twig]: https://github.com/webmozart/twig-puli-extension
-[Puli bridge]: https://github.com/webmozart/symfony-puli-bridge
-[Puli bundle]: https://github.com/webmozart/symfony-puli-bundle
-[Pash shell]: https://github.com/webmozart/pash
-[Symfony full-stack framework]: http:/symfony.com
+[Composer plugin]: https://github.com/puli/composer-puli-plugin
+[Puli plugin for Composer]: https://github.com/puli/composer-puli-plugin
+[Puli extension for Twig]: https://github.com/puli/twig-puli-extension
+[Puli bridge]: https://github.com/puli/symfony-puli-bridge
+[Puli bundle]: https://github.com/puli/symfony-puli-bundle
+[Pash shell]: https://github.com/puli/pash
+[Symfony full-stack framework]: http://symfony.com
 [Twig]: http://twig.sensiolabs.org
 [Config]: http://symfony.com/doc/current/components/config/introduction.html
 [HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
