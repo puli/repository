@@ -95,6 +95,8 @@ Consider that you want to change the contents of
 ``/acme/blog/views/footer.html.twig`` without touching the original package.
 You can copy the file to your project and override it in ``composer.json``:
 
+.. code-block:: json
+
     {
         "require": {
             "acme/blog": "*"
