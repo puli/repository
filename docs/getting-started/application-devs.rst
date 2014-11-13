@@ -49,7 +49,7 @@ in your application:
 
 The variable ``$repo`` contains an instance of
 :class:`Puli\\Repository\\ResourceRepositoryInterface`. This repository allows
-to locate and output the file `style.css` much easier:
+to locate and output the file ``style.css`` much easier:
 
 .. code-block:: php
 
@@ -145,7 +145,7 @@ Puli paths can also be mapped to multiple directories:
     }
 
 Run ``composer install`` to refresh the generated repository. Your application
-resources can be accessed using the Puli path `/app` now:
+resources can be accessed using the Puli path ``/app`` now:
 
 .. code-block:: php
 

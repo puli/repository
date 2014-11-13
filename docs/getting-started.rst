@@ -14,7 +14,7 @@ Getting Started
 We have several guides that show how to get started quickly with Puli_. If you
 don't know what Puli is, read :doc:`at-a-glance` first.
 
-The right guide for you depends on what you develop:
+The right guide depends on what you develop:
 
 * :doc:`getting-started/application-devs` explains how to use Puli in
   applications that use Composer_ to load their required packages.
