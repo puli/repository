@@ -118,8 +118,8 @@ file from the "acme/blog" package is referenced.
 Stream Wrappers
 ---------------
 
-Did you know that PHP's `stream wrappers`_ ? With Puli's stream wrapper, you can
-use Puli repositories like ordinary files:
+Did you know PHP's `stream wrapper`_ feature? With Puli's stream wrapper, you
+can use Puli repositories like ordinary files:
 
 .. code-block:: php
 
@@ -181,4 +181,4 @@ reading to learn more about Puli's usage.
 .. _Composer plugin: https://github.com/puli/composer-puli-plugin
 .. _Twig extension: https://github.com/puli/twig-puli-extension
 .. _Symfony bridge: https://github.com/puli/symfony-puli-bridge
-.. _stream wrappers: http://php.net/manual/en/intro.stream.php
+.. _stream wrapper: http://php.net/manual/en/intro.stream.php
