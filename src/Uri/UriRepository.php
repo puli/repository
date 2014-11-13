@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Uri;
+namespace Puli\Uri;
 
-use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\InvalidPathException;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * A repository which delegates to other repositories based on URI schemes.
@@ -26,8 +26,8 @@ use Webmozart\Puli\ResourceRepositoryInterface;
  * repository:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
- * use Webmozart\Puli\Uri\UriRepository;
+ * use Puli\ResourceRepository;
+ * use Puli\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  * $psr4Repo = new ResourceRepository();
@@ -47,8 +47,8 @@ use Webmozart\Puli\ResourceRepositoryInterface;
  * which create the repository on demand:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
- * use Webmozart\Puli\Uri\UriRepository;
+ * use Puli\ResourceRepository;
+ * use Puli\Uri\UriRepository;
  *
  * $repo = new UriRepository();
  * $repo->register('puli', function () {
@@ -63,8 +63,8 @@ use Webmozart\Puli\ResourceRepositoryInterface;
  * reading paths from that scheme, the protocol may be omitted:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
- * use Webmozart\Puli\Uri\UriRepository;
+ * use Puli\ResourceRepository;
+ * use Puli\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  * $psr4Repo = new ResourceRepository();
@@ -110,7 +110,7 @@ class UriRepository implements UriRepositoryInterface
                 && !is_callable($repositoryFactory)) {
             throw new \InvalidArgumentException(
                 'The locator factory should be a callable or an instance '.
-                'of "Webmozart\Puli\ResourceRepositoryInterface".'
+                'of "Puli\ResourceRepositoryInterface".'
             );
         }
 
@@ -336,7 +336,7 @@ class UriRepository implements UriRepositoryInterface
                 throw new RepositoryFactoryException(sprintf(
                     'The value of type "%s" returned by the locator factory '.
                     'registered for scheme "%s" does not implement '.
-                    '"\Webmozart\Puli\ResourceRepositoryInterface".',
+                    '"\Puli\ResourceRepositoryInterface".',
                     gettype($result),
                     $scheme
                 ));

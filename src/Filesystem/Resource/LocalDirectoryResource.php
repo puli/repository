@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Filesystem\Resource;
+namespace Puli\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\FilesystemException;
-use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\UnsupportedResourceException;
+use Puli\Filesystem\FilesystemException;
+use Puli\Resource\DirectoryResource;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
+use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

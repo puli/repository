@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Resource\Iterator;
+namespace Puli\Tests\Resource\Iterator;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\Tests\Resource\TestDirectory;
-use Webmozart\Puli\Tests\Resource\TestFile;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Tests\Resource\TestDirectory;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0

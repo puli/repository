@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Twig;
+namespace Puli\Tests\Extension\Twig;
 
-use Webmozart\Puli\Extension\Twig\PuliExtension;
-use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\ResourceRepository;
+use Puli\Extension\Twig\PuliExtension;
+use Puli\Extension\Twig\PuliTemplateLoader;
+use Puli\ResourceRepository;
 
 /**
  * @since  1.0

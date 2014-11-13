@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Util;
+namespace Puli\Util;
 
 /**
  * Utility methods for handling path selectors.

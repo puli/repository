@@ -42,6 +42,7 @@ Changelog
    * added `RecursiveResourceIterator`
    * removed code from `ResourceFilterIterator` that is duplicated in
      `ResourceCollectionIterator`
+   * moved all code to the `Puli\` top-level namespace
 
 * 1.0.0-alpha3 (2014-02-22)
 

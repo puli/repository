@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Util;
+namespace Puli\Extension\Assetic\Util;
 
 use Assetic\Util\CssUtils;
 

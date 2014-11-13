@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Filter;
+namespace Puli\Extension\Assetic\Filter;
 
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\AssetInterface;
@@ -17,9 +17,9 @@ use Assetic\AssetManager;
 use Assetic\Filter\FilterInterface;
 use Assetic\Filter\HashableInterface;
 use Assetic\Util\CssUtils;
-use Webmozart\Puli\Extension\Assetic\Asset\PuliAssetInterface;
-use Webmozart\Puli\Extension\Assetic\AssetException;
-use Webmozart\Puli\Util\Path;
+use Puli\Extension\Assetic\Asset\PuliAssetInterface;
+use Puli\Extension\Assetic\AssetException;
+use Puli\Util\Path;
 
 /**
  * @since  1.0

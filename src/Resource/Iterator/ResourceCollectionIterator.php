@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource\Iterator;
+namespace Puli\Resource\Iterator;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
+use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\ResourceInterface;
 
 /**
  * A recursive iterator for resource collections.

@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\StreamWrapper;
+namespace Puli\StreamWrapper;
 
-use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\FileResourceInterface;
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\Resource\NoDirectoryException;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\UnsupportedOperationException;
-use Webmozart\Puli\UnsupportedResourceException;
-use Webmozart\Puli\Uri\UriRepositoryInterface;
+use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\FileResourceInterface;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Resource\NoDirectoryException;
+use Puli\ResourceNotFoundException;
+use Puli\UnsupportedOperationException;
+use Puli\UnsupportedResourceException;
+use Puli\Uri\UriRepositoryInterface;
 
 /**
  * Registers a PHP stream wrapper for a {@link UriRepositoryInterface}.
@@ -27,9 +27,9 @@ use Webmozart\Puli\Uri\UriRepositoryInterface;
  * To register the stream wrapper, call {@link register}:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
- * use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
- * use Webmozart\Puli\Uri\UriRepository;
+ * use Puli\ResourceRepository;
+ * use Puli\StreamWrapper\ResourceStreamWrapper;
+ * use Puli\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  *
@@ -596,7 +596,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         if (null === self::$repo) {
             throw new StreamWrapperException(
                 'The stream wrapper has not been registered. Please call '.
-                '\Webmozart\Puli\StreamWrapper\ResourceStreamWrapper::register() '.
+                '\Puli\StreamWrapper\ResourceStreamWrapper::register() '.
                 'first.'
             );
         }

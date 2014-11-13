@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli;
+namespace Puli;
 
 /**
  * Thrown when a specific implementation of {@link ResourceInterface} is not

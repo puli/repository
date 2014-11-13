@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Symfony\Config;
+namespace Puli\Tests\Extension\Symfony\Config;
 
-use Webmozart\Puli\Extension\Symfony\Config\PuliFileLocator;
-use Webmozart\Puli\ResourceRepository;
-use Webmozart\Puli\Tests\Resource\TestFile;
+use Puli\Extension\Symfony\Config\PuliFileLocator;
+use Puli\ResourceRepository;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0

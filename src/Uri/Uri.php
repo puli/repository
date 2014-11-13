@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Uri;
+namespace Puli\Uri;
 
 /**
  * Utility methods for handling URIs.

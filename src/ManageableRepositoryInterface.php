@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli;
+namespace Puli;
 
-use Webmozart\Puli\Resource\AttachableResourceInterface;
-use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Resource\AttachableResourceInterface;
+use Puli\Resource\Collection\ResourceCollectionInterface;
 
 /**
  * A repository that supports the addition and removal of resources.

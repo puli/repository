@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Twig;
+namespace Puli\Extension\Twig;
 
-use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Resource\FileResourceInterface;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\InvalidPathException;
+use Puli\Resource\FileResourceInterface;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

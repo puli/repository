@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem\Resource;
+namespace Puli\Tests\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\Resource\LocalResource;
+use Puli\Filesystem\Resource\LocalResource;
 
 /**
  * @since  1.0

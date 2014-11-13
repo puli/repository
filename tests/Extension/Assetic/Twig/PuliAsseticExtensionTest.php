@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Assetic\Twig;
+namespace Puli\Tests\Extension\Assetic\Twig;
 
 use Assetic\Extension\Twig\AsseticExtension;
-use Webmozart\Puli\Extension\Assetic\Factory\PuliAssetFactory;
-use Webmozart\Puli\Extension\Assetic\Twig\PuliAsseticExtension;
-use Webmozart\Puli\Extension\Twig\PuliExtension;
-use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\ResourceRepository;
-use Webmozart\Puli\Tests\Extension\Twig\RandomizedTwigEnvironment;
+use Puli\Extension\Assetic\Factory\PuliAssetFactory;
+use Puli\Extension\Assetic\Twig\PuliAsseticExtension;
+use Puli\Extension\Twig\PuliExtension;
+use Puli\Extension\Twig\PuliTemplateLoader;
+use Puli\ResourceRepository;
+use Puli\Tests\Extension\Twig\RandomizedTwigEnvironment;
 
 /**
  * @since  1.0

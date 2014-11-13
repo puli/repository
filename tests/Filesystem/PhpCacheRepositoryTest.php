@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem;
+namespace Puli\Tests\Filesystem;
 
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\Puli\Filesystem\PhpCacheRepository;
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Filesystem\Resource\LocalResource;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\ResourceRepository;
-use Webmozart\Puli\Tests\AbstractRepositoryTest;
+use Puli\Filesystem\PhpCacheRepository;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Filesystem\Resource\LocalResource;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\ResourceRepository;
+use Puli\Tests\AbstractRepositoryTest;
 
 /**
  * @since  1.0
@@ -141,7 +141,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo = new PhpCacheRepository($this->cacheRoot);
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $file);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repoRoot.'/file', $file->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/file'), $file->getAllLocalPaths());
@@ -161,7 +161,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo->get('/webmozart/puli/file');
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $file);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repoRoot.'/file', $file->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/file'), $file->getAllLocalPaths());
@@ -179,7 +179,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo = new PhpCacheRepository($this->cacheRoot);
         $dir = $repo->get('/webmozart/puli/dir');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
         $this->assertSame('/webmozart/puli/dir', $dir->getPath());
         $this->assertSame($this->repoRoot.'/dir', $dir->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/dir'), $dir->getAllLocalPaths());
@@ -199,7 +199,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo->get('/webmozart/puli/dir');
         $dir = $repo->get('/webmozart/puli/dir');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
         $this->assertSame('/webmozart/puli/dir', $dir->getPath());
         $this->assertSame($this->repoRoot.'/dir', $dir->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/dir'), $dir->getAllLocalPaths());
@@ -219,7 +219,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo = new PhpCacheRepository($this->cacheRoot);
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $file);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repoRoot.'/file2', $file->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/file1', $this->repoRoot.'/file2'), $file->getAllLocalPaths());
@@ -244,7 +244,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $entries = $dir->listEntries();
         $entries = $dir->listEntries();
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalDirectoryResource', $dir);
         $this->assertCount(2, $entries);
         $this->assertSame('/webmozart/puli/dir', $dir->getPath());
         $this->assertSame($this->repoRoot.'/dir2', $dir->getLocalPath());
@@ -253,12 +253,12 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         // sorted
         $this->assertSame(array('bar', 'foo'), array_keys($entries->toArray()));
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $entries['bar']);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $entries['bar']);
         $this->assertSame('/webmozart/puli/dir/bar', $entries['bar']->getPath());
         $this->assertSame($this->repoRoot.'/dir2/bar', $entries['bar']->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/dir2/bar'), $entries['bar']->getAllLocalPaths());
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $entries['foo']);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $entries['foo']);
         $this->assertSame('/webmozart/puli/dir/foo', $entries['foo']->getPath());
         $this->assertSame($this->repoRoot.'/dir2/foo', $entries['foo']->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/dir1/foo', $this->repoRoot.'/dir2/foo'), $entries['foo']->getAllLocalPaths());
@@ -278,10 +278,10 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $repo->get('/webmozart/puli/file');
         $resources = $repo->find('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalResourceCollection', $resources);
         $this->assertCount(1, $resources);
 
-        $this->assertInstanceOf('Webmozart\Puli\Filesystem\Resource\LocalFileResource', $resources[0]);
+        $this->assertInstanceOf('Puli\Filesystem\Resource\LocalFileResource', $resources[0]);
         $this->assertSame('/webmozart/puli/file', $resources[0]->getPath());
         $this->assertSame($this->repoRoot.'/file', $resources[0]->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/file'), $resources[0]->getAllLocalPaths());

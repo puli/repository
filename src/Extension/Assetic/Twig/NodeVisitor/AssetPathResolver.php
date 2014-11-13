@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Twig\NodeVisitor;
+namespace Puli\Extension\Assetic\Twig\NodeVisitor;
 
 use Assetic\Extension\Twig\LazyAsseticNode;
-use Webmozart\Puli\Extension\Twig\NodeVisitor\AbstractPathResolver;
-use Webmozart\Puli\Extension\Twig\PuliExtension;
+use Puli\Extension\Twig\NodeVisitor\AbstractPathResolver;
+use Puli\Extension\Twig\PuliExtension;
 
 /**
  * @since  1.0

@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Filesystem;
+namespace Puli\Filesystem;
 
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
-use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Util\Path;
-use Webmozart\Puli\Util\Selector;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Filesystem\Resource\LocalResourceCollection;
+use Puli\InvalidPathException;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
+use Puli\Util\Path;
+use Puli\Util\Selector;
 
 /**
  * @since  1.0

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Twig;
+namespace Puli\Tests\Extension\Twig;
 
 /**
  * Twig_Environment implementation which prevents unrepeatable tests.

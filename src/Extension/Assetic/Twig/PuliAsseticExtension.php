@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Twig;
+namespace Puli\Extension\Assetic\Twig;
 
-use Webmozart\Puli\Extension\Assetic\Twig\NodeVisitor\AssetPathResolver;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Extension\Assetic\Twig\NodeVisitor\AssetPathResolver;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

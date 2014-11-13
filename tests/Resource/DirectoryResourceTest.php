@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Resource;
+namespace Puli\Tests\Resource;
 
-use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Tests\Resource\AbstractDirectoryResourceTest;
+use Puli\Resource\DirectoryResource;
+use Puli\ResourceRepositoryInterface;
+use Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Assetic\Filter;
+namespace Puli\Tests\Extension\Assetic\Filter;
 
 use Assetic\Asset\StringAsset;
 use Assetic\AssetManager;
-use Webmozart\Puli\Extension\Assetic\Asset\PuliStringAsset;
-use Webmozart\Puli\Extension\Assetic\Filter\PuliCssRewriteFilter;
+use Puli\Extension\Assetic\Asset\PuliStringAsset;
+use Puli\Extension\Assetic\Filter\PuliCssRewriteFilter;
 
 /**
  * @since  1.0
@@ -195,7 +195,7 @@ class PuliCssRewriteFilterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Extension\Assetic\AssetException
+     * @expectedException \Puli\Extension\Assetic\AssetException
      */
     public function testTargetAssetMustExist()
     {
@@ -207,7 +207,7 @@ class PuliCssRewriteFilterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Extension\Assetic\AssetException
+     * @expectedException \Puli\Extension\Assetic\AssetException
      */
     public function testTargetPathMustBeSet()
     {
@@ -238,7 +238,7 @@ class PuliCssRewriteFilterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Extension\Assetic\AssetException
+     * @expectedException \Puli\Extension\Assetic\AssetException
      */
     public function testReferencedAssetMustHaveTargetPath()
     {

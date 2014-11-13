@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Uri;
+namespace Puli\Tests\Uri;
 
-use Webmozart\Puli\Uri\Uri;
+use Puli\Uri\Uri;
 
 /**
  * @since  1.0
@@ -64,7 +64,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideInvalidUris
-     * @expectedException \Webmozart\Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Uri\InvalidUriException
      */
     public function testParseInvalid($uri)
     {

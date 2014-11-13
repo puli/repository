@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\StreamWrapper;
+namespace Puli\Tests\StreamWrapper;
 
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
-use Webmozart\Puli\Tests\Filesystem\TestLocalFile;
-use Webmozart\Puli\Tests\Resource\TestDirectory;
-use Webmozart\Puli\Tests\Resource\TestFile;
+use Puli\ResourceNotFoundException;
+use Puli\StreamWrapper\ResourceStreamWrapper;
+use Puli\Tests\Filesystem\TestLocalFile;
+use Puli\Tests\Resource\TestDirectory;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -41,7 +41,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     private $dir2;
 
     /**
-     * @var \Webmozart\Puli\\Webmozart\Puli\Uri\UriRepository
+     * @var \Puli\\Puli\Uri\UriRepository
      */
     private $repo;
 
@@ -54,7 +54,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
         $dir = new TestDirectory('/webmozart/puli/dir');
         $nonLocal = new TestFile('/webmozart/puli/non-local');
 
-        $this->repo = $this->getMock('Webmozart\Puli\Uri\UriRepositoryInterface');
+        $this->repo = $this->getMock('Puli\Uri\UriRepositoryInterface');
 
         $this->repo->expects($this->any())
             ->method('get')
@@ -111,7 +111,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testOpenNonFile()
     {
@@ -280,7 +280,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideWriteModes
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testCannotOpenForWriting($mode)
     {
@@ -304,7 +304,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testLockIsProhibited($path)
     {
@@ -314,7 +314,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testTouchExistingIsProhibited($path)
     {
@@ -327,7 +327,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testTouchNewIsProhibited()
     {
@@ -341,7 +341,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testChownIsProhibited($path)
     {
@@ -355,7 +355,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testChgrpIsProhibited($path)
     {
@@ -369,7 +369,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testChmodIsProhibited($path)
     {
@@ -383,7 +383,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testUnlinkIsProhibited($path)
     {
@@ -391,7 +391,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testRenameIsProhibited()
     {
@@ -399,7 +399,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testRmdirIsProhibited()
     {
@@ -407,7 +407,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedOperationException
+     * @expectedException \Puli\UnsupportedOperationException
      */
     public function testMkdirIsProhibited()
     {
@@ -444,7 +444,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\ResourceNotFoundException
+     * @expectedException \Puli\ResourceNotFoundException
      */
     public function testOpenNonExistingDirectory()
     {
@@ -452,7 +452,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\NoDirectoryException
+     * @expectedException \Puli\Resource\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {
@@ -460,7 +460,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\StreamWrapper\StreamWrapperException
+     * @expectedException \Puli\StreamWrapper\StreamWrapperException
      */
     public function testRegisterTwice()
     {
@@ -475,13 +475,13 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\StreamWrapper\StreamWrapperException
+     * @expectedException \Puli\StreamWrapper\StreamWrapperException
      */
     public function testWrapperShouldNotBeRegisteredManually()
     {
         ResourceStreamWrapper::unregister();
 
-        stream_wrapper_register('manual', '\Webmozart\Puli\StreamWrapper\ResourceStreamWrapper');
+        stream_wrapper_register('manual', '\Puli\StreamWrapper\ResourceStreamWrapper');
 
         fopen('manual:///webmozart/puli/file1', 'r');
     }

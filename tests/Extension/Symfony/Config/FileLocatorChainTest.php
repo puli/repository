@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Symfony\Config;
+namespace Puli\Tests\Extension\Symfony\Config;
 
-use Webmozart\Puli\Extension\Symfony\Config\FileLocatorChain;
+use Puli\Extension\Symfony\Config\FileLocatorChain;
 
 /**
  * @since  1.0
@@ -36,8 +36,8 @@ class FileLocatorChainTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->locator1 = $this->getMock('Webmozart\Puli\Extension\Symfony\Config\ChainableFileLocatorInterface');
-        $this->locator2 = $this->getMock('Webmozart\Puli\Extension\Symfony\Config\ChainableFileLocatorInterface');
+        $this->locator1 = $this->getMock('Puli\Extension\Symfony\Config\ChainableFileLocatorInterface');
+        $this->locator2 = $this->getMock('Puli\Extension\Symfony\Config\ChainableFileLocatorInterface');
         $this->chain = new FileLocatorChain(array($this->locator1));
         $this->chain->addLocator($this->locator2);
     }

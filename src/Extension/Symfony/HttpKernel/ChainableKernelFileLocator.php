@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Symfony\HttpKernel;
+namespace Puli\Extension\Symfony\HttpKernel;
 
 use Symfony\Component\HttpKernel\Config\FileLocator;
-use Webmozart\Puli\Extension\Symfony\Config\ChainableFileLocatorInterface;
+use Puli\Extension\Symfony\Config\ChainableFileLocatorInterface;
 
 /**
  * @since  1.0

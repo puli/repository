@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli;
+namespace Puli;
 
 /**
  * Thrown when the requested operation is not supported by the repository.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource\Iterator;
+namespace Puli\Resource\Iterator;
 
 /**
  * Iterates over a {@link ResourceIteratorInterface} and filters out individual

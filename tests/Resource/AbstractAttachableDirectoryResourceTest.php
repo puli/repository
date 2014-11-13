@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Resource;
+namespace Puli\Tests\Resource;
 
-use Webmozart\Puli\Resource\AttachableResourceInterface;
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Resource\AttachableResourceInterface;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -37,7 +37,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testGetPathAndName()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
         $dir = $this->createAttachedDir($repo, '/path/dir');
 
         $this->assertSame('/path/dir', $dir->getPath());
@@ -62,7 +62,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
         $resources = new ResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('find')
@@ -72,12 +72,12 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
         $directory = $this->createAttachedDir($repo, '/path');
         $entries = $directory->listEntries();
 
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $entries);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\DetachedException
+     * @expectedException \Puli\Resource\DetachedException
      */
     public function testListEntriesDetached()
     {
@@ -88,8 +88,8 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testGet()
     {
-        $entry = $this->getMock('Webmozart\Puli\Resource\ResourceInterface');
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $entry = $this->getMock('Puli\Resource\ResourceInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('get')
@@ -102,7 +102,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\DetachedException
+     * @expectedException \Puli\Resource\DetachedException
      */
     public function testGetDetached()
     {
@@ -113,7 +113,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testContains()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
             ->method('contains')
@@ -126,7 +126,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\DetachedException
+     * @expectedException \Puli\Resource\DetachedException
      */
     public function testContainsDetached()
     {
@@ -137,7 +137,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testDetach()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
         $directory = $this->createAttachedDir($repo, '/path');
 
         $this->assertSame('/path', $directory->getPath());

@@ -23,7 +23,7 @@ Repository Management
 Puli manages files in a *repository*, where you map them to a path:
 
 ```php
-use Webmozart\Puli\ResourceRepository;
+use Puli\ResourceRepository;
 
 $repo = new ResourceRepository();
 $repo->add('/', '/path/to/resources/assets/*');
@@ -74,8 +74,8 @@ resource paths from a set of PHP files. These files are created with the
 `dumpRepository()` method:
 
 ```php
-use Webmozart\Puli\Filesystem\PhpCacheRepository;
-use Webmozart\Puli\ResourceRepository;
+use Puli\Filesystem\PhpCacheRepository;
+use Puli\ResourceRepository;
 
 $repo = new ResourceRepository(),
 // configure repository...
@@ -114,8 +114,8 @@ like a regular repository, except that you pass URIs instead of paths.
 An example tells a thousand stories:
 
 ```php
-use Webmozart\Puli\Filesystem\PhpCacheRepository;
-use Webmozart\Puli\Uri\UriRepository;
+use Puli\Filesystem\PhpCacheRepository;
+use Puli\Uri\UriRepository;
 
 $locator = new UriRepository();
 $locator->register('resource', new PhpCacheRepository('/cache/resource'));
@@ -150,8 +150,8 @@ call the `register()` method in [`ResourceStreamWrapper`] and pass a
 configured [`UriRepository`]:
 
 ```php
-use Webmozart\Puli\Locator\UriRepository;
-use Webmozart\Puli\StreamWrapper\ResourceStreamWrapper;
+use Puli\Locator\UriRepository;
+use Puli\StreamWrapper\ResourceStreamWrapper;
 
 $locator = new UriRepository();
 $locator->register('resource', $repository);
@@ -206,7 +206,7 @@ Directory resources implement the additional interface
 from files:
 
 ```php
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\DirectoryResourceInterface;
 
 $resource = $repo->get('/css');
 
@@ -335,7 +335,7 @@ with the "acme/translator/xlf" tag from the repository:
 ```php
 namespace Acme;
 
-use Webmozart\Puli\Locator\ResourceRepositoryInterface;
+use Puli\Locator\ResourceRepositoryInterface;
 
 class Translator
 {

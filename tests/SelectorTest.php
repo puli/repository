@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests;
+namespace Puli\Tests;
 
-use Webmozart\Puli\Util\Selector;
+use Puli\Util\Selector;
 
 /**
  * @since  1.0

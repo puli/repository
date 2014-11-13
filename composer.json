@@ -32,8 +32,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Webmozart\\Puli\\": "src/",
-            "Webmozart\\Puli\\Tests\\": "tests/"
+            "Puli\\": "src/",
+            "Puli\\Tests\\": "tests/"
         }
     },
     "extra": {

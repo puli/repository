@@ -9,23 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Filesystem;
+namespace Puli\Filesystem;
 
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Filesystem\Resource\LocalResource;
-use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
-use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
-use Webmozart\Puli\InvalidPathException;
-use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\UnsupportedResourceException;
-use Webmozart\Puli\Util\Path;
-use Webmozart\Puli\Util\Selector;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Filesystem\Resource\LocalResource;
+use Puli\Filesystem\Resource\LocalResourceCollection;
+use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\InvalidPathException;
+use Puli\Resource\DirectoryResource;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
+use Puli\UnsupportedResourceException;
+use Puli\Util\Path;
+use Puli\Util\Selector;
 
 /**
  * @since  1.0

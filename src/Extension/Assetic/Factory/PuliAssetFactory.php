@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Factory;
+namespace Puli\Extension\Assetic\Factory;
 
 use Assetic\Factory\AssetFactory;
-use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
-use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Uri\UriRepositoryInterface;
+use Puli\Extension\Assetic\Asset\PuliAsset;
+use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\ResourceRepositoryInterface;
+use Puli\Uri\UriRepositoryInterface;
 
 /**
  * @since  1.0

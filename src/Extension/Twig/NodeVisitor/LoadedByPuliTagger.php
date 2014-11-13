@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Twig\NodeVisitor;
+namespace Puli\Extension\Twig\NodeVisitor;
 
-use Webmozart\Puli\Extension\Twig\Node\LoadedByPuliNode;
+use Puli\Extension\Twig\Node\LoadedByPuliNode;
 
 /**
  * Adds the "puli" attribute to all {@link \Twig_Module} nodes that were loaded

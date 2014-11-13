@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Filesystem;
+namespace Puli\Filesystem;
 
 /**
  * @since  1.0

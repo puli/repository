@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Twig;
+namespace Puli\Tests\Extension\Twig;
 
-use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Tests\Resource\TestDirectory;
+use Puli\Extension\Twig\PuliTemplateLoader;
+use Puli\ResourceRepositoryInterface;
+use Puli\Tests\Resource\TestDirectory;
 
 /**
  * @since  1.0
@@ -33,7 +33,7 @@ class PuliTemplateLoaderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $this->repo = $this->getMock('Puli\ResourceRepositoryInterface');
         $this->loader = new PuliTemplateLoader($this->repo);
     }
 

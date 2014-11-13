@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Twig\CacheWarmer;
+namespace Puli\Extension\Twig\CacheWarmer;
 
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
-use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\Resource\Iterator\ResourceFilterIterator;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Resource\Iterator\ResourceFilterIterator;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * Generates the Twig cache for all templates in the resource repository.

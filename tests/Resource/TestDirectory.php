@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Resource;
+namespace Puli\Tests\Resource;
 
-use Webmozart\Puli\Resource\AttachableResourceInterface;
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Resource\AttachableResourceInterface;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

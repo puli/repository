@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
+namespace Puli\Resource;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
-use Webmozart\Puli\ResourceNotFoundException;
+use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\ResourceNotFoundException;
 
 /**
  * A resource which acts as directory in the repository.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Factory\Loader;
+namespace Puli\Extension\Assetic\Factory\Loader;
 
 /**
  * @since  1.0

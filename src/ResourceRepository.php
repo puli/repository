@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli;
+namespace Puli;
 
-use Webmozart\Puli\Filesystem\FilesystemRepository;
-use Webmozart\Puli\Resource\AttachableResourceInterface;
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\Collection\ResourceCollectionInterface;
-use Webmozart\Puli\Resource\DirectoryResource;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\NoDirectoryException;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\Util\Path;
-use Webmozart\Puli\Util\Selector;
+use Puli\Filesystem\FilesystemRepository;
+use Puli\Resource\AttachableResourceInterface;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Resource\DirectoryResource;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\NoDirectoryException;
+use Puli\Resource\ResourceInterface;
+use Puli\Util\Path;
+use Puli\Util\Selector;
 
 /**
  * An in-memory resource repository.
@@ -28,7 +28,7 @@ use Webmozart\Puli\Util\Selector;
  * Resources can be added with the method {@link add}:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
+ * use Puli\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/css', new LocalDirectoryResource('/path/to/project/assets/css'));
@@ -39,7 +39,7 @@ use Webmozart\Puli\Util\Selector;
  * a {@link FilesystemRepository} is used:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
+ * use Puli\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/css', '/path/to/project/assets/css');
@@ -48,8 +48,8 @@ use Webmozart\Puli\Util\Selector;
  * You can also create the backend manually and pass it to the constructor:
  *
  * ```php
- * use Webmozart\Puli\Filesystem\FilesystemRepository;
- * use Webmozart\Puli\ResourceRepository;
+ * use Puli\Filesystem\FilesystemRepository;
+ * use Puli\ResourceRepository;
  *
  * $backend = new FilesystemRepository('/path/to/project');
  *

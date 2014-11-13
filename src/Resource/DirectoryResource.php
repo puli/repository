@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
+namespace Puli\Resource;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * An in-memory directory in the repository.
@@ -21,7 +21,7 @@ use Webmozart\Puli\ResourceRepositoryInterface;
  * demand:
  *
  * ```php
- * use Webmozart\Puli\ResourceRepository;
+ * use Puli\ResourceRepository;
  *
  * $repo = new ResourceRepository();
  * $repo->add('/webmozart/puli/file', $resource);

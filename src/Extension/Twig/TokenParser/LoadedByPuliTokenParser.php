@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Twig\TokenParser;
+namespace Puli\Extension\Twig\TokenParser;
 
-use Webmozart\Puli\Extension\Twig\Node\LoadedByPuliNode;
+use Puli\Extension\Twig\Node\LoadedByPuliNode;
 
 /**
  * Turns the "{% loaded_by_puli %}" token into an instance of

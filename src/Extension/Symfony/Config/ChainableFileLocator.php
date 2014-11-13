@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Symfony\Config;
+namespace Puli\Extension\Symfony\Config;
 
 use Symfony\Component\Config\FileLocator;
 

@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Uri;
+namespace Puli\Tests\Uri;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Tests\Resource\TestFile;
-use Webmozart\Puli\Uri\UriRepository;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Tests\Resource\TestFile;
+use Puli\Uri\UriRepository;
 
 /**
  * @since  1.0
@@ -56,7 +56,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegisterRepository($scheme)
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register($scheme, $repo);
 
@@ -70,7 +70,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterRepositoryFactory()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('scheme', function () use ($repo) {
             return $repo;
@@ -98,17 +98,17 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegisterExpectsValidScheme($scheme)
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register($scheme, $repo);
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\RepositoryFactoryException
+     * @expectedException \Puli\Uri\RepositoryFactoryException
      */
     public function testRepositoryFactoryMustReturnRepository()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('scheme', function () use ($repo) {
             return 'foo';
@@ -122,10 +122,10 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertNull($this->repo->getDefaultScheme());
 
-        $this->repo->register('first', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('first', $this->getMock('Puli\ResourceRepositoryInterface'));
         $this->assertSame('first', $this->repo->getDefaultScheme());
 
-        $this->repo->register('second', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('second', $this->getMock('Puli\ResourceRepositoryInterface'));
         $this->assertSame('first', $this->repo->getDefaultScheme());
 
         $this->repo->unregister('second');
@@ -137,8 +137,8 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testSetDefaultScheme()
     {
-        $this->repo->register('first', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
-        $this->repo->register('second', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('first', $this->getMock('Puli\ResourceRepositoryInterface'));
+        $this->repo->register('second', $this->getMock('Puli\ResourceRepositoryInterface'));
 
         $this->repo->setDefaultScheme('second');
 
@@ -149,7 +149,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Uri\UnsupportedSchemeException
      */
     public function testSetDefaultSchemeFailsIfUnknownScheme()
     {
@@ -158,9 +158,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUsesDefaultSchemeIfPathGiven()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
-        $this->repo->register('scheme1', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\ResourceRepositoryInterface'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -173,7 +173,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Uri\UnsupportedSchemeException
      */
     public function testGetExpectsRegisteredScheme()
     {
@@ -181,11 +181,11 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Uri\UnsupportedSchemeException
      */
     public function testGetCantUseUnregisteredScheme()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('scheme', $repo);
         $this->repo->unregister('scheme');
@@ -197,7 +197,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(array(), $this->repo->getSupportedSchemes());
 
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('resource', $repo);
         $this->assertEquals(array('resource'), $this->repo->getSupportedSchemes());
@@ -213,7 +213,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Uri\InvalidUriException
      */
     public function testGetExpectsValidUri()
     {
@@ -222,7 +222,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContains()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('scheme', $repo);
 
@@ -241,9 +241,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsUsesDefaultScheme()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
-        $this->repo->register('scheme1', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\ResourceRepositoryInterface'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -256,7 +256,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Uri\InvalidUriException
      */
     public function testContainsExpectsValidUri()
     {
@@ -265,7 +265,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('scheme', $repo);
 
@@ -279,9 +279,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFindUsesDefaultSchemeIfPathGiven()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
-        $this->repo->register('scheme1', $this->getMock('Webmozart\Puli\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\ResourceRepositoryInterface'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -294,7 +294,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Uri\InvalidUriException
      */
     public function testFindExpectsValidUri()
     {
@@ -303,8 +303,8 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetByTagChecksAllRepositorys()
     {
-        $repo1 = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
-        $repo2 = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo1 = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo2 = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('resource', $repo1);
         $this->repo->register('namespace', $repo2);
@@ -331,8 +331,8 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetTagsReturnsUnionFromAllRepositorys()
     {
-        $repo1 = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
-        $repo2 = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo1 = $this->getMock('Puli\ResourceRepositoryInterface');
+        $repo2 = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $this->repo->register('resource', $repo1);
         $this->repo->register('namespace', $repo2);

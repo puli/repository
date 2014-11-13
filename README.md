@@ -110,7 +110,7 @@ Documentation
 Bundled Extensions
 ------------------
 
-The following extensions are provided in the [`Webmozart\Puli\Extension`]
+The following extensions are provided in the [`Puli\Extension`]
 namespace:
 
 Extension | Description                                                                        | Stability | Documentation
@@ -144,4 +144,4 @@ Symfony  | The [Puli bundle] integrates Puli with the [Symfony full-stack framew
 [Config]: http://symfony.com/doc/current/components/config/introduction.html
 [HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
 [Assetic]: https://github.com/kriswallsmith/assetic
-[`Webmozart\Puli\Extension`]: src/Extension
+[`Puli\Extension`]: src/Extension

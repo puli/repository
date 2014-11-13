@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests;
+namespace Puli\Tests;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\ResourceRepository;
-use Webmozart\Puli\Tests\Resource\TestDirectory;
-use Webmozart\Puli\Tests\Resource\TestFile;
+use Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\ResourceRepository;
+use Puli\Tests\Resource\TestDirectory;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -91,7 +91,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $repo = new ResourceRepository();
         $root = $repo->get('/');
 
-        $this->assertInstanceOf('Webmozart\Puli\Resource\DirectoryResourceInterface', $root);
+        $this->assertInstanceOf('Puli\Resource\DirectoryResourceInterface', $root);
         $this->assertCount(0, $root->listEntries());
         $this->assertSame('/', $root->getPath());
     }
@@ -140,7 +140,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Resource\NoDirectoryException
+     * @expectedException \Puli\Resource\NoDirectoryException
      */
     public function testAddFileAsChildOfFile()
     {
@@ -203,7 +203,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddOneFromBackend()
     {
-        $backend = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\ResourceRepositoryInterface');
         $file = new TestFile();
         $file->attachTo($backend, '/dir1/file1');
 
@@ -226,7 +226,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddManyFromBackend()
     {
-        $backend = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\ResourceRepositoryInterface');
         $file1 = new TestFile();
         $file1->attachTo($backend, '/dir1/file1');
         $file2 = new TestFile();
@@ -256,7 +256,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testAddExpectsNonEmptyRepositoryPath()
     {
@@ -286,7 +286,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testAddExpectsAbsolutePath()
     {
@@ -427,7 +427,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testRemoveExpectsNonEmptyPath()
     {
@@ -435,7 +435,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testRemoveExpectsAbsolutePath()
     {
@@ -513,7 +513,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\ResourceNotFoundException
+     * @expectedException \Puli\ResourceNotFoundException
      */
     public function testTagExpectsValidPath()
     {
@@ -521,7 +521,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testTagExpectsAbsolutePath()
     {
@@ -673,7 +673,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\ResourceNotFoundException
+     * @expectedException \Puli\ResourceNotFoundException
      */
     public function testUntagExpectsValidPath()
     {
@@ -681,7 +681,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testUntagExpectsAbsolutePath()
     {

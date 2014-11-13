@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests;
+namespace Puli\Tests;
 
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Tests\Resource\TestDirectory;
-use Webmozart\Puli\Tests\Resource\TestFile;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\ResourceRepositoryInterface;
+use Puli\Tests\Resource\TestDirectory;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -142,7 +142,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testContainsExpectsAbsolutePath()
     {
@@ -204,7 +204,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\ResourceNotFoundException
+     * @expectedException \Puli\ResourceNotFoundException
      */
     public function testGetExpectsExistingResource()
     {
@@ -214,7 +214,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testGetExpectsAbsolutePath()
     {
@@ -309,7 +309,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/*');
 
         $this->assertCount(4, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
         // sorted
         $this->assertSameResource($repo->get('/webmozart/puli/.dotfile'), $resources[0]);
         $this->assertSameResource($repo->get('/webmozart/puli/bar'), $resources[1]);
@@ -330,7 +330,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/file');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file'), $resources[0]);
     }
 
@@ -343,7 +343,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart'), $resources[0]);
     }
 
@@ -360,7 +360,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/../puli/./*');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
@@ -371,11 +371,11 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/foo/*');
 
         $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
     }
 
     /**
-     * @expectedException \Webmozart\Puli\InvalidPathException
+     * @expectedException \Puli\InvalidPathException
      */
     public function testFindExpectsAbsolutePath()
     {
@@ -403,7 +403,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->getByTag('webmozart/tag');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
@@ -414,7 +414,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->getByTag('foo/bar');
 
         $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Webmozart\Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
     }
 
     public function testGetTags()

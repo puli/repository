@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource\Collection;
+namespace Puli\Resource\Collection;
 
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\UnsupportedResourceException;
+use Puli\Resource\ResourceInterface;
+use Puli\UnsupportedResourceException;
 
 /**
  * A collection of {@link ResourceInterface} instances.

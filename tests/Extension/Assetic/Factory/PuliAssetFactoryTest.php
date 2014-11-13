@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Assetic\Factory;
+namespace Puli\Tests\Extension\Assetic\Factory;
 
 use Assetic\Asset\AssetReference;
 use Assetic\Asset\FileAsset;
 use Assetic\Asset\HttpAsset;
 use Assetic\AssetManager;
-use Webmozart\Puli\Extension\Assetic\Asset\PuliAsset;
-use Webmozart\Puli\Extension\Assetic\Factory\PuliAssetFactory;
-use Webmozart\Puli\ResourceRepository;
-use Webmozart\Puli\Uri\UriRepository;
+use Puli\Extension\Assetic\Asset\PuliAsset;
+use Puli\Extension\Assetic\Factory\PuliAssetFactory;
+use Puli\ResourceRepository;
+use Puli\Uri\UriRepository;
 
 /**
  * @since  1.0
@@ -62,7 +62,7 @@ class PuliAssetFactoryTest extends \PHPUnit_Framework_TestCase
 
         /** @var PuliAsset[] $assets */
         $this->assertCount(1, $assets);
-        $this->assertInstanceOf('Webmozart\Puli\Extension\Assetic\Asset\PuliAsset', $assets[0]);
+        $this->assertInstanceOf('Puli\Extension\Assetic\Asset\PuliAsset', $assets[0]);
         $this->assertSame('/', $assets[0]->getSourceRoot());
         $this->assertSame('/webmozart/puli/css/style.css', $assets[0]->getSourcePath());
         $this->assertSame(array('var' => 'value'), $assets[0]->getVars());
@@ -82,11 +82,11 @@ class PuliAssetFactoryTest extends \PHPUnit_Framework_TestCase
 
         /** @var PuliAsset[] $assets */
         $this->assertCount(2, $assets);
-        $this->assertInstanceOf('Webmozart\Puli\Extension\Assetic\Asset\PuliAsset', $assets[0]);
+        $this->assertInstanceOf('Puli\Extension\Assetic\Asset\PuliAsset', $assets[0]);
         $this->assertSame('/', $assets[0]->getSourceRoot());
         $this->assertSame('/webmozart/puli/css/reset.css', $assets[0]->getSourcePath());
         $this->assertSame(array(), $assets[0]->getVars());
-        $this->assertInstanceOf('Webmozart\Puli\Extension\Assetic\Asset\PuliAsset', $assets[1]);
+        $this->assertInstanceOf('Puli\Extension\Assetic\Asset\PuliAsset', $assets[1]);
         $this->assertSame('/', $assets[1]->getSourceRoot());
         $this->assertSame('/webmozart/puli/css/style.css', $assets[1]->getSourcePath());
         $this->assertSame(array(), $assets[1]->getVars());

@@ -18,8 +18,8 @@ The extension takes care that templates loaded by the [`PuliTemplateLoader`]
 are processed correctly.
 
 ```php
-use Webmozart\Puli\Extension\Twig\PuliTemplateLoader;
-use Webmozart\Puli\Extension\Twig\PuliExtension;
+use Puli\Extension\Twig\PuliTemplateLoader;
+use Puli\Extension\Twig\PuliExtension;
 
 $twig = new \Twig_Environment(new PuliTemplateLoader($repo));
 $twig->addExtension(new PuliExtension($repo));

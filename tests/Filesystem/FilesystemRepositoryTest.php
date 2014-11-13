@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem;
+namespace Puli\Tests\Filesystem;
 
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\Puli\Filesystem\FilesystemRepository;
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Resource\DirectoryResourceInterface;
-use Webmozart\Puli\Resource\Iterator\RecursiveResourceIterator;
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Tests\AbstractRepositoryTest;
+use Puli\Filesystem\FilesystemRepository;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Resource\DirectoryResourceInterface;
+use Puli\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\ResourceRepositoryInterface;
+use Puli\Tests\AbstractRepositoryTest;
 
 /**
  * @since  1.0

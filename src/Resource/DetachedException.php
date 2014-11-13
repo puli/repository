@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
+namespace Puli\Resource;
 
 /**
  * Thrown when an operation is requested that requires a resource to be

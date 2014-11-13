@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Symfony\Config;
+namespace Puli\Extension\Symfony\Config;
 
-use Webmozart\Puli\Filesystem\Resource\LocalResourceInterface;
-use Webmozart\Puli\ResourceNotFoundException;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\ResourceNotFoundException;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

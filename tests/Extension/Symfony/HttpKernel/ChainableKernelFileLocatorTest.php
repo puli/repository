@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Symfony\HttpKernel;
+namespace Puli\Tests\Extension\Symfony\HttpKernel;
 
-use Webmozart\Puli\Extension\Symfony\HttpKernel\ChainableKernelFileLocator;
+use Puli\Extension\Symfony\HttpKernel\ChainableKernelFileLocator;
 
 /**
  * @since  1.0

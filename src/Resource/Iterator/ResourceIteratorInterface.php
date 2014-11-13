@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource\Iterator;
+namespace Puli\Resource\Iterator;
 
-use Webmozart\Puli\Resource\ResourceInterface;
+use Puli\Resource\ResourceInterface;
 
 /**
  * An iterator over {@link ResourceInterface} objects.

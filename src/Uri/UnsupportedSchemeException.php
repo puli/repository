@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Uri;
+namespace Puli\Uri;
 
 /**
  * Thrown if a URI scheme is not supported.

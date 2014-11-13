@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Extension\Twig\CacheWarmer;
+namespace Puli\Tests\Extension\Twig\CacheWarmer;
 
-use Webmozart\Puli\Extension\Twig\CacheWarmer\TwigTemplateCacheWarmer;
-use Webmozart\Puli\ResourceRepository;
+use Puli\Extension\Twig\CacheWarmer\TwigTemplateCacheWarmer;
+use Puli\ResourceRepository;
 
 /**
  * @since  1.0

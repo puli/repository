@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem\Resource;
+namespace Puli\Tests\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\Tests\Resource\AbstractAttachableDirectoryResourceTest;
-use Webmozart\Puli\Tests\Resource\AbstractDirectoryResourceTest;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\ResourceRepositoryInterface;
+use Puli\Tests\Resource\AbstractAttachableDirectoryResourceTest;
+use Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
@@ -42,7 +42,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalResource()
     {
@@ -52,7 +52,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfLocalFileResource()
     {
@@ -62,7 +62,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Filesystem\FilesystemException
+     * @expectedException \Puli\Filesystem\FilesystemException
      */
     public function testFailIfNoDirectory()
     {
@@ -76,7 +76,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
         $entries = $directory->listEntries();
 
         $this->assertCount(2, $entries);
-        $this->assertInstanceOf('Webmozart\\Puli\\Filesystem\\Resource\\LocalResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\\Filesystem\\Resource\\LocalResourceCollection', $entries);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $entries['file1']);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
     }

@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem\Resource;
+namespace Puli\Tests\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0
@@ -28,7 +28,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\Filesystem\FilesystemException
+     * @expectedException \Puli\Filesystem\FilesystemException
      */
     public function testFailIfNonExistingFile()
     {
@@ -37,7 +37,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateAttached()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
 
@@ -52,7 +52,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
         $repo->expects($this->once())
             ->method('loadOverriddenPaths')
-            ->with($this->isInstanceOf('Webmozart\Puli\Tests\Filesystem\Resource\TestLocalResource'))
+            ->with($this->isInstanceOf('Puli\Tests\Filesystem\Resource\TestLocalResource'))
             ->will($this->returnValue(array('/loaded/path')));
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
@@ -76,7 +76,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
     public function testAttach()
     {
-        $repo = $this->getMock('Webmozart\Puli\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\ResourceRepositoryInterface');
 
         $file = new TestLocalResource($this->fixturesDir.'/dir1/file1');
         $file->attachTo($repo, '/path');
@@ -127,7 +127,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
         $repo->expects($this->once())
             ->method('loadOverriddenPaths')
-            ->with($this->isInstanceOf('Webmozart\Puli\Tests\Filesystem\Resource\TestLocalResource'))
+            ->with($this->isInstanceOf('Puli\Tests\Filesystem\Resource\TestLocalResource'))
             ->will($this->returnValue(array('/loaded/path')));
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
@@ -162,13 +162,13 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testOverrideFailsIfNotLocalResource()
     {
         $directory = new TestLocalResource($this->fixturesDir.'/dir1/file1');
 
-        $directory->override($this->getMock('Webmozart\Puli\Resource\ResourceInterface'));
+        $directory->override($this->getMock('Puli\Resource\ResourceInterface'));
     }
 
     public function testOverrideDetached()

@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Resource\Collection;
+namespace Puli\Tests\Resource\Collection;
 
-use Webmozart\Puli\Resource\Collection\ResourceCollection;
+use Puli\Resource\Collection\ResourceCollection;
 
 /**
  * @since  1.0
@@ -22,8 +22,8 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         $collection = new ResourceCollection(array(
-            $dir = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
@@ -41,7 +41,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testConstructFailsIfNoResource()
     {
@@ -53,13 +53,13 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testReplace()
     {
         $collection = new ResourceCollection(array(
-            $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
+            $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $this->getMock('Puli\Resource\DirectoryResourceInterface'),
         ));
 
         $collection->replace(array(
-            $dir = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
@@ -79,7 +79,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testReplaceFailsIfNoResource()
     {
@@ -103,9 +103,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testRemove()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $collection->remove(1);
@@ -119,9 +119,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testHas()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $this->assertFalse($collection->has(-1));
@@ -134,9 +134,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testClear()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $collection->clear();
@@ -147,10 +147,10 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testAdd()
     {
         $collection = new ResourceCollection(array(
-            $dir = $this->getMock('Webmozart\Puli\Resource\DirectoryResourceInterface'),
+            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
         ));
 
-        $collection->add($file = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'));
+        $collection->add($file = $this->getMock('Puli\Resource\FileResourceInterface'));
 
         $this->assertCount(2, $collection);
         $this->assertSame(array($dir, $file), $collection->toArray());
@@ -164,7 +164,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($collection->isEmpty());
 
-        $collection->add($this->getMock('Webmozart\Puli\Resource\FileResourceInterface'));
+        $collection->add($this->getMock('Puli\Resource\FileResourceInterface'));
 
         $this->assertFalse($collection->isEmpty());
 
@@ -176,7 +176,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testArrayAccess()
     {
         $collection = new ResourceCollection();
-        $collection[] = $this->getMock('Webmozart\Puli\Resource\FileResourceInterface');
+        $collection[] = $this->getMock('Puli\Resource\FileResourceInterface');
 
     }
 }

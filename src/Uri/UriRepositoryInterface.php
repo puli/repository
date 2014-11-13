@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Uri;
+namespace Puli\Uri;
 
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * A repository which supports URIs for retrieving resources.

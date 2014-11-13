@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Tests\Filesystem\Resource;
+namespace Puli\Tests\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\Resource\LocalDirectoryResource;
-use Webmozart\Puli\Filesystem\Resource\LocalFileResource;
-use Webmozart\Puli\Filesystem\Resource\LocalResourceCollection;
+use Puli\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Filesystem\Resource\LocalResourceCollection;
 
 /**
  * @since  1.0
@@ -50,12 +50,12 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testConstructFailsIfNoLocalResource()
     {
         new LocalResourceCollection(array(
-            $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
     }
 
@@ -87,14 +87,14 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testReplaceFailsIfNoLocalResource()
     {
         $collection = new LocalResourceCollection();
 
         $collection->replace(array(
-            $this->getMock('Webmozart\Puli\Resource\FileResourceInterface'),
+            $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
     }
 
@@ -113,13 +113,13 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Webmozart\Puli\UnsupportedResourceException
+     * @expectedException \Puli\UnsupportedResourceException
      */
     public function testAddFailsIfNoLocalResource()
     {
         $collection = new LocalResourceCollection();
 
-        $collection->add($this->getMock('Webmozart\Puli\Resource\FileResourceInterface'));
+        $collection->add($this->getMock('Puli\Resource\FileResourceInterface'));
     }
 
     public function testGetLocalPaths()

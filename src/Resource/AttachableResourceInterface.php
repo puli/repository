@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource;
+namespace Puli\Resource;
 
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\UnsupportedResourceException;
+use Puli\ResourceRepositoryInterface;
+use Puli\UnsupportedResourceException;
 
 /**
  * A resource that can be attached to a resource repository.
@@ -47,7 +47,7 @@ interface AttachableResourceInterface extends ResourceInterface
      * added to the same path in the same repository:
      *
      * ```php
-     * use Webmozart\Puli\ResourceRepository;
+     * use Puli\ResourceRepository;
      *
      * $repo = new ResourceRepository();
      * $repo->add('/path', $resource1);

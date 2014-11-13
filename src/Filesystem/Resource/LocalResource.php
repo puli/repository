@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Filesystem\Resource;
+namespace Puli\Filesystem\Resource;
 
-use Webmozart\Puli\Filesystem\FilesystemException;
-use Webmozart\Puli\Resource\AttachableResourceInterface;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
-use Webmozart\Puli\UnsupportedResourceException;
+use Puli\Filesystem\FilesystemException;
+use Puli\Resource\AttachableResourceInterface;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceRepositoryInterface;
+use Puli\UnsupportedResourceException;
 
 /**
  * @since  1.0

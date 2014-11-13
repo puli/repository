@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Assetic\Asset;
+namespace Puli\Extension\Assetic\Asset;
 
 use Assetic\Asset\FileAsset;
 

@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Extension\Twig;
+namespace Puli\Extension\Twig;
 
-use Webmozart\Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
-use Webmozart\Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
-use Webmozart\Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Extension\Twig\NodeVisitor\LoadedByPuliTagger;
+use Puli\Extension\Twig\NodeVisitor\TemplatePathResolver;
+use Puli\Extension\Twig\TokenParser\LoadedByPuliTokenParser;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

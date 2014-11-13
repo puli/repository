@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Webmozart\Puli\Resource\Collection;
+namespace Puli\Resource\Collection;
 
-use Webmozart\Puli\Resource\Iterator\ResourceCollectionIterator;
-use Webmozart\Puli\Resource\ResourceInterface;
-use Webmozart\Puli\ResourceRepositoryInterface;
+use Puli\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Resource\ResourceInterface;
+use Puli\ResourceRepositoryInterface;
 
 /**
  * A resource collection which loads its resources on demand.
