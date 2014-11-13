@@ -15,6 +15,9 @@
 import sys
 import os
 
+from sphinx.highlighting import lexers
+from pygments.lexers.web import PhpLexer
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -92,6 +95,11 @@ pygments_style = 'sphinx'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
+
+
+# -- Options for code highlighting ----------------------------------------
+
+lexers['php'] = PhpLexer(startinline=True)
 
 
 # -- Options for HTML output ----------------------------------------------
