@@ -71,8 +71,8 @@ this package - and all other packages - exports:
 Tool Integration
 ----------------
 
-Finally, Puli provides integration layers for PHP libraries. For example, with
-the `Twig extension`_ you can refer to other templates via Puli paths:
+Puli provides integration layers for PHP libraries. For example, with the
+`Twig extension`_ you can refer to other templates via Puli paths:
 
 .. code-block:: jinja
 
