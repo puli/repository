@@ -1,5 +1,5 @@
-Getting Started: Puli and Composer in a Reusable Package
-========================================================
+Puli for Package Developers
+===========================
 
 You are developing a reusable library. You use `Composer`_ to ship the library.
 This guide will explain how you can export the resources of your package to
@@ -96,8 +96,7 @@ add an injection point for a
     }
 
 The end users of that class will pass a repository that the Composer plugin
-generates for them. Read :doc:`puli-and-composer-application` to learn more
-about that.
+generates for them. Read :doc:`application-devs` to learn more about that.
 
 Use the methods in :class:`Puli\\Repository\\ResourceRepositoryInterface` to
 retrieve resources from the repository:

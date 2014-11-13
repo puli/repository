@@ -2,19 +2,27 @@
     single: Getting Started
     single: Installation
 
+.. toctree::
+   :hidden:
+
+   getting-started/application-devs
+   getting-started/package-devs
+
 Getting Started
 ===============
 
-We have several guides that show you how to get started quickly with Puli_. If
-you don't know what Puli is, read :doc:`at-a-glance` first.
+We have several guides that show how to get started quickly with Puli_. If you
+don't know what Puli is, read :doc:`at-a-glance` first.
 
-The guides focus on your actual use case of Puli. If you are not sure what to
-read, start with :doc:`getting-started/puli-and-composer-application`.
+The right guide for you depends on what you develop:
 
-.. toctree::
-   :maxdepth: 1
+* :doc:`getting-started/application-devs` explains how to use Puli in
+  applications that use Composer_ to load their required packages.
 
-   getting-started/puli-and-composer-application
-   getting-started/puli-and-composer-package
+* :doc:`getting-started/package-devs` explains how to use Puli in reusable
+  Composer_ packages, sometimes also called "libraries".
+
+If you are not sure, start with :doc:`getting-started/application-devs`.
 
 .. _Puli: https://github.com/puli/puli
+.. _Composer: https://getcomposer.org

@@ -1,5 +1,5 @@
-Getting Started: Puli and Composer in an Application
-====================================================
+Puli for Application Developers
+===============================
 
 You are developing an application. You use `Composer`_ to install required
 packages. You either bootstrap the application yourself or use a framework that
