@@ -7,12 +7,6 @@
 Getting Started
 ===============
 
-.. toctree::
-   :hidden:
-
-   getting-started/application-devs
-   getting-started/package-devs
-
 We have several guides that show how to get started quickly with Puli_. If you
 don't know what Puli is or why you should use it, read :doc:`at-a-glance` first.
 
@@ -23,6 +17,12 @@ Puli requires PHP 5.3.9 or higher.
 
 Guides
 ------
+
+.. toctree::
+   :hidden:
+
+   getting-started/application-devs
+   getting-started/package-devs
 
 We have different "Getting Started" guides for different kinds of developers:
 
