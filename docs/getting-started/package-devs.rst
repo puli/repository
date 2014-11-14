@@ -4,7 +4,7 @@ Puli for Package Developers
 You are developing a reusable library. You use `Composer`_ to ship the library.
 This guide explains how to export the resources of your package to Puli_.
 
-If you don't know what Puli is or why you should support it, read
+If you don't know what Puli is or why you should use it, read
 :doc:`../at-a-glance` first.
 
 The Problem with Resources

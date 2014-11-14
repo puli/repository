@@ -5,7 +5,7 @@ Puli for Composer Agnostics
 You are developing an application. You don't want to use the `Composer plugin`_.
 Instead, you would like to manage your Puli_ repository manually.
 
-If you don't know what Puli is or why you should support it, read
+If you don't know what Puli is or why you should use it, read
 :doc:`../at-a-glance` first.
 
 The Problem with Resources
