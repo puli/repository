@@ -33,9 +33,9 @@ At its core, Puli provides a simple repository, much like a file system. You can
     $repo = new ResourceRepository();
     $repo->add('/css', '/path/to/project/css');
 
-Here, the ``/css`` directory is mapped to the local path
-``/path/to/project/css``. The file ``style.css`` can now be loaded using its
-*Puli path* ``/css/style.css``:
+Here, the local path ``/path/to/project/css`` is mapped to the *Puli path*
+``/css``. The file ``style.css`` can now be loaded with its Puli path
+``/css/style.css``:
 
 .. code-block:: php
 
@@ -180,8 +180,7 @@ resources from packages and your database now:
 Further Reading
 ---------------
 
-That's all you need to know about Puli for now. Read :doc:`getting-started` to
-learn how to install Puli in your project.
+Read :doc:`getting-started` to learn how to install Puli in your project.
 
 .. _Puli: https://github.com/puli/puli
 .. _Composer: https://getcomposer.org

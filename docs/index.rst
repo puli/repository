@@ -13,6 +13,8 @@ Contents:
 
    at-a-glance
    getting-started
+   working-with-resources
+   repository-management
 
 Indices and tables
 ==================

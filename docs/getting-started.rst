@@ -23,6 +23,7 @@ Guides
 
    getting-started/application-devs
    getting-started/package-devs
+   getting-started/composer-agnostics
 
 We have different "Getting Started" guides for different kinds of developers:
 
@@ -31,6 +32,9 @@ We have different "Getting Started" guides for different kinds of developers:
 
 * :doc:`getting-started/package-devs` explains how to use Puli in reusable
   Composer packages, sometimes also called "libraries".
+
+* :doc:`getting-started/composer-agnostics` explains how to setup Puli without
+  the Composer plugin. Read this if you want to Do It Yourself\ |trade|.
 
 If you are not sure, start with :doc:`getting-started/application-devs`.
 
