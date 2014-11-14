@@ -64,7 +64,7 @@ file of each package:
 ```
 
 Here, the "acme/blog" package maps its own `resources/` directory to the
-repository path `/acme/blog`. The Composer plugin then generate a resource
+repository path `/acme/blog`. The Composer plugin then generates a resource
 repository which gives you easy access to the resources of all Puli-enabled
 packages:
 
