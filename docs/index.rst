@@ -16,6 +16,7 @@ Contents:
    working-with-resources
    repository-management
    uris
+   extensions
 
 Indices and tables
 ==================
