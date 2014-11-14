@@ -1,7 +1,7 @@
 Loading Twig Templates with Puli
 ================================
 
-Puli provides an extension for the `Twig templating engine`_. With this
+Puli provides an extension_ for the `Twig templating engine`_. With this
 extension, you can refer to template files through Puli paths:
 
 .. code-block:: php
@@ -68,3 +68,4 @@ relative paths:
 
 .. _Composer: https://getcomposer.org
 .. _Twig templating engine: http://twig.sensiolabs.org
+.. _extension: https://github.com/puli/twig-puli-extension
