@@ -11,9 +11,9 @@ Welcome to Puli's documentation!
    uris
    extensions
 
-Puli_ manages the files, directories and other resources in a filesystem-like
-repository. Whenever you need to access these resources in your project, you can
-find them by their Puli path:
+Puli_ manages the files, directories and other resources of your project in a
+filesystem-like repository. Whenever you need to access these resources, you can
+find them by their *Puli path*:
 
 .. code-block:: php
 
