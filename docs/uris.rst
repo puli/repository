@@ -1,5 +1,5 @@
 URIs and Stream Wrappers
-------------------------
+========================
 
 This guide explains how to use multiple Puli_ repositories side by side. You
 will also learn how to use Puli paths with PHP's file functions.
