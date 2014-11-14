@@ -7,8 +7,8 @@
 Getting Started
 ===============
 
-This section explains to get started quickly with Puli_. If you don't know what
-Puli is or why you should use it, read :doc:`at-a-glance` first.
+This section explains how to get started quickly with Puli_. If you don't know
+what Puli is or why you should use it, read :doc:`at-a-glance` first.
 
 Requirements
 ------------
