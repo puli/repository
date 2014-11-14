@@ -104,7 +104,7 @@ lexers['php'] = PhpLexer(startinline=True)
 # use PHP as the primary domain
 primary_domain = 'php'
 
-api_url = 'http://api.symfony.com/master/%s'
+api_url = 'http://soon/%s'
 
 
 # -- Options for HTML output ----------------------------------------------

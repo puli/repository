@@ -22,6 +22,11 @@ package to composer.json:
         }
     }
 
+Run ``composer install`` to install the extension.
+
+Configuration
+-------------
+
 In order to activate the extension, create a new
 :class:`Puli\\Extension\\Twig\\PuliTemplateLoader` and register it with Twig.
 The loader turns a Puli path into an absolute path when loading a template.
