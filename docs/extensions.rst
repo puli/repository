@@ -27,6 +27,9 @@ Assetic_           tbd                                    1.0.0-dev
 Pash_              tbd                                    1.0.0-dev
 =================  =====================================  ============
 
+If you wrote an extension for your framework, please let us know! We'll happily
+add it to this list.
+
 .. _Puli: https://github.com/puli/puli
 .. _Composer: https://getcomposer.org
 .. _Twig: http://twig.sensiolabs.org
