@@ -195,4 +195,6 @@ Repository                                                   Description
 Further Reading
 ---------------
 
+Read :doc:`../uris` to learn how to use multiple repositories side by side.
+
 .. _Puli: https://github.com/puli/puli

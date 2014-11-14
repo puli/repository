@@ -238,6 +238,7 @@ all three packages, you will get a result like this:
 Further Reading
 ---------------
 
+Read :doc:`../uris` to learn how to use multiple repositories side by side.
 
 .. _Puli: https://github.com/puli/puli
 .. _Puli plugin for Composer: https://github.com/puli/composer-puli-plugin

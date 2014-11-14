@@ -15,6 +15,7 @@ Contents:
    getting-started
    working-with-resources
    repository-management
+   uris
 
 Indices and tables
 ==================
