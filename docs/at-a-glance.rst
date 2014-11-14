@@ -5,8 +5,8 @@ Why Puli?
 
 Puli_ is a PHP library that manages files, directories and other resources in
 a repository - much like a virtual file system. *Resources* can be anything,
-but usually we use the term for all machine-processed files that are *not*
-PHP, such as CSS, JavaScript, XLIFF, YAML, XML or HTML files.
+but usually we use the term for machine-processed files that are *not* PHP, such
+as CSS, JavaScript, XLIFF, YAML, XML or HTML files.
 
 Many people use Composer_ to distribute their packages. These packages contain
 both PHP files and resources that are used by the application. Loading PHP files
