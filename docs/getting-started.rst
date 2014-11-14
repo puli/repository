@@ -15,6 +15,12 @@ Requirements
 
 Puli requires PHP 5.3.9 or higher.
 
+Stability
+---------
+
+Puli is not yet available in a stable version. The latest release is
+|release|.
+
 Guides
 ------
 
