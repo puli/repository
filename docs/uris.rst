@@ -101,5 +101,11 @@ the repository, as long as you prefix them with the URI scheme:
         // ...
     }
 
+Further Reading
+---------------
+
+You now have a fairly complete understanding of Puli's core functionality.
+Read :doc:`extensions` to learn more about Puli's extensions.
+
 .. _Puli: https://github.com/puli/puli
 .. _stream wrapper: http://php.net/manual/en/intro.stream.php
