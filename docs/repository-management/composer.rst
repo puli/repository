@@ -20,7 +20,7 @@ composer.json:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "/acme/blog": "resources",
+                "/acme/blog": "resources"
             }
         }
     }
@@ -36,7 +36,7 @@ You can also map to more specific paths:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "/acme/blog/css": "assets/css",
+                "/acme/blog/css": "assets/css"
             }
         }
     }
@@ -53,7 +53,7 @@ You can map the same Puli path to multiple directories:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "/acme/blog": ["assets", "resources"],
+                "/acme/blog": ["assets", "resources"]
             }
         }
     }
@@ -91,7 +91,7 @@ to cherry-pick files from specific locations:
         "extra": {
             "resources": {
                 "/acme/blog/css": "assets/css",
-                "/acme/blog/css/reset.css": "generic/reset.css",
+                "/acme/blog/css/reset.css": "generic/reset.css"
             }
         }
     }
@@ -110,7 +110,7 @@ You can tag resources by adding them to the "resource-tags" key in composer.json
         "name": "acme/blog",
         "extra": {
             "resources": {
-                    "/acme/blog": "resources",
+                "/acme/blog": "resources"
             },
             "resource-tags": {
                 "/acme/blog/translations/*.xlf": "acme/translator/xlf"
@@ -195,12 +195,12 @@ should be loaded:
     {
         "require": {
             "acme/blog": "*",
-            "acme/blog-extension-1": "*"
+            "acme/blog-extension-1": "*",
             "acme/blog-extension-2": "*"
         },
         "extra": {
             "resources": {
-                "/acme/blog/css": "resources/acme/blog/css",
+                "/acme/blog/css": "resources/acme/blog/css"
             },
             "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
         }
