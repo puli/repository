@@ -68,3 +68,4 @@ Puli and its documentation are licensed under the [MIT license].
 [issue tracker]: https://github.com/puli/puli/issues
 [Git repository]: https://github.com/puli/puli
 [@webmozart]: https://twitter.com/webmozart
+[MIT license]: LICENSE
