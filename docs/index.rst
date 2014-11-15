@@ -17,13 +17,16 @@ find them by their *Puli path*:
 
 .. code-block:: php
 
+    use Puli\Repository\ResourceRepository;
+
     $repo = new ResourceRepository();
     $repo->add('/config', '/path/to/resources/config');
 
     // /path/to/resources/config/routing.yml
     echo $repo->get('/config/routing.yml')->getContents();
 
-This is useful when you have to hard-code paths in configuration files:
+This is useful when you have to hard-code paths, for example in configuration
+files:
 
 .. code-block:: yaml
 

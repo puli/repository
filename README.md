@@ -17,120 +17,54 @@ Puli manages files and directories in a virtual repository. Whenever you need
 to access these resources in your project, you can find them by their Puli path:
 
 ```php
-$repo = new ResourceRepository();
-$repo->add('/css', '/path/to/assets/css');
+use Puli\Repository\ResourceRepository;
 
-echo $repo->get('/css/style.css')->getLocalPath();
-// => /path/to/assets/css/style.css
+$repo = new ResourceRepository();
+$repo->add('/config', '/path/to/resources/config');
+
+// /path/to/resources/config/routing.yml
+echo $repo->get('/config/routing.yml')->getContents();
 ```
 
-This is useful when you have to hard-code paths in configuration files:
+This is useful when you have to hard-code paths, for example in configuration
+files:
 
 ```yaml
 # config.yml
 import: /config/routing.yml
 ```
 
-Or in templates:
-
-```jinja
-<div>
-    {% include '/views/menu.html.twig' %}
-</div>
-```
-
-Individual resources can be overridden, if necessary:
-
-```php
-$repo->add('/views', '/path/to/views');
-$repo->add('/views/menu.html.twig', '/path/to/custom/menu.html.twig');
-```
-
-However, Puli only unleashes its full power once you use it together with its
-[Composer plugin]. The plugin allows to register resources in the composer.json
-file of each package:
-
-```json
-{
-    "name": "acme/blog",
-    "extra": {
-        "resources": {
-            "/acme/blog": "resources"
-        }
-    }
-}
-```
-
-Here, the "acme/blog" package maps its own `resources/` directory to the
-repository path `/acme/blog`. The Composer plugin then generates a resource
-repository which gives you easy access to the resources of all Puli-enabled
-packages:
-
-```php
-// Composer autoloader
-require_once __DIR__.'/vendor/autoload.php';
-
-// Composer resource repository
-$repo = require __DIR__.'/vendor/resource-repository.php';
-
-echo $repo->get('/acme/blog/css/style.css')->getLocalPath();
-// => /path/to/project/vendor/acme/blog/resources/css/style.css
-```
-
-Was it ever easier to access the files of a Composer package?
-
-Read on to learn more about Puli.
-
 Installation
 ------------
 
-You can install Puli with [Composer]:
-
-```json
-{
-    "require": {
-        "puli/puli": "~1.0@dev"
-    }
-}
-```
-
-Run `composer install` or `composer update` to install the library. At last, include Composer's generated autoloader and you're ready to start:
-
-```php
-require_once __DIR__.'/vendor/autoload.php';
-```
+Follow the [Getting Started] guide to install Puli in your project.
 
 Documentation
 -------------
 
-1. [Basic Usage]: Teaches you about the basic use of Puli.
+Read the [Puli Documentation] if you want to learn more about Puli.
 
-Tool Integration
-----------------
+Contribute
+----------
 
-Puli is integrated into several tools and libraries:
+Contributions to Puli are always welcome!
 
-Tool     | Description                                                                             | Version
--------- | --------------------------------------------------------------------------------------- | ---------------
-Composer | The [Puli plugin for Composer] builds resource locators from composer.json definitions. | 1.0.0-alpha1
-Twig     | The [Twig extension] lets you access templates via Puli paths.                          | 1.0.0-dev
-Pash     | The [Pash shell] lets you interactively browse Puli repositories.                       | 1.0.0-dev
-Symfony  | The [Puli bridge] and [Puli bundle] integrate Puli with [Symfony].                      | 1.0.0-dev
-Assetic  | You can create [Assetic] assets with Puli paths using the [Assetic extension].          | 1.0.0-dev
+* Report any bugs or issues you find on the [issue tracker].
+* You can grab the source code at Puli’s [Git repository].
 
-[Composer]: https://getcomposer.org
-[Basic Usage]: doc/1-basic-usage.md
-[Advanced Usage]: doc/2-advanced-usage.md
-[Composer plugin]: https://github.com/puli/composer-puli-plugin
-[Puli plugin for Composer]: https://github.com/puli/composer-puli-plugin
-[Twig extension]: https://github.com/puli/twig-puli-extension
-[Puli bridge]: https://github.com/puli/symfony-puli-bridge
-[Puli bundle]: https://github.com/puli/symfony-puli-bundle
-[Pash shell]: https://github.com/puli/pash
-[Assetic extension]: https://github.com/puli/assetic-puli-extension
-[Symfony]: http://symfony.com
-[Twig]: http://twig.sensiolabs.org
-[Config]: http://symfony.com/doc/current/components/config/introduction.html
-[HttpKernel]: http://symfony.com/doc/current/components/http_kernel/introduction.html
-[Assetic]: https://github.com/kriswallsmith/assetic
-[`Puli\Extension`]: src/Extension
+Support
+-------
+
+If you are having problems, send a mail to bschussek@gmail.com or shout out to
+[@webmozart] on Twitter.
+
+License
+-------
+
+Puli and its documentation are licensed under the [MIT license].
+
+[Getting Started]: http://puli.readthedocs.org/en/latest/getting-started.html
+[Puli Documentation]: http://puli.readthedocs.org/en/latest/index.html
+[issue tracker]: https://github.com/puli/puli/issues
+[Git repository]: https://github.com/puli/puli
+[@webmozart]: https://twitter.com/webmozart
