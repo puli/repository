@@ -28,6 +28,11 @@ composer.json:
 The keys of the entries in "resources" are Puli paths. By convention, your
 package should use its vendor and package names as top-level directories.
 
+.. tip::
+
+    If you develop an application that is not going to be shared, use ``/app``
+    as top-level directory for your Puli paths.
+
 You can also map to more specific paths:
 
 .. code-block:: json

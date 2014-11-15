@@ -73,8 +73,8 @@ composer.json files. For example, the composer.json file of the package
         }
     }
 
-This means that the directory `resources/` in the package - and all files
-therein - can be accessed using the Puli path `/acme/blog`:
+This means that the directory ``resources/`` in the package - and all files
+therein - can be accessed using the Puli path ``/acme/blog``:
 
 .. code-block:: php
 
@@ -102,8 +102,8 @@ resources in your application's composer.json:
     }
 
 Run ``composer install`` to update the generated repository. Again, you can now
-access all files in the `resources/` directory of the package using the Puli
-path `/acme/blog`. Once your pull request is merged, you can remove the
+access all files in the ``resources/`` directory of the package using the Puli
+path ``/acme/blog``. Once your pull request is merged, you can remove the
 entry and update the package.
 
 Mapping Application Resources
@@ -111,7 +111,7 @@ Mapping Application Resources
 
 Of course, your application itself also contains resources that you want to
 access. By convention, the resources of the application are mapped to the Puli
-path `/app`. This is done by adding the following lines to the composer.json
+path ``/app``. This is done by adding the following lines to the composer.json
 file of your application:
 
 .. code-block:: json
