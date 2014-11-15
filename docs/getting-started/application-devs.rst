@@ -96,10 +96,13 @@ resources in your application's composer.json:
         },
         "extra": {
             "resources": {
-                "/acme/blog": "vendor/acme/blog/resources"
+                "/acme/blog": "@acme/blog:resources"
             }
         }
     }
+
+The prefix ``@acme/blog:`` will be replaced by the install path of the
+"acme/blog" package.
 
 Run ``composer install`` to update the generated repository. Again, you can now
 access all files in the ``resources/`` directory of the package using the Puli

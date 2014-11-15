@@ -101,6 +101,30 @@ to cherry-pick files from specific locations:
         }
     }
 
+Mapping Other Packages
+----------------------
+
+Sometimes it is necessary to map paths that are located in other Composer
+packages. This happens especially when you use packages that don't map their
+resources by themselves.
+
+You can use the prefix ``@vendor/package:`` to reference the install path of
+other packages:
+
+.. code-block:: json
+
+    {
+        "name": "acme/blog",
+        "extra": {
+            "resources": {
+                "/foo/calc/css": "@foo/calc:assets/css"
+            }
+        }
+    }
+
+The example above will map the Puli path ``/foo/calc/css`` to the
+``assets/css`` directory in the "foo/calc" package.
+
 Tagging Resources
 -----------------
 
