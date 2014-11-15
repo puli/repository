@@ -58,7 +58,7 @@ to locate and output the file ``style.css`` much easier than before:
 Using Puli-Aware Packages
 -------------------------
 
-*Puli-aware* Composer packages export their resources to Puli paths in their
+*Puli-aware* Composer packages map their resources to Puli paths in their
 composer.json files. For example, the composer.json file of the package
 "acme/blog" could look like this:
 
@@ -68,9 +68,7 @@ composer.json files. For example, the composer.json file of the package
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog": "resources"
-                }
+                "/acme/blog": "resources"
             }
         }
     }
@@ -85,9 +83,9 @@ therein - can be accessed using the Puli path `/acme/blog`:
 Using Puli-Unaware Packages
 ---------------------------
 
-If you use a Composer package that does not export its resources for Puli, you
+If you use a Composer package that does not map its resources to Puli paths, you
 should submit a pull request that adds the relevant lines to its composer.json
-file. Until the pull request is merged, you can manually export the package's
+file. Until the pull request is merged, you can manually map the package's
 resources in your application's composer.json:
 
 .. code-block:: json
@@ -98,9 +96,7 @@ resources in your application's composer.json:
         },
         "extra": {
             "resources": {
-                "override": {
-                    "/acme/blog": "vendor/acme/blog/resources"
-                }
+                "/acme/blog": "vendor/acme/blog/resources"
             }
         }
     }
@@ -108,24 +104,22 @@ resources in your application's composer.json:
 Run ``composer install`` to update the generated repository. Again, you can now
 access all files in the `resources/` directory of the package using the Puli
 path `/acme/blog`. Once your pull request is merged, you can remove the
-"override" entry and update the package.
+entry and update the package.
 
 Exporting Application Resources
 -------------------------------
 
 Of course, your application itself also contains resources that you want to
-access. By convention, the resources of the application are exported to the
-Puli path `/app`. This is done by adding the following lines to the
-composer.json file of your application:
+access. By convention, the resources of the application are mapped to the Puli
+path `/app`. This is done by adding the following lines to the composer.json
+file of your application:
 
 .. code-block:: json
 
     {
         "extra": {
             "resources": {
-                "export": {
-                    "/app": "resources"
-                }
+                "/app": "resources"
             }
         }
     }

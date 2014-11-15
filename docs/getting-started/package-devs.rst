@@ -31,7 +31,7 @@ First, add Puli's `Composer plugin`_ as suggestion to your composer.json file:
 This tells your users that your plugin is Puli-aware. Your users will love you
 for that and will send you big Thank You presents for Christmas.
 
-Next, export your resources to Puli paths:
+Next, map your resources to Puli paths:
 
 .. code-block:: json
 
@@ -42,17 +42,16 @@ Next, export your resources to Puli paths:
         },
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog": "resources",
-                    "/acme/blog/css": "assets/css"
-                }
+                "/acme/blog": "resources",
+                "/acme/blog/css": "assets/css"
             }
         }
     }
 
-The left hand side of each "export" entry is a Puli path. All Puli paths must
-have the Composer vendor and package names as top-level directories. The right
-hand side contains paths relative to the root of your package.
+The left hand side of each "resources" entry is a Puli path. By convention, all
+Puli paths should have the Composer vendor and package names as top-level
+directories. The right hand side contains paths relative to the root of your
+package.
 
 Using the Repository
 --------------------

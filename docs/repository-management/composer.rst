@@ -11,8 +11,8 @@ If you don't know what Puli is or why you should use it, read
 Exporting Resources
 -------------------
 
-Resources can be exported to Puli paths by adding them to the "export" key
-in composer.json:
+Resources can be mapped to Puli paths by adding them to the "resources" key in
+composer.json:
 
 .. code-block:: json
 
@@ -20,16 +20,15 @@ in composer.json:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog": "resources",
-                }
+                "/acme/blog": "resources",
             }
         }
     }
 
-The keys of the entries in "export" are Puli paths. All of these paths *must*
-have the Composer vendor and package name as top-level directories. However,
-you can also map more specific paths:
+The keys of the entries in "resources" are Puli paths. By convention, your
+package should use its vendor and package names as top-level directories.
+
+You can also map to more specific paths:
 
 .. code-block:: json
 
@@ -37,14 +36,12 @@ you can also map more specific paths:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog/css": "assets/css",
-                }
+                "/acme/blog/css": "assets/css",
             }
         }
     }
 
-The right hand side of the "export" key contains paths relative to the root
+The right hand side of the "resources" key contains paths relative to the root
 of your Composer package. Usually, that's the directory that contains your
 composer.json file.
 
@@ -56,9 +53,7 @@ You can map the same Puli path to multiple directories:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog": ["assets", "resources"],
-                }
+                "/acme/blog": ["assets", "resources"],
             }
         }
     }
@@ -95,10 +90,8 @@ to cherry-pick files from specific locations:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog/css": "assets/css",
-                    "/acme/blog/css/reset.css": "generic/reset.css",
-                }
+                "/acme/blog/css": "assets/css",
+                "/acme/blog/css/reset.css": "generic/reset.css",
             }
         }
     }
@@ -109,7 +102,7 @@ Tagging Resources
 You can tag mapped resources in order to indicate that they support specific
 features. For example, assume that all XLIFF translation files in the
 "acme/blog" package should be registered with the ``\Acme\Translator`` class.
-You can tag resources by adding them to the "tag" key in composer.json:
+You can tag resources by adding them to the "resource-tags" key in composer.json:
 
 .. code-block:: json
 
@@ -117,19 +110,17 @@ You can tag resources by adding them to the "tag" key in composer.json:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
                     "/acme/blog": "resources",
-                },
-                "tag": {
-                    "/acme/blog/translations/*.xlf": "acme/translator/xlf"
-                }
+            },
+            "resource-tags": {
+                "/acme/blog/translations/*.xlf": "acme/translator/xlf"
             }
         }
     }
 
 The left side of the array is a path or a glob that selects one or more
-resources in the repository. The right side contains one or more tag that should
-be added to the selected resources.
+resources in the repository. The right side contains one or more tags that
+should be added to the selected resources.
 
 The tagged resources can then be retrieved with the
 :method:`Puli\\Repository\\ResourceRepositoryInterface::getByTag` method of the
@@ -145,7 +136,7 @@ Overriding Resources
 --------------------
 
 Each package can override the resources of another package. To do so, add the
-path you want to override to the "override" key:
+name of the package you want to override to the "override" key:
 
 .. code-block:: json
 
@@ -156,10 +147,9 @@ path you want to override to the "override" key:
         },
         "extra": {
             "resources": {
-                "override": {
-                    "/acme/blog/css": "assets/css"
-                }
-            }
+                "/acme/blog/css": "assets/css"
+            },
+            "override": "acme/blog"
         }
     }
 
@@ -170,7 +160,7 @@ package, the resource from the original package will be returned instead.
 You can get all paths for an overridden resource using the
 :method:`Puli\\Filesystem\\Resource\\LocalResourceInterface::getAllLocalPaths`
 method. The paths are returned in the order in which they were overridden,
-starting with the originally exported path:
+starting with the original path:
 
 .. code-block:: php
 
@@ -184,40 +174,46 @@ starting with the originally exported path:
 Handling Override Conflicts
 ---------------------------
 
-If multiple packages try to override the same path, an
-:class:`Puli\\Extension\\Composer\\RepositoryLoader\\OverrideConflictException`
-will be thrown and the overrides will be ignored. The reason for this behavior
-is that Puli can't know in which order the overrides should be applied.
+If multiple packages try to override the same path, a
+:class:`Puli\\Extension\\Composer\\RepositoryBuilder\\ResourceConflictException`
+will be thrown. The reason for this behavior is that Puli can't know in which
+order the overrides should be applied.
 
-You can fix this problem by adding the key "override-order" to the composer.json
-file of the **root project**. In this key, you can define the order in
-which packages should override a path in the repository:
+There are two possible fixes for this problem:
+
+1. One of the packages explicitly adds the name of the other package to its
+   "override" key.
+
+2. You specify the key "package-order" in the composer.json file of the
+   **root project**.
+
+With the "package-order" key you can specify in which order the packages
+should be loaded:
 
 .. code-block:: json
 
     {
-        "name": "my/application",
         "require": {
             "acme/blog": "*",
-            "acme/blog-extension": "*"
+            "acme/blog-extension-1": "*"
+            "acme/blog-extension-2": "*"
         },
         "extra": {
             "resources": {
-                "override": {
-                    "/acme/blog/css": "resources/acme/blog/css",
-                },
-                "override-order": {
-                    "/acme/blog/css": ["acme/blog-extension", "my/application"]
-                }
-            }
+                "/acme/blog/css": "resources/acme/blog/css",
+            },
+            "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
         }
     }
 
-In this example, the application requires the package "acme/blog" and another
-package "acme/blog-extension" which overrides the ``/acme/blog/css`` directory.
-To complicate things, the application overrides this path as well. Through
-the "override-order" key, you can tell Puli that the overrides in
-"vendor/application" should be preferred over those in "acme/blog-extension".
+In this example, the application requires the package "acme/blog" and two
+packages "acme/blog-extension-1" and  "acme/blog-extension-2" which both
+override the ``/acme/blog/css`` directory. Neither package defines the other one
+in its "override" key.
+
+Through the "package-order" key, you tell Puli that the resources from
+"acme/blog-extension-1" are loaded before those in "acme/blog-extension-2".
+This means that "acme/blog-extension-2" will override "acme/blog-extension-1".
 
 If you query the path of the file style.css again, and if that file exists in
 all three packages, you will get a result like this:
@@ -231,8 +227,8 @@ all three packages, you will get a result like this:
     // Array
     // (
     //     [0] => /path/to/vendor/acme/blog/assets/css/style.css
-    //     [1] => /path/to/vendor/acme/blog-extension/assets/css/style.css
-    //     [2] => /path/to/resources/acme/blog/css/style.css
+    //     [1] => /path/to/vendor/acme/blog-extension-1/assets/css/style.css
+    //     [1] => /path/to/vendor/acme/blog-extension-2/assets/css/style.css
     // )
 
 Further Reading

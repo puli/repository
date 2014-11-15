@@ -55,9 +55,7 @@ file of each package:
     "name": "acme/blog",
     "extra": {
         "resources": {
-            "export": {
-                "/acme/blog": "resources"
-            }
+            "/acme/blog": "resources"
         }
     }
 }

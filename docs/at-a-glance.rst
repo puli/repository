@@ -54,15 +54,13 @@ the "resources" key in their ``composer.json`` file:
         "name": "acme/blog",
         "extra": {
             "resources": {
-                "export": {
-                    "/acme/blog": "resources"
-                }
+                "/acme/blog": "resources"
             }
         }
     }
 
-This package exports its ``resources/`` directory under the Puli path
-``/acme/blog``, which matches the name of the package.
+This package maps its ``resources/`` directory to the Puli path ``/acme/blog``,
+which matches the name of the package.
 
 When you install the "acme/blog" package in your application, the plugin
 generates a repository for you. This repository contains all the resources that
@@ -109,10 +107,9 @@ You can copy the file to your project and override it in ``composer.json``:
         },
         "extra": {
             "resources": {
-                "override": {
-                    "/acme/blog/views/footer.html.twig": "resources/views/footer.html.twig"
-                }
-            }
+                "/acme/blog/views/footer.html.twig": "resources/views/footer.html.twig"
+            },
+            "override": "acme/blog"
         }
     }
 
