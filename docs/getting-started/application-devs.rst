@@ -106,8 +106,8 @@ access all files in the `resources/` directory of the package using the Puli
 path `/acme/blog`. Once your pull request is merged, you can remove the
 entry and update the package.
 
-Exporting Application Resources
--------------------------------
+Mapping Application Resources
+-----------------------------
 
 Of course, your application itself also contains resources that you want to
 access. By convention, the resources of the application are mapped to the Puli

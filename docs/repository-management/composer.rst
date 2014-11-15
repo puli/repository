@@ -8,8 +8,8 @@ the instructions in :doc:`../getting-started/application-devs`.
 If you don't know what Puli is or why you should use it, read
 :doc:`../at-a-glance` first.
 
-Exporting Resources
--------------------
+Mapping Resources
+-----------------
 
 Resources can be mapped to Puli paths by adding them to the "resources" key in
 composer.json:

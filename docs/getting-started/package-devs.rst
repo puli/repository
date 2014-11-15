@@ -31,6 +31,9 @@ First, add Puli's `Composer plugin`_ as suggestion to your composer.json file:
 This tells your users that your plugin is Puli-aware. Your users will love you
 for that and will send you big Thank You presents for Christmas.
 
+Mapping Resources
+-----------------
+
 Next, map your resources to Puli paths:
 
 .. code-block:: json
