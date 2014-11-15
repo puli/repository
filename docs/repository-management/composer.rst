@@ -101,8 +101,8 @@ to cherry-pick files from specific locations:
         }
     }
 
-Mapping Other Packages
-----------------------
+Referencing Other Packages
+--------------------------
 
 Sometimes it is necessary to map paths that are located in other Composer
 packages. This happens especially when you use packages that don't map their
