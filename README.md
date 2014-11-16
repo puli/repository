@@ -34,6 +34,12 @@ files:
 import: /config/routing.yml
 ```
 
+Authors
+-------
+
+* [Bernhard Schussek] a.k.a. [@webmozart]
+* [The Community Contributors]
+
 Installation
 ------------
 
@@ -63,6 +69,8 @@ License
 
 Puli and its documentation are licensed under the [MIT license].
 
+[Bernhard Schussek]: http://webmozarts.com
+[The Community Contributors]: https://github.com/puli/puli/graphs/contributors
 [Getting Started]: http://puli.readthedocs.org/en/latest/getting-started.html
 [Puli Documentation]: http://puli.readthedocs.org/en/latest/index.html
 [issue tracker]: https://github.com/puli/puli/issues

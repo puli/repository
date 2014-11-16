@@ -35,6 +35,12 @@ files:
 
 Read :doc:`at-a-glance` to learn more about what Puli is and why you need it.
 
+Authors
+-------
+
+* `Bernhard Schussek`_ a.k.a. `@webmozart`_
+* `The Community Contributors`_
+
 Installation
 ------------
 
@@ -77,3 +83,5 @@ license`_.
 .. _Git repository: https://github.com/puli/puli
 .. _@webmozart: https://twitter.com/webmozart
 .. _MIT license: https://github.com/puli/puli/blob/master/LICENSE
+.. _Bernhard Schussek: http://webmozarts.com
+.. _The Community Contributors: https://github.com/puli/puli/graphs/contributors
