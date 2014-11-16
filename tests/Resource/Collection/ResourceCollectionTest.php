@@ -58,14 +58,14 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
         ));
 
         $collection->replace(array(
-            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            2 => $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            3 => $file = $this->getMock('Puli\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
-        $this->assertSame(array($dir, $file), $collection->toArray());
-        $this->assertSame($dir, $collection->get(0));
-        $this->assertSame($file, $collection->get(1));
+        $this->assertSame(array(2 => $dir, 3 => $file), $collection->toArray());
+        $this->assertSame($dir, $collection->get(2));
+        $this->assertSame($file, $collection->get(3));
     }
 
     /**
@@ -90,10 +90,52 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
+    public function testMerge()
+    {
+        $collection = new ResourceCollection(array(
+            2 => $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            3 => $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+        ));
+
+        $collection->merge(array(
+            $dir3 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+        ));
+
+        $this->assertCount(4, $collection);
+        $this->assertSame(array(2 => $dir1, 3 => $dir2, 4 => $dir3, 5 => $file), $collection->toArray());
+        $this->assertSame($dir1, $collection->get(2));
+        $this->assertSame($dir2, $collection->get(3));
+        $this->assertSame($dir3, $collection->get(4));
+        $this->assertSame($file, $collection->get(5));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMergeFailsIfNoTraversable()
+    {
+        $collection = new ResourceCollection();
+
+        $collection->merge('foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\UnsupportedResourceException
+     */
+    public function testMergeFailsIfNoResource()
+    {
+        $collection = new ResourceCollection();
+
+        $collection->merge(array(
+            'foobar',
+        ));
+    }
+
     /**
      * @expectedException \OutOfBoundsException
      */
-    public function testReplaceFailsIfNoSuchOffset()
+    public function testGetFailsIfNoSuchOffset()
     {
         $collection = new ResourceCollection();
 

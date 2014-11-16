@@ -90,6 +90,19 @@ interface ResourceCollectionInterface extends \Traversable, \ArrayAccess, \Count
     public function replace($resources);
 
     /**
+     * Merges the given resources into the collection.
+     *
+     * @param ResourceInterface[] $resources The resources to merge into the
+     *                                       collection.
+     *
+     * @throws \InvalidArgumentException If the resources are not an array and
+     *                                   not a traversable object.
+     * @throws UnsupportedResourceException If a resource does not implement
+     *                                      {@link ResourceInterface}.
+     */
+    public function merge($resources);
+
+    /**
      * Returns whether the collection is empty.
      *
      * @return bool Returns `true` only if the collection contains no resources.

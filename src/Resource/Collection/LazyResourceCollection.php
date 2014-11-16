@@ -166,6 +166,21 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     }
 
     /**
+     * Not supported.
+     *
+     * @param ResourceInterface[] $resources The resources to merge into the
+     *                                       collection.
+     *
+     * @throws \BadMethodCallException The collection is read-only.
+     */
+    public function merge($resources)
+    {
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isEmpty()

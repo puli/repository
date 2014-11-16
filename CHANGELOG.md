@@ -46,6 +46,7 @@ Changelog
    * moved `ResourceRepository` and related classes to `Puli\Repository\`
    * renamed `getByTag()` to `findByTag()`
    * added `getLongestCommonBasePath()` and `isBasePath()` to `Path`
+   * added `merge()` to `ResourceCollectionInterface`
 
 * 1.0.0-alpha3 (2014-02-22)
 

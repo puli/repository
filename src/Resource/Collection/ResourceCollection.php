@@ -139,6 +139,35 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
     /**
      * {@inheritdoc}
      */
+    public function merge($resources)
+    {
+        if (!is_array($resources) && !$resources instanceof \Traversable) {
+            throw new \InvalidArgumentException(sprintf(
+                'The resources must be passed as array or traversable object. '.
+                'Got: "%s"',
+                is_object($resources) ? get_class($resources) : gettype($resources)
+            ));
+        }
+
+        foreach ($resources as $resource) {
+            if (!$resource instanceof ResourceInterface) {
+                throw new UnsupportedResourceException(sprintf(
+                    'ResourceCollection supports ResourceInterface '.
+                    'implementations only. Got: %s',
+                    is_object($resource) ? get_class($resource) : gettype($resource)
+                ));
+            }
+        }
+
+        // only start merging after validating all resources
+        foreach ($resources as $resource) {
+            $this->resources[] = $resource;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function isEmpty()
     {
         return 0 === count($this->resources);
