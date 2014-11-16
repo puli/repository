@@ -67,8 +67,10 @@ composer.json files. For example, the composer.json file of the package
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog": "resources"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "resources"
+                }
             }
         }
     }
@@ -95,8 +97,10 @@ resources in your application's composer.json:
             "acme/blog": "*"
         },
         "extra": {
-            "resources": {
-                "/acme/blog": "@acme/blog:resources"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "@acme/blog:resources"
+                }
             }
         }
     }
@@ -121,8 +125,10 @@ file of your application:
 
     {
         "extra": {
-            "resources": {
-                "/app": "resources"
+            "puli": {
+                "resources": {
+                    "/app": "resources"
+                }
             }
         }
     }

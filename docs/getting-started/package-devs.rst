@@ -44,9 +44,11 @@ Next, map your resources to Puli paths:
             "puli/composer-puli-plugin": "This package contains Puli resources. Require the plugin to use them."
         },
         "extra": {
-            "resources": {
-                "/acme/blog": "resources",
-                "/acme/blog/css": "assets/css"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "resources",
+                    "/acme/blog/css": "assets/css"
+                }
             }
         }
     }

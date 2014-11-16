@@ -53,8 +53,10 @@ the "resources" key in their ``composer.json`` file:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog": "resources"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "resources"
+                }
             }
         }
     }
@@ -106,10 +108,12 @@ You can copy the file to your project and override it in ``composer.json``:
             "acme/blog": "*"
         },
         "extra": {
-            "resources": {
-                "/acme/blog/views/footer.html.twig": "resources/views/footer.html.twig"
-            },
-            "override": "acme/blog"
+            "puli": {
+                "resources": {
+                    "/acme/blog/views/footer.html.twig": "resources/views/footer.html.twig"
+                },
+                "override": "acme/blog"
+            }
         }
     }
 

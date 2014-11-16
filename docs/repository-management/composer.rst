@@ -19,8 +19,10 @@ composer.json:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog": "resources"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "resources"
+                }
             }
         }
     }
@@ -40,8 +42,10 @@ You can also map to more specific paths:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog/css": "assets/css"
+            "puli": {
+                "resources": {
+                    "/acme/blog/css": "assets/css"
+                }
             }
         }
     }
@@ -57,8 +61,10 @@ You can map the same Puli path to multiple directories:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog": ["assets", "resources"]
+            "puli": {
+                "resources": {
+                    "/acme/blog": ["assets", "resources"]
+                }
             }
         }
     }
@@ -94,9 +100,11 @@ to cherry-pick files from specific locations:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog/css": "assets/css",
-                "/acme/blog/css/reset.css": "generic/reset.css"
+            "puli": {
+                "resources": {
+                    "/acme/blog/css": "assets/css",
+                    "/acme/blog/css/reset.css": "generic/reset.css"
+                }
             }
         }
     }
@@ -116,8 +124,10 @@ other packages:
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/foo/calc/css": "@foo/calc:assets/css"
+            "puli": {
+                "resources": {
+                    "/foo/calc/css": "@foo/calc:assets/css"
+                }
             }
         }
     }
@@ -131,18 +141,20 @@ Tagging Resources
 You can tag mapped resources in order to indicate that they support specific
 features. For example, assume that all XLIFF translation files in the
 "acme/blog" package should be registered with the ``\Acme\Translator`` class.
-You can tag resources by adding them to the "resource-tags" key in composer.json:
+You can tag resources by adding them to the "tags" key in composer.json:
 
 .. code-block:: json
 
     {
         "name": "acme/blog",
         "extra": {
-            "resources": {
-                "/acme/blog": "resources"
-            },
-            "resource-tags": {
-                "/acme/blog/translations/*.xlf": "acme/translator/xlf"
+            "puli": {
+                "resources": {
+                    "/acme/blog": "resources"
+                },
+                "tags": {
+                    "/acme/blog/translations/*.xlf": "acme/translator/xlf"
+                }
             }
         }
     }
@@ -175,10 +187,12 @@ name of the package you want to override to the "override" key:
             "acme/blog": "*"
         },
         "extra": {
-            "resources": {
-                "/acme/blog/css": "assets/css"
-            },
-            "override": "acme/blog"
+            "puli": {
+                "resources": {
+                    "/acme/blog/css": "assets/css"
+                },
+                "override": "acme/blog"
+            }
         }
     }
 
@@ -228,10 +242,12 @@ should be loaded:
             "acme/blog-extension-2": "*"
         },
         "extra": {
-            "resources": {
-                "/acme/blog/css": "resources/acme/blog/css"
-            },
-            "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
+            "puli": {
+                "resources": {
+                    "/acme/blog/css": "resources/acme/blog/css"
+                },
+                "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
+            }
         }
     }
 
