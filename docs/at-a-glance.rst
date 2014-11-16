@@ -31,15 +31,15 @@ At its core, Puli provides a simple repository, much like a file system. You can
     use Puli\Repository\ResourceRepository;
 
     $repo = new ResourceRepository();
-    $repo->add('/css', '/path/to/project/css');
+    $repo->add('/trans', '/path/to/project/trans');
 
-Here, the local path ``/path/to/project/css`` is mapped to the *Puli path*
-``/css``. The file ``style.css`` can now be loaded with its Puli path
-``/css/style.css``:
+Here, the local path ``/path/to/project/trans`` is mapped to the *Puli path*
+``/trans``. The file ``en.yml`` can now be loaded with its Puli path
+``/trans/en.yml``:
 
 .. code-block:: php
 
-    echo $repo->get('/css/style.css')->getContents();
+    echo $repo->get('/trans/en.yml')->getContents();
 
 Composer Integration
 --------------------
@@ -72,7 +72,7 @@ this package - and all other packages - exports:
 
     $repo = require_once 'vendor/resource-repository.php';
 
-    echo $repo->get('/acme/blog/css/style.css')->getContents();
+    echo $repo->get('/acme/blog/trans/en.yml')->getContents();
 
 Tool Integration
 ----------------
@@ -145,7 +145,7 @@ normal files, as long as you prefix them with "composer://":
 
 .. code-block:: php
 
-    echo file_get_contents('composer:///acme/blog/css/style.css');
+    echo file_get_contents('composer:///acme/blog/trans/en.yml');
 
 Flexibility
 -----------
