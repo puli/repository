@@ -58,6 +58,14 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
     /**
      * {@inheritdoc}
      */
+    public function set($key, ResourceInterface $resource)
+    {
+        $this->resources[$key] = $resource;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function get($key)
     {
         if (!isset($this->resources[$key])) {
@@ -158,9 +166,9 @@ class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterf
     public function offsetSet($key, $value)
     {
         if (null !== $key) {
-            $this->resources[$key] = $value;
+            $this->set($key, $value);
         } else {
-            $this->resources[] = $value;
+            $this->add($value);
         }
     }
 

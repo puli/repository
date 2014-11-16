@@ -71,6 +71,21 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     }
 
     /**
+     * Not supported.
+     *
+     * @param integer           $key      The collection key.
+     * @param ResourceInterface $resource The resource to add.
+     *
+     * @throws \BadMethodCallException The collection is read-only.
+     */
+    public function set($key, ResourceInterface $resource)
+    {
+        throw new \BadMethodCallException(
+            'Lazy resource collections cannot be modified.'
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function get($key)

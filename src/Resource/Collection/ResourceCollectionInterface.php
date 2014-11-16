@@ -30,6 +30,14 @@ interface ResourceCollectionInterface extends \Traversable, \ArrayAccess, \Count
     public function add(ResourceInterface $resource);
 
     /**
+     * Sets a resource at a collection key.
+     *
+     * @param integer           $key      The collection key.
+     * @param ResourceInterface $resource The resource to set.
+     */
+    public function set($key, ResourceInterface $resource);
+
+    /**
      * Returns the resource for a collection key.
      *
      * @param integer $key The collection key.

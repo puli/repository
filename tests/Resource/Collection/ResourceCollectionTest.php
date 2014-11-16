@@ -100,6 +100,22 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->get(0);
     }
 
+    public function testSet()
+    {
+        $collection = new ResourceCollection(array(
+            1 => $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            2 => $file1 = $this->getMock('Puli\Resource\FileResourceInterface'),
+        ));
+
+        $this->assertCount(2, $collection);
+        $this->assertSame($file1, $collection->get(2));
+
+        $collection->set(2, $file2 = $this->getMock('Puli\Resource\FileResourceInterface'));
+
+        $this->assertCount(2, $collection);
+        $this->assertSame($file2, $collection->get(2));
+    }
+
     public function testRemove()
     {
         $collection = new ResourceCollection(array(
