@@ -35,8 +35,8 @@ The left side of the array is a path or a glob that selects one or more
 resources in the repository. The right side contains one or more tags that
 should be added to the selected resources.
 
-Fetching Tagged Resources
--------------------------
+Finding Tagged Resources
+------------------------
 
 The tagged resources can be retrieved with the
 :method:`Puli\\Repository\\ResourceRepositoryInterface::findByTag` method of the
