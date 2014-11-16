@@ -47,6 +47,7 @@ Changelog
    * renamed `getByTag()` to `findByTag()`
    * added `getLongestCommonBasePath()` and `isBasePath()` to `Path`
    * added `merge()` to `ResourceCollectionInterface`
+   * added `CompositeRepository`
 
 * 1.0.0-alpha3 (2014-02-22)
 
