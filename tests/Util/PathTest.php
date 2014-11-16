@@ -465,4 +465,169 @@ class PathTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame($isLocal, Path::isLocal($path));
     }
+
+    public function provideGetLongestCommonBasePathTests()
+    {
+        return array(
+            // same paths
+            array(array('/base/path', '/base/path'), '/base/path'),
+            array(array('C:/base/path', 'C:/base/path'), 'C:/base/path'),
+            array(array('C:\\base\\path', 'C:\\base\\path'), 'C:/base/path'),
+            array(array('C:/base/path', 'C:\\base\\path'), 'C:/base/path'),
+
+            // trailing slash
+            array(array('/base/path/', '/base/path'), '/base/path'),
+            array(array('C:/base/path/', 'C:/base/path'), 'C:/base/path'),
+            array(array('C:\\base\\path\\', 'C:\\base\\path'), 'C:/base/path'),
+            array(array('C:/base/path/', 'C:\\base\\path'), 'C:/base/path'),
+
+            array(array('/base/path', '/base/path/'), '/base/path'),
+            array(array('C:/base/path', 'C:/base/path/'), 'C:/base/path'),
+            array(array('C:\\base\\path', 'C:\\base\\path\\'), 'C:/base/path'),
+            array(array('C:/base/path', 'C:\\base\\path\\'), 'C:/base/path'),
+
+            // first in second
+            array(array('/base/path/sub', '/base/path'), '/base/path'),
+            array(array('C:/base/path/sub', 'C:/base/path'), 'C:/base/path'),
+            array(array('C:\\base\\path\\sub', 'C:\\base\\path'), 'C:/base/path'),
+            array(array('C:/base/path/sub', 'C:\\base\\path'), 'C:/base/path'),
+
+            // second in first
+            array(array('/base/path', '/base/path/sub'), '/base/path'),
+            array(array('C:/base/path', 'C:/base/path/sub'), 'C:/base/path'),
+            array(array('C:\\base\\path', 'C:\\base\\path\\sub'), 'C:/base/path'),
+            array(array('C:/base/path', 'C:\\base\\path\\sub'), 'C:/base/path'),
+
+            // first is prefix
+            array(array('/base/path/di', '/base/path/dir'), '/base/path'),
+            array(array('C:/base/path/di', 'C:/base/path/dir'), 'C:/base/path'),
+            array(array('C:\\base\\path\\di', 'C:\\base\\path\\dir'), 'C:/base/path'),
+            array(array('C:/base/path/di', 'C:\\base\\path\\dir'), 'C:/base/path'),
+
+            // second is prefix
+            array(array('/base/path/dir', '/base/path/di'), '/base/path'),
+            array(array('C:/base/path/dir', 'C:/base/path/di'), 'C:/base/path'),
+            array(array('C:\\base\\path\\dir', 'C:\\base\\path\\di'), 'C:/base/path'),
+            array(array('C:/base/path/dir', 'C:\\base\\path\\di'), 'C:/base/path'),
+
+            // root is common base path
+            array(array('/first', '/second'), '/'),
+            array(array('C:/first', 'C:/second'), 'C:/'),
+            array(array('C:\\first', 'C:\\second'), 'C:/'),
+            array(array('C:/first', 'C:\\second'), 'C:/'),
+
+            // windows vs unix
+            array(array('/base/path', 'C:/base/path'), null),
+            array(array('C:/base/path', '/base/path'), null),
+            array(array('/base/path', 'C:\\base\\path'), null),
+
+            // different partitions
+            array(array('C:/base/path', 'D:/base/path'), null),
+            array(array('C:/base/path', 'D:\\base\\path'), null),
+            array(array('C:\\base\\path', 'D:\\base\\path'), null),
+
+            // three paths
+            array(array('/base/path/foo', '/base/path', '/base/path/bar'), '/base/path'),
+            array(array('C:/base/path/foo', 'C:/base/path', 'C:/base/path/bar'), 'C:/base/path'),
+            array(array('C:\\base\\path\\foo', 'C:\\base\\path', 'C:\\base\\path\\bar'), 'C:/base/path'),
+            array(array('C:/base/path//foo', 'C:/base/path', 'C:\\base\\path\\bar'), 'C:/base/path'),
+
+            // three paths with root
+            array(array('/base/path/foo', '/', '/base/path/bar'), '/'),
+            array(array('C:/base/path/foo', 'C:/', 'C:/base/path/bar'), 'C:/'),
+            array(array('C:\\base\\path\\foo', 'C:\\', 'C:\\base\\path\\bar'), 'C:/'),
+            array(array('C:/base/path//foo', 'C:/', 'C:\\base\\path\\bar'), 'C:/'),
+
+            // three paths, different roots
+            array(array('/base/path/foo', 'C:/base/path', '/base/path/bar'), null),
+            array(array('/base/path/foo', 'C:\\base\\path', '/base/path/bar'), null),
+            array(array('C:/base/path/foo', 'D:/base/path', 'C:/base/path/bar'), null),
+            array(array('C:\\base\\path\\foo', 'D:\\base\\path', 'C:\\base\\path\\bar'), null),
+            array(array('C:/base/path//foo', 'D:/base/path', 'C:\\base\\path\\bar'), null),
+
+            // only one path
+            array(array('/base/path'), '/base/path'),
+            array(array('C:/base/path'), 'C:/base/path'),
+            array(array('C:\\base\\path'), 'C:/base/path'),
+        );
+    }
+
+    /**
+     * @dataProvider provideGetLongestCommonBasePathTests
+     */
+    public function testGetLongestCommonBasePath(array $paths, $basePath)
+    {
+        $this->assertSame($basePath, Path::getLongestCommonBasePath($paths));
+    }
+
+    public function provideIsBasePathTests()
+    {
+        return array(
+            // same paths
+            array('/base/path', '/base/path', true),
+            array('C:/base/path', 'C:/base/path', true),
+            array('C:\\base\\path', 'C:\\base\\path', true),
+            array('C:/base/path', 'C:\\base\\path', true),
+
+            // trailing slash
+            array('/base/path/', '/base/path', true),
+            array('C:/base/path/', 'C:/base/path', true),
+            array('C:\\base\\path\\', 'C:\\base\\path', true),
+            array('C:/base/path/', 'C:\\base\\path', true),
+
+            array('/base/path', '/base/path/', true),
+            array('C:/base/path', 'C:/base/path/', true),
+            array('C:\\base\\path', 'C:\\base\\path\\', true),
+            array('C:/base/path', 'C:\\base\\path\\', true),
+
+            // first in second
+            array('/base/path/sub', '/base/path', false),
+            array('C:/base/path/sub', 'C:/base/path', false),
+            array('C:\\base\\path\\sub', 'C:\\base\\path', false),
+            array('C:/base/path/sub', 'C:\\base\\path', false),
+
+            // second in first
+            array('/base/path', '/base/path/sub', true),
+            array('C:/base/path', 'C:/base/path/sub', true),
+            array('C:\\base\\path', 'C:\\base\\path\\sub', true),
+            array('C:/base/path', 'C:\\base\\path\\sub', true),
+
+            // first is prefix
+            array('/base/path/di', '/base/path/dir', false),
+            array('C:/base/path/di', 'C:/base/path/dir', false),
+            array('C:\\base\\path\\di', 'C:\\base\\path\\dir', false),
+            array('C:/base/path/di', 'C:\\base\\path\\dir', false),
+
+            // second is prefix
+            array('/base/path/dir', '/base/path/di', false),
+            array('C:/base/path/dir', 'C:/base/path/di', false),
+            array('C:\\base\\path\\dir', 'C:\\base\\path\\di', false),
+            array('C:/base/path/dir', 'C:\\base\\path\\di', false),
+
+            // root
+            array('/', '/second', true),
+            array('C:/', 'C:/second', true),
+            array('C:', 'C:/second', true),
+            array('C:\\', 'C:\\second', true),
+            array('C:/', 'C:\\second', true),
+
+            // windows vs unix
+            array('/base/path', 'C:/base/path', false),
+            array('C:/base/path', '/base/path', false),
+            array('/base/path', 'C:\\base\\path', false),
+
+            // different partitions
+            array('C:/base/path', 'D:/base/path', false),
+            array('C:/base/path', 'D:\\base\\path', false),
+            array('C:\\base\\path', 'D:\\base\\path', false),
+        );
+    }
+
+    /**
+     * @dataProvider provideIsBasePathTests
+     */
+    public function testIsBasePath($path, $ofPath, $result)
+    {
+        $this->assertSame($result, Path::isBasePath($path, $ofPath));
+    }
 }

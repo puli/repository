@@ -30,11 +30,13 @@ class Path
      * Furthermore, all "." and ".." segments are removed as far as possible.
      * ".." segments at the beginning of relative paths are not removed.
      *
-     *     echo Path::normalize("\webmozart\puli\..\css\style.css");
-     *     // => /webmozart/style.css
+     * ```php
+     * echo Path::normalize("\webmozart\puli\..\css\style.css");
+     * // => /webmozart/style.css
      *
-     *     echo Path::normalize("../css/./style.css");
-     *     // => ../css/style.css
+     * echo Path::normalize("../css/./style.css");
+     * // => ../css/style.css
+     * ```
      *
      * This method is able to deal with both UNIX and Windows paths.
      *
@@ -226,21 +228,25 @@ class Path
      * segments ("." and "..") are removed/collapsed and all slashes turned
      * into forward slashes.
      *
-     *     echo Path::makeAbsolute("../style.css", "/webmozart/puli/css");
-     *     // => /webmozart/puli/style.css
+     * ```php
+     * echo Path::makeAbsolute("../style.css", "/webmozart/puli/css");
+     * // => /webmozart/puli/style.css
+     * ```
      *
      * If an absolute path is passed, that path is returned unless its root
      * directory is different than the one of the base path. In that case, an
      * exception is thrown.
      *
-     *     Path::makeAbsolute("/style.css", "/webmozart/puli/css");
-     *     => /style.css
+     * ```php
+     * Path::makeAbsolute("/style.css", "/webmozart/puli/css");
+     * // => /style.css
      *
-     *     Path::makeAbsolute("C:/style.css", "C:/webmozart/puli/css");
-     *     => C:/style.css
+     * Path::makeAbsolute("C:/style.css", "C:/webmozart/puli/css");
+     * // => C:/style.css
      *
-     *     Path::makeAbsolute("C:/style.css", "/webmozart/puli/css");
-     *     // InvalidArgumentException
+     * Path::makeAbsolute("C:/style.css", "/webmozart/puli/css");
+     * // InvalidArgumentException
+     * ```
      *
      * If the base path is not an absolute path, an exception is thrown.
      *
@@ -292,32 +298,42 @@ class Path
      *
      * The relative path is created relative to the given base path:
      *
-     *     echo Path::makeRelative("/webmozart/style.css", "/webmozart/puli");
-     *     // => ../style.css
+     * ```php
+     * echo Path::makeRelative("/webmozart/style.css", "/webmozart/puli");
+     * // => ../style.css
+     * ```
      *
      * If a relative path is passed and the base path is absolute, the relative
      * path is returned unchanged:
      *
-     *     Path::makeRelative("style.css", "/webmozart/puli/css");
-     *     => style.css
+     * ```php
+     * Path::makeRelative("style.css", "/webmozart/puli/css");
+     * // => style.css
+     * ```
      *
      * If both paths are relative, the relative path is created with the
      * assumption that both paths are relative to the same directory:
      *
-     *     Path::makeRelative("style.css", "webmozart/puli/css");
-     *     => ../../../style.css
+     * ```php
+     * Path::makeRelative("style.css", "webmozart/puli/css");
+     * // => ../../../style.css
+     * ```
      *
      * If both paths are absolute, their root directory must be the same,
      * otherwise an exception is thrown:
      *
-     *     Path::makeRelative("C:/webmozart/style.css", "/webmozart/puli");
-     *     // InvalidArgumentException
+     * ```php
+     * Path::makeRelative("C:/webmozart/style.css", "/webmozart/puli");
+     * // InvalidArgumentException
+     * ```
      *
      * If the passed path is absolute, but the base path is not, an exception
      * is thrown as well:
      *
-     *     Path::makeRelative("/webmozart/style.css", "webmozart/puli");
-     *     // InvalidArgumentException
+     * ```php
+     * Path::makeRelative("/webmozart/style.css", "webmozart/puli");
+     * // InvalidArgumentException
+     * ```
      *
      * If the base path is not an absolute path, an exception is thrown.
      *
@@ -408,6 +424,121 @@ class Path
     }
 
     /**
+     * Returns the longest common base path of a set of paths.
+     *
+     * Dot segments ("." and "..") are removed/collapsed and all slashes turned
+     * into forward slashes.
+     *
+     * ```php
+     * $basePath = Path::getLongestCommonBasePath(array(
+     *     '/webmozart/css/style.css',
+     *     '/webmozart/css/..'
+     * ));
+     * // => /webmozart
+     * ```
+     *
+     * The root is returned if no common base path can be found:
+     *
+     * ```php
+     * $basePath = Path::getLongestCommonBasePath(array(
+     *     '/webmozart/css/style.css',
+     *     '/puli/css/..'
+     * ));
+     * // => /
+     * ```
+     *
+     * If the paths are located on different Windows partitions, `null` is
+     * returned.
+     *
+     * ```php
+     * $basePath = Path::getLongestCommonBasePath(array(
+     *     'C:/webmozart/css/style.css',
+     *     'D:/webmozart/css/..'
+     * ));
+     * // => null
+     * ```
+     *
+     * @param array $paths A list of paths.
+     *
+     * @return string The longest common base path in canonical form or `null`
+     *                if the paths are on different Windows partitions.
+     */
+    public static function getLongestCommonBasePath(array $paths)
+    {
+        list ($bpRoot, $basePath) = self::split(self::canonicalize(reset($paths)));
+
+        for (next($paths); null !== key($paths) && '' !== $basePath; next($paths)) {
+            list ($root, $path) = self::split(self::canonicalize(current($paths)));
+
+            // If we deal with different roots (e.g. C:/ vs. D:/), it's time
+            // to quit
+            if ($root !== $bpRoot) {
+                return null;
+            }
+
+            // Make the base path shorter until it fits into path
+            while (true)  {
+                if ('.' === $basePath) {
+                    // No more base paths
+                    $basePath = '';
+
+                    // Next path
+                    continue 2;
+                }
+
+                // Prevent false positives for common prefixes
+                // see isBasePath()
+                if (0 === strpos($path.'/', $basePath.'/')) {
+                    // Next path
+                    continue 2;
+                }
+
+                $basePath = dirname($basePath);
+            }
+        }
+
+        return $bpRoot.$basePath;
+    }
+
+    /**
+     * Returns whether a path is a base path of another path.
+     *
+     * Dot segments ("." and "..") are removed/collapsed and all slashes turned
+     * into forward slashes.
+     *
+     * ```php
+     * Path::isBasePath('/webmozart', '/webmozart/css');
+     * // => true
+     *
+     * Path::isBasePath('/webmozart', '/webmozart');
+     * // => true
+     *
+     * Path::isBasePath('/webmozart', '/webmozart/..');
+     * // => false
+     *
+     * Path::isBasePath('/webmozart', '/puli');
+     * // => false
+     * ```
+     *
+     * @param string $basePath The base path to test.
+     * @param string $ofPath   The other path.
+     *
+     * @return bool Whether the base path is a base path of the other path.
+     */
+    public static function isBasePath($basePath, $ofPath)
+    {
+        $basePath = self::canonicalize($basePath);
+        $ofPath = self::canonicalize($ofPath);
+
+        // Append slashes to prevent false positives when two paths have
+        // a common prefix, for example /base/foo and /base/foobar.
+        // Don't append a slash for the root "/", because then that root
+        // won't be discovered as common prefix ("//" is not a prefix of
+        // "/foobar/").
+        return 0 === strpos($ofPath.'/', rtrim($basePath, '/').'/');
+    }
+
+    /**
      * Splits a part into its root directory and the remainder.
      *
      * If the path has no root directory, an empty root directory will be
@@ -416,11 +547,11 @@ class Path
      * If the root directory is a Windows style partition, the resulting root
      * will always contain a trailing slash.
      *
-     *     list ($root, $path) = Path::split("C:/webmozart")
-     *     // => array("C:/", "webmozart")
+     * list ($root, $path) = Path::split("C:/webmozart")
+     * // => array("C:/", "webmozart")
      *
-     *     list ($root, $path) = Path::split("C:")
-     *     // => array("C:/", "")
+     * list ($root, $path) = Path::split("C:")
+     * // => array("C:/", "")
      *
      * @param string $path The path to split
      *
