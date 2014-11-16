@@ -364,7 +364,7 @@ class ResourceRepository implements ManageableRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag)
+    public function findByTag($tag)
     {
         if (!isset($this->resourcesByTag[$tag])) {
             return new ResourceCollection();

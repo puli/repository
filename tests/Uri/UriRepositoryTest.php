@@ -315,17 +315,17 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         ));
 
         $repo1->expects($this->once())
-            ->method('getByTag')
+            ->method('findByTag')
             ->with('acme/tag')
             ->will($this->returnValue(new ResourceCollection(array($resources[0]))));
         $repo2->expects($this->once())
-            ->method('getByTag')
+            ->method('findByTag')
             ->with('acme/tag')
             ->will($this->returnValue(new ResourceCollection(array($resources[1]))));
 
         $this->assertEquals(
             $resources,
-            $this->repo->getByTag('acme/tag')
+            $this->repo->findByTag('acme/tag')
         );
     }
 

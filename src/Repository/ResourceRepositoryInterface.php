@@ -87,7 +87,7 @@ interface ResourceRepositoryInterface
      *
      * @return ResourceCollectionInterface The resources with this tag.
      */
-    public function getByTag($tag);
+    public function findByTag($tag);
 
     /**
      * Returns all known tags in the repository.

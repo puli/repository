@@ -164,12 +164,12 @@ resources in the repository. The right side contains one or more tags that
 should be added to the selected resources.
 
 The tagged resources can then be retrieved with the
-:method:`Puli\\Repository\\ResourceRepositoryInterface::getByTag` method of the
+:method:`Puli\\Repository\\ResourceRepositoryInterface::findByTag` method of the
 resource repository:
 
 .. code-block:: php
 
-    foreach ($repo->getByTag('acme/translator/xlf') as $resource) {
+    foreach ($repo->findByTag('acme/translator/xlf') as $resource) {
         // ...
     }
 

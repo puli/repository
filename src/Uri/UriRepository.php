@@ -279,12 +279,12 @@ class UriRepository implements UriRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag)
+    public function findByTag($tag)
     {
         $resources = array();
 
         foreach ($this->repos as $repo) {
-            foreach ($repo->getByTag($tag) as $resource) {
+            foreach ($repo->findByTag($tag) as $resource) {
                 $resources[] = $resource;
             }
         }

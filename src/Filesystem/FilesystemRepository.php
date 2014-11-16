@@ -154,7 +154,7 @@ class FilesystemRepository implements ResourceRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag)
+    public function findByTag($tag)
     {
         return new ResourceCollection();
     }

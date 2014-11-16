@@ -400,7 +400,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $resources = $repo->getByTag('webmozart/tag');
+        $resources = $repo->findByTag('webmozart/tag');
 
         $this->assertCount(1, $resources);
         $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
@@ -411,7 +411,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $resources = $repo->getByTag('foo/bar');
+        $resources = $repo->findByTag('foo/bar');
 
         $this->assertCount(0, $resources);
         $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);

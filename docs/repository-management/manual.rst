@@ -107,11 +107,11 @@ You can remove one or all tags from a resource using the
     $repo->untag('/translations/*.xlf');
 
 You can get all files marked with a specific tag with the
-:method:`Puli\\Repository\\ResourceRepositoryInterface::getByTag` method:
+:method:`Puli\\Repository\\ResourceRepositoryInterface::findByTag` method:
 
 .. code-block:: php
 
-    $resources = $repo->getByTag('acme/translator/xlf');
+    $resources = $repo->findByTag('acme/translator/xlf');
 
 Use :method:`Puli\\Repository\\ResourceRepositoryInterface::getTags` to read all
 tags that have been registered with the repository:

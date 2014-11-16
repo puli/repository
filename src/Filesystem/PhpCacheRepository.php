@@ -146,7 +146,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
 
         // Remember which resource has which tag
         foreach ($repo->getTags() as $tag) {
-            $tags[$tag] = $repo->getByTag($tag)->getPaths();
+            $tags[$tag] = $repo->findByTag($tag)->getPaths();
         }
 
         // Create the directory if it doesn't exist
@@ -446,7 +446,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag)
+    public function findByTag($tag)
     {
         if (null === $this->tags) {
             $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
