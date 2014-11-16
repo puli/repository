@@ -84,45 +84,6 @@ Repository                                       Description                    
 :class:`Puli\\Filesystem\\FilesystemRepository`  Reads resources from the filesystem.    No
 ===============================================  ======================================  ========
 
-Tagging Resources
------------------
-
-Resources managed by Puli can be tagged. This is useful for marking resources
-that support specific features. For example, you can tag all XLIFF translation
-files that can be consumed by a class ``Acme\Translator``:
-
-.. code-block:: php
-
-    $repo->tag('/translations/*.xlf', 'acme/translator/xlf');
-
-You can remove one or all tags from a resource using the
-:method:`Puli\\Repository\\ManageableRepositoryInterface::untag` method:
-
-.. code-block:: php
-
-    // Remove the tag "acme/translator/xlf"
-    $repo->untag('/translations/*.xlf', 'acme/translator/xlf');
-
-    // Remove all tags
-    $repo->untag('/translations/*.xlf');
-
-You can get all files marked with a specific tag with the
-:method:`Puli\\Repository\\ResourceRepositoryInterface::findByTag` method:
-
-.. code-block:: php
-
-    $resources = $repo->findByTag('acme/translator/xlf');
-
-Use :method:`Puli\\Repository\\ResourceRepositoryInterface::getTags` to read all
-tags that have been registered with the repository:
-
-.. code-block:: php
-
-    $tags = $repo->getTags();
-
-This method will return an array of strings, i.e. the names of all registered
-tags.
-
 Repository Backends
 -------------------
 
@@ -195,6 +156,6 @@ Repository                                                   Description
 Further Reading
 ---------------
 
-Read :doc:`../uris` to learn how to use multiple repositories side by side.
+Read :doc:`../tags` to learn how tag resources that share common functionality.
 
 .. _Puli: https://github.com/puli/puli

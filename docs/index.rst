@@ -8,6 +8,7 @@ Welcome to Puli's documentation!
    getting-started
    working-with-resources
    repository-management
+   tags
    uris
    extensions
 
@@ -55,6 +56,7 @@ The documentation contains the following sections:
 * :doc:`getting-started`
 * :doc:`working-with-resources`
 * :doc:`repository-management`
+* :doc:`tags`
 * :doc:`uris`
 * :doc:`extensions`
 

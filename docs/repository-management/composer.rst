@@ -135,44 +135,6 @@ other packages:
 The example above will map the Puli path ``/foo/calc/css`` to the
 ``assets/css`` directory in the "foo/calc" package.
 
-Tagging Resources
------------------
-
-You can tag mapped resources in order to indicate that they support specific
-features. For example, assume that all XLIFF translation files in the
-"acme/blog" package should be registered with the ``\Acme\Translator`` class.
-You can tag resources by adding them to the "tags" key in composer.json:
-
-.. code-block:: json
-
-    {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog": "resources"
-                },
-                "tags": {
-                    "/acme/blog/translations/*.xlf": "acme/translator/xlf"
-                }
-            }
-        }
-    }
-
-The left side of the array is a path or a glob that selects one or more
-resources in the repository. The right side contains one or more tags that
-should be added to the selected resources.
-
-The tagged resources can then be retrieved with the
-:method:`Puli\\Repository\\ResourceRepositoryInterface::findByTag` method of the
-resource repository:
-
-.. code-block:: php
-
-    foreach ($repo->findByTag('acme/translator/xlf') as $resource) {
-        // ...
-    }
-
 Overriding Resources
 --------------------
 
@@ -279,7 +241,7 @@ all three packages, you will get a result like this:
 Further Reading
 ---------------
 
-Read :doc:`../uris` to learn how to use multiple repositories side by side.
+Read :doc:`../tags` to learn how tag resources that share common functionality.
 
 .. _Puli: https://github.com/puli/puli
 .. _Puli plugin for Composer: https://github.com/puli/composer-puli-plugin
