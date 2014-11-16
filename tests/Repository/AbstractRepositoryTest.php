@@ -153,6 +153,26 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->contains('webmozart');
     }
 
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testContainsExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->contains('');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testContainsExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->contains(new \stdClass());
+    }
+
     abstract public function testGetFile();
 
     abstract public function testGetDirectory();
@@ -223,6 +243,26 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         )));
 
         $repo->get('webmozart');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testGetExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->get('');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testGetExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->get(new \stdClass());
     }
 
     public function testGetDotInDirectory()
@@ -384,7 +424,27 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->find('*');
     }
 
-    public function testGetByTag()
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testFindExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->find('');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testFindExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->find(new \stdClass());
+    }
+
+    public function testFindByTag()
     {
         $repo = $this->createRepository(
             new TestDirectory('/', array(
@@ -407,7 +467,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
-    public function testGetByTagIgnoresNonExistingTags()
+    public function testFindByTagIgnoresNonExistingTags()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
@@ -415,6 +475,26 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(0, $resources);
         $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindByTagExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->findByTag('');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFindByTagExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->findByTag(new \stdClass());
     }
 
     public function testGetTags()

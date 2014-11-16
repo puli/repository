@@ -99,7 +99,18 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function get($path)
     {
-        if (isset($path[0]) && '/' !== $path[0]) {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
             throw new InvalidPathException(sprintf(
                 'The path "%s" is not absolute.',
                 $path
@@ -123,9 +134,20 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function find($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
@@ -161,9 +183,20 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function contains($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
@@ -202,24 +235,31 @@ class ResourceRepository implements ManageableRepositoryInterface
      * @param string                                                         $path     The path at which to add the resource.
      * @param string|AttachableResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
      *
-     * @throws InvalidPathException If the path is invalid.
+     * @throws InvalidPathException If the path is invalid. The path must be a
+     *                              non-empty string starting with "/".
+     * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource)
     {
         if ('' === $path) {
-            throw new InvalidPathException(
-                'Please pass a non-empty selector.'
-            );
+            throw new InvalidPathException('The path must not be empty.');
         }
 
-        $path = Path::canonicalize($path);
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
 
-        if (isset($path[0]) && '/' !== $path[0]) {
+        if ('/' !== $path[0]) {
             throw new InvalidPathException(sprintf(
                 'The path "%s" is not absolute.',
                 $path
             ));
         }
+
+        $path = Path::canonicalize($path);
 
         if (is_string($resource)) {
             $collection = $this->backend->find($resource);
@@ -234,13 +274,35 @@ class ResourceRepository implements ManageableRepositoryInterface
         }
 
         if ($resource instanceof ResourceCollectionInterface) {
+            // Validate all resources
+            foreach ($resource as $entry) {
+                if (!$entry instanceof AttachableResourceInterface) {
+                    throw new UnsupportedResourceException(sprintf(
+                        'The passed resources must implement '.
+                        'AttachableResourceInterface. Got: %s',
+                        is_object($entry) ? get_class($entry) : gettype($entry)
+                    ));
+                }
+            }
+
+            // If all are valid, attach them
             foreach ($resource as $entry) {
                 /** @var ResourceInterface $entry */
                 $this->attachResource($entry, $path.'/'.$entry->getName());
             }
-        } else {
+
+            return;
+        } elseif ($resource instanceof AttachableResourceInterface) {
             $this->attachResource($resource, $path);
+
+            return;
         }
+
+        throw new UnsupportedResourceException(sprintf(
+            'The passed resource must be a string, AttachableResourceInterface '.
+            'or ResourceCollectionInterface. Got: %s',
+            is_object($resource) ? get_class($resource) : gettype($resource)
+        ));
     }
 
     /**
@@ -249,19 +311,24 @@ class ResourceRepository implements ManageableRepositoryInterface
     public function remove($selector)
     {
         if ('' === $selector) {
-            throw new InvalidPathException(
-                'Please pass a non-empty selector.'
-            );
+            throw new InvalidPathException('The selector must not be empty.');
         }
 
-        $selector = Path::canonicalize($selector);
-
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
+
+        $selector = Path::canonicalize($selector);
 
         $staticPrefix = Selector::getStaticPrefix($selector);
         $removed = 0;
@@ -298,6 +365,17 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function tag($selector, $tag)
     {
+        if ('' === $tag) {
+            throw new \InvalidArgumentException('The tag must not be empty.');
+        }
+
+        if (!is_string($tag)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The tag must be a string. Is: %s.',
+                is_object($tag) ? get_class($tag) : gettype($tag)
+            ));
+        }
+
         $resources = $this->find($selector);
 
         if (0 === count($resources)) {
@@ -331,6 +409,17 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function untag($selector, $tag = null)
     {
+        if ('' === $tag) {
+            throw new \InvalidArgumentException('The tag must not be empty.');
+        }
+
+        if (!is_string($tag) && null !== $tag) {
+            throw new \InvalidArgumentException(sprintf(
+                'The tag must be a string or null. Is: %s.',
+                is_object($tag) ? get_class($tag) : gettype($tag)
+            ));
+        }
+
         $resources = $this->find($selector);
 
         if (0 === count($resources)) {
@@ -366,6 +455,17 @@ class ResourceRepository implements ManageableRepositoryInterface
      */
     public function findByTag($tag)
     {
+        if ('' === $tag) {
+            throw new \InvalidArgumentException('The tag must not be empty.');
+        }
+
+        if (!is_string($tag)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The tag must be a string. Is: %s.',
+                is_object($tag) ? get_class($tag) : gettype($tag)
+            ));
+        }
+
         if (!isset($this->resourcesByTag[$tag])) {
             return new ResourceCollection();
         }

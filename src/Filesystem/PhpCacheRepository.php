@@ -243,7 +243,18 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      */
     public function get($path)
     {
-        if (isset($path[0]) && '/' !== $path[0]) {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
             throw new InvalidPathException(sprintf(
                 'The path "%s" is not absolute.',
                 $path
@@ -292,9 +303,20 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      */
     public function find($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
@@ -387,9 +409,20 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      */
     public function contains($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
@@ -448,6 +481,17 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      */
     public function findByTag($tag)
     {
+        if ('' === $tag) {
+            throw new \InvalidArgumentException('The tag must not be empty.');
+        }
+
+        if (!is_string($tag)) {
+            throw new \InvalidArgumentException(sprintf(
+                'The tag must be a string. Is: %s.',
+                is_object($tag) ? get_class($tag) : gettype($tag)
+            ));
+        }
+
         if (null === $this->tags) {
             $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
         }

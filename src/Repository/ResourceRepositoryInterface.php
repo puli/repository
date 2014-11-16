@@ -50,7 +50,8 @@ interface ResourceRepositoryInterface
      * @return ResourceInterface The resource at this path.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
-     * @throws InvalidPathException If the path is invalid.
+     * @throws InvalidPathException If the path is invalid. The path must be a
+     *                              non-empty string starting with "/".
      */
     public function get($path);
 
@@ -63,7 +64,8 @@ interface ResourceRepositoryInterface
      *
      * @return ResourceCollectionInterface The resources matching the selector.
      *
-     * @throws InvalidPathException If the selector is invalid.
+     * @throws InvalidPathException If the selector is invalid. The selector
+     *                              must be a non-empty string starting with "/".
      */
     public function find($selector);
 
@@ -76,7 +78,8 @@ interface ResourceRepositoryInterface
      *
      * @return bool Returns whether any resources exist that match the selector.
      *
-     * @throws InvalidPathException If the selector is invalid.
+     * @throws InvalidPathException If the selector is invalid. The selector
+     *                              must be a non-empty string starting with "/".
      */
     public function contains($selector);
 
@@ -86,6 +89,9 @@ interface ResourceRepositoryInterface
      * @param string $tag A tag name.
      *
      * @return ResourceCollectionInterface The resources with this tag.
+     *
+     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
+     *                                   a non-empty string.
      */
     public function findByTag($tag);
 

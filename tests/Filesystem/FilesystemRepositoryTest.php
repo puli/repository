@@ -146,13 +146,25 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
         $this->pass();
     }
 
-    public function testGetByTag()
+    public function testFindByTag()
     {
         // Not supported
         $this->pass();
     }
 
-    public function testGetByTagIgnoresNonExistingTags()
+    public function testFindByTagIgnoresNonExistingTags()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testFindByTagExpectsNonEmptyPath()
+    {
+        // Not supported
+        $this->pass();
+    }
+
+    public function testFindByTagExpectsStringPath()
     {
         // Not supported
         $this->pass();

@@ -101,15 +101,18 @@ class UriRepository implements UriRepositoryInterface
      * as the scheme is used for the first time. The callable should return a
      * {@link ResourceRepositoryInterface} object.
      *
-     * @param string                               $scheme            A URI scheme
-     * @param callable|\Puli\Repository\ResourceRepositoryInterface $repositoryFactory The repository to use
+     * @param string                               $scheme            A URI scheme.
+     * @param callable|ResourceRepositoryInterface $repositoryFactory The repository to use.
+     *
+     * @throws \InvalidArgumentException If the repository factory or the URI
+     *                                   scheme is invalid.
      */
     public function register($scheme, $repositoryFactory)
     {
         if (!$repositoryFactory instanceof ResourceRepositoryInterface
                 && !is_callable($repositoryFactory)) {
             throw new \InvalidArgumentException(
-                'The locator factory should be a callable or an instance '.
+                'The repository factory should be a callable or an instance '.
                 'of "Puli\Repository\ResourceRepositoryInterface".'
             );
         }

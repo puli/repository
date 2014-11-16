@@ -115,7 +115,6 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         });
 
         $this->repo->get('scheme:///path/to/resource');
-        $this->repo->get('scheme:///path/to/resource');
     }
 
     public function testFirstRegisteredSchemeIsDefault()
@@ -220,6 +219,14 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repo->get('foo');
     }
 
+    /**
+     * @expectedException \Puli\Uri\InvalidUriException
+     */
+    public function testGetExpectsString()
+    {
+        $this->repo->get(new \stdClass());
+    }
+
     public function testContains()
     {
         $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
@@ -301,7 +308,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repo->find('foo');
     }
 
-    public function testGetByTagChecksAllRepositorys()
+    public function testFindByTagChecksAllRepositories()
     {
         $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $repo2 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
@@ -329,7 +336,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testGetTagsReturnsUnionFromAllRepositorys()
+    public function testGetTagsReturnsUnionFromAllRepositories()
     {
         $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $repo2 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');

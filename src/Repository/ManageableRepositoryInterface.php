@@ -31,7 +31,9 @@ interface ManageableRepositoryInterface extends ResourceRepositoryInterface
      * @param string                                                  $path     The path at which to add the resource.
      * @param AttachableResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
      *
-     * @throws InvalidPathException If the path is invalid.
+     * @throws InvalidPathException If the path is invalid. The path must be a
+     *                              non-empty string starting with "/".
+     * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource);
 
@@ -44,7 +46,8 @@ interface ManageableRepositoryInterface extends ResourceRepositoryInterface
      *
      * @return integer The number of resources removed from the repository.
      *
-     * @throws InvalidPathException If the selector is invalid.
+     * @throws InvalidPathException If the selector is invalid. The selector
+     *                              must be a non-empty string starting with "/".
      */
     public function remove($selector);
 
@@ -58,7 +61,10 @@ interface ManageableRepositoryInterface extends ResourceRepositoryInterface
      *
      * @return integer The number of affected resources.
      *
-     * @throws InvalidPathException If the selector is invalid.
+     * @throws InvalidPathException If the selector is invalid. The selector
+     *                              must be a non-empty string starting with "/".
+     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
+     *                                   a non-empty string.
      */
     public function tag($selector, $tag);
 
@@ -72,7 +78,10 @@ interface ManageableRepositoryInterface extends ResourceRepositoryInterface
      *
      * @return integer The number of affected resources.
      *
-     * @throws InvalidPathException If the selector is invalid.
+     * @throws InvalidPathException If the selector is invalid. The selector
+     *                              must be a non-empty string starting with "/".
+     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
+     *                                   a non-empty string.
      */
     public function untag($selector, $tag = null);
 }

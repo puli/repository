@@ -81,7 +81,18 @@ class FilesystemRepository implements ResourceRepositoryInterface
      */
     public function get($path)
     {
-        if (isset($path[0]) && '/' !== $path[0]) {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
             throw new InvalidPathException(sprintf(
                 'The path "%s" is not absolute.',
                 $path
@@ -108,9 +119,20 @@ class FilesystemRepository implements ResourceRepositoryInterface
      */
     public function find($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }
@@ -138,9 +160,20 @@ class FilesystemRepository implements ResourceRepositoryInterface
      */
     public function contains($selector)
     {
-        if (isset($selector[0]) && '/' !== $selector[0]) {
+        if ('' === $selector) {
+            throw new InvalidPathException('The selector must not be empty.');
+        }
+
+        if (!is_string($selector)) {
             throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
+                'The selector must be a string. Is: %s.',
+                is_object($selector) ? get_class($selector) : gettype($selector)
+            ));
+        }
+
+        if ('/' !== $selector[0]) {
+            throw new InvalidPathException(sprintf(
+                'The selector "%s" is not absolute.',
                 $selector
             ));
         }

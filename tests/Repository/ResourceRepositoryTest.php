@@ -14,7 +14,6 @@ namespace Puli\Tests\Repository;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Repository\ResourceRepository;
-use Puli\Tests\Repository\AbstractRepositoryTest;
 use Puli\Tests\Resource\TestDirectory;
 use Puli\Tests\Resource\TestFile;
 
@@ -256,14 +255,6 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->assertEquals($clone2, $repo->get('/webmozart/puli/file2'));
     }
 
-    /**
-     * @expectedException \Puli\Repository\InvalidPathException
-     */
-    public function testAddExpectsNonEmptyRepositoryPath()
-    {
-        $this->repo->add('', new TestDirectory());
-    }
-
     public function testAddRoot()
     {
         $this->repo->add('/', $dir = new TestDirectory('/', array(
@@ -291,9 +282,43 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsAbsolutePath()
     {
-        $file = new TestFile();
+        $this->repo->add('webmozart', new TestDirectory());
+    }
 
-        $this->repo->add('webmozart/puli/', $file);
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testAddExpectsNonEmptyPath()
+    {
+        $this->repo->add('', new TestDirectory());
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testAddExpectsStringPath()
+    {
+        $this->repo->add(new \stdClass(), new TestDirectory());
+    }
+
+    /**
+     * @expectedException \Puli\Repository\UnsupportedResourceException
+     */
+    public function testAddExpectsAttachableResource()
+    {
+        $this->repo->add('/webmozart', $this->getMock('Puli\Resource\ResourceInterface'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\UnsupportedResourceException
+     */
+    public function testAddExpectsAttachableResourcesInCollection()
+    {
+        $resources = new ResourceCollection(array(
+            $this->getMock('Puli\Resource\ResourceInterface'),
+        ));
+
+        $this->repo->add('/webmozart', $resources);
     }
 
     public function testRemoveFile()
@@ -430,6 +455,14 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     /**
      * @expectedException \Puli\Repository\InvalidPathException
      */
+    public function testRemoveExpectsAbsolutePath()
+    {
+        $this->repo->remove('webmozart');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
     public function testRemoveExpectsNonEmptyPath()
     {
         $this->repo->remove('');
@@ -438,9 +471,9 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     /**
      * @expectedException \Puli\Repository\InvalidPathException
      */
-    public function testRemoveExpectsAbsolutePath()
+    public function testRemoveExpectsStringPath()
     {
-        $this->repo->remove('webmozart/puli');
+        $this->repo->remove(new \stdClass());
     }
 
     public function testTagOne()
@@ -526,7 +559,43 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
      */
     public function testTagExpectsAbsolutePath()
     {
-        $this->repo->tag('webmozart/puli', 'webmozart/tag');
+        $this->repo->tag('webmozart', 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testTagExpectsNonEmptyPath()
+    {
+        $this->repo->tag('', 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testTagExpectsStringPath()
+    {
+        $this->repo->tag(new \stdClass(), 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testTagExpectsNonEmptyTag()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+
+        $this->repo->tag('/webmozart/puli/file', '');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testTagExpectsStringTag()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+
+        $this->repo->tag('/webmozart/puli/file', new \stdClass());
     }
 
     public function testUntagOne()
@@ -686,6 +755,44 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
      */
     public function testUntagExpectsAbsolutePath()
     {
-        $this->repo->untag('webmozart/puli', 'webmozart/tag');
+        $this->repo->untag('webmozart', 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testUntagExpectsNonEmptyPath()
+    {
+        $this->repo->untag('', 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testUntagExpectsStringPath()
+    {
+        $this->repo->untag(new \stdClass(), 'webmozart/tag');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testUntagExpectsNonEmptyTag()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+        $this->repo->tag('/webmozart/puli/file', 'webmozart/tag');
+
+        $this->repo->untag('/webmozart/puli/file', '');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testUntagExpectsStringTag()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+        $this->repo->tag('/webmozart/puli/file', 'webmozart/tag');
+
+        $this->repo->untag('/webmozart/puli/file', new \stdClass());
     }
 }
