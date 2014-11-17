@@ -235,7 +235,7 @@ all three packages, you will get a result like this:
     // (
     //     [0] => /path/to/vendor/acme/blog/assets/css/style.css
     //     [1] => /path/to/vendor/acme/blog-extension-1/assets/css/style.css
-    //     [1] => /path/to/vendor/acme/blog-extension-2/assets/css/style.css
+    //     [2] => /path/to/vendor/acme/blog-extension-2/assets/css/style.css
     // )
 
 Further Reading
