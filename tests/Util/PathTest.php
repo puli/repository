@@ -455,6 +455,8 @@ class PathTest extends \PHPUnit_Framework_TestCase
             array('bg.png', true),
             array('http://example.com/bg.png', false),
             array('http://example.com', false),
+            array(null, false),
+            array('', false),
         );
     }
 

@@ -420,7 +420,7 @@ class Path
      */
     public static function isLocal($path)
     {
-        return false === strpos($path, '://');
+        return is_string($path) && '' !== $path && false === strpos($path, '://');
     }
 
     /**
