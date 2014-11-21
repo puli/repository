@@ -262,14 +262,17 @@ class ResourceRepository implements ManageableRepositoryInterface
         $path = Path::canonicalize($path);
 
         if (is_string($resource)) {
-            $collection = $this->backend->find($resource);
-            if (1 === count($collection)) {
-                $resource = clone $collection[0];
-            } else {
-                foreach ($collection as $key => $entry) {
-                    $collection[$key] = clone $entry;
+            // Use find() only if the string is actually a selector. We want
+            // deterministic results when using a selector, even if the selector
+            // just matches one result.
+            // See https://github.com/puli/puli/issues/17
+            if (Selector::isSelector($resource)) {
+                $resource = $this->backend->find($resource);
+                foreach ($resource as $key => $entry) {
+                    $resource[$key] = clone $entry;
                 }
-                $resource = $collection;
+            } else {
+                $resource = clone $this->backend->get($resource);
             }
         }
 

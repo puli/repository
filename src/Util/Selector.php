@@ -22,6 +22,19 @@ namespace Puli\Util;
 class Selector
 {
     /**
+     * Returns whether a string is a selector.
+     *
+     * @param string $string The tested string.
+     *
+     * @return bool Returns `true` if the string is a selector, `false`
+     *              otherwise.
+     */
+    public static function isSelector($string)
+    {
+        return false !== strpos($string, '*');
+    }
+
+    /**
      * Converts a selector to a regular expression.
      *
      * @param string $selector A path selector in canonical form.

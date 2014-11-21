@@ -201,16 +201,16 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->assertSame($file2, $this->repo->get('/webmozart/puli/file2'));
     }
 
-    public function testAddOneFromBackend()
+    public function testAddPathFromBackend()
     {
         $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $file = new TestFile();
         $file->attachTo($backend, '/dir1/file1');
 
         $backend->expects($this->once())
-            ->method('find')
+            ->method('get')
             ->with('/dir1/file1')
-            ->will($this->returnValue(new ResourceCollection(array($file))));
+            ->will($this->returnValue($file));
 
         $repo = new ResourceRepository($backend);
         $repo->add('/webmozart/puli/file1', '/dir1/file1');
@@ -224,7 +224,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $this->assertEquals($clone, $repo->get('/webmozart/puli/file1'));
     }
 
-    public function testAddManyFromBackend()
+    public function testAddSelectorFromBackendManyMatches()
     {
         $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
         $file1 = new TestFile();
@@ -253,6 +253,29 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $clone2 = clone $file2;
         $clone2->attachTo($repo, '/webmozart/puli/file2');
         $this->assertEquals($clone2, $repo->get('/webmozart/puli/file2'));
+    }
+
+    public function testAddSelectorFromBackendOneMatch()
+    {
+        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $file1 = new TestFile();
+        $file1->attachTo($backend, '/dir1/file1');
+
+        $backend->expects($this->once())
+            ->method('find')
+            ->with('/dir1/*')
+            ->will($this->returnValue(new ResourceCollection(array($file1))));
+
+        $repo = new ResourceRepository($backend);
+        $repo->add('/webmozart/puli', '/dir1/*');
+
+        // Backend resources were not modified
+        $this->assertSame('/dir1/file1', $file1->getPath());
+        $this->assertSame($backend, $file1->getAttachedRepository());
+
+        $clone1 = clone $file1;
+        $clone1->attachTo($repo, '/webmozart/puli/file1');
+        $this->assertEquals($clone1, $repo->get('/webmozart/puli/file1'));
     }
 
     public function testAddRoot()
