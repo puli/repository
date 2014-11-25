@@ -14,6 +14,8 @@ namespace Puli\Tests\Filesystem\Resource;
 use Puli\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Filesystem\Resource\LocalFileResource;
 use Puli\Filesystem\Resource\LocalResourceCollection;
+use Puli\Tests\Resource\TestDirectory;
+use Puli\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -49,16 +51,6 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
         new LocalResourceCollection('foobar');
     }
 
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testConstructFailsIfNoLocalResource()
-    {
-        new LocalResourceCollection(array(
-            $this->getMock('Puli\Resource\FileResourceInterface'),
-        ));
-    }
-
     public function testReplace()
     {
         $collection = new LocalResourceCollection(array(
@@ -86,18 +78,6 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->replace('foobar');
     }
 
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testReplaceFailsIfNoLocalResource()
-    {
-        $collection = new LocalResourceCollection();
-
-        $collection->replace(array(
-            $this->getMock('Puli\Resource\FileResourceInterface'),
-        ));
-    }
-
     public function testAdd()
     {
         $collection = new LocalResourceCollection(array(
@@ -112,23 +92,20 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($file, $collection->get(1));
     }
 
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testAddFailsIfNoLocalResource()
-    {
-        $collection = new LocalResourceCollection();
-
-        $collection->add($this->getMock('Puli\Resource\FileResourceInterface'));
-    }
-
     public function testGetLocalPaths()
     {
         $collection = new LocalResourceCollection(array(
             $dir = new LocalDirectoryResource($this->fixturesDir.'/dir1'),
             $file = new LocalFileResource($this->fixturesDir.'/file3'),
+            new TestFile(),
+            new TestDirectory(),
         ));
 
-        $this->assertEquals(array($dir->getLocalPath(), $file->getLocalPath()), $collection->getLocalPaths());
+        $this->assertSame(array(
+            $dir->getLocalPath(),
+            $file->getLocalPath(),
+            null,
+            null
+        ), $collection->getLocalPaths());
     }
 }
