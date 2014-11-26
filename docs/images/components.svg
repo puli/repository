@@ -17,7 +17,7 @@
    inkscape:export-filename="/home/bernhard/Entwicklung/Web/puli/puli/docs/images/components.png"
    inkscape:export-xdpi="57.599998"
    inkscape:export-ydpi="57.599998"
-   sodipodi:docname="Neues Dokument 1">
+   sodipodi:docname="components.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -138,7 +138,7 @@
          id="tspan3788"
          x="347.08133"
          y="1006.3057"
-         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#20638f;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli Package Manager</tspan></text>
+         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#20638f;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli Repository Manager</tspan></text>
     <path
        style="fill:#2980b9;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m -3.247729,1049.2834 702.990129,0 0,64.9898 -702.990129,0 z"

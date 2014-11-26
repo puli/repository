@@ -1,9 +1,8 @@
-Repository Configuration
-========================
+Mapping Resources
+=================
 
-This guide explains how to configure your Puli_ repository with the `Puli plugin
-for Composer`_. The plugin should be installed already. If it is not, follow
-the instructions in :doc:`getting-started`.
+This guide explains how to map resources with Puli_. Puli should be installed
+already. If it is not, follow the instructions in :doc:`getting-started`.
 
 If you don't know what Puli is or why you should use it, read
 :doc:`at-a-glance` first.

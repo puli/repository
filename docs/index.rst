@@ -7,12 +7,12 @@ Welcome to Puli's documentation!
    at-a-glance
    components
    getting-started
+   mapping-resources
    working-with-resources
-   repository-configuration
    tags
    uris
    repositories
-   packages
+   package-guidelines
    extensions
 
 Puli_ manages the files, directories and other resources of your project in a
@@ -58,12 +58,15 @@ The documentation contains the following sections:
 * :doc:`at-a-glance`
 * :doc:`components`
 * :doc:`getting-started`
+* :doc:`mapping-resources`
 * :doc:`working-with-resources`
-* :doc:`repository-configuration`
 * :doc:`tags`
 * :doc:`uris`
 * :doc:`repositories`
-* :doc:`packages`
+
+The appendix contains further useful information:
+
+* :doc:`package-guidelines`
 * :doc:`extensions`
 
 Contribute

@@ -1,5 +1,5 @@
-Puli Extensions
-===============
+Appendix B: Puli Extensions
+===========================
 
 .. toctree::
    :hidden:

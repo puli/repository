@@ -1,5 +1,5 @@
-Package Guidelines
-==================
+Appendix A: Package Guidelines
+==============================
 
 This guide explains how to configure reusable packages to make their resources
 usable with Puli_.
@@ -53,7 +53,7 @@ directory of your package:
         }
     }
 
-Read :doc:`repository-configuration` to learn more about mapping resources in
+Read :doc:`mapping-resources` to learn more about mapping resources in
 puli.json.
 
 Using the Repository

@@ -189,13 +189,12 @@ now silently be ignored.
 Further Reading
 ---------------
 
-* :doc:`../working-with-resources` explains how to use the resources returned
+* :doc:`working-with-resources` explains how to use the resources returned
   by the generated repository.
-* :doc:`../repository-configuration` explains more details about the
+* :doc:`mapping-resources` explains more details about the
   repository configuration.
 
 .. _Puli: https://github.com/puli/puli
-.. _Puli Package Manager: https://github.com/puli/puli-package-manager
 .. _Puli CLI: https://github.com/puli/puli-cli
 .. _Composer Plugin: https://github.com/puli/puli-composer-plugin
 .. _Composer: https://getcomposer.org

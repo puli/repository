@@ -173,7 +173,7 @@ Resource collections are traversable, countable and support
 Further Reading
 ---------------
 
-* :doc:`repository-configuration` teaches you more about the configuration of
+* :doc:`mapping-resources` teaches you more about the configuration of
   your repository.
 * :doc:`repositories` explains how to manage resource repositories manually.
 

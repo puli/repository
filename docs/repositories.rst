@@ -1,5 +1,5 @@
-Resource Repositories
-=====================
+Repositories
+============
 
 This guide explains how to manage a Puli_ repository manually. Puli should be
 installed already. If it is not, follow the instructions in :doc:`getting-started`.

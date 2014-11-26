@@ -26,10 +26,10 @@ map *Puli paths* to physical paths on the file system:
 :doc:`repositories` explains in detail how to create resource repositories
 by hand.
 
-The Package Manager
--------------------
+The Repository Manager
+----------------------
 
-The `Puli Package Manager`_ manages a resource repository using puli.json
+The `Puli Repository Manager`_ manages a resource repository using puli.json
 files in the root directory of your project and any installed packages:
 
 .. code-block:: json
@@ -40,13 +40,13 @@ files in the root directory of your project and any installed packages:
         }
     }
 
-In :doc:`repository-configuration` you will learn all about mapping resources
+In :doc:`mapping-resources` you will learn all about mapping resources
 in puli.json files.
 
 The Command Line Interface
 --------------------------
 
-The `Puli CLI`_ is a command line interface to the package manager. The most
+The `Puli CLI`_ is a command line interface to the repository manager. The most
 important command is ``puli dump``, which generates the managed resource
 repository as a PHP file:
 
@@ -65,11 +65,11 @@ The generated file can be loaded in your PHP code:
 The Composer Plugin
 -------------------
 
-The `Composer Plugin`_ for Puli integrates Composer into the package manager.
+The `Composer Plugin`_ for Puli integrates Composer into the repository manager.
 With this plugin, the puli.json files of all installed Composer packages are
-loaded into the resource repository. For example, if the Composer package
-"acme/blog" maps resources to the Puli path ``/acme/blog``, you can access
-these resources like so:
+loaded automatically. For example, if the Composer package "acme/blog" maps
+resources to the Puli path ``/acme/blog``, you can access these resources like
+so:
 
     .. code-block:: php
 
@@ -83,6 +83,6 @@ project.
 
 .. _Puli: https://github.com/puli/puli
 .. _Composer: https://getcomposer.org
-.. _Puli Package Manager: https://github.com/puli/puli-package-manager
+.. _Puli Repository Manager: https://github.com/puli/puli-repository-manager
 .. _Puli CLI: https://github.com/puli/puli-cli
 .. _Composer Plugin: https://github.com/puli/puli-composer-plugin
