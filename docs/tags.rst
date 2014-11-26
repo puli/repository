@@ -13,21 +13,16 @@ Tagging with Composer
 You can tag mapped resources in order to indicate that they support specific
 features. For example, assume that all XLIFF translation files in the
 "acme/blog" package should be registered with the ``\Acme\Translator`` class.
-You can tag resources by adding them to the "tags" key in composer.json:
+You can tag resources by adding them to the "tags" key in puli.json:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog": "resources"
-                },
-                "tags": {
-                    "/acme/blog/translations/*.xlf": "acme/translator/xlf"
-                }
-            }
+        "resources": {
+            "/acme/blog": "res"
+        },
+        "tags": {
+            "/acme/blog/trans/*.xlf": "acme/translator/xlf"
         }
     }
 
@@ -82,6 +77,6 @@ You can remove one or all tags from a resource using the
 Further Reading
 ---------------
 
-Read :doc:`../uris` to learn how to use multiple repositories side by side.
+Read :doc:`uris` to learn how to use multiple repositories side by side.
 
 .. _Puli: https://github.com/puli/puli

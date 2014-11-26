@@ -31,54 +31,75 @@ At its core, Puli provides a simple repository, much like a file system. You can
     use Puli\Repository\ResourceRepository;
 
     $repo = new ResourceRepository();
-    $repo->add('/trans', '/path/to/project/trans');
+    $repo->add('/app', '/path/to/project/res');
 
-Here, the local path ``/path/to/project/trans`` is mapped to the *Puli path*
-``/trans``. The file ``en.yml`` can now be loaded with its Puli path
-``/trans/en.yml``:
+Here, the *Puli path* ``/app`` is mapped to the directory
+``/path/to/project/res``. This allows to to access any file in the ``res``
+directory by a Puli path:
 
 .. code-block:: php
 
-    echo $repo->get('/trans/en.yml')->getContents();
+    echo $repo->get('/app/views/index.html')->getContents();
 
-Composer Integration
---------------------
+The Puli CLI
+------------
 
-Usually, however, you don't want to configure the repository by hand. Puli's
-`Composer plugin`_ does it all for you. Packages export their resources through
-the "resources" key in their ``composer.json`` file:
+Usually, you will use `Puli's Command Line Interface`_ (CLI) to generate
+repositories instead of creating them by hand. Puli reads a puli.json file from
+the root directory of your project:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog": "resources"
-                }
-            }
+        "resources": {
+            "/app": "res"
         }
     }
 
-This package maps its ``resources/`` directory to the Puli path ``/acme/blog``,
-which matches the name of the package.
+The puli.json file allows to map Puli paths to files and directories in your
+project. Here, the Puli path ``/app`` is mapped to the directory ``res`` in
+the project's root.
 
-When you install the "acme/blog" package in your application, the plugin
-generates a repository for you. This repository contains all the resources that
-this package - and all other packages - exports:
+Typing ``puli dump`` in the terminal will generate a resource repository which
+can be used in PHP:
 
 .. code-block:: php
 
-    $repo = require_once 'vendor/resource-repository.php';
+    $repo = require __DIR__.'/.puli/resource-repository.php';
 
-    echo $repo->get('/acme/blog/trans/en.yml')->getContents();
+    echo $repo->get('/app/views/index.html')->getContents();
+
+Composer Integration
+--------------------
+
+Puli offers integration with Composer through its `Composer plugin`_. With this
+plugin, all puli.json files of all installed Composer packages are automatically
+loaded. For example, assume that the "acme/blog" package is installed and
+contains the following puli.json file:
+
+.. code-block:: json
+
+    {
+        "resources": {
+            "/acme/blog": "res"
+        }
+    }
+
+The contents of the package's ``res`` directory can then be accessed through
+the Puli path ``/acme/blog``:
+
+.. code-block:: php
+
+    $repo = require __DIR__.'/.puli/resource-repository.php';
+
+    echo $repo->get('/acme/blog/views/index.html')->getContents();
 
 Tool Integration
 ----------------
 
-Puli provides integration layers for PHP libraries. For example, with the
-`Twig extension`_ you can refer to other templates via Puli paths:
+Puli also provides integration layers for other PHP libraries. The
+`Twig extension`_, for example, can be used to refer to other Twig templates via
+Puli paths:
 
 .. code-block:: jinja
 
@@ -92,33 +113,25 @@ The `Symfony bridge`_ permits the use of Puli paths in configuration files:
     _acme_blog:
         resource: /acme/blog/config/routing.yml
 
-With Puli, referring to resources in Composer packages becomes straight-forward.
-
 Resource Overriding
 -------------------
 
 Consider that you want to change the contents of
-``/acme/blog/views/footer.html.twig`` without touching the original package.
-You can copy the file to your project and override it in ``composer.json``:
+``/acme/blog/views/footer.html.twig`` in the "acme/blog" package without
+touching that package. With Puli, you can copy the file to your project and
+override it in your project's puli.json:
 
 .. code-block:: json
 
     {
-        "require": {
-            "acme/blog": "*"
+        "resources": {
+            "/acme/blog/views/footer.html": "res/views/footer.html"
         },
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog/views/footer.html.twig": "resources/views/footer.html.twig"
-                },
-                "override": "acme/blog"
-            }
-        }
+        "override": "acme/blog"
     }
 
-The file ``resources/views/footer.html.twg`` will now be used wherever the
-file from the "acme/blog" package is referenced.
+The file ``res/views/footer.html`` will now be used wherever the file from the
+"acme/blog" package is required.
 
 Stream Wrappers
 ---------------
@@ -131,21 +144,21 @@ can use Puli repositories like ordinary files:
     use Puli\StreamWrapper\ResourceStreamWrapper;
     use Puli\Uri\UriRepository;
 
-    $repo = require 'vendor/resource-repository.php';
+    $repo = require __DIR__.'/.puli/resource-repository.php';
 
     $uriRepo = new UriRepository();
-    $uriRepo->register('composer', $repo);
+    $uriRepo->register('puli', $repo);
 
     ResourceStreamWrapper::register($uriRepo);
 
 In this example, the repository generated by Composer is registered for the
 "composer://" scheme. The :class:`Puli\\StreamWrapper\\ResourceStreamWrapper`
-class registers the schemes with PHP. Now you can access Puli resources like
-normal files, as long as you prefix them with "composer://":
+class registers this scheme with PHP. Now you can access Puli resources like
+normal files, as long as you prefix them with "puli://":
 
 .. code-block:: php
 
-    echo file_get_contents('composer:///acme/blog/trans/en.yml');
+    echo file_get_contents('puli:///acme/blog/trans/en.yml');
 
 Flexibility
 -----------
@@ -165,9 +178,9 @@ by side:
     $repo = require 'vendor/resource-repository.php';
 
     $uriRepo = new UriRepository();
-    $uriRepo->register('composer', $repo);
+    $uriRepo->register('puli', $repo);
     $uriRepo->register('cms', new CmsRepository());
-    $uriRepo->setDefaultScheme('composer');
+    $uriRepo->setDefaultScheme('puli');
 
 If you use this repository with the Twig extension, you can simultaneously load
 resources from packages and your database now:
@@ -181,12 +194,14 @@ resources from packages and your database now:
 Further Reading
 ---------------
 
-Read :doc:`getting-started` to learn how to install Puli in your project.
+* :doc:`components` introduces you to Puli's core components.
+* Read :doc:`getting-started` to learn how to install Puli in your project.
 
 .. _Puli: https://github.com/puli/puli
 .. _Composer: https://getcomposer.org
 .. _PSR-4: http://www.php-fig.org/psr/psr-4/
-.. _Composer plugin: https://github.com/puli/composer-puli-plugin
+.. _Puli's Command Line Interface: https://github.com/puli/puli-cli
+.. _Composer plugin: https://github.com/puli/puli-composer-plugin
 .. _Twig extension: https://github.com/puli/twig-puli-extension
 .. _Symfony bridge: https://github.com/puli/symfony-puli-bridge
 .. _stream wrapper: http://php.net/manual/en/intro.stream.php

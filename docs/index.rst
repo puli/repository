@@ -5,11 +5,14 @@ Welcome to Puli's documentation!
    :hidden:
 
    at-a-glance
+   components
    getting-started
    working-with-resources
-   repository-management
+   repository-configuration
    tags
    uris
+   repositories
+   packages
    extensions
 
 Puli_ manages the files, directories and other resources of your project in a
@@ -21,9 +24,9 @@ find them by their *Puli path*:
     use Puli\Repository\ResourceRepository;
 
     $repo = new ResourceRepository();
-    $repo->add('/config', '/path/to/resources/config');
+    $repo->add('/config', '/path/to/res/config');
 
-    // /path/to/resources/config/routing.yml
+    // /path/to/res/config/routing.yml
     echo $repo->get('/config/routing.yml')->getContents();
 
 This is useful when you have to hard-code paths, for example in configuration
@@ -53,11 +56,14 @@ Contents
 The documentation contains the following sections:
 
 * :doc:`at-a-glance`
+* :doc:`components`
 * :doc:`getting-started`
 * :doc:`working-with-resources`
-* :doc:`repository-management`
+* :doc:`repository-configuration`
 * :doc:`tags`
 * :doc:`uris`
+* :doc:`repositories`
+* :doc:`packages`
 * :doc:`extensions`
 
 Contribute

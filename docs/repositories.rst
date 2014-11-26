@@ -1,12 +1,11 @@
-Manual Repository Management
-============================
+Resource Repositories
+=====================
 
-This guide explains how to manage your Puli_ repository with manual PHP code.
-Puli should be installed already. If it is not, follow the instructions in
-:doc:`../getting-started/composer-agnostics`.
+This guide explains how to manage a Puli_ repository manually. Puli should be
+installed already. If it is not, follow the instructions in :doc:`getting-started`.
 
 If you don't know what Puli is or why you should use it, read
-:doc:`../at-a-glance` first.
+:doc:`at-a-glance` first.
 
 Mapping Resources
 -----------------
@@ -99,7 +98,7 @@ to be passed to its constructor. If you pass none, a
     $backend = new FilesystemRepository();
     $repo = new ResourceRepository($backend);
 
-Whenever you call :method:`Puli\\Repository\\ManageableRepositoryInterface::add()`,
+Whenever you call :method:`Puli\\Repository\\ManageableRepositoryInterface::add`,
 the backend is used to lookup the added resources:
 
 .. code-block:: php
@@ -123,8 +122,8 @@ other paths are read relative to that root path:
     // /path/to/project/assets/css
     $repo->add('/css', '/assets/css');
 
-    // /path/to/project/resources
-    $repo->add('/', '/resources');
+    // /path/to/project/res
+    $repo->add('/', '/res');
 
 Every class implementing :class:`Puli\\Repository\\ResourceRepositoryInterface`
 can be used as backend. You can also implement your own backend, if you like.
@@ -156,6 +155,6 @@ Repository                                                   Description
 Further Reading
 ---------------
 
-Read :doc:`../tags` to learn how tag resources that share common functionality.
+Read :doc:`tags` to learn how tag resources that share common functionality.
 
 .. _Puli: https://github.com/puli/puli

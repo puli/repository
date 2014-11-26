@@ -1,29 +1,24 @@
-Managing a Repository with Composer
-===================================
+Repository Configuration
+========================
 
-This guide explains how to manage your Puli_ repository with the `Puli plugin
+This guide explains how to configure your Puli_ repository with the `Puli plugin
 for Composer`_. The plugin should be installed already. If it is not, follow
-the instructions in :doc:`../getting-started/application-devs`.
+the instructions in :doc:`getting-started`.
 
 If you don't know what Puli is or why you should use it, read
-:doc:`../at-a-glance` first.
+:doc:`at-a-glance` first.
 
 Mapping Resources
 -----------------
 
 Resources can be mapped to Puli paths by adding them to the "resources" key in
-composer.json:
+puli.json:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog": "resources"
-                }
-            }
+        "resources": {
+            "/acme/blog": "res"
         }
     }
 
@@ -35,60 +30,64 @@ package should use its vendor and package names as top-level directories.
     If you develop an application that is not going to be shared, use ``/app``
     as top-level directory for your Puli paths.
 
+Run ``puli dump`` to generate the resource repository for your mapping:
+
+.. code-block:: bash
+
+    $ puli dump
+
+Now you can access the resources in your PHP code:
+
+.. code-block:: php
+
+    $repo = require __DIR__.'/.puli/resource-repository.php';
+
+    // res/views/index.html
+    echo $repo->get('/acme/blog/views/index.html')->getContents();
+
 You can also map to more specific paths:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog/css": "assets/css"
-                }
-            }
+        "resources": {
+            "/acme/blog/css": "assets/css"
         }
     }
 
-The right hand side of the "resources" key contains paths relative to the root
-of your Composer package. Usually, that's the directory that contains your
-composer.json file.
+The right hand side of the "resources" key contains paths relative to the
+directory that contains the puli.json file.
 
 You can map the same Puli path to multiple directories:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog": ["assets", "resources"]
-                }
-            }
+        "resources": {
+            "/acme/blog": ["assets", "ress"]
         }
     }
 
-Now, assets from both the ``assets/`` and the ``resources/`` directory are
-accessible by the same Puli path ``/acme/blog``:
+Now, assets from both the ``assets/`` and the ``res/`` directory are accessible
+by the same Puli path ``/acme/blog``:
 
 .. code-block:: php
 
     // assets/css/style.css
-    $repo->get('/acme/blog/css/style.css')->getContents();
+    echo $repo->get('/acme/blog/css/style.css')->getContents();
 
-    // resources/config/config.xml
-    $repo->get('/acme/blog/config/config.xml')->getContents();
+    // res/config/config.xml
+    echo $repo->get('/acme/blog/config/config.xml')->getContents();
 
 If the directories contain entries with the same name, entries of latter
-directories (here: ``resources/``) *override* entries of the former ones. For
-example, if both directories contain a file ``.htaccess``, the one in the
-``resources/`` directory will be used by default:
+directories (here: ``res/``) *override* entries of the former ones. For example,
+if both directories contain a file ``.htaccess``, the one in the ``res/``
+directory will be used by default:
 
 .. code-block:: php
 
-    // resources/.htaccess
-    $repo->get('/acme/blog/.htaccess')->getContents();
+    // res/.htaccess
+    echo $repo->get('/acme/blog/.htaccess')->getContents();
 
 Read `Overriding Resources`_ to learn more about this topic.
 
@@ -98,42 +97,48 @@ to cherry-pick files from specific locations:
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog/css": "assets/css",
-                    "/acme/blog/css/reset.css": "generic/reset.css"
-                }
-            }
+        "resources": {
+            "/acme/blog/css": "assets/css",
+            "/acme/blog/css/reset.css": "generic/reset.css"
         }
     }
 
 Referencing Other Packages
 --------------------------
 
-Sometimes it is necessary to map paths that are located in other Composer
-packages. This happens especially when you use packages that don't map their
-resources by themselves.
+Sometimes it is necessary to map paths that are located in other packages. This
+happens especially when you use packages that don't map their resources by
+themselves.
 
-You can use the prefix ``@vendor/package:`` to reference the install path of
+You can use the prefix ``@package-name:`` to reference the install path of
 other packages:
 
 .. code-block:: json
 
     {
-        "name": "acme/blog",
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/foo/calc/css": "@foo/calc:assets/css"
-                }
-            }
+        "resources": {
+            "/acme/theme/css": "@acme/theme:assets/css"
         }
     }
 
-The example above will map the Puli path ``/foo/calc/css`` to the
-``assets/css`` directory in the "foo/calc" package.
+The example above will map the Puli path ``/acme/theme/css`` to the
+``assets/css`` directory in the "acme/theme" package.
+
+If the "acme/theme" package is *optional*, the above will not work. You will
+get an exception when dumping the repository without having the "acme/theme"
+package installed. For optional packages, use the ``@?package-name:`` syntax
+instead:
+
+.. code-block:: json
+
+    {
+        "resources": {
+            "/acme/theme/css": "@?acme/theme:assets/css"
+        }
+    }
+
+This resource definition will silently be ignored if the "acme/theme" package
+is not installed.
 
 Overriding Resources
 --------------------
@@ -144,18 +149,10 @@ name of the package you want to override to the "override" key:
 .. code-block:: json
 
     {
-        "name": "acme/blog-extension",
-        "require": {
-            "acme/blog": "*"
+        "resources": {
+            "/acme/blog/css": "assets/css"
         },
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog/css": "assets/css"
-                },
-                "override": "acme/blog"
-            }
-        }
+        "override": "acme/blog"
     }
 
 The resources in the "acme/blog-extension" package are now preferred over those
@@ -180,7 +177,7 @@ Handling Override Conflicts
 ---------------------------
 
 If multiple packages try to override the same path, a
-:class:`Puli\\Extension\\Composer\\RepositoryBuilder\\ResourceConflictException`
+:class:`Puli\\PackageManager\\Resource\\ResourceConflictException`
 will be thrown. The reason for this behavior is that Puli can't know in which
 order the overrides should be applied.
 
@@ -189,8 +186,8 @@ There are two possible fixes for this problem:
 1. One of the packages explicitly adds the name of the other package to its
    "override" key.
 
-2. You specify the key "package-order" in the composer.json file of the
-   **root project**.
+2. You specify the key "package-order" in the puli.json file of the
+   **project root**.
 
 With the "package-order" key you can specify in which order the packages
 should be loaded:
@@ -198,19 +195,10 @@ should be loaded:
 .. code-block:: json
 
     {
-        "require": {
-            "acme/blog": "*",
-            "acme/blog-extension-1": "*",
-            "acme/blog-extension-2": "*"
+        "resources": {
+            "/acme/blog/css": "res/acme/blog/css"
         },
-        "extra": {
-            "puli": {
-                "resources": {
-                    "/acme/blog/css": "resources/acme/blog/css"
-                },
-                "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
-            }
-        }
+        "package-order": ["acme/blog-extension-1", "acme/blog-extension-2"]
     }
 
 In this example, the application requires the package "acme/blog" and two
@@ -228,7 +216,7 @@ all three packages, you will get a result like this:
 .. code-block:: php
 
     echo $repo->get('/acme/blog/css/style.css')->getLocalPath();
-    // => /path/to/resources/acme/blog/css/style.css
+    // => /path/to/res/acme/blog/css/style.css
 
     print_r($repo->get('/acme/blog/css/style.css')->getAllLocalPaths());
     // Array
@@ -241,7 +229,9 @@ all three packages, you will get a result like this:
 Further Reading
 ---------------
 
-Read :doc:`../tags` to learn how tag resources that share common functionality.
+* :doc:`repositories` explains how to manage repositories by hand.
+* :doc:`tags` explains how to tag resources that share common functionality.
+* :doc:`uris` teaches you how to use multiple resource repositories side by side.
 
 .. _Puli: https://github.com/puli/puli
 .. _Puli plugin for Composer: https://github.com/puli/composer-puli-plugin

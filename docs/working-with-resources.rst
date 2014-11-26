@@ -1,8 +1,8 @@
 Working with Resources
 ======================
 
-This guide explains how to use the resources returned by the Puli: repository.
-If you do not have a working repository, read :doc:`getting-started` now.
+This guide explains how to use the resources returned by the Puli repository.
+If you do not have a working repository, read :doc:`getting-started`.
 
 If you don't know what Puli is or why you should use it, read :doc:`at-a-glance`
 first.
@@ -74,7 +74,7 @@ which lets you access the file system path with
     $resource = $repo->get('/css/style.css');
 
     echo $resource->getLocalPath();
-    // => /path/to/resources/assets/css/style.css
+    // => /path/to/res/assets/css/style.css
 
 Files
 -----
@@ -173,7 +173,8 @@ Resource collections are traversable, countable and support
 Further Reading
 ---------------
 
-Read :doc:`repository-management` to learn more about the configuration of your
-repository.
+* :doc:`repository-configuration` teaches you more about the configuration of
+  your repository.
+* :doc:`repositories` explains how to manage resource repositories manually.
 
 .. _Puli: https://github.com/puli/puli

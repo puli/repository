@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="745"
+   height="270.99985"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   inkscape:export-filename="/home/bernhard/Entwicklung/Web/puli/puli/docs/images/components.png"
+   inkscape:export-xdpi="57.599998"
+   inkscape:export-ydpi="57.599998"
+   sodipodi:docname="Neues Dokument 1">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="272.87657"
+     inkscape:cy="134.37883"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-page="false"
+     showguides="false"
+     inkscape:guide-bbox="true"
+     inkscape:snap-grids="false"
+     fit-margin-left="20"
+     fit-margin-right="20"
+     fit-margin-bottom="20"
+     fit-margin-top="20"
+     showborder="true"
+     inkscape:showpageshadow="true"
+     inkscape:window-width="1050"
+     inkscape:window-height="1641"
+     inkscape:window-x="1280"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="0,1"
+       position="308.25266,172.91599"
+       id="guide3784" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="392.25266,218.41599"
+       id="guide3790" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="49.252662,358.68763"
+       id="guide3792" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="745.25266,251.2074"
+       id="guide3794" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="498.0142,107.91599"
+       id="guide3796" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="397.25266,-6.1794643"
+       id="guide3798" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="402.25266,275.24903"
+       id="guide3800" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="533.25266,182.91599"
+       id="guide3802" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="503.25266,247.91599"
+       id="guide3804" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="629.25266,97.91599"
+       id="guide3810" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="163.75266,32.91637"
+       id="guide3830" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="220.25266,503.13523"
+       id="guide3853" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="573.75266,247.91599"
+       id="guide3855" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(24.252662,-864.27827)">
+    <path
+       style="fill:#e9e9e9;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m -3.247729,967.28332 702.990129,0 0,64.99018 -702.990129,0 z"
+       id="path3777"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="/home/bernhard/Entwicklung/Web/puli/puli/docs/images/path3806.png"
+       inkscape:export-xdpi="88"
+       inkscape:export-ydpi="88" />
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#20638f;fill-opacity:1;stroke:none;font-family:Cambria;-inkscape-font-specification:Cambria Bold"
+       x="347.08133"
+       y="1006.3057"
+       id="text3786"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3788"
+         x="347.08133"
+         y="1006.3057"
+         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#20638f;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli Package Manager</tspan></text>
+    <path
+       style="fill:#2980b9;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m -3.247729,1049.2834 702.990129,0 0,64.9898 -702.990129,0 z"
+       id="path3777-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+       x="348.26492"
+       y="1090.7256"
+       id="text3786-4"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3788-6"
+         x="348.26492"
+         y="1090.7256"
+         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli PHP API</tspan></text>
+    <path
+       style="fill:#e9e9e9;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 339.74733,950.27827 0,-65 -342.999992,0 0,65 z"
+       id="path3808"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/bernhard/Entwicklung/Web/puli/puli/docs/images/path3806.png"
+       inkscape:export-xdpi="88"
+       inkscape:export-ydpi="88" />
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#20638f;fill-opacity:1;stroke:none;font-family:Cambria;-inkscape-font-specification:Cambria Bold"
+       x="168.76881"
+       y="926.51459"
+       id="text3786-9"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3788-63"
+         x="168.76881"
+         y="926.51459"
+         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#20638f;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli CLI</tspan></text>
+    <path
+       style="fill:#e9e9e9;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 356.74733,950.27827 0,-65 343.00001,0 0,65 z"
+       id="path3806"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="88"
+       inkscape:export-ydpi="88" />
+    <text
+       xml:space="preserve"
+       style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#20638f;fill-opacity:1;stroke:none;font-family:Cambria;-inkscape-font-specification:Cambria Bold"
+       x="528.60474"
+       y="926.51459"
+       id="text3786-9-2"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="89"
+       inkscape:export-ydpi="89"><tspan
+         sodipodi:role="line"
+         id="tspan3788-63-5"
+         x="528.60474"
+         y="926.51459"
+         style="font-size:28px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:center;text-anchor:middle;fill:#20638f;fill-opacity:1;font-family:Cambria;-inkscape-font-specification:Cambria Bold">Puli Composer Plugin</tspan></text>
+  </g>
+</svg>

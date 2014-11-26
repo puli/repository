@@ -19,7 +19,7 @@ The following table points you to the documentation of the individual extensions
 =================  =====================================  ============
 Tool               Documentation                          Version
 =================  =====================================  ============
-Composer_          :doc:`repository-management/composer`  1.0.0-alpha1
+Composer_          tbd                                    1.0.0-alpha1
 Twig_              :doc:`extensions/twig`                 1.0.0-dev
 Symfony_           tbd                                    1.0.0-dev
 `Symfony Config`_  :doc:`extensions/symfony-config`       1.0.0-dev
