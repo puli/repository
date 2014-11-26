@@ -176,7 +176,7 @@ Handling Override Conflicts
 ---------------------------
 
 If multiple packages try to override the same path, a
-:class:`Puli\\PackageManager\\Resource\\ResourceConflictException`
+:class:`Puli\\RepositoryManager\\Repository\\ResourceConflictException`
 will be thrown. The reason for this behavior is that Puli can't know in which
 order the overrides should be applied.
 
