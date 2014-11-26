@@ -11,8 +11,8 @@
 
 namespace Puli\Tests\Resource;
 
-use Puli\Resource\DirectoryResource;
 use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Resource\DirectoryResource;
 use Puli\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**

@@ -15,7 +15,7 @@ use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\Collection\ResourceCollectionInterface;
 use Puli\Resource\ResourceInterface;
 use Puli\Uri\RepositoryFactoryException;
-use Puli\Util\Path;
+use Webmozart\PathUtil\Path;
 
 /**
  * A repository combining multiple other repository instances.

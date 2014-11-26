@@ -11,16 +11,16 @@
 
 namespace Puli\Tests\Filesystem;
 
-use Symfony\Component\Filesystem\Filesystem;
 use Puli\Filesystem\PhpCacheRepository;
 use Puli\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Filesystem\Resource\LocalFileResource;
 use Puli\Filesystem\Resource\LocalResource;
+use Puli\Repository\ResourceRepository;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\ResourceRepository;
 use Puli\Tests\Repository\AbstractRepositoryTest;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @since  1.0

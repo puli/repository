@@ -18,8 +18,8 @@ use Puli\Repository\InvalidPathException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\Collection\ResourceCollection;
-use Puli\Util\Path;
 use Puli\Util\Selector;
+use Webmozart\PathUtil\Path;
 
 /**
  * A repository reading from the local file system.

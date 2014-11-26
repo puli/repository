@@ -12,7 +12,6 @@
 namespace Puli\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\UnsupportedResourceException;
 
 /**
  * A resource that can be attached to a resource repository.

@@ -19,8 +19,8 @@ use Puli\Resource\DirectoryResource;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\NoDirectoryException;
 use Puli\Resource\ResourceInterface;
-use Puli\Util\Path;
 use Puli\Util\Selector;
+use Webmozart\PathUtil\Path;
 
 /**
  * An in-memory resource repository.

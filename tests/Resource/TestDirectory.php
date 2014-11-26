@@ -11,11 +11,11 @@
 
 namespace Puli\Tests\Resource;
 
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Resource\AttachableResourceInterface;
 use Puli\Resource\Collection\ResourceCollection;
 use Puli\Resource\DirectoryResourceInterface;
 use Puli\Resource\ResourceInterface;
-use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * @since  1.0

@@ -11,7 +11,6 @@
 
 namespace Puli\Resource;
 
-use Puli\Repository\ResourceNotFoundException;
 use Puli\Resource\Collection\ResourceCollectionInterface;
 
 /**
