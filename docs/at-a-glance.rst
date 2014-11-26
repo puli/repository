@@ -61,8 +61,14 @@ The puli.json file allows to map Puli paths to files and directories in your
 project. Here, the Puli path ``/app`` is mapped to the directory ``res`` in
 the project's root.
 
-Typing ``puli dump`` in the terminal will generate a resource repository which
-can be used in PHP:
+With the command ``puli dump``, a resource repository is generated in a PHP
+file:
+
+.. code-block:: bash
+
+    $ puli dump
+
+This file can be loaded and used in your PHP code:
 
 .. code-block:: php
 
