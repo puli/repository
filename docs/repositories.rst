@@ -107,7 +107,7 @@ the backend is used to lookup the added resources:
     $repo->add('/css', '/path/to/assets/css');
 
     // same as
-    $repo->add('/css', $backend->find('/path/to/assets/css');
+    $repo->add('/css', $backend->get('/path/to/assets/css');
 
 This is very useful, because :class:`Puli\\Filesystem\\FilesystemRepository`
 expects a *root path* in its own constructor. When a root path is set, all
