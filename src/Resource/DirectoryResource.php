@@ -27,9 +27,9 @@ use Puli\Resource\Collection\ResourceCollection;
  * $repo->add('/webmozart/puli/file', $resource);
  *
  * // implies:
- * // $repo->add('/', new DirectoryResource());
- * // $repo->add('/webmozart', new DirectoryResource());
- * // $repo->add('/webmozart/puli', new DirectoryResource());
+ * $repo->add('/', new DirectoryResource());
+ * $repo->add('/webmozart', new DirectoryResource());
+ * $repo->add('/webmozart/puli', new DirectoryResource());
  * ```
  *
  * @since  1.0
