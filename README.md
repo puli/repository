@@ -33,6 +33,8 @@ files:
 import: /config/routing.yml
 ```
 
+Read the [Puli at a Glance] if you want to learn more about Puli.
+
 Authors
 -------
 
@@ -72,6 +74,7 @@ Puli and its documentation are licensed under the [MIT license].
 [The Community Contributors]: https://github.com/puli/puli/graphs/contributors
 [Getting Started]: http://puli.readthedocs.org/en/latest/getting-started.html
 [Puli Documentation]: http://puli.readthedocs.org/en/latest/index.html
+[Puli at a Glance]: http://puli.readthedocs.org/en/latest/at-a-glance.html
 [issue tracker]: https://github.com/puli/puli/issues
 [Git repository]: https://github.com/puli/puli
 [@webmozart]: https://twitter.com/webmozart
