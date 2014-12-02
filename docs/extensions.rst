@@ -21,10 +21,9 @@ Tool               Documentation                          Version
 =================  =====================================  ============
 Composer_          tbd                                    1.0.0-alpha1
 Twig_              :doc:`extensions/twig`                 1.0.0-dev
-Symfony_           tbd                                    1.0.0-dev
+Symfony_           :doc:`extensions/symfony-framework`    1.0.0-dev
 `Symfony Config`_  :doc:`extensions/symfony-config`       1.0.0-dev
 Assetic_           tbd                                    1.0.0-dev
-Pash_              tbd                                    1.0.0-dev
 =================  =====================================  ============
 
 If you wrote an extension for your framework, please let us know! We'll happily
