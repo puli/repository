@@ -2,8 +2,7 @@ Locating Files with Puli
 ========================
 
 [![Build Status](https://travis-ci.org/puli/puli.png?branch=master)](https://travis-ci.org/puli/puli)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/puli/puli/badges/quality-score.png?s=f1fbf1884aed7f896c18fc237d3eed5823ac85eb)](https://scrutinizer-ci.com/g/puli/puli/)
-[![Code Coverage](https://scrutinizer-ci.com/g/puli/puli/badges/coverage.png?s=5d83649f6fc3a9754297da9dc0d997be212c9145)](https://scrutinizer-ci.com/g/puli/puli/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/puli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/puli/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/f48f1d0e-ba95-489e-8ce2-0422fa7a2305/mini.png)](https://insight.sensiolabs.com/projects/f48f1d0e-ba95-489e-8ce2-0422fa7a2305)
 [![Latest Stable Version](https://poser.pugx.org/puli/puli/v/stable.png)](https://packagist.org/packages/puli/puli)
 [![Total Downloads](https://poser.pugx.org/puli/puli/downloads.png)](https://packagist.org/packages/puli/puli)
