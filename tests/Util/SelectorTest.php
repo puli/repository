@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Util;
+namespace Puli\Repository\Tests\Util;
 
-use Puli\Util\Selector;
+use Puli\Repository\Util\Selector;
 
 /**
  * @since  1.0

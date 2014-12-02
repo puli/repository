@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource\Iterator;
+namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Resource\Collection\ResourceCollectionInterface;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * A recursive iterator for resource collections.

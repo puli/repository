@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem\Resource;
+namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * A collection of local resources.

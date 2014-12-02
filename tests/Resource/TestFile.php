@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Resource;
+namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\AttachableResourceInterface;
-use Puli\Resource\FileResourceInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\FileResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * @since  1.0

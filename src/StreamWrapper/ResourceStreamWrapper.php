@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\StreamWrapper;
+namespace Puli\Repository\StreamWrapper;
 
-use Puli\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\UnsupportedOperationException;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\FileResourceInterface;
-use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Resource\NoDirectoryException;
-use Puli\Uri\UriRepositoryInterface;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\FileResourceInterface;
+use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\Uri\UriRepositoryInterface;
 
 /**
  * Registers a PHP stream wrapper for a {@link UriRepositoryInterface}.
@@ -28,8 +28,8 @@ use Puli\Uri\UriRepositoryInterface;
  *
  * ```php
  * use Puli\Repository\ResourceRepository;
- * use Puli\StreamWrapper\ResourceStreamWrapper;
- * use Puli\Uri\UriRepository;
+ * use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
+ * use Puli\Repository\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  *
@@ -596,7 +596,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         if (null === self::$repo) {
             throw new StreamWrapperException(
                 'The stream wrapper has not been registered. Please call '.
-                '\Puli\StreamWrapper\ResourceStreamWrapper::register() '.
+                '\Puli\Repository\StreamWrapper\ResourceStreamWrapper::register() '.
                 'first.'
             );
         }

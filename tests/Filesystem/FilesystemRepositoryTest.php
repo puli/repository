@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem;
+namespace Puli\Repository\Tests\Filesystem;
 
-use Puli\Filesystem\FilesystemRepository;
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\FilesystemRepository;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\Iterator\RecursiveResourceIterator;
-use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Tests\Repository\AbstractRepositoryTest;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Repository\Tests\AbstractRepositoryTest;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**

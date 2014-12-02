@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Repository;
+namespace Puli\Repository\Tests;
 
 use Puli\Repository\ResourceRepository;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Tests\Resource\TestDirectory;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -91,7 +91,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $repo = new ResourceRepository();
         $root = $repo->get('/');
 
-        $this->assertInstanceOf('Puli\Resource\DirectoryResourceInterface', $root);
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResourceInterface', $root);
         $this->assertCount(0, $root->listEntries());
         $this->assertSame('/', $root->getPath());
     }
@@ -140,7 +140,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Resource\NoDirectoryException
+     * @expectedException \Puli\Repository\Resource\NoDirectoryException
      */
     public function testAddFileAsChildOfFile()
     {
@@ -329,7 +329,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsAttachableResource()
     {
-        $this->repo->add('/webmozart', $this->getMock('Puli\Resource\ResourceInterface'));
+        $this->repo->add('/webmozart', $this->getMock('Puli\Repository\Resource\ResourceInterface'));
     }
 
     /**
@@ -338,7 +338,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     public function testAddExpectsAttachableResourcesInCollection()
     {
         $resources = new ResourceCollection(array(
-            $this->getMock('Puli\Resource\ResourceInterface'),
+            $this->getMock('Puli\Repository\Resource\ResourceInterface'),
         ));
 
         $this->repo->add('/webmozart', $resources);

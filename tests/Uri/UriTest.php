@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Uri;
+namespace Puli\Repository\Tests\Uri;
 
-use Puli\Uri\Uri;
+use Puli\Repository\Uri\Uri;
 
 /**
  * @since  1.0
@@ -64,7 +64,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideInvalidUris
-     * @expectedException \Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
      */
     public function testParseInvalid($uri)
     {

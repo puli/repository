@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem\Resource;
+namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Filesystem\FilesystemException;
+use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Resource\FileResourceInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\FileResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * Represents a file on the local file system.

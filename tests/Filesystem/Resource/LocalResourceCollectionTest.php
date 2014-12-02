@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
-use Puli\Filesystem\Resource\LocalResourceCollection;
-use Puli\Tests\Resource\TestDirectory;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0

@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\StreamWrapper;
+namespace Puli\Repository\Tests\StreamWrapper;
 
 use Puli\Repository\ResourceNotFoundException;
-use Puli\StreamWrapper\ResourceStreamWrapper;
-use Puli\Tests\Filesystem\TestLocalFile;
-use Puli\Tests\Resource\TestDirectory;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
+use Puli\Repository\Tests\Filesystem\TestLocalFile;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -54,7 +54,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
         $dir = new TestDirectory('/webmozart/puli/dir');
         $nonLocal = new TestFile('/webmozart/puli/non-local');
 
-        $this->repo = $this->getMock('Puli\Uri\UriRepositoryInterface');
+        $this->repo = $this->getMock('Puli\Repository\Uri\UriRepositoryInterface');
 
         $this->repo->expects($this->any())
             ->method('get')
@@ -452,7 +452,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Resource\NoDirectoryException
+     * @expectedException \Puli\Repository\Resource\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {
@@ -460,7 +460,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\StreamWrapper\StreamWrapperException
+     * @expectedException \Puli\Repository\StreamWrapper\StreamWrapperException
      */
     public function testRegisterTwice()
     {
@@ -475,13 +475,13 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\StreamWrapper\StreamWrapperException
+     * @expectedException \Puli\Repository\StreamWrapper\StreamWrapperException
      */
     public function testWrapperShouldNotBeRegisteredManually()
     {
         ResourceStreamWrapper::unregister();
 
-        stream_wrapper_register('manual', '\Puli\StreamWrapper\ResourceStreamWrapper');
+        stream_wrapper_register('manual', '\Puli\Repository\StreamWrapper\ResourceStreamWrapper');
 
         fopen('manual:///webmozart/puli/file1', 'r');
     }

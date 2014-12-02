@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\StreamWrapper;
+namespace Puli\Repository\StreamWrapper;
 
 /**
  * API of stream wrappers as supported by PHP.

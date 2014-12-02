@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Resource\Iterator;
+namespace Puli\Repository\Tests\Resource\Iterator;
 
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\Iterator\RecursiveResourceIterator;
-use Puli\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Resource\Iterator\ResourceFilterIterator;
-use Puli\Tests\Resource\TestDirectory;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Repository\Resource\Iterator\ResourceFilterIterator;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0

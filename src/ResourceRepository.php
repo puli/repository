@@ -11,15 +11,15 @@
 
 namespace Puli\Repository;
 
-use Puli\Filesystem\FilesystemRepository;
-use Puli\Resource\AttachableResourceInterface;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\Collection\ResourceCollectionInterface;
-use Puli\Resource\DirectoryResource;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\NoDirectoryException;
-use Puli\Resource\ResourceInterface;
-use Puli\Util\Selector;
+use Puli\Repository\Filesystem\FilesystemRepository;
+use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -48,7 +48,7 @@ use Webmozart\PathUtil\Path;
  * You can also create the backend manually and pass it to the constructor:
  *
  * ```php
- * use Puli\Filesystem\FilesystemRepository;
+ * use Puli\Repository\Filesystem\FilesystemRepository;
  * use Puli\Repository\ResourceRepository;
  *
  * $backend = new FilesystemRepository('/path/to/project');

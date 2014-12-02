@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Resource;
+namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\DirectoryResource;
-use Puli\Tests\Resource\AbstractDirectoryResourceTest;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0

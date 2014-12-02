@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem\Resource;
+namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * A resource associated to a file on the local file system.

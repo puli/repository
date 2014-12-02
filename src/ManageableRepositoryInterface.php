@@ -11,8 +11,8 @@
 
 namespace Puli\Repository;
 
-use Puli\Resource\AttachableResourceInterface;
-use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 
 /**
  * A repository that supports the addition and removal of resources.

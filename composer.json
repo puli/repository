@@ -17,12 +17,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Puli\\": "src/"
+            "Puli\\Repository\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Puli\\Tests\\": "tests/"
+            "Puli\\Repository\\Tests\\": "tests/"
         }
     },
     "extra": {

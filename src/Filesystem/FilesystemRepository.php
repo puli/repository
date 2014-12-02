@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem;
+namespace Puli\Repository\Filesystem;
 
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
-use Puli\Filesystem\Resource\LocalResourceCollection;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Util\Selector;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -27,7 +27,7 @@ use Webmozart\PathUtil\Path;
  * Resources can be read using their absolute file system paths:
  *
  * ```php
- * use Puli\Filesystem\FilesystemRepository;
+ * use Puli\Repository\Filesystem\FilesystemRepository;
  *
  * $repo = new FilesystemRepository();
  * $resource = $repo->get('/home/puli/.gitconfig');

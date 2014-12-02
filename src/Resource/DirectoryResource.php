@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource;
+namespace Puli\Repository\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
  * An in-memory directory in the repository.

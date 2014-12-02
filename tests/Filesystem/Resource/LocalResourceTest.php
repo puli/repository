@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
 use Puli\Repository\ResourceRepositoryInterface;
 
 /**
@@ -28,7 +28,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Filesystem\FilesystemException
+     * @expectedException \Puli\Repository\Filesystem\FilesystemException
      */
     public function testFailIfNonExistingFile()
     {
@@ -52,7 +52,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
         $repo->expects($this->once())
             ->method('loadOverriddenPaths')
-            ->with($this->isInstanceOf('Puli\Tests\Filesystem\Resource\TestLocalResource'))
+            ->with($this->isInstanceOf('Puli\Repository\Tests\Filesystem\Resource\TestLocalResource'))
             ->will($this->returnValue(array('/loaded/path')));
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
@@ -127,7 +127,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
 
         $repo->expects($this->once())
             ->method('loadOverriddenPaths')
-            ->with($this->isInstanceOf('Puli\Tests\Filesystem\Resource\TestLocalResource'))
+            ->with($this->isInstanceOf('Puli\Repository\Tests\Filesystem\Resource\TestLocalResource'))
             ->will($this->returnValue(array('/loaded/path')));
 
         $file = TestLocalResource::createAttached($repo, '/path', $this->fixturesDir.'/dir1/file1');
@@ -168,7 +168,7 @@ class LocalResourceTest extends \PHPUnit_Framework_TestCase
     {
         $directory = new TestLocalResource($this->fixturesDir.'/dir1/file1');
 
-        $directory->override($this->getMock('Puli\Resource\ResourceInterface'));
+        $directory->override($this->getMock('Puli\Repository\Resource\ResourceInterface'));
     }
 
     public function testOverrideDetached()

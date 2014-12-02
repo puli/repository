@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Repository;
+namespace Puli\Repository\Tests;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Tests\Resource\TestDirectory;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -349,7 +349,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/*');
 
         $this->assertCount(4, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         // sorted
         $this->assertSameResource($repo->get('/webmozart/puli/.dotfile'), $resources[0]);
         $this->assertSameResource($repo->get('/webmozart/puli/bar'), $resources[1]);
@@ -370,7 +370,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/file');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file'), $resources[0]);
     }
 
@@ -383,7 +383,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart'), $resources[0]);
     }
 
@@ -400,7 +400,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/../puli/./*');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
@@ -411,7 +411,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->find('/foo/*');
 
         $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
     }
 
     /**
@@ -463,7 +463,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->findByTag('webmozart/tag');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
@@ -474,7 +474,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $resources = $repo->findByTag('foo/bar');
 
         $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
     }
 
     /**

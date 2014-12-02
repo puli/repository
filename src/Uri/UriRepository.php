@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Uri;
+namespace Puli\Repository\Uri;
 
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\Collection\ResourceCollectionInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * A repository which delegates to other repositories based on URI schemes.
@@ -27,7 +27,7 @@ use Puli\Resource\ResourceInterface;
  *
  * ```php
  * use Puli\Repository\ResourceRepository;
- * use Puli\Uri\UriRepository;
+ * use Puli\Repository\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  * $psr4Repo = new ResourceRepository();
@@ -48,7 +48,7 @@ use Puli\Resource\ResourceInterface;
  *
  * ```php
  * use Puli\Repository\ResourceRepository;
- * use Puli\Uri\UriRepository;
+ * use Puli\Repository\Uri\UriRepository;
  *
  * $repo = new UriRepository();
  * $repo->register('puli', function () {
@@ -64,7 +64,7 @@ use Puli\Resource\ResourceInterface;
  *
  * ```php
  * use Puli\Repository\ResourceRepository;
- * use Puli\Uri\UriRepository;
+ * use Puli\Repository\Uri\UriRepository;
  *
  * $puliRepo = new ResourceRepository();
  * $psr4Repo = new ResourceRepository();

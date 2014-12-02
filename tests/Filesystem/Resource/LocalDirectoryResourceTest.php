@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Tests\Resource\AbstractAttachableDirectoryResourceTest;
-use Puli\Tests\Resource\AbstractDirectoryResourceTest;
+use Puli\Repository\Tests\Resource\AbstractAttachableDirectoryResourceTest;
+use Puli\Repository\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
@@ -62,7 +62,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Puli\Filesystem\FilesystemException
+     * @expectedException \Puli\Repository\Filesystem\FilesystemException
      */
     public function testFailIfNoDirectory()
     {
@@ -76,7 +76,7 @@ class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
         $entries = $directory->listEntries();
 
         $this->assertCount(2, $entries);
-        $this->assertInstanceOf('Puli\\Filesystem\\Resource\\LocalResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\Repository\\Filesystem\\Resource\\LocalResourceCollection', $entries);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $entries['file1']);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
     }

@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Resource\Collection;
+namespace Puli\Repository\Tests\Resource\Collection;
 
-use Puli\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
  * @since  1.0
@@ -22,8 +22,8 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         $collection = new ResourceCollection(array(
-            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            $dir = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
@@ -53,13 +53,13 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testReplace()
     {
         $collection = new ResourceCollection(array(
-            $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
         ));
 
         $collection->replace(array(
-            2 => $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            3 => $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            2 => $dir = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            3 => $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
@@ -93,13 +93,13 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testMerge()
     {
         $collection = new ResourceCollection(array(
-            2 => $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            3 => $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            2 => $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            3 => $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
         ));
 
         $collection->merge(array(
-            $dir3 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            $dir3 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(4, $collection);
@@ -145,14 +145,14 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testSet()
     {
         $collection = new ResourceCollection(array(
-            1 => $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            2 => $file1 = $this->getMock('Puli\Resource\FileResourceInterface'),
+            1 => $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            2 => $file1 = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $this->assertCount(2, $collection);
         $this->assertSame($file1, $collection->get(2));
 
-        $collection->set(2, $file2 = $this->getMock('Puli\Resource\FileResourceInterface'));
+        $collection->set(2, $file2 = $this->getMock('Puli\Repository\Resource\FileResourceInterface'));
 
         $this->assertCount(2, $collection);
         $this->assertSame($file2, $collection->get(2));
@@ -161,9 +161,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testRemove()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $collection->remove(1);
@@ -177,9 +177,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testHas()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $this->assertFalse($collection->has(-1));
@@ -192,9 +192,9 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testClear()
     {
         $collection = new ResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $dir2 = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
-            $file = $this->getMock('Puli\Resource\FileResourceInterface'),
+            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
+            $file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'),
         ));
 
         $collection->clear();
@@ -205,10 +205,10 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testAdd()
     {
         $collection = new ResourceCollection(array(
-            $dir = $this->getMock('Puli\Resource\DirectoryResourceInterface'),
+            $dir = $this->getMock('Puli\Repository\Resource\DirectoryResourceInterface'),
         ));
 
-        $collection->add($file = $this->getMock('Puli\Resource\FileResourceInterface'));
+        $collection->add($file = $this->getMock('Puli\Repository\Resource\FileResourceInterface'));
 
         $this->assertCount(2, $collection);
         $this->assertSame(array($dir, $file), $collection->toArray());
@@ -222,7 +222,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($collection->isEmpty());
 
-        $collection->add($this->getMock('Puli\Resource\FileResourceInterface'));
+        $collection->add($this->getMock('Puli\Repository\Resource\FileResourceInterface'));
 
         $this->assertFalse($collection->isEmpty());
 
@@ -234,7 +234,7 @@ class ResourceCollectionTest extends \PHPUnit_Framework_TestCase
     public function testArrayAccess()
     {
         $collection = new ResourceCollection();
-        $collection[] = $this->getMock('Puli\Resource\FileResourceInterface');
+        $collection[] = $this->getMock('Puli\Repository\Resource\FileResourceInterface');
 
     }
 }

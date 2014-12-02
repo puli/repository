@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Util;
+namespace Puli\Repository\Util;
 
 /**
  * Utility methods for handling path selectors.

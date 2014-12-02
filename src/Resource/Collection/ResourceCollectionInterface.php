@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource\Collection;
+namespace Puli\Repository\Resource\Collection;
 
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * A collection of {@link ResourceInterface} instances.

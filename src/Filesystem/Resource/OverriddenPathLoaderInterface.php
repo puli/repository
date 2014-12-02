@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem\Resource;
+namespace Puli\Repository\Filesystem\Resource;
 
 /**
  * A loader for the overridden paths of a file.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem;
+namespace Puli\Repository\Filesystem;
 
 /**
  * Thrown when filesystem-related errors occur.

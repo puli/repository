@@ -9,23 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem;
+namespace Puli\Repository\Filesystem;
 
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
-use Puli\Filesystem\Resource\LocalResource;
-use Puli\Filesystem\Resource\LocalResourceCollection;
-use Puli\Filesystem\Resource\LocalResourceInterface;
-use Puli\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\LocalResource;
+use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
+use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Resource\DirectoryResource;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\NoDirectoryException;
-use Puli\Resource\ResourceInterface;
-use Puli\Util\Selector;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -35,7 +35,7 @@ use Webmozart\PathUtil\Path;
  * {@link dumpRepository} method:
  *
  * ```php
- * use Puli\Filesystem\PhpCacheRepository;
+ * use Puli\Repository\Filesystem\PhpCacheRepository;
  * use Puli\Repository\ResourceRepository;
  *
  * $repo = new ResourceRepository();
@@ -48,7 +48,7 @@ use Webmozart\PathUtil\Path;
  * Pass this directory to the {@link __construct}:
  *
  * ```php
- * use Puli\Filesystem\PhpCacheRepository;
+ * use Puli\Repository\Filesystem\PhpCacheRepository;
  *
  * $repo = new PhpCacheRepository('/path/to/cache');
  *

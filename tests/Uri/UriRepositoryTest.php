@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Uri;
+namespace Puli\Repository\Tests\Uri;
 
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Tests\Resource\TestFile;
-use Puli\Uri\UriRepository;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Tests\Resource\TestFile;
+use Puli\Repository\Uri\UriRepository;
 
 /**
  * @since  1.0
@@ -104,7 +104,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\RepositoryFactoryException
+     * @expectedException \Puli\Repository\Uri\RepositoryFactoryException
      */
     public function testRepositoryFactoryMustReturnRepository()
     {
@@ -148,7 +148,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Repository\Uri\UnsupportedSchemeException
      */
     public function testSetDefaultSchemeFailsIfUnknownScheme()
     {
@@ -172,7 +172,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Repository\Uri\UnsupportedSchemeException
      */
     public function testGetExpectsRegisteredScheme()
     {
@@ -180,7 +180,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\UnsupportedSchemeException
+     * @expectedException \Puli\Repository\Uri\UnsupportedSchemeException
      */
     public function testGetCantUseUnregisteredScheme()
     {
@@ -212,7 +212,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
      */
     public function testGetExpectsValidUri()
     {
@@ -220,7 +220,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
      */
     public function testGetExpectsString()
     {
@@ -263,7 +263,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
      */
     public function testContainsExpectsValidUri()
     {
@@ -301,7 +301,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\InvalidUriException
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
      */
     public function testFindExpectsValidUri()
     {

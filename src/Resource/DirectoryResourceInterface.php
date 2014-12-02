@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource;
+namespace Puli\Repository\Resource;
 
-use Puli\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 
 /**
  * A resource which acts as directory in the repository.

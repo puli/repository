@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\StreamWrapper;
+namespace Puli\Repository\StreamWrapper;
 
 /**
  * Thrown when the stream wrapper was not registered or is registered twice.

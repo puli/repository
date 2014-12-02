@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem;
+namespace Puli\Repository\Tests\Filesystem;
 
-use Puli\Filesystem\Resource\LocalResourceInterface;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0

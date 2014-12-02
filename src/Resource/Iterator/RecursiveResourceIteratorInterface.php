@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource\Iterator;
+namespace Puli\Repository\Resource\Iterator;
 
 /**
  * A resource iterator that can be iterated recursively.

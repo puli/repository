@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Filesystem\Resource\LocalFileResource;
-use Puli\Tests\Resource\AbstractFileResourceTest;
+use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
+use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Tests\Resource\AbstractFileResourceTest;
 
 /**
  * @since  1.0
@@ -55,7 +55,7 @@ class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Filesystem\FilesystemException
+     * @expectedException \Puli\Repository\Filesystem\FilesystemException
      */
     public function testFailIfNoFile()
     {

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource\Iterator;
+namespace Puli\Repository\Resource\Iterator;
 
 /**
  * Iterates recursively over {@link RecursiveResourceIteratorInterface} instances.

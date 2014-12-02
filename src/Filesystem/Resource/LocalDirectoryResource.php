@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Filesystem\Resource;
+namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Filesystem\FilesystemException;
+use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Resource\DirectoryResource;
-use Puli\Resource\DirectoryResourceInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * Represents a directory on the local file system.

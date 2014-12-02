@@ -11,8 +11,8 @@
 
 namespace Puli\Repository;
 
-use Puli\Resource\Collection\ResourceCollectionInterface;
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * Stores {@link ResourceInterface} objects.

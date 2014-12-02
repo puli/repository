@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Resource\Iterator;
+namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Resource\ResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 
 /**
  * An iterator over {@link ResourceInterface} objects.

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Uri;
+namespace Puli\Repository\Uri;
 
 /**
  * Thrown when a URI is invalid.

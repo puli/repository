@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Repository;
+namespace Puli\Repository\Tests;
 
 use Puli\Repository\CompositeRepository;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Tests\Resource\TestFile;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
@@ -104,7 +104,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Uri\RepositoryFactoryException
+     * @expectedException \Puli\Repository\Uri\RepositoryFactoryException
      */
     public function testRepositoryFactoryMustReturnRepository()
     {
@@ -271,7 +271,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $resources = $this->repo->find('/webmozart/path/to/res*');
 
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
         $this->assertCount(0, $resources);
     }
 

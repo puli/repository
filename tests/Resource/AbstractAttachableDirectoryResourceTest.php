@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Tests\Resource;
+namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Resource\AttachableResourceInterface;
-use Puli\Resource\Collection\ResourceCollection;
-use Puli\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\DirectoryResourceInterface;
 
 /**
  * @since  1.0
@@ -72,12 +72,12 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
         $directory = $this->createAttachedDir($repo, '/path');
         $entries = $directory->listEntries();
 
-        $this->assertInstanceOf('Puli\Resource\Collection\ResourceCollectionInterface', $entries);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
     /**
-     * @expectedException \Puli\Resource\DetachedException
+     * @expectedException \Puli\Repository\Resource\DetachedException
      */
     public function testListEntriesDetached()
     {
@@ -88,7 +88,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
 
     public function testGet()
     {
-        $entry = $this->getMock('Puli\Resource\ResourceInterface');
+        $entry = $this->getMock('Puli\Repository\Resource\ResourceInterface');
         $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
@@ -102,7 +102,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
     }
 
     /**
-     * @expectedException \Puli\Resource\DetachedException
+     * @expectedException \Puli\Repository\Resource\DetachedException
      */
     public function testGetDetached()
     {
@@ -126,7 +126,7 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
     }
 
     /**
-     * @expectedException \Puli\Resource\DetachedException
+     * @expectedException \Puli\Repository\Resource\DetachedException
      */
     public function testContainsDetached()
     {
