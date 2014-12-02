@@ -1,6 +1,6 @@
 {
-    "name": "puli/puli",
-    "description": "Puli manages files, directories and other resources in a filesystem-like repository.",
+    "name": "puli/repository",
+    "description": "A file system-like repository for storing arbitrary resources.",
     "license": "MIT",
     "authors": [
         {
