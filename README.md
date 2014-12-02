@@ -33,7 +33,7 @@ files:
 import: /config/routing.yml
 ```
 
-Read the [Puli at a Glance] if you want to learn more about Puli.
+Read [Puli at a Glance] if you want to learn more about Puli.
 
 Authors
 -------
