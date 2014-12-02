@@ -88,7 +88,8 @@ The bundle is now installed in your project.
 Bundle Usage
 ------------
 
-### Configuration Files
+Configuration Files
+~~~~~~~~~~~~~~~~~~~
 
 With the bundle, you can load configuration files by Puli paths. This is mostly
 needed when loading bundle routes in routing.yml or routing_dev.yml:
@@ -109,7 +110,8 @@ directory in the package "symfony/web-profiler".
 Read :doc:`symfony-config` if you want to learn more about using Puli with
 Symfony configuration files.
 
-### Twig Templates
+Twig Templates
+~~~~~~~~~~~~~~
 
 With the bundle, it is possible to refer to Twig templates by Puli paths. This
 is typically done in the controller when rendering a template:
