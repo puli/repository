@@ -1,34 +1,25 @@
 Changelog
 =========
 
-* 1.0.0-alpha4 (@release_date@)
+* 1.0.0-alpha4 (2014-12-03)
 
-   * added prototypical `PuliAssetFactory` for Assetic
-   * renamed `Path::dirname()` to `Path::getDirectory()`
-   * added methods to `Path`:
-      * `getRoot()`
-      * `isAbsolute()`
-      * `isRelative()`
-      * `makeAbsolute()`
-      * `makeRelative()`
-      * `isLocal()`
-   * added `PuliCssRewriteFilter` for Assetic
-   * added `ResourceCollectionIterator` and `DirectoryResourceIterator`
-   * added `ResourceFilterIterator`
-   * added `TwigTemplateCacheWarmer`
-   * renamed `PuliLoader` to `PuliTemplateLoader` for clarity
-   * changed `PuliTemplateLoader::getCacheKey()` to prevent cache conflicts with
-     templates loaded through a different loader
-   * moved declarations in`ResourceRepositoryInterface` to a new
-     `ManageableRepositoryInterface`
-   * moved declarations in `ResourceLocatorInterface` to
-     `ResourceRepositoryInterface` and removed `ResourceLocatorInterface`
-   * all "locators" are now called "repositories"
+   * moved extensions to separate repositories in https://github.com/puli
+   * moved documentation to separate repository: https://github.com/puli/docs
+   * moved `Path` to "webmozart/path-util" package
+   * moved all code to `Puli\Repository` namespace
    * rearranged the directory structure
+   * added `ResourceCollectionIterator`
+   * added `ResourceIteratorInterface`
+   * added `RecursiveResourceIterator`
+   * added `RecursiveResourceIteratorInterface`
+   * added `ResourceFilterIterator`
+   * renamed `ResourceRepositoryInterface` to `ManageableRepositoryInterface`
+   * renamed `ResourceLocatorInterface` to `ResourceRepositoryInterface`
+   * renamed all "locators" to "repositories"
+   * moved all filesystem specific code to `Filesystem` namespace
    * made `ResourceInterface` independent of the filesystem. The filesystem
      specific methods are now in `LocalResourceInterface`
    * `getAlternativePaths()` is now called `getAllLocalPaths()`
-   * all filesystem specific code was moved to the `Filesystem` namespace
    * added `getContents()`, `getSize()`, `getLastAccessedAt()` and 
      `getLastModifiedAt()` to `FileResourceInterface`
    * removed all pattern-related classes. This logic is now provided by the
@@ -36,18 +27,11 @@ Changelog
    * `ResourceRepository::remove()`, `tag()` and `untag()` now return the number
      of affected resources
    * added `UriRepository::getDefaultScheme()` and `setDefaultScheme()`
-   * removed `DirectoryResourceIterator`. The same functionality is provided
-     by `ResourceCollectionIterator`
-   * added interfaces `ResourceIteratorInterface` and `RecursiveResourceIteratorInterface`
-   * added `RecursiveResourceIterator`
-   * removed code from `ResourceFilterIterator` that is duplicated in
-     `ResourceCollectionIterator`
-   * moved all code to the `Puli\` top-level namespace
-   * moved `ResourceRepository` and related classes to `Puli\Repository\`
    * renamed `getByTag()` to `findByTag()`
-   * added `getLongestCommonBasePath()` and `isBasePath()` to `Path`
    * added `merge()` to `ResourceCollectionInterface`
    * added `CompositeRepository`
+   * removed `LazyDirectoryResource`
+   * fixed ResourceRepository::add() to be deterministic when selectors are passed. Closes #17
 
 * 1.0.0-alpha3 (2014-02-22)
 
