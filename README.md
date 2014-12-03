@@ -1,14 +1,14 @@
 Locating Files with Puli
 ========================
 
-[![Build Status](https://travis-ci.org/puli/puli.png?branch=master)](https://travis-ci.org/puli/puli)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/puli/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/puli/?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/f48f1d0e-ba95-489e-8ce2-0422fa7a2305/mini.png)](https://insight.sensiolabs.com/projects/f48f1d0e-ba95-489e-8ce2-0422fa7a2305)
-[![Latest Stable Version](https://poser.pugx.org/puli/puli/v/stable.png)](https://packagist.org/packages/puli/puli)
-[![Total Downloads](https://poser.pugx.org/puli/puli/downloads.png)](https://packagist.org/packages/puli/puli)
-[![Dependency Status](https://www.versioneye.com/php/puli:puli/1.0.0/badge.png)](https://www.versioneye.com/php/puli:puli/1.0.0)
+[![Build Status](https://travis-ci.org/puli/repository.png?branch=master)](https://travis-ci.org/puli/repository)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/repository/?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47/mini.png)](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47)
+[![Latest Stable Version](https://poser.pugx.org/puli/repository/v/stable.png)](https://packagist.org/packages/puli/repository)
+[![Total Downloads](https://poser.pugx.org/puli/repository/downloads.png)](https://packagist.org/packages/puli/repository)
+[![Dependency Status](https://www.versioneye.com/php/puli:repository/1.0.0/badge.png)](https://www.versioneye.com/php/puli:repository/1.0.0)
 
-Latest release: [1.0.0-alpha3](https://packagist.org/packages/puli/puli#1.0.0-alpha3)
+Latest release: [1.0.0-alpha3](https://packagist.org/packages/puli/repository#1.0.0-alpha3)
 
 PHP >= 5.3.9
 
@@ -71,11 +71,11 @@ License
 All contents of this package are licensed under the [MIT license].
 
 [Bernhard Schussek]: http://webmozarts.com
-[The Community Contributors]: https://github.com/puli/puli/graphs/contributors
+[The Community Contributors]: https://github.com/puli/repository/graphs/contributors
 [Getting Started]: http://puli.readthedocs.org/en/latest/getting-started.html
 [Puli Documentation]: http://puli.readthedocs.org/en/latest/index.html
 [Puli at a Glance]: http://puli.readthedocs.org/en/latest/at-a-glance.html
-[issue tracker]: https://github.com/puli/puli/issues
-[Git repository]: https://github.com/puli/puli
+[issue tracker]: https://github.com/puli/repository/issues
+[Git repository]: https://github.com/puli/repository
 [@webmozart]: https://twitter.com/webmozart
 [MIT license]: LICENSE
