@@ -8,7 +8,7 @@ Locating Files with Puli
 [![Total Downloads](https://poser.pugx.org/puli/repository/downloads.png)](https://packagist.org/packages/puli/repository)
 [![Dependency Status](https://www.versioneye.com/php/puli:repository/1.0.0/badge.png)](https://www.versioneye.com/php/puli:repository/1.0.0)
 
-Latest release: [1.0.0-alpha3](https://packagist.org/packages/puli/repository#1.0.0-alpha3)
+Latest release: [1.0.0-alpha4](https://packagist.org/packages/puli/repository#1.0.0-alpha4)
 
 PHP >= 5.3.9
 
