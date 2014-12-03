@@ -75,7 +75,7 @@ All contents of this package are licensed under the [MIT license].
 [Getting Started]: http://puli.readthedocs.org/en/latest/getting-started.html
 [Puli Documentation]: http://puli.readthedocs.org/en/latest/index.html
 [Puli at a Glance]: http://puli.readthedocs.org/en/latest/at-a-glance.html
-[issue tracker]: https://github.com/puli/repository/issues
+[issue tracker]: https://github.com/puli/puli/issues
 [Git repository]: https://github.com/puli/repository
 [@webmozart]: https://twitter.com/webmozart
 [MIT license]: LICENSE
