@@ -1,14 +1,14 @@
 Locating Files with Puli
 ========================
 
-[![Build Status](https://travis-ci.org/puli/repository.png?branch=master)](https://travis-ci.org/puli/repository)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/repository/?branch=master)
+[![Build Status](https://travis-ci.org/puli/repository.png?branch=1.0.0-alpha4)](https://travis-ci.org/puli/repository)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=1.0.0-alpha4)](https://scrutinizer-ci.com/g/puli/repository/?branch=1.0.0-alpha4)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47/mini.png)](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47)
 [![Latest Stable Version](https://poser.pugx.org/puli/repository/v/stable.png)](https://packagist.org/packages/puli/repository)
 [![Total Downloads](https://poser.pugx.org/puli/repository/downloads.png)](https://packagist.org/packages/puli/repository)
 [![Dependency Status](https://www.versioneye.com/php/puli:repository/1.0.0/badge.png)](https://www.versioneye.com/php/puli:repository/1.0.0)
 
-Latest release: [1.0.0-alpha3](https://packagist.org/packages/puli/repository#1.0.0-alpha3)
+Latest release: [1.0.0-alpha4](https://packagist.org/packages/puli/repository#1.0.0-alpha4)
 
 PHP >= 5.3.9
 
