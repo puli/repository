@@ -45,6 +45,27 @@ class SelectorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testEscapedWildcard()
+    {
+        $regExp = Selector::toRegEx('/foo/\*.js~');
+
+        $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
+    public function testWildcardWithLeadingBackslash()
+    {
+        $regExp = Selector::toRegEx('/foo/\\*.js~');
+
+        $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
+    }
+
+    public function testEscapedWildcardWithLeadingBackslash()
+    {
+        $regExp = Selector::toRegEx('/foo/\\\*.js~');
+
+        $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
     /**
      * @dataProvider provideStaticPrefixes
      */
