@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of the Puli package.
+ * This file is part of the puli/repository package.
  *
  * (c) Bernhard Schussek <bschussek@gmail.com>
  *
