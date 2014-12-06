@@ -115,7 +115,7 @@ class DirectoryResource implements DirectoryResourceInterface, AttachableResourc
 
         $entries = new ResourceCollection();
 
-        foreach ($this->repo->find($this->path.'/*') as $entry) {
+        foreach ($this->repo->listDirectory($this->path) as $entry) {
             $entries[$entry->getName()] = $entry;
         }
 

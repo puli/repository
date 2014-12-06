@@ -140,7 +140,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\NoDirectoryException
+     * @expectedException \Puli\Repository\NoDirectoryException
      */
     public function testAddFileAsChildOfFile()
     {

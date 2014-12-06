@@ -43,24 +43,7 @@ class Selector
      */
     public static function toRegEx($selector)
     {
-        return '~^'.str_replace('\*', '[^/]+', preg_quote($selector, '~')).'$~';
-    }
-
-    /**
-     * Converts a selector to a glob pattern.
-     *
-     * The flag {@link GLOB_BRACE} must be used if this pattern is passed to
-     * {@link glob}.
-     *
-     * @param string $selector A path selector in canonical form.
-     *
-     * @return string The glob for find files for the selector.
-     */
-    public static function toGlob($selector)
-    {
-        // Return hidden files (starting with ".") when the "*" wildcard is
-        // used in directories
-        return str_replace('/*', '/{.,}*', $selector);
+        return '~^'.str_replace('\*', '.*', preg_quote($selector, '~')).'$~';
     }
 
     /**
@@ -81,6 +64,57 @@ class Selector
         }
 
         return $selector;
+    }
+
+    /**
+     * Returns the base path of a selector.
+     *
+     * The "base path" is the longest path trailed by a "/" on the left of the
+     * first wildcard "*". If the selector does not contain wildcards, the
+     * directory name of the selector is returned.
+     *
+     * ```php
+     * Selector::getBasePath('/css/*.css');
+     * // => /css
+     *
+     * Selector::getBasePath('/css/style.css');
+     * // => /css
+     *
+     * Selector::getBasePath('/css/st*.css');
+     * // => /css
+     *
+     * Selector::getBasePath('/*.css');
+     * // => /
+     * ```
+     *
+     * @param string $selector A path selector in canonical form.
+     *
+     * @return string The base path of the selector.
+     */
+    public static function getBasePath($selector)
+    {
+        // Start searching for a "/" at the last character
+        $offset = -1;
+
+        // If the selector contains a wildcard "*", start searching for the
+        // "/" on the left of the wildcard
+        if (false !== ($pos = strpos($selector, '*'))) {
+            $offset = $pos - strlen($selector);
+        }
+
+        if (false !== ($pos = strrpos($selector, '/', $offset))) {
+            // Special case: Return "/" if the only slash is at the beginning
+            // of the selector
+            if (0 === $pos) {
+                return '/';
+            }
+
+            return substr($selector, 0, $pos);
+        }
+
+        // Selector contains no slashes on the left of the wildcard
+        // Return an empty string
+        return '';
     }
 
     private function __construct()

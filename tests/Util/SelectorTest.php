@@ -24,7 +24,7 @@ class SelectorTest extends \PHPUnit_Framework_TestCase
      */
     public function testToRegEx($path, $isMatch)
     {
-        $regExp = Selector::toRegEx('/*/*.js~');
+        $regExp = Selector::toRegEx('/foo/*.js~');
 
         $this->assertSame($isMatch, preg_match($regExp, $path));
     }
@@ -32,12 +32,13 @@ class SelectorTest extends \PHPUnit_Framework_TestCase
     public function provideMatches()
     {
         return array(
-            array('/bar/baz.js~', 1),
+            // The method assumes that the path is already consolidated
+            array('/bar/baz.js~', 0),
             array('/foo/baz.js~', 1),
-            array('/foo/../bar/baz.js~', 0),
-            array('/foo/../foo/baz.js~', 0),
+            array('/foo/../bar/baz.js~', 1),
+            array('/foo/../foo/baz.js~', 1),
             array('/bar/baz.js', 0),
-            array('/foo/bar/baz.js~', 0),
+            array('/foo/bar/baz.js~', 1),
             array('foo/baz.js~', 0),
             array('/bar/foo/baz.js~', 0),
             array('/bar/.js~', 0),
@@ -45,26 +46,43 @@ class SelectorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider provideGlobs
+     * @dataProvider provideStaticPrefixes
      */
-    public function testToGlob($input, $output)
+    public function testGetStaticPrefix($selector, $prefix)
     {
-        $this->assertSame($output, Selector::toGlob($input));
+        $this->assertSame($prefix, Selector::getStaticPrefix($selector));
     }
 
-    public function provideGlobs()
+    public function provideStaticPrefixes()
     {
         return array(
-            array('/path/to/file*', '/path/to/file*'),
-            array('/path/to/*', '/path/to/{.,}*'),
-            array('/path/to/{.,}*', '/path/to/{.,}*'),
-            array('/path/to/{a,b,c}*', '/path/to/{a,b,c}*'),
+            // The method assumes that the path is already consolidated
+            array('/foo/baz/../*/bar/*', '/foo/baz/../'),
+            array('/foo/baz/bar*', '/foo/baz/bar'),
         );
     }
 
-    public function testGetStaticPrefix()
+    /**
+     * @dataProvider provideBasePaths
+     */
+    public function testGetBasePath($selector, $basePath)
     {
-        // The method assumes that the path is already consolidated
-        $this->assertSame('/foo/baz/../', Selector::getStaticPrefix('/foo/baz/../*/bar/*'));
+        $this->assertSame($basePath, Selector::getBasePath($selector));
+    }
+
+    public function provideBasePaths()
+    {
+        return array(
+            // The method assumes that the path is already consolidated
+            array('/foo/baz/../*/bar/*', '/foo/baz/..'),
+            array('/foo/baz/bar*', '/foo/baz'),
+            array('/foo/baz/bar', '/foo/baz'),
+            array('/foo/baz*', '/foo'),
+            array('/foo*', '/'),
+            array('/*', '/'),
+            array('foo*/baz/bar', ''),
+            array('foo*', ''),
+            array('*', ''),
+        );
     }
 }

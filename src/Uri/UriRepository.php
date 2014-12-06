@@ -12,6 +12,7 @@
 namespace Puli\Repository\Uri;
 
 use Puli\Repository\InvalidPathException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
@@ -277,6 +278,31 @@ class UriRepository implements UriRepositoryInterface
         }
 
         return $this->getRepository($parts['scheme'])->contains($parts['path']);
+    }
+
+    /**
+     * Lists the directory entries of the given URI.
+     *
+     * @param string $uri The URI to the resource. If a path is passed, the
+     *                    default scheme is prepended.
+     *
+     * @return ResourceCollectionInterface The directory entries.
+     *
+     * @throws ResourceNotFoundException If the resource cannot be found.
+     * @throws NoDirectoryException If the resource is no directory.
+     * @throws InvalidUriException If URI is invalid.
+     * @throws InvalidPathException If the path part of the URI is invalid.
+     * @throws UnsupportedSchemeException If the URI scheme is not supported.
+     */
+    public function listDirectory($uri)
+    {
+        $parts = Uri::parse($uri);
+
+        if ('' === $parts['scheme']) {
+            $parts['scheme'] = $this->defaultScheme;
+        }
+
+        return $this->getRepository($parts['scheme'])->listDirectory($parts['path']);
     }
 
     /**

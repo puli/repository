@@ -20,13 +20,15 @@ use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Tests\AbstractRepositoryTest;
+use Puli\Repository\Tests\Resource\TestDirectory;
+use Puli\Repository\Tests\Resource\TestFile;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpCacheRepositoryTest extends AbstractRepositoryTest
+abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
 {
     /**
      * @var Filesystem
@@ -99,7 +101,15 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
 
         PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
 
-        return new PhpCacheRepository($this->cacheRoot);
+        return $this->loadRepository($this->cacheRoot);
+    }
+
+    /**
+     * @return PhpCacheRepository
+     */
+    protected function loadRepository($cacheRoot)
+    {
+        return new PhpCacheRepository($cacheRoot);
     }
 
     protected function assertSameResource($expected, $actual)
@@ -131,78 +141,36 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
 
     public function testGetFile()
     {
-        touch($this->repoRoot.'/file');
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestFile('/webmozart/puli/file'),
+                ))
+            ))
+        )));
 
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli/file', new LocalFileResource($this->repoRoot.'/file'));
-
-        PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
-
-        $repo = new PhpCacheRepository($this->cacheRoot);
         $file = $repo->get('/webmozart/puli/file');
 
         $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalFileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($this->repoRoot.'/file', $file->getLocalPath());
-        $this->assertSame(array($this->repoRoot.'/file'), $file->getAllLocalPaths());
-    }
-
-    public function testGetLoadedFile()
-    {
-        touch($this->repoRoot.'/file');
-
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli/file', new LocalFileResource($this->repoRoot.'/file'));
-
-        PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
-
-        $repo = new PhpCacheRepository($this->cacheRoot);
-        // load first
-        $repo->get('/webmozart/puli/file');
-        $file = $repo->get('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalFileResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($this->repoRoot.'/file', $file->getLocalPath());
-        $this->assertSame(array($this->repoRoot.'/file'), $file->getAllLocalPaths());
+        $this->assertSame($this->repoRoot.'/webmozart/puli/file', $file->getLocalPath());
+        $this->assertSame(array($this->repoRoot.'/webmozart/puli/file'), $file->getAllLocalPaths());
     }
 
     public function testGetDirectory()
     {
-        mkdir($this->repoRoot.'/dir');
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli')
+            ))
+        )));
 
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli/dir', new LocalDirectoryResource($this->repoRoot.'/dir'));
-
-        PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
-
-        $repo = new PhpCacheRepository($this->cacheRoot);
-        $dir = $repo->get('/webmozart/puli/dir');
+        $dir = $repo->get('/webmozart/puli');
 
         $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalDirectoryResource', $dir);
-        $this->assertSame('/webmozart/puli/dir', $dir->getPath());
-        $this->assertSame($this->repoRoot.'/dir', $dir->getLocalPath());
-        $this->assertSame(array($this->repoRoot.'/dir'), $dir->getAllLocalPaths());
-    }
-
-    public function testGetLoadedDirectory()
-    {
-        mkdir($this->repoRoot.'/dir');
-
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli/dir', new LocalDirectoryResource($this->repoRoot.'/dir'));
-
-        PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
-
-        $repo = new PhpCacheRepository($this->cacheRoot);
-        // load first
-        $repo->get('/webmozart/puli/dir');
-        $dir = $repo->get('/webmozart/puli/dir');
-
-        $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalDirectoryResource', $dir);
-        $this->assertSame('/webmozart/puli/dir', $dir->getPath());
-        $this->assertSame($this->repoRoot.'/dir', $dir->getLocalPath());
-        $this->assertSame(array($this->repoRoot.'/dir'), $dir->getAllLocalPaths());
+        $this->assertSame('/webmozart/puli', $dir->getPath());
+        $this->assertSame($this->repoRoot.'/webmozart/puli', $dir->getLocalPath());
+        $this->assertSame(array($this->repoRoot.'/webmozart/puli'), $dir->getAllLocalPaths());
     }
 
     public function testGetOverriddenFile()
@@ -216,7 +184,7 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
 
         PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
 
-        $repo = new PhpCacheRepository($this->cacheRoot);
+        $repo = $this->loadRepository($this->cacheRoot);
         $file = $repo->get('/webmozart/puli/file');
 
         $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalFileResource', $file);
@@ -239,9 +207,8 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
 
         PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
 
-        $repo = new PhpCacheRepository($this->cacheRoot);
+        $repo = $this->loadRepository($this->cacheRoot);
         $dir = $repo->get('/webmozart/puli/dir');
-        $entries = $dir->listEntries();
         $entries = $dir->listEntries();
 
         $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalDirectoryResource', $dir);
@@ -262,28 +229,5 @@ class PhpCacheRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/dir/foo', $entries['foo']->getPath());
         $this->assertSame($this->repoRoot.'/dir2/foo', $entries['foo']->getLocalPath());
         $this->assertSame(array($this->repoRoot.'/dir1/foo', $this->repoRoot.'/dir2/foo'), $entries['foo']->getAllLocalPaths());
-    }
-
-    public function testFindLoadedFile()
-    {
-        touch($this->repoRoot.'/file');
-
-        $repo = new ResourceRepository();
-        $repo->add('/webmozart/puli/file', new LocalFileResource($this->repoRoot.'/file'));
-
-        PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
-
-        $repo = new PhpCacheRepository($this->cacheRoot);
-        // load first
-        $repo->get('/webmozart/puli/file');
-        $resources = $repo->find('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalResourceCollection', $resources);
-        $this->assertCount(1, $resources);
-
-        $this->assertInstanceOf('Puli\Repository\Filesystem\Resource\LocalFileResource', $resources[0]);
-        $this->assertSame('/webmozart/puli/file', $resources[0]->getPath());
-        $this->assertSame($this->repoRoot.'/file', $resources[0]->getLocalPath());
-        $this->assertSame(array($this->repoRoot.'/file'), $resources[0]->getAllLocalPaths());
     }
 }

@@ -12,6 +12,7 @@
 namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
+use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
@@ -104,7 +105,7 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         if ($this->repo) {
             $entries = new LocalResourceCollection();
 
-            foreach ($this->repo->find($this->getPath().'/*') as $entry) {
+            foreach ($this->repo->listDirectory($this->getPath()) as $entry) {
                 $entries[$entry->getName()] = $entry;
             }
 
@@ -112,18 +113,15 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         }
 
         $localPath = $this->getLocalPath();
+        $iterator = new RecursiveDirectoryIterator($localPath, RecursiveDirectoryIterator::CURRENT_AS_FILE);
         $entries = array();
 
         // We can't use glob() here, because glob() doesn't list files starting
         // with "." by default
-        foreach (scandir($localPath) as $name) {
-            if ('.' === $name || '..' === $name) {
-                continue;
-            }
-
-            $entries[$name] = is_dir($localPath.'/'.$name)
-                ? new LocalDirectoryResource($localPath.'/'.$name)
-                : new LocalFileResource($localPath.'/'.$name);
+        foreach ($iterator as $path => $name) {
+            $entries[$name] = is_dir($path)
+                ? new LocalDirectoryResource($path)
+                : new LocalFileResource($path);
         }
 
         return new LocalResourceCollection($entries);

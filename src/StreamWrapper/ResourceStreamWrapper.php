@@ -18,7 +18,7 @@ use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\FileResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Uri\UriRepositoryInterface;
 
 /**

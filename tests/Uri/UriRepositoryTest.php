@@ -308,6 +308,44 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repo->find('foo');
     }
 
+    public function testListDirectory()
+    {
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+
+        $this->repo->register('scheme', $repo);
+
+        $repo->expects($this->once())
+            ->method('listDirectory')
+            ->with('/path/to/dir')
+            ->will($this->returnValue('RESULT'));
+
+        $this->assertSame('RESULT', $this->repo->listDirectory('scheme:///path/to/dir'));
+    }
+
+    public function testListDirectoryUsesDefaultSchemeIfPathGiven()
+    {
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+
+        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('scheme2', $repo);
+        $this->repo->setDefaultScheme('scheme2');
+
+        $repo->expects($this->once())
+            ->method('listDirectory')
+            ->with('/path/to/dir')
+            ->will($this->returnValue('RESULT'));
+
+        $this->assertEquals('RESULT', $this->repo->listDirectory('/path/to/dir'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Uri\InvalidUriException
+     */
+    public function testListDirectoryExpectsValidUri()
+    {
+        $this->repo->listDirectory('foo');
+    }
+
     public function testFindByTagChecksAllRepositories()
     {
         $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');

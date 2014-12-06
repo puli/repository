@@ -452,7 +452,7 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\NoDirectoryException
+     * @expectedException \Puli\Repository\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {

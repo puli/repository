@@ -299,6 +299,52 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->repo->find(new \stdClass());
     }
 
+    public function testListDirectory()
+    {
+        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+
+        $this->repo->mount('/webmozart', $repo);
+
+        $repo->expects($this->once())
+            ->method('listDirectory')
+            ->with('/path/to/dir')
+            ->will($this->returnValue('RESULT'));
+
+        $this->assertSame('RESULT', $this->repo->listDirectory('/webmozart/path/to/dir'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\ResourceNotFoundException
+     */
+    public function testListDirectoryExpectsValidMountPoint()
+    {
+        $this->repo->listDirectory('/webmozart/path/to/dir');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsAbsolutePath()
+    {
+        $this->repo->listDirectory('webmozart');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsNonEmptyPath()
+    {
+        $this->repo->listDirectory('');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsStringPath()
+    {
+        $this->repo->listDirectory(new \stdClass());
+    }
+
     public function testFindByTagChecksAllRepositories()
     {
         $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');

@@ -11,14 +11,16 @@
 
 namespace Puli\Repository\Filesystem;
 
+use Puli\Repository\Filesystem\Iterator\GlobIterator;
+use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\InvalidPathException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -105,7 +107,7 @@ class FilesystemRepository implements ResourceRepositoryInterface
         if (!file_exists($localPath)) {
             throw new ResourceNotFoundException(sprintf(
                 'The file "%s" does not exist.',
-                $localPath
+                $path
             ));
         }
 
@@ -138,21 +140,9 @@ class FilesystemRepository implements ResourceRepositoryInterface
         }
 
         $selector = Path::canonicalize($selector);
-        $glob = Selector::toGlob($this->rootDirectory.$selector);
-        $offset = strlen($this->rootDirectory);
-        $resources = array();
+        $localSelector = $this->rootDirectory.$selector;
 
-        foreach (glob($glob, GLOB_BRACE) as $localPath) {
-            if ('/.' === substr($localPath, -2) || '/..' === substr($localPath, -3)) {
-                continue;
-            }
-
-            $resources[] = is_dir($localPath)
-                ? LocalDirectoryResource::createAttached($this, substr($localPath, $offset), $localPath)
-                : LocalFileResource::createAttached($this, substr($localPath, $offset), $localPath);
-        }
-
-        return new LocalResourceCollection($resources);
+        return $this->iteratorToCollection(new GlobIterator($localSelector));
     }
 
     /**
@@ -179,9 +169,53 @@ class FilesystemRepository implements ResourceRepositoryInterface
         }
 
         $selector = Path::canonicalize($selector);
-        $glob = Selector::toGlob($this->rootDirectory.$selector);
+        $iterator = new GlobIterator($this->rootDirectory.$selector);
+        $iterator->rewind();
 
-        return count(glob($glob, GLOB_BRACE)) > 0;
+        return $iterator->valid();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listDirectory($path)
+    {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
+            throw new InvalidPathException(sprintf(
+                'The path "%s" is not absolute.',
+                $path
+            ));
+        }
+
+        $path = Path::canonicalize($path);
+        $localPath = $this->rootDirectory.$path;
+
+        if (!file_exists($localPath)) {
+            throw new ResourceNotFoundException(sprintf(
+                'The directory "%s" does not exist.',
+                $path
+            ));
+        }
+
+        if (!is_dir($localPath)) {
+            throw new NoDirectoryException(sprintf(
+                'The path "%s" is not a directory.',
+                $path
+            ));
+        }
+
+        return $this->iteratorToCollection(new RecursiveDirectoryIterator($localPath));
     }
 
     /**
@@ -198,5 +232,19 @@ class FilesystemRepository implements ResourceRepositoryInterface
     public function getTags($path = null)
     {
         return array();
+    }
+
+    private function iteratorToCollection(\Iterator $iterator)
+    {
+        $offset = strlen($this->rootDirectory);
+        $resources = array();
+
+        foreach ($iterator as $localPath) {
+            $resources[] = is_dir($localPath)
+                ? LocalDirectoryResource::createAttached($this, substr($localPath, $offset), $localPath)
+                : LocalFileResource::createAttached($this, substr($localPath, $offset), $localPath);
+        }
+
+        return new LocalResourceCollection($resources);
     }
 }

@@ -65,8 +65,8 @@ abstract class AbstractAttachableDirectoryResourceTest extends \PHPUnit_Framewor
         $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
 
         $repo->expects($this->once())
-            ->method('find')
-            ->with('/path/*')
+            ->method('listDirectory')
+            ->with('/path')
             ->will($this->returnValue($resources));
 
         $directory = $this->createAttachedDir($repo, '/path');

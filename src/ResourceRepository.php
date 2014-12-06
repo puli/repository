@@ -17,7 +17,7 @@ use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
@@ -366,6 +366,65 @@ class ResourceRepository implements ManageableRepositoryInterface
     /**
      * {@inheritdoc}
      */
+    public function listDirectory($path)
+    {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
+            throw new InvalidPathException(sprintf(
+                'The path "%s" is not absolute.',
+                $path
+            ));
+        }
+
+        $path = Path::canonicalize($path);
+
+        if (!isset($this->resources[$path])) {
+            throw new ResourceNotFoundException(sprintf(
+                'The resource "%s" does not exist.',
+                $path
+            ));
+        }
+
+        if (!$this->resources[$path] instanceof DirectoryResourceInterface) {
+            throw new NoDirectoryException(sprintf(
+                'The resource "%s" is not a directory.',
+                $path
+            ));
+        }
+
+        $staticPrefix = rtrim($path, '/').'/';
+        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
+        $resources = array();
+
+        foreach ($this->resources as $path => $resource) {
+            // strpos() is slightly faster than substr() here
+            if (0 !== strpos($path, $staticPrefix)) {
+                continue;
+            }
+
+            if (!preg_match($regExp, $path)) {
+                continue;
+            }
+
+            $resources[] = $resource;
+        }
+
+        return new ResourceCollection($resources);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function tag($selector, $tag)
     {
         if ('' === $tag) {
@@ -625,7 +684,7 @@ class ResourceRepository implements ManageableRepositoryInterface
             }
         }
 
-        // Attach resource to locator *after* calling listEntries() and
+        // Attach resource to locator *after* calling listDirectory() and
         // override(), because these methods may depend on the previously
         // attached repository
         $resource->attachTo($this, $path);
@@ -635,7 +694,7 @@ class ResourceRepository implements ManageableRepositoryInterface
     {
         // Recursively register directory contents
         if ($resource instanceof DirectoryResourceInterface) {
-            foreach ($this->find($resource->getPath().'/*') as $entry) {
+            foreach ($this->listDirectory($resource->getPath()) as $entry) {
                 $this->detachRecursively($entry, $counter);
             }
         }

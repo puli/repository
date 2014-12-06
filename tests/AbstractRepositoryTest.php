@@ -119,9 +119,12 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
             )),
         )));
 
+        $this->assertTrue($repo->contains('/*'));
         $this->assertTrue($repo->contains('/webmozart/*'));
         $this->assertFalse($repo->contains('/webmozart/file*'));
         $this->assertTrue($repo->contains('/webmozart/puli/file*'));
+        $this->assertTrue($repo->contains('/*file*'));
+        $this->assertTrue($repo->contains('/webmozart/*file*'));
         $this->assertTrue($repo->contains('/webmozart/*/file*'));
     }
 
@@ -333,7 +336,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSameResource($repo->get('/'), $repo->get('/..'));
     }
 
-    public function testFind()
+    public function testListDirectory()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart', array(
@@ -341,12 +344,20 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
                     new TestFile('/webmozart/puli/.dotfile'),
                     new TestFile('/webmozart/puli/foo'),
                     new TestFile('/webmozart/puli/bar'),
-                    new TestDirectory('/webmozart/puli/dir'),
+                    new TestDirectory('/webmozart/puli/dir', array(
+                        // Nest another directory which matches the regex
+                        // /webmozart/puli/[^/]+$
+                        new TestDirectory('/webmozart/puli/dir/webmozart', array(
+                            new TestDirectory('/webmozart/puli/dir/webmozart/puli', array(
+                                new TestFile('/webmozart/puli/dir/webmozart/puli/file'),
+                            ))
+                        )),
+                    )),
                 )),
             )),
         )));
 
-        $resources = $repo->find('/webmozart/puli/*');
+        $resources = $repo->listDirectory('/webmozart/puli');
 
         $this->assertCount(4, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
@@ -355,6 +366,99 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertSameResource($repo->get('/webmozart/puli/bar'), $resources[1]);
         $this->assertSameResource($repo->get('/webmozart/puli/dir'), $resources[2]);
         $this->assertSameResource($repo->get('/webmozart/puli/foo'), $resources[3]);
+    }
+
+    public function testListRootDirectory()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart'),
+            new TestDirectory('/acme'),
+        )));
+
+        $resources = $repo->listDirectory('/');
+
+        $this->assertCount(2, $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
+        // sorted
+        $this->assertSameResource($repo->get('/acme'), $resources[0]);
+        $this->assertSameResource($repo->get('/webmozart'), $resources[1]);
+    }
+
+    /**
+     * @expectedException \Puli\Repository\ResourceNotFoundException
+     */
+    public function testListDirectoryExpectsExistingResource()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->listDirectory('/foo/bar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\NoDirectoryException
+     */
+    public function testListDirectoryExpectsDirectoryResource()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestFile('/webmozart'),
+        )));
+
+        $repo->listDirectory('/webmozart');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsAbsolutePath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart'),
+        )));
+
+        $repo->listDirectory('webmozart');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->listDirectory('');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\InvalidPathException
+     */
+    public function testListDirectoryExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->listDirectory(new \stdClass());
+    }
+
+    public function testFind()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestFile('/webmozart/puli/.dotfoo'),
+                    new TestFile('/webmozart/puli/foo'),
+                    new TestFile('/webmozart/puli/bar'),
+                    new TestDirectory('/webmozart/puli/dirfoo'),
+                )),
+            )),
+        )));
+
+        $resources = $repo->find('/webmozart/*foo');
+
+        $this->assertCount(3, $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
+        // sorted
+        $this->assertSameResource($repo->get('/webmozart/puli/.dotfoo'), $resources[0]);
+        $this->assertSameResource($repo->get('/webmozart/puli/dirfoo'), $resources[1]);
+        $this->assertSameResource($repo->get('/webmozart/puli/foo'), $resources[2]);
     }
 
     public function testFindFile()

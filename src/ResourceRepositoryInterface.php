@@ -12,6 +12,7 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\ResourceInterface;
 
 /**
@@ -31,7 +32,7 @@ use Puli\Repository\Resource\ResourceInterface;
  * ```php
  * $directory = $repo->get('/css');
  *
- * foreach ($directory->listEntries() as $name => $resource) {
+ * foreach ($directory->listDirectory() as $name => $resource) {
  *     // ...
  * }
  * ```
@@ -82,6 +83,21 @@ interface ResourceRepositoryInterface
      *                              must be a non-empty string starting with "/".
      */
     public function contains($selector);
+
+    /**
+     * Lists the entries of a directory.
+     *
+     * @param string $path The path to the directory. Must start with "/".
+     *                     "." and ".." segments in the path are supported.
+     *
+     * @return ResourceCollectionInterface The resources in the directory.
+     *
+     * @throws ResourceNotFoundException If the directory cannot be found.
+     * @throws NoDirectoryException If the resource is no directory.
+     * @throws InvalidPathException If the path is invalid. The path must be a
+     *                              non-empty string starting with "/".
+     */
+    public function listDirectory($path);
 
     /**
      * Returns the resources with the given tag.

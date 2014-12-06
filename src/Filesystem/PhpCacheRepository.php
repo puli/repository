@@ -23,7 +23,7 @@ use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\NoDirectoryException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
@@ -293,7 +293,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         }
 
         throw new ResourceNotFoundException(sprintf(
-            'The resource "%s" was not found.',
+            'The resource "%s" does not exist.',
             $path
         ));
     }
@@ -441,6 +441,19 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         if (strlen($selector) > strlen($staticPrefix)) {
             $regExp = Selector::toRegEx($selector);
 
+            foreach ($this->resources as $path => $resource) {
+                // strpos() is slightly faster than substr() here
+                if (0 !== strpos($path, $staticPrefix)) {
+                    continue;
+                }
+
+                if (!preg_match($regExp, $path)) {
+                    continue;
+                }
+
+                return true;
+            }
+
             foreach ($this->filePaths as $path => $resource) {
                 // strpos() is slightly faster than substr() here
                 if (0 !== strpos($path, $staticPrefix)) {
@@ -474,6 +487,109 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
             // The path may be NULL, so use array_key_exists()
             || array_key_exists($selector, $this->filePaths)
             || array_key_exists($selector, $this->dirPaths);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listDirectory($path)
+    {
+        if ('' === $path) {
+            throw new InvalidPathException('The path must not be empty.');
+        }
+
+        if (!is_string($path)) {
+            throw new InvalidPathException(sprintf(
+                'The path must be a string. Is: %s.',
+                is_object($path) ? get_class($path) : gettype($path)
+            ));
+        }
+
+        if ('/' !== $path[0]) {
+            throw new InvalidPathException(sprintf(
+                'The path "%s" is not absolute.',
+                $path
+            ));
+        }
+
+        if (null === $this->filePaths) {
+            $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
+        }
+
+        if (null === $this->dirPaths) {
+            $this->dirPaths = require ($this->cacheDir.'/'.self::DIR_PATHS_FILE);
+        }
+
+        $path = Path::canonicalize($path);
+        $isLoaded = isset($this->resources[$path]);
+        $isUnloadedDir = array_key_exists($path, $this->dirPaths);
+        $isUnloadedFile = array_key_exists($path, $this->filePaths);
+
+        if (!$isLoaded && !$isUnloadedDir && !$isUnloadedFile) {
+            throw new ResourceNotFoundException(sprintf(
+                'The directory "%s" does not exist.',
+                $path
+            ));
+        }
+
+        if ($isUnloadedFile || $isLoaded && !($this->resources[$path] instanceof DirectoryResourceInterface)) {
+            throw new NoDirectoryException(sprintf(
+                'The resource "%s" is not a directory.',
+                $path
+            ));
+        }
+
+        $staticPrefix = rtrim($path, '/').'/';
+        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
+
+        $resources = array();
+
+        foreach ($this->resources as $resourcePath => $resource) {
+            // strpos() is slightly faster than substr() here
+            if (0 !== strpos($resourcePath, $staticPrefix)) {
+                continue;
+            }
+
+            if (!preg_match($regExp, $resourcePath)) {
+                continue;
+            }
+
+            $resources[$resourcePath] = $resource;
+        }
+
+        foreach ($this->filePaths as $resourcePath => $localPath) {
+            // strpos() is slightly faster than substr() here
+            if (0 !== strpos($resourcePath, $staticPrefix)) {
+                continue;
+            }
+
+            if (!preg_match($regExp, $resourcePath)) {
+                continue;
+            }
+
+            $this->initFile($resourcePath);
+
+            $resources[$resourcePath] = $this->resources[$resourcePath];
+        }
+
+        foreach ($this->dirPaths as $resourcePath => $localPath) {
+            // strpos() is slightly faster than substr() here
+            if (0 !== strpos($resourcePath, $staticPrefix)) {
+                continue;
+            }
+
+            if (!preg_match($regExp, $resourcePath)) {
+                continue;
+            }
+
+            $this->initDirectory($resourcePath);
+
+            $resources[$resourcePath] = $this->resources[$resourcePath];
+        }
+
+        ksort($resources);
+
+        return new LocalResourceCollection(array_values($resources));
     }
 
     /**
