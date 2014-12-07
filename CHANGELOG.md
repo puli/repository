@@ -8,6 +8,10 @@ Changelog
  * changed `ResourceRepositoryInterface::find()` to match directory separators
    "/" when given a wildcard "*"
  * added `ResourceRepositoryInterface::listDirectory()`
+ * implemented escaping for globs:
+   * "*" matches any character, including "/"
+   * "\*" matches "*" (must be written as '\\*' in PHP)
+   * "\\" matches "\" (must be written as '\\\\' in PHP)
 
 * 1.0.0-alpha4 (2014-12-03)
 

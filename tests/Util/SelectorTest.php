@@ -45,25 +45,90 @@ class SelectorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    // From the PHP manual: To specify a literal single quote, escape it with a
+    // backslash (\). To specify a literal backslash, double it (\\).
+    // All other instances of backslash will be treated as a literal backslash
+
     public function testEscapedWildcard()
     {
+        // evaluates to "\*"
+        $regExp = Selector::toRegEx('/foo/\\*.js~');
+
+        $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
+    public function testEscapedWildcard2()
+    {
+        // evaluates to "\*"
         $regExp = Selector::toRegEx('/foo/\*.js~');
 
         $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
     }
 
-    public function testWildcardWithLeadingBackslash()
+    public function testMatchEscapedWildcard()
     {
+        // evaluates to "\*"
         $regExp = Selector::toRegEx('/foo/\\*.js~');
 
-        $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/*.js~'));
     }
 
-    public function testEscapedWildcardWithLeadingBackslash()
+    public function testMatchWildcardWithLeadingBackslash()
     {
+        // evaluates to "\\*"
+        $regExp = Selector::toRegEx('/foo/\\\\*.js~');
+
+        $this->assertSame(1, preg_match($regExp, '/foo/\\baz.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
+    public function testMatchWildcardWithLeadingBackslash2()
+    {
+        // evaluates to "\\*"
         $regExp = Selector::toRegEx('/foo/\\\*.js~');
 
+        $this->assertSame(1, preg_match($regExp, '/foo/\\baz.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
         $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
+    public function testMatchEscapedWildcardWithLeadingBackslash()
+    {
+        // evaluates to "\\\*"
+        $regExp = Selector::toRegEx('/foo/\\\\\\*.js~');
+
+        $this->assertSame(1, preg_match($regExp, '/foo/\\*.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/\*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\baz.js~'));
+    }
+
+    public function testMatchWildcardWithTwoLeadingBackslashes()
+    {
+        // evaluates to "\\\\*"
+        $regExp = Selector::toRegEx('/foo/\\\\\\\\*.js~');
+
+        $this->assertSame(1, preg_match($regExp, '/foo/\\\\baz.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/\\\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
+    }
+
+    public function testMatchEscapedWildcardWithTwoLeadingBackslashes()
+    {
+        // evaluates to "\\\\*"
+        $regExp = Selector::toRegEx('/foo/\\\\\\\\\\*.js~');
+
+        $this->assertSame(1, preg_match($regExp, '/foo/\\\\*.js~'));
+        $this->assertSame(1, preg_match($regExp, '/foo/\\\*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\\*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/*.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\\\\baz.js~'));
+        $this->assertSame(0, preg_match($regExp, '/foo/\\\baz.js~'));
     }
 
     /**

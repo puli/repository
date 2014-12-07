@@ -22,6 +22,28 @@ namespace Puli\Repository\Util;
 class Selector
 {
     /**
+     * Represents a literal "\" in a regular expression.
+     */
+    const BACKSLASH = '\\\\';
+
+    /**
+     * Represents a literal "*" in a regular expression.
+     */
+    const STAR = '\\*';
+
+    /**
+     * Matches a literal "\" when running a regular expression against another
+     * regular expression.
+     */
+    const E_BACKSLASH = '\\\\\\\\';
+
+    /**
+     * Matches a literal "*" when running a regular expression against another
+     * regular expression.
+     */
+    const E_STAR = '\\\\\\*';
+
+    /**
      * Returns whether a string is a selector.
      *
      * @param string $string The tested string.
@@ -43,7 +65,40 @@ class Selector
      */
     public static function toRegEx($selector)
     {
-        return '~^'.str_replace('\*', '.*', preg_quote($selector, '~')).'$~';
+        // From the PHP manual: To specify a literal single quote, escape it
+        // with a backslash (\). To specify a literal backslash, double it (\\).
+        // All other instances of backslash will be treated as a literal backslash.
+
+        // This method does the following replacements:
+
+        // Normal wildcards:    "*"  => ".*" (regex match any)
+        // Escaped wildcards:   "\*" => "\*" (regex star)
+        // Escaped backslashes: "\\" => "\\" (regex backslash)
+
+        // Other characters are escaped as usual for regular expressions.
+
+        // Quote regex characters
+        $quoted = preg_quote($selector, '~');
+
+        // Replace "*" by ".*", as long as preceded by an even number of backslashes
+        $regEx = preg_replace(
+            '~(?<!'.self::E_BACKSLASH.')(('.self::E_BACKSLASH.self::E_BACKSLASH.')*)'.self::E_STAR.'~',
+            '$1.*',
+            $quoted
+        );
+
+        // Replace "\*" by "*"
+        $regEx = preg_replace(
+            '~'.self::E_BACKSLASH.self::E_STAR.'~',
+            self::STAR,
+            $regEx
+        );
+
+        // Replace "\\\\" by "\\"
+        // (escaped backslashes were escaped again by preg_quote()
+        $regEx = str_replace(self::E_BACKSLASH, self::BACKSLASH, $regEx);
+
+        return '~^'.$regEx.'$~';
     }
 
     /**
