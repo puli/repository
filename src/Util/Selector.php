@@ -88,14 +88,10 @@ class Selector
         );
 
         // Replace "\*" by "*"
-        $regEx = preg_replace(
-            '~'.self::E_BACKSLASH.self::E_STAR.'~',
-            self::STAR,
-            $regEx
-        );
+        $regEx = str_replace(self::BACKSLASH.self::STAR, self::STAR, $regEx);
 
         // Replace "\\\\" by "\\"
-        // (escaped backslashes were escaped again by preg_quote()
+        // (escaped backslashes were escaped again by preg_quote())
         $regEx = str_replace(self::E_BACKSLASH, self::BACKSLASH, $regEx);
 
         return '~^'.$regEx.'$~';
