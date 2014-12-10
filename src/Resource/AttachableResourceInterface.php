@@ -12,6 +12,7 @@
 namespace Puli\Repository\Resource;
 
 use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\UnsupportedResourceException;
 
 /**
  * A resource that can be attached to a resource repository.
@@ -57,7 +58,7 @@ interface AttachableResourceInterface extends ResourceInterface
      *
      * @param ResourceInterface $resource The overridden resource.
      *
-     * @throws \Puli\Repository\UnsupportedResourceException If the resource cannot be overridden.
+     * @throws UnsupportedResourceException If the resource cannot be overridden.
      */
     public function override(ResourceInterface $resource);
 }
