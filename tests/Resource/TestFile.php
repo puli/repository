@@ -11,8 +11,7 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\FileResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
 
@@ -20,29 +19,29 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestFile implements FileResourceInterface, AttachableResourceInterface
+class TestFile extends AbstractResource implements FileResourceInterface
 {
     const CONTENTS = "LINE 1\nLINE 2\n";
 
-    private $path;
-
-    private $repo;
+    private $contents;
 
     private $overrides;
 
-    public function __construct($path = null)
+    public function __construct($path = null, $contents = self::CONTENTS)
     {
-        $this->path = $path;
+        parent::__construct($path);
+
+        $this->contents = $contents;
     }
 
     public function getContents()
     {
-        return self::CONTENTS;
+        return $this->contents;
     }
 
     public function getSize()
     {
-        return strlen(self::CONTENTS);
+        return strlen($this->contents);
     }
 
     public function getLastAccessedAt()
@@ -55,36 +54,9 @@ class TestFile implements FileResourceInterface, AttachableResourceInterface
         return 0;
     }
 
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    public function getName()
-    {
-        return basename($this->path);
-    }
-
-    public function attachTo(ResourceRepositoryInterface $repo, $path)
-    {
-        $this->path = $path;
-        $this->repo = $repo;
-    }
-
-    public function detach()
-    {
-        $this->path = null;
-        $this->repo = null;
-    }
-
     public function override(ResourceInterface $resource)
     {
         $this->overrides = $resource;
-    }
-
-    public function getAttachedRepository()
-    {
-        return $this->repo;
     }
 
     public function getOverriddenResource()

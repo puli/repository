@@ -12,9 +12,9 @@
 namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
-use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Resource\FileResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\UnsupportedResourceException;
 
 /**
  * Represents a file on the local file system.
@@ -22,14 +22,14 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalFileResource extends LocalResource implements FileResourceInterface
+class LocalFileResource extends AbstractLocalResource implements FileResourceInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath)
+    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
     {
-        parent::__construct($localPath);
+        parent::__construct($localPath, $path, $pathLoader);
 
         if (!is_file($localPath)) {
             throw new FilesystemException(sprintf(

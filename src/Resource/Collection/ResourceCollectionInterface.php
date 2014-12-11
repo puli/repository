@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Resource\Collection;
 
-use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\UnsupportedResourceException;
 
 /**
  * A collection of {@link ResourceInterface} instances.

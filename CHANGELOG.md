@@ -12,6 +12,21 @@ Changelog
    * "*" matches any character, including "/"
    * "\*" matches "*" (must be written as '\\*' in PHP)
    * "\\" matches "\" (must be written as '\\\\' in PHP)
+ * removed `createAttached()` from `DirectoryResource`, `LocalFileResource` and
+   `LocalDirectoryResource`
+ * removed `AttachableResourceInterface`
+ * added methods to `ResourceInterface`:
+   * `attachTo()`
+   * `detach()`
+   * `getRepository()`
+   * `getRepositoryPath()`
+   * `isAttached()`
+   * `override()`
+   * `createReference()`
+   * `isReference()`
+ * `ResourceInterface` now extends `\Serializable`
+ * renamed `LocalResource` to `AbstractLocalResource`
+ * added `AbstractResource`
 
 * 1.0.0-alpha4 (2014-12-03)
 

@@ -13,32 +13,31 @@ namespace Puli\Repository\Tests\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\Tests\Resource\AbstractAttachableDirectoryResourceTest;
 use Puli\Repository\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalDirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
+class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
 {
     private $fixturesDir;
 
     protected function setUp()
     {
         $this->fixturesDir = realpath(__DIR__.'/Fixtures');
+
         parent::setUp();
     }
 
-    protected function createDir()
+    /**
+     * @param string|null $path
+     *
+     * @return LocalDirectoryResource
+     */
+    protected function createResource($path = null)
     {
-        return new LocalDirectoryResource($this->fixturesDir.'/dir1');
-    }
-
-    protected function createAttachedDir(ResourceRepositoryInterface $repo, $path)
-    {
-        return LocalDirectoryResource::createAttached($repo, $path, $this->fixturesDir.'/dir1');
+        return new LocalDirectoryResource($this->fixturesDir.'/dir1', $path);
     }
 
     /**

@@ -12,8 +12,6 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
-use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\Uri\RepositoryFactoryException;
 use Webmozart\PathUtil\Path;
 

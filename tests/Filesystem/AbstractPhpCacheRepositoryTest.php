@@ -12,13 +12,13 @@
 namespace Puli\Repository\Tests\Filesystem;
 
 use Puli\Repository\Filesystem\PhpCacheRepository;
+use Puli\Repository\Filesystem\Resource\AbstractLocalResource;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Filesystem\Resource\LocalResource;
-use Puli\Repository\ResourceRepository;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\AbstractRepositoryTest;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -114,9 +114,9 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
 
     protected function assertSameResource($expected, $actual)
     {
-        if ($expected instanceof LocalResource) {
+        if ($expected instanceof AbstractLocalResource) {
             $this->assertInstanceOf(get_class($expected), $actual);
-            /** @var LocalResource $actual */
+            /** @var AbstractLocalResource $actual */
             $this->assertSame($expected->getPath(), $actual->getPath());
             $this->assertSame($expected->getName(), $actual->getName());
             $this->assertSame($expected->getLocalPath(), $actual->getLocalPath());

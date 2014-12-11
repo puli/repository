@@ -13,12 +13,11 @@ namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\UnsupportedResourceException;
 
 /**
  * Represents a directory on the local file system.
@@ -26,37 +25,21 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalDirectoryResource extends LocalResource implements DirectoryResourceInterface
+class LocalDirectoryResource extends AbstractLocalResource implements DirectoryResourceInterface
 {
     /**
-     * @var ResourceRepositoryInterface
-     */
-    private $repo;
-
-    /**
      * {@inheritdoc}
      */
-    public static function createAttached(ResourceRepositoryInterface $repo, $path, $localPath)
+    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
     {
-        $resource = parent::createAttached($repo, $path, $localPath);
-        $resource->repo = $repo;
-
-        return $resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($localPath)
-    {
-        parent::__construct($localPath);
-
         if (!is_dir($localPath)) {
             throw new FilesystemException(sprintf(
                 'The path "%s" is not a directory.',
                 $localPath
             ));
         }
+
+        parent::__construct($localPath, $path, $pathLoader);
     }
 
     /**
@@ -66,7 +49,7 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
     {
         // Use attached locator if possible
         if ($this->repo) {
-            return $this->repo->get($this->getPath().'/'.$name);
+            return $this->repo->get($this->repoPath.'/'.$name);
         }
 
         $localPath = $this->getLocalPath().'/'.$name;
@@ -90,7 +73,7 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
     {
         // Use attached locator if possible
         if ($this->repo) {
-            return $this->repo->contains($this->getPath().'/'.$name);
+            return $this->repo->contains($this->repoPath.'/'.$name);
         }
 
         return file_exists($this->getLocalPath().'/'.$name);
@@ -105,7 +88,7 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         if ($this->repo) {
             $entries = new LocalResourceCollection();
 
-            foreach ($this->repo->listDirectory($this->getPath()) as $entry) {
+            foreach ($this->repo->listDirectory($this->repoPath) as $entry) {
                 $entries[$entry->getName()] = $entry;
             }
 
@@ -125,27 +108,6 @@ class LocalDirectoryResource extends LocalResource implements DirectoryResourceI
         }
 
         return new LocalResourceCollection($entries);
-
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attachTo(ResourceRepositoryInterface $repo, $path)
-    {
-        parent::attachTo($repo, $path);
-
-        $this->repo = $repo;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function detach()
-    {
-        parent::detach();
-
-        $this->repo = null;
     }
 
     /**

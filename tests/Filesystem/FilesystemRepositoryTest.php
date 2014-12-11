@@ -14,10 +14,10 @@ namespace Puli\Repository\Tests\Filesystem;
 use Puli\Repository\Filesystem\FilesystemRepository;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Tests\AbstractRepositoryTest;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -106,7 +106,8 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
 
         $repo = new FilesystemRepository($this->root);
 
-        $expected = LocalFileResource::createAttached($repo, '/file', $this->root.'/file');
+        $expected = new LocalFileResource($this->root.'/file', '/file');
+        $expected->attachTo($repo);
 
         $this->assertEquals($expected, $repo->get('/file'));
     }
@@ -117,19 +118,34 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
 
         $repo = new FilesystemRepository($this->root);
 
-        $expected = LocalDirectoryResource::createAttached($repo, '/dir', $this->root.'/dir');
+        $expected = new LocalDirectoryResource($this->root.'/dir', '/dir');
+        $expected->attachTo($repo);
 
         $this->assertEquals($expected, $repo->get('/dir'));
     }
 
-    public function testGetLink()
+    public function testGetFileLink()
     {
         touch($this->root.'/file');
         symlink($this->root.'/file', $this->root.'/link');
 
         $repo = new FilesystemRepository($this->root);
 
-        $expected = LocalFileResource::createAttached($repo, '/link', $this->root.'/link');
+        $expected = new LocalFileResource($this->root.'/link', '/link');
+        $expected->attachTo($repo);
+
+        $this->assertEquals($expected, $repo->get('/link'));
+    }
+
+    public function testGetDirectoryLink()
+    {
+        mkdir($this->root.'/dir');
+        symlink($this->root.'/dir', $this->root.'/link');
+
+        $repo = new FilesystemRepository($this->root);
+
+        $expected = new LocalDirectoryResource($this->root.'/link', '/link');
+        $expected->attachTo($repo);
 
         $this->assertEquals($expected, $repo->get('/link'));
     }

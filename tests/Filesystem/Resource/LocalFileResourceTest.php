@@ -13,25 +13,55 @@ namespace Puli\Repository\Tests\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
 use Puli\Repository\Tests\Resource\AbstractFileResourceTest;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
+class LocalFileResourceTest extends AbstractLocalResourceTest
 {
     private $fixturesDir;
 
     protected function setUp()
     {
-        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
         parent::setUp();
+
+        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }
 
-    protected function createFile()
+    protected function createLocalResource($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
     {
-        return new LocalFileResource($this->fixturesDir.'/dir1/file1');
+        return new LocalFileResource($localPath, $path, $pathLoader);
+    }
+
+    protected function getValidLocalPath()
+    {
+        return $this->fixturesDir.'/dir1/file1';
+    }
+
+    protected function getValidLocalPath2()
+    {
+        return $this->fixturesDir.'/dir1/file2';
+    }
+
+    protected function getValidLocalPath3()
+    {
+        return $this->fixturesDir.'/dir2/file1';
+    }
+
+    public function getInvalidLocalPaths()
+    {
+        // setUp() has not yet been called in the data provider
+        $fixturesDir = realpath(__DIR__.'/Fixtures');
+
+        return array(
+            // Not a file
+            array($fixturesDir.'/dir1'),
+            // Does not exist
+            array($fixturesDir.'/foobar'),
+        );
     }
 
     /**
@@ -54,18 +84,32 @@ class LocalFileResourceTest extends \PHPUnit_Framework_TestCase
         $file->override(new LocalDirectoryResource($this->fixturesDir.'/dir1'));
     }
 
-    /**
-     * @expectedException \Puli\Repository\Filesystem\FilesystemException
-     */
-    public function testFailIfNoFile()
-    {
-        new LocalFileResource($this->fixturesDir.'/dir1');
-    }
-
     public function testGetContents()
     {
         $file = new LocalFileResource($this->fixturesDir.'/dir1/file1');
 
         $this->assertSame(file_get_contents($file->getLocalPath()), $file->getContents());
+    }
+
+    public function testGetSize()
+    {
+        $file = new LocalFileResource($this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame(filesize($this->fixturesDir.'/dir1/file1'), $file->getSize());
+        $this->assertSame(strlen($file->getContents()), $file->getSize());
+    }
+
+    public function testGetLastAccessedAt()
+    {
+        $file = new LocalFileResource($this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame(fileatime($this->fixturesDir.'/dir1/file1'), $file->getLastAccessedAt());
+    }
+
+    public function testGetLastModifiedAt()
+    {
+        $file = new LocalFileResource($this->fixturesDir.'/dir1/file1');
+
+        $this->assertSame(filemtime($this->fixturesDir.'/dir1/file1'), $file->getLastModifiedAt());
     }
 }

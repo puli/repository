@@ -12,10 +12,10 @@
 namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\AttachableResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\UnsupportedResourceException;
 
 /**
  * Base class for local resources.
@@ -23,22 +23,12 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class LocalResource implements LocalResourceInterface, AttachableResourceInterface
+abstract class AbstractLocalResource extends AbstractResource implements LocalResourceInterface
 {
     /**
      * @var string
      */
-    private $path;
-
-    /**
-     * @var string
-     */
     private $localPath;
-
-    /**
-     * @var OverriddenPathLoaderInterface|null
-     */
-    private $pathLoader;
 
     /**
      * @var string[]|null
@@ -46,36 +36,21 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     private $overriddenPaths;
 
     /**
-     * Creates a directory that is already attached to a repository.
-     *
-     * @param ResourceRepositoryInterface $repo      The repository.
-     * @param string                      $path      The path in the repository.
-     * @param string                      $localPath The path on the local file
-     *                                               system.
-     *
-     * @return static The created resource.
+     * @var OverriddenPathLoaderInterface|null
      */
-    public static function createAttached(ResourceRepositoryInterface $repo, $path, $localPath)
-    {
-        $resource = new static($localPath);
-        $resource->path = $path;
-
-        if ($repo instanceof OverriddenPathLoaderInterface) {
-            $resource->pathLoader = $repo;
-        }
-
-        return $resource;
-    }
+    private $pathLoader;
 
     /**
      * Creates a new local resource.
      *
-     * @param string $localPath The path on the local file system.
-     *
-     * @throws FilesystemException If the path does not exist.
+     * @param string                        $localPath  The path on the local file system.
+     * @param string|null                   $path       The repository path of the resource.
+     * @param OverriddenPathLoaderInterface $pathLoader The loader for the overridden paths.
      */
-    public function __construct($localPath)
+    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
     {
+        parent::__construct($path);
+
         if (!file_exists($localPath)) {
             throw new FilesystemException(sprintf(
                 'The file "%s" does not exist.',
@@ -84,22 +59,7 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
         }
 
         $this->localPath = $localPath;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return $this->path ? basename($this->path) : null;
+        $this->pathLoader = $pathLoader;
     }
 
     /**
@@ -128,27 +88,6 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
     /**
      * {@inheritdoc}
      */
-    public function attachTo(ResourceRepositoryInterface $repo, $path)
-    {
-        $this->path = $path;
-
-        if ($repo instanceof OverriddenPathLoaderInterface) {
-            $this->pathLoader = $repo;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function detach()
-    {
-        $this->path = null;
-        $this->pathLoader = null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function override(ResourceInterface $resource)
     {
         if (!$resource instanceof LocalResourceInterface) {
@@ -163,6 +102,26 @@ abstract class LocalResource implements LocalResourceInterface, AttachableResour
             $resource->getAllLocalPaths(),
             $this->overriddenPaths
         );
+    }
+
+    protected function preSerialize(array &$data)
+    {
+        parent::preSerialize($data);
+
+        if (null === $this->overriddenPaths) {
+            $this->loadOverriddenPaths();
+        }
+
+        $data[] = $this->localPath;
+        $data[] = $this->overriddenPaths;
+    }
+
+    protected function postUnserialize(array $data)
+    {
+        $this->overriddenPaths = array_pop($data);
+        $this->localPath = array_pop($data);
+
+        parent::postUnserialize($data);
     }
 
     private function loadOverriddenPaths()

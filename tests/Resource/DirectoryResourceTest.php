@@ -11,28 +11,16 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Tests\Resource\AbstractDirectoryResourceTest;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResourceTest extends AbstractAttachableDirectoryResourceTest
+class DirectoryResourceTest extends AbstractDirectoryResourceTest
 {
-    protected function createDir()
+    protected function createResource($path = null)
     {
-        return new DirectoryResource();
-    }
-
-    protected function createAttachedDir(ResourceRepositoryInterface $repo, $path)
-    {
-        return DirectoryResource::createAttached($repo, $path);
-    }
-
-    protected function createFile($path)
-    {
-        return new TestFile($path);
+        return new DirectoryResource($path);
     }
 }

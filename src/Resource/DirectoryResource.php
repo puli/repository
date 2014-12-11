@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
@@ -35,51 +34,8 @@ use Puli\Repository\Resource\Collection\ResourceCollection;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource implements DirectoryResourceInterface, AttachableResourceInterface
+class DirectoryResource extends AbstractResource implements DirectoryResourceInterface
 {
-    /**
-     * @var ResourceRepositoryInterface
-     */
-    private $repo;
-
-    /**
-     * @var string
-     */
-    private $path;
-
-    /**
-     * Creates a directory that is already attached to a repository.
-     *
-     * @param ResourceRepositoryInterface $repo The repository.
-     * @param string                      $path The path in the repository.
-     *
-     * @return DirectoryResource The created resource.
-     */
-    public static function createAttached(ResourceRepositoryInterface $repo, $path)
-    {
-        $resource = new static();
-        $resource->repo = $repo;
-        $resource->path = $path;
-
-        return $resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return $this->path ? basename($this->path) : null;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -89,7 +45,7 @@ class DirectoryResource implements DirectoryResourceInterface, AttachableResourc
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return $this->repo->get($this->path.'/'.$name);
+        return $this->repo->get($this->repoPath.'/'.$name);
     }
 
     /**
@@ -101,7 +57,7 @@ class DirectoryResource implements DirectoryResourceInterface, AttachableResourc
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return $this->repo->contains($this->path.'/'.$name);
+        return $this->repo->contains($this->repoPath.'/'.$name);
     }
 
     /**
@@ -115,37 +71,10 @@ class DirectoryResource implements DirectoryResourceInterface, AttachableResourc
 
         $entries = new ResourceCollection();
 
-        foreach ($this->repo->listDirectory($this->path) as $entry) {
+        foreach ($this->repo->listDirectory($this->repoPath) as $entry) {
             $entries[$entry->getName()] = $entry;
         }
 
         return $entries;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function attachTo(ResourceRepositoryInterface $repo, $path)
-    {
-        $this->repo = $repo;
-        $this->path = $path;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function detach()
-    {
-        $this->repo = null;
-        $this->path = null;
-    }
-
-    /**
-     * Does nothing.
-     *
-     * @param ResourceInterface $resource The overridden resource.
-     */
-    public function override(ResourceInterface $resource)
-    {
     }
 }

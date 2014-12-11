@@ -28,20 +28,23 @@ class LocalResourceCollection extends ResourceCollection
     /**
      * Returns the local paths of all contained resources.
      *
-     * The paths are contained in order of the resources. If a resource is not
-     * local, `null` is returned as path.
+     * The paths are contained in order of the resources. Non-local resources
+     * are ignored and not represented in the output.
      *
      * @return string[] The local paths.
      */
     public function getLocalPaths()
     {
         return array_map(
-            function (ResourceInterface $r) {
-                return $r instanceof LocalResourceInterface
-                    ? $r->getLocalPath()
-                    : null;
+            function (LocalResourceInterface $r) {
+                return $r->getLocalPath();
             },
-            $this->toArray()
+            array_filter(
+                $this->toArray(),
+                function (ResourceInterface $r) {
+                    return $r instanceof LocalResourceInterface;
+                }
+            )
         );
     }
 }

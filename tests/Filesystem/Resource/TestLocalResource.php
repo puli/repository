@@ -11,12 +11,12 @@
 
 namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Repository\Filesystem\Resource\LocalResource;
+use Puli\Repository\Filesystem\Resource\AbstractLocalResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestLocalResource extends LocalResource
+class TestLocalResource extends AbstractLocalResource
 {
 }

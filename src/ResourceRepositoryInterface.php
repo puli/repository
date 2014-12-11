@@ -12,7 +12,6 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
-use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\ResourceInterface;
 
 /**

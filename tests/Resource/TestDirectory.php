@@ -11,8 +11,7 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\Resource\AttachableResourceInterface;
+use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
@@ -21,12 +20,8 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestDirectory implements DirectoryResourceInterface, AttachableResourceInterface
+class TestDirectory extends AbstractResource implements DirectoryResourceInterface
 {
-    private $path;
-
-    private $repo;
-
     /**
      * @var ResourceInterface[]
      */
@@ -36,21 +31,11 @@ class TestDirectory implements DirectoryResourceInterface, AttachableResourceInt
 
     public function __construct($path = null, array $entries = array())
     {
-        $this->path = $path;
+        parent::__construct($path);
 
         foreach ($entries as $entry) {
             $this->entries[$entry->getName()] = $entry;
         }
-    }
-
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    public function getName()
-    {
-        return basename($this->path);
     }
 
     public function get($name)
@@ -68,26 +53,9 @@ class TestDirectory implements DirectoryResourceInterface, AttachableResourceInt
         return new ResourceCollection($this->entries);
     }
 
-    public function attachTo(ResourceRepositoryInterface $repo, $path)
-    {
-        $this->path = $path;
-        $this->repo = $repo;
-    }
-
-    public function detach()
-    {
-        $this->path = null;
-        $this->repo = null;
-    }
-
     public function override(ResourceInterface $resource)
     {
         $this->overrides = $resource;
-    }
-
-    public function getAttachedRepository()
-    {
-        return $this->repo;
     }
 
     public function getOverriddenResource()

@@ -12,12 +12,10 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Filesystem\FilesystemRepository;
-use Puli\Repository\Resource\AttachableResourceInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
@@ -63,7 +61,7 @@ use Webmozart\PathUtil\Path;
 class ResourceRepository implements ManageableRepositoryInterface
 {
     /**
-     * @var AttachableResourceInterface[]|DirectoryResourceInterface[]
+     * @var ResourceInterface[]|DirectoryResourceInterface[]
      */
     private $resources = array();
 
@@ -91,7 +89,8 @@ class ResourceRepository implements ManageableRepositoryInterface
     public function __construct(ResourceRepositoryInterface $backend = null)
     {
         $this->backend = $backend ?: new FilesystemRepository();
-        $this->resources['/'] = DirectoryResource::createAttached($this, '/');
+        $this->resources['/'] = new DirectoryResource('/');
+        $this->resources['/']->attachTo($this);
     }
 
     /**
@@ -232,8 +231,8 @@ class ResourceRepository implements ManageableRepositoryInterface
      * If a path is passed as second argument, the added resources are fetched
      * from the backend passed to {@link __construct}.
      *
-     * @param string                                                         $path     The path at which to add the resource.
-     * @param string|AttachableResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
+     * @param string                                               $path     The path at which to add the resource.
+     * @param string|ResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
      *
      * @throws InvalidPathException If the path is invalid. The path must be a
      *                              non-empty string starting with "/".
@@ -268,21 +267,18 @@ class ResourceRepository implements ManageableRepositoryInterface
             // See https://github.com/puli/puli/issues/17
             if (Selector::isSelector($resource)) {
                 $resource = $this->backend->find($resource);
-                foreach ($resource as $key => $entry) {
-                    $resource[$key] = clone $entry;
-                }
             } else {
-                $resource = clone $this->backend->get($resource);
+                $resource = $this->backend->get($resource);
             }
         }
 
         if ($resource instanceof ResourceCollectionInterface) {
             // Validate all resources
             foreach ($resource as $entry) {
-                if (!$entry instanceof AttachableResourceInterface) {
+                if (!$entry instanceof ResourceInterface) {
                     throw new UnsupportedResourceException(sprintf(
-                        'The passed resources must implement '.
-                        'AttachableResourceInterface. Got: %s',
+                        'The passed resources must implement ResourceInterface. '.
+                        'Got: %s',
                         is_object($entry) ? get_class($entry) : gettype($entry)
                     ));
                 }
@@ -290,20 +286,19 @@ class ResourceRepository implements ManageableRepositoryInterface
 
             // If all are valid, attach them
             foreach ($resource as $entry) {
-                /** @var ResourceInterface $entry */
                 $this->attachResource($entry, $path.'/'.$entry->getName());
             }
 
             return;
-        } elseif ($resource instanceof AttachableResourceInterface) {
+        } elseif ($resource instanceof ResourceInterface) {
             $this->attachResource($resource, $path);
 
             return;
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a string, AttachableResourceInterface '.
-            'or ResourceCollectionInterface. Got: %s',
+            'The passed resource must be a string, ResourceInterface or '.
+            'ResourceCollectionInterface. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }
@@ -567,7 +562,8 @@ class ResourceRepository implements ManageableRepositoryInterface
         if (!isset($this->resources[$parentPath])) {
             // Recursively initialize parent directories
             $this->initContainingDirectories($parentPath);
-            $this->resources[$parentPath] = DirectoryResource::createAttached($this, $parentPath);
+            $this->resources[$parentPath] = new DirectoryResource($parentPath);
+            $this->resources[$parentPath]->attachTo($this);
 
             return;
         }
@@ -634,11 +630,11 @@ class ResourceRepository implements ManageableRepositoryInterface
     /**
      * Recursively attaches a resource to the repository.
      *
-     * @param AttachableResourceInterface $resource The resource to attach.
-     * @param string                      $path     The path at which to add
+     * @param ResourceInterface $resource The resource to attach.
+     * @param string            $path     The path at which to add
      *                                              the resource.
      */
-    private function attachResource(AttachableResourceInterface $resource, $path)
+    private function attachResource(ResourceInterface $resource, $path)
     {
         $this->initContainingDirectories($path);
 
@@ -652,19 +648,23 @@ class ResourceRepository implements ManageableRepositoryInterface
     /**
      * Recursively detaches a resource from the repository.
      *
-     * @param AttachableResourceInterface $resource The resource to detach.
-     * @param integer                     $counter  Counts the number of detached
-     *                                              resources.
+     * @param ResourceInterface $resource The resource to detach.
+     * @param integer           $counter  Counts the number of detached resources.
      */
-    private function detachResource(AttachableResourceInterface $resource, &$counter)
+    private function detachResource(ResourceInterface $resource, &$counter)
     {
         $this->detachRecursively($resource, $counter);
 
         $this->discardEmptyTags();
     }
 
-    private function attachRecursively(AttachableResourceInterface $resource, $path)
+    private function attachRecursively(ResourceInterface $resource, $path)
     {
+        // Don't modify resources attached to other repositories
+        if ($resource->isAttached()) {
+            $resource = clone $resource;
+        }
+
         if (isset($this->resources[$path])) {
             // If a resource with the same path was previously registered,
             // override it
@@ -690,7 +690,7 @@ class ResourceRepository implements ManageableRepositoryInterface
         $resource->attachTo($this, $path);
     }
 
-    private function detachRecursively(AttachableResourceInterface $resource, &$counter)
+    private function detachRecursively(ResourceInterface $resource, &$counter)
     {
         // Recursively register directory contents
         if ($resource instanceof DirectoryResourceInterface) {

@@ -11,20 +11,20 @@
 
 namespace Puli\Repository\Filesystem;
 
+use Puli\Repository\Filesystem\Resource\AbstractLocalResource;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
 use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
 use Puli\Repository\InvalidPathException;
+use Puli\Repository\NoDirectoryException;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\NoDirectoryException;
-use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
@@ -92,7 +92,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     private $cacheDir;
 
     /**
-     * @var LocalResource[]|DirectoryResource[]
+     * @var AbstractLocalResource[]|DirectoryResource[]
      */
     private $resources = array();
 
@@ -657,7 +657,8 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
 
     private function initFile($path)
     {
-        $this->resources[$path] = LocalFileResource::createAttached($this, $path, $this->filePaths[$path]);
+        $this->resources[$path] = new LocalFileResource($this->filePaths[$path], $path, $this);
+        $this->resources[$path]->attachTo($this);
 
         // Remove to reduce number of loops in future calls
         unset($this->filePaths[$path]);
@@ -669,10 +670,12 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     private function initDirectory($path)
     {
         if (null !== $this->dirPaths[$path]) {
-            $directory = LocalDirectoryResource::createAttached($this, $path, $this->dirPaths[$path]);
+            $directory = new LocalDirectoryResource($this->dirPaths[$path], $path, $this);
         } else {
-            $directory = DirectoryResource::createAttached($this, $path);
+            $directory = new DirectoryResource($path);
         }
+
+        $directory->attachTo($this);
 
         $this->resources[$path] = $directory;
 

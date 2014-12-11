@@ -18,9 +18,9 @@ use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
+use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
-use Puli\Repository\Resource\Collection\ResourceCollection;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -111,9 +111,13 @@ class FilesystemRepository implements ResourceRepositoryInterface
             ));
         }
 
-        return is_dir($localPath)
-            ? LocalDirectoryResource::createAttached($this, $path, $localPath)
-            : LocalFileResource::createAttached($this, $path, $localPath);
+        $resource = is_dir($localPath)
+            ? new LocalDirectoryResource($localPath, $path)
+            : new LocalFileResource($localPath, $path);
+
+        $resource->attachTo($this);
+
+        return $resource;
     }
 
     /**
@@ -240,9 +244,15 @@ class FilesystemRepository implements ResourceRepositoryInterface
         $resources = array();
 
         foreach ($iterator as $localPath) {
-            $resources[] = is_dir($localPath)
-                ? LocalDirectoryResource::createAttached($this, substr($localPath, $offset), $localPath)
-                : LocalFileResource::createAttached($this, substr($localPath, $offset), $localPath);
+            $path = substr($localPath, $offset);
+
+            $resource = is_dir($localPath)
+                ? new LocalDirectoryResource($localPath, $path)
+                : new LocalFileResource($localPath, $path);
+
+            $resource->attachTo($this);
+
+            $resources[] = $resource;
         }
 
         return new LocalResourceCollection($resources);

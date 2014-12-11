@@ -97,6 +97,19 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
         $collection = new LocalResourceCollection(array(
             $dir = new LocalDirectoryResource($this->fixturesDir.'/dir1'),
             $file = new LocalFileResource($this->fixturesDir.'/file3'),
+        ));
+
+        $this->assertSame(array(
+            $dir->getLocalPath(),
+            $file->getLocalPath(),
+        ), $collection->getLocalPaths());
+    }
+
+    public function testGetLocalPathsIgnoresNonLocalResources()
+    {
+        $collection = new LocalResourceCollection(array(
+            $dir = new LocalDirectoryResource($this->fixturesDir.'/dir1'),
+            $file = new LocalFileResource($this->fixturesDir.'/file3'),
             new TestFile(),
             new TestDirectory(),
         ));
@@ -104,8 +117,6 @@ class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array(
             $dir->getLocalPath(),
             $file->getLocalPath(),
-            null,
-            null
         ), $collection->getLocalPaths());
     }
 }

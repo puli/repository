@@ -13,11 +13,11 @@ namespace Puli\Repository\Uri;
 
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepositoryInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepositoryInterface;
 
 /**
  * A repository which delegates to other repositories based on URI schemes.

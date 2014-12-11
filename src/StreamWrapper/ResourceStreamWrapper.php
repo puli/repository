@@ -12,13 +12,13 @@
 namespace Puli\Repository\StreamWrapper;
 
 use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\UnsupportedOperationException;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\FileResourceInterface;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\NoDirectoryException;
+use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\UnsupportedOperationException;
+use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Uri\UriRepositoryInterface;
 
 /**
