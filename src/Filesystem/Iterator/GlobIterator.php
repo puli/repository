@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Iterator;
 
-use Puli\Repository\Util\Selector;
+use Puli\Repository\Selector\Selector;
 use Webmozart\PathUtil\Path;
 
 /**

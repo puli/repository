@@ -17,7 +17,7 @@ use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
-use Puli\Repository\Util\Selector;
+use Puli\Repository\Selector\Selector;
 use Webmozart\PathUtil\Path;
 
 /**

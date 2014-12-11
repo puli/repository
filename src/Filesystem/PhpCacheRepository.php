@@ -24,8 +24,8 @@ use Puli\Repository\Resource\DirectoryResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\Selector\Selector;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Repository\Util\Selector;
 use Webmozart\PathUtil\Path;
 
 /**
