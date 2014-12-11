@@ -13,7 +13,6 @@ namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\AttachableResourceInterface;
 use Puli\Repository\Resource\ResourceInterface;
 use Puli\Repository\UnsupportedResourceException;
 

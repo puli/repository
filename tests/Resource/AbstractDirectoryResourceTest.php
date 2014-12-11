@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\AttachableResourceInterface;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
