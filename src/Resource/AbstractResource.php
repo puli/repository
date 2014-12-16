@@ -24,17 +24,17 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * @var ResourceRepositoryInterface
      */
-    protected $repo;
+    private $repo;
 
     /**
      * @var string
      */
-    protected $path;
+    private $path;
 
     /**
      * @var string
      */
-    protected $repoPath;
+    private $repoPath;
 
     /**
      * Creates a new resource.

@@ -41,11 +41,11 @@ class DirectoryResource extends AbstractResource implements DirectoryResourceInt
      */
     public function get($name)
     {
-        if (!$this->repo) {
+        if (!$this->getRepository()) {
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return $this->repo->get($this->repoPath.'/'.$name);
+        return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
     }
 
     /**
@@ -53,11 +53,11 @@ class DirectoryResource extends AbstractResource implements DirectoryResourceInt
      */
     public function contains($name)
     {
-        if (!$this->repo) {
+        if (!$this->getRepository()) {
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return $this->repo->contains($this->repoPath.'/'.$name);
+        return $this->getRepository()->contains($this->getRepositoryPath().'/'.$name);
     }
 
     /**
@@ -65,13 +65,13 @@ class DirectoryResource extends AbstractResource implements DirectoryResourceInt
      */
     public function listEntries()
     {
-        if (!$this->repo) {
+        if (!$this->getRepository()) {
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
         $entries = new ResourceCollection();
 
-        foreach ($this->repo->listDirectory($this->repoPath) as $entry) {
+        foreach ($this->getRepository()->listDirectory($this->getRepositoryPath()) as $entry) {
             $entries[$entry->getName()] = $entry;
         }
 

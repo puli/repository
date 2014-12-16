@@ -48,8 +48,8 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     public function get($name)
     {
         // Use attached locator if possible
-        if ($this->repo) {
-            return $this->repo->get($this->repoPath.'/'.$name);
+        if ($this->getRepository()) {
+            return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
         }
 
         $localPath = $this->getLocalPath().'/'.$name;
@@ -72,8 +72,8 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     public function contains($name)
     {
         // Use attached locator if possible
-        if ($this->repo) {
-            return $this->repo->contains($this->repoPath.'/'.$name);
+        if ($this->getRepository()) {
+            return $this->getRepository()->contains($this->getRepositoryPath().'/'.$name);
         }
 
         return file_exists($this->getLocalPath().'/'.$name);
@@ -85,10 +85,10 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     public function listEntries()
     {
         // Use attached locator if possible
-        if ($this->repo) {
+        if ($this->getRepository()) {
             $entries = new LocalResourceCollection();
 
-            foreach ($this->repo->listDirectory($this->repoPath) as $entry) {
+            foreach ($this->getRepository()->listDirectory($this->getRepositoryPath()) as $entry) {
                 $entries[$entry->getName()] = $entry;
             }
 
