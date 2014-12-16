@@ -306,38 +306,6 @@ class UriRepository implements UriRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function findByTag($tag)
-    {
-        $resources = array();
-
-        foreach ($this->repos as $repo) {
-            foreach ($repo->findByTag($tag) as $resource) {
-                $resources[] = $resource;
-            }
-        }
-
-        return new ResourceCollection($resources);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTags()
-    {
-        $tags = array();
-
-        foreach ($this->repos as $repo) {
-            foreach ($repo->getTags() as $tag) {
-                $tags[$tag] = true;
-            }
-        }
-
-        return array_keys($tags);
-    }
-
-    /**
      * If necessary constructs and returns the repository for the given scheme.
      *
      * @param string $scheme A URI scheme.

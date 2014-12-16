@@ -238,67 +238,6 @@ class CompositeRepository implements ResourceRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function findByTag($tag)
-    {
-        if ('' === $tag) {
-            throw new \InvalidArgumentException('The tag must not be empty.');
-        }
-
-        if (!is_string($tag)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The tag must be a string. Is: %s.',
-                is_object($tag) ? get_class($tag) : gettype($tag)
-            ));
-        }
-
-        $resources = new ResourceCollection();
-
-        // The repositories are sorted in reverse order. Do a reverse traversal
-        // to add resources in sorted order
-        for (end($this->repos); null !== key($this->repos); prev($this->repos)) {
-            $repo = current($this->repos);
-            $mountPoint = key($this->repos);
-
-            try {
-                $tagged = $repo->findByTag($tag);
-            } catch (ResourceNotFoundException $e) {
-                continue;
-            }
-
-            $this->filterOvershadowedResources($tagged, $mountPoint);
-            $this->replaceByReferences($tagged, $mountPoint);
-
-            $resources->merge($tagged);
-        }
-
-        return $resources;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTags()
-    {
-        $tags = array();
-
-        foreach ($this->repos as $repo) {
-            try {
-                $tags = array_merge($tags, $repo->getTags());
-            } catch (ResourceNotFoundException $e) {
-                // continue
-            }
-        }
-
-        $tags = array_unique($tags);
-
-        sort($tags);
-
-        return $tags;
-    }
-
-    /**
      * Splits a path into mount point and path.
      *
      * @param string $path The path to split.

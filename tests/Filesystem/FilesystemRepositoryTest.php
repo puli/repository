@@ -57,7 +57,7 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
      *
      * @return ResourceRepositoryInterface
      */
-    protected function createRepository(DirectoryResourceInterface $root, array $tags = array())
+    protected function createRepository(DirectoryResourceInterface $root)
     {
         $iterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator($root->listEntries()),
@@ -161,41 +161,4 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
         // Not supported
         $this->pass();
     }
-
-    public function testFindByTag()
-    {
-        // Not supported
-        $this->pass();
-    }
-
-    public function testFindByTagIgnoresNonExistingTags()
-    {
-        // Not supported
-        $this->pass();
-    }
-
-    public function testFindByTagExpectsNonEmptyPath()
-    {
-        // Not supported
-        $this->pass();
-    }
-
-    public function testFindByTagExpectsStringPath()
-    {
-        // Not supported
-        $this->pass();
-    }
-
-    public function testGetTags()
-    {
-        // Not supported
-        $this->pass();
-    }
-
-    public function testGetTagsReturnsSortedResult()
-    {
-        // Not supported
-        $this->pass();
-    }
-
 }

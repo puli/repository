@@ -27,7 +27,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
      *
      * @return ResourceRepositoryInterface
      */
-    abstract protected function createRepository(DirectoryResourceInterface $root, array $tags = array());
+    abstract protected function createRepository(DirectoryResourceInterface $root);
 
     abstract protected function assertSameResource($expected, $actual);
 
@@ -546,106 +546,5 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo = $this->createRepository(new TestDirectory('/'));
 
         $repo->find(new \stdClass());
-    }
-
-    public function testFindByTag()
-    {
-        $repo = $this->createRepository(
-            new TestDirectory('/', array(
-                new TestDirectory('/webmozart', array(
-                    new TestDirectory('/webmozart/puli', array(
-                        new TestFile('/webmozart/puli/file1'),
-                        new TestFile('/webmozart/puli/file2'),
-                    )),
-                )),
-            )),
-            array(
-                '/webmozart/puli/file1' => 'webmozart/tag',
-            )
-        );
-
-        $resources = $repo->findByTag('webmozart/tag');
-
-        $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
-        $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
-    }
-
-    public function testFindByTagIgnoresNonExistingTags()
-    {
-        $repo = $this->createRepository(new TestDirectory('/'));
-
-        $resources = $repo->findByTag('foo/bar');
-
-        $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFindByTagExpectsNonEmptyPath()
-    {
-        $repo = $this->createRepository(new TestDirectory('/'));
-
-        $repo->findByTag('');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFindByTagExpectsStringPath()
-    {
-        $repo = $this->createRepository(new TestDirectory('/'));
-
-        $repo->findByTag(new \stdClass());
-    }
-
-    public function testGetTags()
-    {
-        $repo = $this->createRepository(
-            new TestDirectory('/', array(
-                new TestDirectory('/webmozart', array(
-                    new TestDirectory('/webmozart/puli', array(
-                        new TestFile('/webmozart/puli/file1'),
-                        new TestFile('/webmozart/puli/file2'),
-                    )),
-                )),
-            )),
-            array(
-                '/webmozart/puli/file1' => 'webmozart/tag1',
-                '/webmozart/puli/file2' => 'webmozart/tag2',
-            )
-        );
-
-        $tags = $repo->getTags();
-
-        $this->assertCount(2, $tags);
-        $this->assertEquals('webmozart/tag1', $tags[0]);
-        $this->assertEquals('webmozart/tag2', $tags[1]);
-    }
-
-    public function testGetTagsReturnsSortedResult()
-    {
-        $repo = $this->createRepository(
-            new TestDirectory('/', array(
-                new TestDirectory('/webmozart', array(
-                    new TestDirectory('/webmozart/puli', array(
-                        new TestFile('/webmozart/puli/file1'),
-                        new TestFile('/webmozart/puli/file2'),
-                    )),
-                )),
-            )),
-            array(
-                '/webmozart/puli/file1' => 'webmozart/foo',
-                '/webmozart/puli/file2' => 'webmozart/bar',
-            )
-        );
-
-        $tags = $repo->getTags();
-
-        $this->assertCount(2, $tags);
-        $this->assertEquals('webmozart/bar', $tags[0]);
-        $this->assertEquals('webmozart/foo', $tags[1]);
     }
 }

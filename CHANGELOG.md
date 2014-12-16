@@ -29,6 +29,7 @@ Changelog
  * added `AbstractResource`
  * `CompositeRepository` now sets the correct path for returned resources
  * moved `Selector` to `Puli\Repository\Selector` namespace
+ * removed tagging, which is out of scope of this package
 
 * 1.0.0-alpha4 (2014-12-03)
 

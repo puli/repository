@@ -66,11 +66,6 @@ class ResourceRepository implements ManageableRepositoryInterface
     private $resources = array();
 
     /**
-     * @var \SplObjectStorage[]
-     */
-    private $resourcesByTag = array();
-
-    /**
      * @var ResourceRepositoryInterface
      */
     private $backend;
@@ -418,127 +413,6 @@ class ResourceRepository implements ManageableRepositoryInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function tag($selector, $tag)
-    {
-        if ('' === $tag) {
-            throw new \InvalidArgumentException('The tag must not be empty.');
-        }
-
-        if (!is_string($tag)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The tag must be a string. Is: %s.',
-                is_object($tag) ? get_class($tag) : gettype($tag)
-            ));
-        }
-
-        $resources = $this->find($selector);
-
-        if (0 === count($resources)) {
-            throw new ResourceNotFoundException(sprintf(
-                'No resource was matched by the selector "%s".',
-                $selector
-            ));
-        }
-
-        if (!isset($this->resourcesByTag[$tag])) {
-            $this->resourcesByTag[$tag] = new \SplObjectStorage();
-
-            // Maintain order
-            ksort($this->resourcesByTag);
-        }
-
-        $tagged = 0;
-
-        foreach ($resources as $resource) {
-            if (!$this->resourcesByTag[$tag]->contains($resource)) {
-                $this->resourcesByTag[$tag]->attach($resource);
-                ++$tagged;
-            }
-        }
-
-        return $tagged;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function untag($selector, $tag = null)
-    {
-        if ('' === $tag) {
-            throw new \InvalidArgumentException('The tag must not be empty.');
-        }
-
-        if (!is_string($tag) && null !== $tag) {
-            throw new \InvalidArgumentException(sprintf(
-                'The tag must be a string or null. Is: %s.',
-                is_object($tag) ? get_class($tag) : gettype($tag)
-            ));
-        }
-
-        $resources = $this->find($selector);
-
-        if (0 === count($resources)) {
-            throw new ResourceNotFoundException(sprintf(
-                'No resource was matched by the selector "%s".',
-                $selector
-            ));
-        }
-
-        $untagged = 0;
-
-        if (null === $tag) {
-            foreach ($resources as $resource) {
-                if ($this->removeAllTagsFrom($resource)) {
-                    ++$untagged;
-                }
-            }
-        } else {
-            foreach ($resources as $resource) {
-                if ($this->removeTagFrom($resource, $tag)) {
-                    ++$untagged;
-                }
-            }
-        }
-
-        $this->discardEmptyTags();
-
-        return $untagged;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByTag($tag)
-    {
-        if ('' === $tag) {
-            throw new \InvalidArgumentException('The tag must not be empty.');
-        }
-
-        if (!is_string($tag)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The tag must be a string. Is: %s.',
-                is_object($tag) ? get_class($tag) : gettype($tag)
-            ));
-        }
-
-        if (!isset($this->resourcesByTag[$tag])) {
-            return new ResourceCollection();
-        }
-
-        return new ResourceCollection(iterator_to_array($this->resourcesByTag[$tag]));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTags()
-    {
-        return array_keys($this->resourcesByTag);
-    }
-
-    /**
      * Recursively creates the base directories of a path.
      *
      * @param string $path A repository path.
@@ -574,60 +448,6 @@ class ResourceRepository implements ManageableRepositoryInterface
     }
 
     /**
-     * Removes a tag from the given resource.
-     *
-     * @param ResourceInterface $resource A resource.
-     * @param string            $tag      The tag to remove.
-     *
-     * @return bool Whether any tag was removed.
-     */
-    private function removeTagFrom(ResourceInterface $resource, $tag)
-    {
-        if (!isset($this->resourcesByTag[$tag]) || !$this->resourcesByTag[$tag]->contains($resource)) {
-            return false;
-        }
-
-        $this->resourcesByTag[$tag]->detach($resource);
-
-        return true;
-    }
-
-    /**
-     * Removes all tags from the given resource.
-     *
-     * @param ResourceInterface $resource A resource.
-     *
-     * @return bool Whether any tag was removed.
-     */
-    private function removeAllTagsFrom(ResourceInterface $resource)
-    {
-        $removed = false;
-
-        foreach ($this->resourcesByTag as $resources) {
-            if ($resources->contains($resource)) {
-                $resources->detach($resource);
-                $removed = true;
-            }
-        }
-
-        return $removed;
-    }
-
-    /**
-     * Removes empty tag containers from memory.
-     *
-     * Should be called after removing tags from resources.
-     */
-    private function discardEmptyTags()
-    {
-        foreach ($this->resourcesByTag as $tag => $resources) {
-            if (0 === count($resources)) {
-                unset($this->resourcesByTag[$tag]);
-            }
-        }
-    }
-
-    /**
      * Recursively attaches a resource to the repository.
      *
      * @param ResourceInterface $resource The resource to attach.
@@ -654,8 +474,6 @@ class ResourceRepository implements ManageableRepositoryInterface
     private function detachResource(ResourceInterface $resource, &$counter)
     {
         $this->detachRecursively($resource, $counter);
-
-        $this->discardEmptyTags();
     }
 
     private function attachRecursively(ResourceInterface $resource, $path)
@@ -700,8 +518,6 @@ class ResourceRepository implements ManageableRepositoryInterface
         }
 
         unset($this->resources[$resource->getPath()]);
-
-        $this->removeAllTagsFrom($resource);
 
         // Detach from locator
         $resource->detach($this);

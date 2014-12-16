@@ -97,23 +97,4 @@ interface ResourceRepositoryInterface
      *                              non-empty string starting with "/".
      */
     public function listDirectory($path);
-
-    /**
-     * Returns the resources with the given tag.
-     *
-     * @param string $tag A tag name.
-     *
-     * @return ResourceCollectionInterface The resources with this tag.
-     *
-     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
-     *                                   a non-empty string.
-     */
-    public function findByTag($tag);
-
-    /**
-     * Returns all known tags in the repository.
-     *
-     * @return string[] The tag names.
-     */
-    public function getTags();
 }

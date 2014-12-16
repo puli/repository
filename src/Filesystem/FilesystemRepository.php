@@ -222,22 +222,6 @@ class FilesystemRepository implements ResourceRepositoryInterface
         return $this->iteratorToCollection(new RecursiveDirectoryIterator($localPath));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findByTag($tag)
-    {
-        return new ResourceCollection();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTags($path = null)
-    {
-        return array();
-    }
-
     private function iteratorToCollection(\Iterator $iterator)
     {
         $offset = strlen($this->rootDirectory);

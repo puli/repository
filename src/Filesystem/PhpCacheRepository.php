@@ -82,11 +82,6 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     const OVERRIDDEN_PATHS_FILE = 'resources_overridden_paths.php';
 
     /**
-     * The name of the file caching the tag assignments.
-     */
-    const TAGS_FILE = 'resources_tags.php';
-
-    /**
      * @var string
      */
     private $cacheDir;
@@ -112,11 +107,6 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     private $overriddenPaths;
 
     /**
-     * @var array[]
-     */
-    private $tags;
-
-    /**
      * Dumps a repository into the given target path.
      *
      * The target path can then be passed to {@link __construct}.
@@ -139,15 +129,9 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         $filePaths = array();
         $dirPaths = array();
         $overriddenPaths = array();
-        $tags = array();
 
         // Extract the paths and alternative paths of each resource
         self::extractPaths($repo->get('/'), $filePaths, $dirPaths, $overriddenPaths);
-
-        // Remember which resource has which tag
-        foreach ($repo->getTags() as $tag) {
-            $tags[$tag] = $repo->findByTag($tag)->getPaths();
-        }
 
         // Create the directory if it doesn't exist
         if (!file_exists($targetPath)) {
@@ -161,7 +145,6 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         file_put_contents($targetPath.'/'.self::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
         file_put_contents($targetPath.'/'.self::DIR_PATHS_FILE, "<?php\n\nreturn ".var_export($dirPaths, true).";");
         file_put_contents($targetPath.'/'.self::OVERRIDDEN_PATHS_FILE, "<?php\n\nreturn ".var_export($overriddenPaths, true).";");
-        file_put_contents($targetPath.'/'.self::TAGS_FILE, "<?php\n\nreturn ".var_export($tags, true).";");
     }
 
     /**
@@ -227,8 +210,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     {
         if (!file_exists($cacheDir.'/'.self::FILE_PATHS_FILE) ||
             !file_exists($cacheDir.'/'.self::DIR_PATHS_FILE) ||
-            !file_exists($cacheDir.'/'.self::OVERRIDDEN_PATHS_FILE) ||
-            !file_exists($cacheDir.'/'.self::TAGS_FILE)) {
+            !file_exists($cacheDir.'/'.self::OVERRIDDEN_PATHS_FILE)) {
             throw new \RuntimeException(sprintf(
                 'The dump at "%s" is invalid. Please recreate it.',
                 $cacheDir
@@ -590,51 +572,6 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         ksort($resources);
 
         return new LocalResourceCollection(array_values($resources));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByTag($tag)
-    {
-        if ('' === $tag) {
-            throw new \InvalidArgumentException('The tag must not be empty.');
-        }
-
-        if (!is_string($tag)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The tag must be a string. Is: %s.',
-                is_object($tag) ? get_class($tag) : gettype($tag)
-            ));
-        }
-
-        if (null === $this->tags) {
-            $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
-        }
-
-        if (!isset($this->tags[$tag])) {
-            return new LocalResourceCollection();
-        }
-
-        if (count($this->tags[$tag]) > 0 && is_string($this->tags[$tag][0])) {
-            foreach ($this->tags[$tag] as $key => $path) {
-                $this->tags[$tag][$key] = $this->get($path);
-            }
-        }
-
-        return new LocalResourceCollection($this->tags[$tag]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTags($path = null)
-    {
-        if (null === $this->tags) {
-            $this->tags = require ($this->cacheDir.'/'.self::TAGS_FILE);
-        }
-
-        return array_keys($this->tags);
     }
 
     /**

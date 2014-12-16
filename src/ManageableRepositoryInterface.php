@@ -49,38 +49,4 @@ interface ManageableRepositoryInterface extends ResourceRepositoryInterface
      *                              must be a non-empty string starting with "/".
      */
     public function remove($selector);
-
-    /**
-     * Adds a tag to all resources matching the given selector.
-     *
-     * @param string $selector A resource path or a glob pattern. Must start
-     *                         with "/". "." and ".." segments in the path are
-     *                         supported.
-     * @param string $tag      A tag name.
-     *
-     * @return integer The number of affected resources.
-     *
-     * @throws InvalidPathException If the selector is invalid. The selector
-     *                              must be a non-empty string starting with "/".
-     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
-     *                                   a non-empty string.
-     */
-    public function tag($selector, $tag);
-
-    /**
-     * Removes tags from all resources matching the given selector.
-     *
-     * @param string      $selector A resource path or a glob pattern. Must
-     *                              start with "/". "." and ".." segments in the
-     *                              path are supported.
-     * @param string|null $tag      A tag name. If null, all tags are removed.
-     *
-     * @return integer The number of affected resources.
-     *
-     * @throws InvalidPathException If the selector is invalid. The selector
-     *                              must be a non-empty string starting with "/".
-     * @throws \InvalidArgumentException If the tag is invalid. The tag must be
-     *                                   a non-empty string.
-     */
-    public function untag($selector, $tag = null);
 }

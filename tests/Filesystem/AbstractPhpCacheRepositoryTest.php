@@ -64,7 +64,7 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
         $this->filesystem->remove($this->root);
     }
 
-    protected function createRepository(DirectoryResourceInterface $root, array $tags = array())
+    protected function createRepository(DirectoryResourceInterface $root)
     {
         $iterator = new RecursiveResourceIterator(
             new ResourceCollectionIterator($root->listEntries()),
@@ -80,24 +80,8 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
             }
         }
 
-        $pathsByTag = array();
-
-        foreach ($tags as $path => $tag) {
-            foreach ((array)$tag as $_tag) {
-                if (!isset($pathsByTag[$_tag])) {
-                    $pathsByTag[$_tag] = array();
-                }
-
-                $pathsByTag[$_tag][] = $path;
-            }
-        }
-
         $repo = new ResourceRepository();
         $repo->add('/', new LocalDirectoryResource($this->repoRoot));
-
-        foreach ($tags as $path => $tag) {
-            $repo->tag($path, $tag);
-        }
 
         PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
 
