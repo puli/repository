@@ -11,9 +11,9 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\ResourceRepository;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
@@ -21,10 +21,10 @@ use Puli\Repository\Tests\Resource\TestFile;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceRepositoryTest extends AbstractRepositoryTest
+class InMemoryRepositoryTest extends AbstractRepositoryTest
 {
     /**
-     * @var ResourceRepository
+     * @var InMemoryRepository
      */
     protected $repo;
 
@@ -32,12 +32,12 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
     {
         parent::setUp();
 
-        $this->repo = new ResourceRepository();
+        $this->repo = new InMemoryRepository();
     }
 
-    protected function createRepository(DirectoryResourceInterface $root)
+    protected function createRepository(DirectoryResource $root)
     {
-        $repo = new ResourceRepository();
+        $repo = new InMemoryRepository();
         $repo->add('/', $root);
 
         return $repo;
@@ -84,10 +84,10 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testGetRootBeforeAdding()
     {
-        $repo = new ResourceRepository();
+        $repo = new InMemoryRepository();
         $root = $repo->get('/');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResourceInterface', $root);
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $root);
         $this->assertCount(0, $root->listEntries());
         $this->assertSame('/', $root->getPath());
     }
@@ -191,7 +191,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
 
-        $this->repo->add('/webmozart/puli', new ResourceCollection(array($file1, $file2)));
+        $this->repo->add('/webmozart/puli', new ArrayResourceCollection(array($file1, $file2)));
 
         $this->assertSame($file1, $this->repo->get('/webmozart/puli/file1'));
         $this->assertSame($file2, $this->repo->get('/webmozart/puli/file2'));
@@ -199,7 +199,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddClonesResourcesAttachedToAnotherRepository()
     {
-        $otherRepo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $otherRepo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $file = new TestFile('/file');
         $file->attachTo($otherRepo);
@@ -217,14 +217,14 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddCollectionClonesEntriesAttachedToAnotherRepository()
     {
-        $otherRepo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $otherRepo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
 
         $file2->attachTo($otherRepo);
 
-        $this->repo->add('/webmozart/puli', new ResourceCollection(array($file1, $file2)));
+        $this->repo->add('/webmozart/puli', new ArrayResourceCollection(array($file1, $file2)));
 
         $this->assertSame($file1, $this->repo->get('/webmozart/puli/file1'));
         $this->assertNotSame($file2, $this->repo->get('/webmozart/puli/file2'));
@@ -238,7 +238,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddPathFromBackend()
     {
-        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\Repository\ResourceRepository');
         $file = new TestFile();
         $file->attachTo($backend, '/dir1/file1');
 
@@ -247,7 +247,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
             ->with('/dir1/file1')
             ->will($this->returnValue($file));
 
-        $repo = new ResourceRepository($backend);
+        $repo = new InMemoryRepository($backend);
         $repo->add('/webmozart/puli/file1', '/dir1/file1');
 
         // Backend resource was not modified
@@ -261,7 +261,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddSelectorFromBackendManyMatches()
     {
-        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\Repository\ResourceRepository');
         $file1 = new TestFile();
         $file1->attachTo($backend, '/dir1/file1');
         $file2 = new TestFile();
@@ -270,9 +270,9 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
         $backend->expects($this->once())
             ->method('find')
             ->with('/dir1/*')
-            ->will($this->returnValue(new ResourceCollection(array($file1, $file2))));
+            ->will($this->returnValue(new ArrayResourceCollection(array($file1, $file2))));
 
-        $repo = new ResourceRepository($backend);
+        $repo = new InMemoryRepository($backend);
         $repo->add('/webmozart/puli', '/dir1/*');
 
         // Backend resources were not modified
@@ -292,16 +292,16 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
 
     public function testAddSelectorFromBackendOneMatch()
     {
-        $backend = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $backend = $this->getMock('Puli\Repository\ResourceRepository');
         $file1 = new TestFile();
         $file1->attachTo($backend, '/dir1/file1');
 
         $backend->expects($this->once())
             ->method('find')
             ->with('/dir1/*')
-            ->will($this->returnValue(new ResourceCollection(array($file1))));
+            ->will($this->returnValue(new ArrayResourceCollection(array($file1))));
 
-        $repo = new ResourceRepository($backend);
+        $repo = new InMemoryRepository($backend);
         $repo->add('/webmozart/puli', '/dir1/*');
 
         // Backend resources were not modified
@@ -372,7 +372,7 @@ class ResourceRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsAttachableResourcesInCollection()
     {
-        $resources = new ResourceCollection(array(
+        $resources = new ArrayResourceCollection(array(
             new \stdClass(),
         ));
 

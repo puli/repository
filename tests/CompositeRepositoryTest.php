@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\CompositeRepository;
-use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
@@ -55,7 +55,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testMountRepository($mountPoint)
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
         $resource = new TestFile('/path/to/resource');
         $resource->attachTo($repo);
         $mountedPath = rtrim($mountPoint, '/').'/path/to/resource';
@@ -74,8 +74,8 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPrefersMostSpecificMountPoint()
     {
-        $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
-        $repo2 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo1 = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo2 = $this->getMock('Puli\Repository\ResourceRepository');
         $resource1 = new TestFile('/resource1');
         $resource1->attachTo($repo1);
         $resource2 = new TestFile('/resource2');
@@ -106,7 +106,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testMountRepositoryFactory()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
         $resource = new TestFile('/path/to/resource');
         $resource->attachTo($repo);
 
@@ -138,7 +138,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testMountExpectsValidMountPoint($mountPoint)
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount($mountPoint, $repo);
     }
@@ -148,7 +148,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRepositoryFactoryMustReturnRepository()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount('/webmozart', function () use ($repo) {
             return 'foo';
@@ -194,7 +194,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnmount()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount('/webmozart', $repo);
         $this->repo->unmount('/webmozart');
@@ -207,7 +207,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnmountWithTrailingSlash()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount('/webmozart', $repo);
         $this->repo->unmount('/webmozart/');
@@ -247,7 +247,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContains()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount('/webmozart', $repo);
 
@@ -266,8 +266,8 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsPrefersMostSpecificMountPoint()
     {
-        $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
-        $repo2 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo1 = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo2 = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->mount('/', $repo1);
         $this->repo->mount('/app', $repo2);
@@ -316,7 +316,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
         $resource1 = new TestFile('/path/to/res1');
         $resource2 = new TestFile('/path/to/res2');
 
@@ -325,12 +325,12 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->expects($this->once())
             ->method('find')
             ->with('/path/to/res*')
-            ->will($this->returnValue(new ResourceCollection(array(
+            ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
                 $resource2,
             ))));
 
-        $expected = new ResourceCollection(array(
+        $expected = new ArrayResourceCollection(array(
             $resource1->createReference('/webmozart/path/to/res1'),
             $resource2->createReference('/webmozart/path/to/res2'),
         ));
@@ -340,8 +340,8 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFindPrefersMostSpecificMountPoint()
     {
-        $repo1 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
-        $repo2 = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo1 = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo2 = $this->getMock('Puli\Repository\ResourceRepository');
         $resource1 = new TestFile('/res1');
         $resource2 = new TestFile('/res2');
 
@@ -351,14 +351,14 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo1->expects($this->once())
             ->method('find')
             ->with('/res1*')
-            ->will($this->returnValue(new ResourceCollection(array($resource1))));
+            ->will($this->returnValue(new ArrayResourceCollection(array($resource1))));
         $repo2->expects($this->once())
             ->method('find')
             ->with('/res2*')
-            ->will($this->returnValue(new ResourceCollection(array($resource2))));
+            ->will($this->returnValue(new ArrayResourceCollection(array($resource2))));
 
-        $expected1 = new ResourceCollection(array($resource1));
-        $expected2 = new ResourceCollection(array($resource2->createReference('/app/res2')));
+        $expected1 = new ArrayResourceCollection(array($resource1));
+        $expected2 = new ArrayResourceCollection(array($resource2->createReference('/app/res2')));
 
         $this->assertEquals($expected1, $this->repo->find('/res1*'));
         $this->assertEquals($expected2, $this->repo->find('/app/res2*'));
@@ -368,7 +368,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $resources = $this->repo->find('/webmozart/path/to/res*');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $resources);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
         $this->assertCount(0, $resources);
     }
 
@@ -398,7 +398,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testListDirectory()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
         $resource1 = new TestFile('/path/to/dir/file1');
         $resource2 = new TestFile('/path/to/dir/file2');
 
@@ -407,12 +407,12 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->expects($this->once())
             ->method('listDirectory')
             ->with('/path/to/dir')
-            ->will($this->returnValue(new ResourceCollection(array(
+            ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
                 $resource2,
             ))));
 
-        $expected = new ResourceCollection(array(
+        $expected = new ArrayResourceCollection(array(
             $resource1->createReference('/webmozart/path/to/dir/file1'),
             $resource2->createReference('/webmozart/path/to/dir/file2'),
         ));
@@ -422,7 +422,7 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testListRootDirectory()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
         $resource1 = new TestFile('/path/to/dir/file1');
         $resource2 = new TestFile('/path/to/dir/file2');
 
@@ -431,12 +431,12 @@ class CompositeRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->expects($this->once())
             ->method('listDirectory')
             ->with('/path/to/dir')
-            ->will($this->returnValue(new ResourceCollection(array(
+            ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
                 $resource2,
             ))));
 
-        $expected = new ResourceCollection(array(
+        $expected = new ArrayResourceCollection(array(
             $resource1,
             $resource2,
         ));

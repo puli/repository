@@ -11,19 +11,18 @@
 
 namespace Puli\Repository\Filesystem;
 
-use Puli\Repository\Filesystem\Resource\AbstractLocalResource;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
+use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
-use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
-use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Resource;
+use Puli\Repository\Resource\VirtualDirectoryResource;
 use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\Selector\Selector;
 use Puli\Repository\UnsupportedResourceException;
 use Webmozart\PathUtil\Path;
@@ -36,9 +35,9 @@ use Webmozart\PathUtil\Path;
  *
  * ```php
  * use Puli\Repository\Filesystem\PhpCacheRepository;
- * use Puli\Repository\ResourceRepository;
+ * use Puli\Repository\InMemoryRepository;
  *
- * $repo = new ResourceRepository();
+ * $repo = new InMemoryRepository();
  * $repo->add('/css', '/path/to/css');
  *
  * PhpCacheRepository::dumpRepository($repo, '/path/to/cache');
@@ -58,13 +57,12 @@ use Webmozart\PathUtil\Path;
  *
  * All resources contained in the repository passed to {@link dumpRepository}
  * can be accessed. Note that only resources implementing either
- * {@link LocalResourceInterface} or {@link DirectoryResourceInterface} are
- * included in the dump.
+ * {@link LocalResource} or {@link DirectoryResource} are included in the dump.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathLoaderInterface
+class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
 {
     /**
      * The name of the file caching the paths of all files.
@@ -87,7 +85,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     private $cacheDir;
 
     /**
-     * @var AbstractLocalResource[]|DirectoryResource[]
+     * @var LocalResource[]|VirtualDirectoryResource[]
      */
     private $resources = array();
 
@@ -113,18 +111,17 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
      *
      * This method creates a list of ".php" files that contain mappings of
      * repository paths to local file paths. Hence any resources that don't
-     * implement {@link LocalResourceInterface} are ignored. Resources that
-     * implement {@link DirectoryResourceInterface} are always included, but
-     * their local path may be empty.
+     * implement {@link LocalResource} are ignored. Resources that implement
+     * {@link DirectoryResource} are always included, but their local path may
+     * be empty.
      *
-     * @param ResourceRepositoryInterface $repo       The dumped repository.
-     * @param string                      $targetPath The path to the directory
-     *                                                where the dumped files
-     *                                                should be stored.
+     * @param ResourceRepository $repo       The dumped repository.
+     * @param string             $targetPath The path to the directory where the
+     *                                       dumped files should be stored.
      *
      * @throws NoDirectoryException If the target path is not a directory.
      */
-    public static function dumpRepository(ResourceRepositoryInterface $repo, $targetPath)
+    public static function dumpRepository(ResourceRepository $repo, $targetPath)
     {
         $filePaths = array();
         $dirPaths = array();
@@ -150,24 +147,24 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     /**
      * Extracts path information of a resource.
      *
-     * @param ResourceInterface $resource        The resource.
-     * @param array             $filePaths       Collects the paths of all files.
-     * @param array             $dirPaths        Collects the paths of all directories.
-     * @param array             $overriddenPaths Collects the overridden paths.
+     * @param Resource $resource        The resource.
+     * @param array    $filePaths       Collects the paths of all files.
+     * @param array    $dirPaths        Collects the paths of all directories.
+     * @param array    $overriddenPaths Collects the overridden paths.
      */
-    private static function extractPaths(ResourceInterface $resource, array &$filePaths, array &$dirPaths, array &$overriddenPaths)
+    private static function extractPaths(Resource $resource, array &$filePaths, array &$dirPaths, array &$overriddenPaths)
     {
         $path = $resource->getPath();
 
-        if (!($resource instanceof LocalResourceInterface || $resource instanceof DirectoryResourceInterface)) {
+        if (!($resource instanceof LocalResource || $resource instanceof DirectoryResource)) {
             throw new UnsupportedResourceException(sprintf(
                 'PhpCacheDumper only works with implementations of '.
-                'LocalResourceInterface or DirectoryResourceInterface. Got: %s',
+                'LocalResource or DirectoryResource. Got: %s',
                 get_class($resource)
             ));
         }
 
-        if ($resource instanceof LocalResourceInterface) {
+        if ($resource instanceof LocalResource) {
             $allLocalPaths = $resource->getAllLocalPaths();
             $localPath = array_pop($allLocalPaths);
 
@@ -175,19 +172,19 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
                 $overriddenPaths[$path] = $allLocalPaths;
             }
         } else {
-            // For directories that don't implement LocalResourceInterface,
-            // store null as local path
+            // For directories that don't implement LocalResource, store null as
+            // local path
             $localPath = null;
         }
 
-        if ($resource instanceof DirectoryResourceInterface) {
+        if ($resource instanceof DirectoryResource) {
             $dirPaths[$path] = $localPath;
         } else {
             $filePaths[$path] = $localPath;
         }
 
         // Recursively enter the contents of directories
-        if ($resource instanceof DirectoryResourceInterface) {
+        if ($resource instanceof DirectoryResource) {
             foreach ($resource->listEntries() as $entry) {
                 self::extractPaths($entry, $filePaths, $dirPaths, $overriddenPaths);
             }
@@ -514,7 +511,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
             ));
         }
 
-        if ($isUnloadedFile || $isLoaded && !($this->resources[$path] instanceof DirectoryResourceInterface)) {
+        if ($isUnloadedFile || $isLoaded && !($this->resources[$path] instanceof DirectoryResource)) {
             throw new NoDirectoryException(sprintf(
                 'The resource "%s" is not a directory.',
                 $path
@@ -577,7 +574,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
     /**
      * {@inheritdoc}
      */
-    public function loadOverriddenPaths(LocalResourceInterface $resource)
+    public function loadOverriddenPaths(LocalResource $resource)
     {
         if (null === $this->overriddenPaths) {
             $this->overriddenPaths = require ($this->cacheDir.'/'.self::OVERRIDDEN_PATHS_FILE);
@@ -609,7 +606,7 @@ class PhpCacheRepository implements ResourceRepositoryInterface, OverriddenPathL
         if (null !== $this->dirPaths[$path]) {
             $directory = new LocalDirectoryResource($this->dirPaths[$path], $path, $this);
         } else {
-            $directory = new DirectoryResource($path);
+            $directory = new VirtualDirectoryResource($path);
         }
 
         $directory->attachTo($this);

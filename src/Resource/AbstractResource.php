@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepository;
 
 /**
  * Base class for resources.
@@ -19,10 +19,10 @@ use Puli\Repository\ResourceRepositoryInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractResource implements ResourceInterface
+abstract class AbstractResource implements Resource
 {
     /**
-     * @var ResourceRepositoryInterface
+     * @var ResourceRepository
      */
     private $repo;
 
@@ -66,7 +66,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * {@inheritdoc}
      */
-    public function attachTo(ResourceRepositoryInterface $repo, $path = null)
+    public function attachTo(ResourceRepository $repo, $path = null)
     {
         $this->repo = $repo;
 
@@ -130,7 +130,7 @@ abstract class AbstractResource implements ResourceInterface
     /**
      * {@inheritdoc}
      */
-    public function override(ResourceInterface $resource)
+    public function override(Resource $resource)
     {
     }
 

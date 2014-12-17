@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Resource;
 
 /**
  * A resource associated to a file on the local file system.
@@ -21,7 +21,7 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface LocalResourceInterface extends ResourceInterface
+interface LocalResource extends Resource
 {
     /**
      * Returns the path on the local file system.

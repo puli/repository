@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Tests\Resource\Iterator;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -25,7 +25,7 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefaultIteration()
     {
-        $collection = new ResourceCollection(array(
+        $collection = new ArrayResourceCollection(array(
             $dir1 = new TestDirectory('/webmozart', array(
                 $dir11 = new TestDirectory('/webmozart/puli', array(
                     $dir111 = new TestDirectory('/webmozart/puli/config', array(
@@ -40,9 +40,9 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new RecursiveResourceIterator(
+        $iterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator($collection),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -61,7 +61,7 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testCurrentAsResource()
     {
-        $collection = new ResourceCollection(array(
+        $collection = new ArrayResourceCollection(array(
             $dir1 = new TestDirectory('/webmozart', array(
                 $dir11 = new TestDirectory('/webmozart/puli', array(
                     $dir111 = new TestDirectory('/webmozart/puli/config', array(
@@ -76,12 +76,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new RecursiveResourceIterator(
+        $iterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_RESOURCE
             ),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -100,7 +100,7 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testCurrentAsPath()
     {
-        $collection = new ResourceCollection(array(
+        $collection = new ArrayResourceCollection(array(
             new TestDirectory('/webmozart', array(
                 new TestDirectory('/webmozart/puli', array(
                     new TestDirectory('/webmozart/puli/config', array(
@@ -115,12 +115,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $iterator = new RecursiveResourceIterator(
+        $iterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_PATH
             ),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -139,7 +139,7 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testCurrentAsName()
     {
-        $collection = new ResourceCollection(array(
+        $collection = new ArrayResourceCollection(array(
             new TestDirectory('/webmozart', array(
                 new TestDirectory('/webmozart/puli', array(
                     new TestDirectory('/webmozart/puli/config', array(
@@ -154,12 +154,12 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
             )),
         ));
 
-        $recursiveIterator = new RecursiveResourceIterator(
+        $recursiveIterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator(
                 $collection,
                 ResourceCollectionIterator::CURRENT_AS_NAME
             ),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         $expected = array(
@@ -178,7 +178,7 @@ class ResourceCollectionIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testKeyAsPath()
     {
-        $collection = new ResourceCollection(array(
+        $collection = new ArrayResourceCollection(array(
             new TestDirectory('/webmozart/puli/config'),
             new TestDirectory('/webmozart/puli/css'),
             new TestDirectory('/webmozart/puli/images'),

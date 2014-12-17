@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource\Iterator;
+namespace Puli\Repository\Tests\Resource;
+
+use Puli\Repository\Resource\VirtualDirectoryResource;
 
 /**
- * A resource iterator that can be iterated recursively.
- *
- * Use {@link RecursiveResourceIterator} to iterate over the iterator.
- *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface RecursiveResourceIteratorInterface extends ResourceIteratorInterface, \RecursiveIterator
+class VirtualDirectoryResourceTest extends AbstractDirectoryResourceTest
 {
+    protected function createResource($path = null)
+    {
+        return new VirtualDirectoryResource($path);
+    }
 }

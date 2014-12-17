@@ -31,6 +31,12 @@ Changelog
  * moved `Selector` to `Puli\Repository\Selector` namespace
  * removed tagging, which is out of scope of this package
  * made `AbstractResource` properties private
+ * renamed:
+   * `ResourceRepository` to `InMemoryRepository`
+   * `ResourceCollection` to `ArrayResourceCollection`
+   * `DirectoryResource` to `VirtualDirectoryResource`
+   * `RecursiveResourceIterator` to `RecursiveResourceIteratorIterator`
+ * removed `Interface` suffixes of all interfaces
 
 * 1.0.0-alpha4 (2014-12-03)
 

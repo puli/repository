@@ -12,14 +12,14 @@
 namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\FileResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\Resource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestFile extends AbstractResource implements FileResourceInterface
+class TestFile extends AbstractResource implements FileResource
 {
     const CONTENTS = "LINE 1\nLINE 2\n";
 
@@ -54,7 +54,7 @@ class TestFile extends AbstractResource implements FileResourceInterface
         return 0;
     }
 
-    public function override(ResourceInterface $resource)
+    public function override(Resource $resource)
     {
         $this->overrides = $resource;
     }

@@ -11,14 +11,14 @@
 
 namespace Puli\Repository\Tests\Filesystem;
 
-use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestLocalFile extends TestFile implements LocalResourceInterface
+class TestLocalFile extends TestFile implements LocalResource
 {
     private $localPath;
 

@@ -18,7 +18,7 @@ namespace Puli\Repository\StreamWrapper;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @see    http://php.net/manual/en/class.streamwrapper.php
  */
-interface StreamWrapperInterface
+interface StreamWrapper
 {
     public function dir_closedir();
     public function dir_opendir($url, $options);

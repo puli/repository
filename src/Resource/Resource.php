@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\UnsupportedResourceException;
 
 /**
@@ -23,11 +23,11 @@ use Puli\Repository\UnsupportedResourceException;
  * Depending on the implementation, resources may offer additional functionality:
  *
  *  * Resources that are similar to files in that they have a body and a size
- *    should implement {@link FileResourceInterface}.
+ *    should implement {@link FileResource}.
  *  * Resources that contain other resources should implement
- *    {@link DirectoryResourceInterface}.
+ *    {@link DirectoryResource}.
  *
- * Resources can be attached to a repository by calling {@link attach()}. They
+ * Resources can be attached to a repository by calling {@link attachTo()}. They
  * can be detached again by calling {@link detach()}. Use {@link isAttached()}
  * to find out whether a resource is attached and {@link getRepository()} to
  * obtain the attached repository.
@@ -47,7 +47,7 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceInterface extends \Serializable
+interface Resource extends \Serializable
 {
     /**
      * Returns the path of the resource.
@@ -75,12 +75,12 @@ interface ResourceInterface extends \Serializable
     /**
      * Returns the repository that the resource is attached to.
      *
-     * Use {@link attach()} to attach a resource to a repository. The method
+     * Use {@link attachTo()} to attach a resource to a repository. The method
      * {@link detach()} can be used to detach an attached resource.
      *
-     * @return ResourceRepositoryInterface|null The resource repository. If the
-     *                                          resource is not attached to any
-     *                                          repository, `null` is returned.
+     * @return ResourceRepository|null The resource repository. If the resource
+     *                                 is not attached to any repository, `null`
+     *                                 is returned.
      */
     public function getRepository();
 
@@ -114,13 +114,12 @@ interface ResourceInterface extends \Serializable
      * $resource->attachTo($repo, '/path/in/repo');
      * ```
      *
-     * @param ResourceRepositoryInterface $repo The repository.
-     * @param string|null                 $path The path of the resource in the
-     *                                          repository. If not passed, the
-     *                                          resource will be attached to its
-     *                                          current path.
+     * @param ResourceRepository $repo The repository.
+     * @param string|null        $path The path of the resource in the
+     *                                 repository. If not passed, the resource
+     *                                 will be attached to it current path.
      */
-    public function attachTo(ResourceRepositoryInterface $repo, $path = null);
+    public function attachTo(ResourceRepository $repo, $path = null);
 
     /**
      * Detaches the resource from the repository.
@@ -150,9 +149,9 @@ interface ResourceInterface extends \Serializable
      * path in the same repository:
      *
      * ```php
-     * use Puli\Repository\ResourceRepository;
+     * use Puli\Repository\InMemoryRepository;
      *
-     * $repo = new ResourceRepository();
+     * $repo = new InMemoryRepository();
      * $repo->add('/path', $resource1);
      * $repo->add('/path', $resource2);
      *
@@ -162,11 +161,11 @@ interface ResourceInterface extends \Serializable
      * Implementations should decide whether and how to change the state of the
      * resource to incorporate the state of the overridden resource.
      *
-     * @param ResourceInterface $resource The overridden resource.
+     * @param Resource $resource The overridden resource.
      *
      * @throws UnsupportedResourceException If the resource cannot be overridden.
      */
-    public function override(ResourceInterface $resource);
+    public function override(Resource $resource);
 
     /**
      * Creates a reference to the resource.

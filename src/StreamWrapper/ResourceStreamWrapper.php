@@ -11,10 +11,10 @@
 
 namespace Puli\Repository\StreamWrapper;
 
-use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
+use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\NoDirectoryException;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\FileResourceInterface;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\UnsupportedOperationException;
@@ -27,11 +27,11 @@ use Puli\Repository\Uri\UriRepositoryInterface;
  * To register the stream wrapper, call {@link register}:
  *
  * ```php
- * use Puli\Repository\ResourceRepository;
+ * use Puli\Repository\InMemoryRepository;
  * use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
  * use Puli\Repository\Uri\UriRepository;
  *
- * $puliRepo = new ResourceRepository();
+ * $puliRepo = new InMemoryRepository();
  *
  * $repo = new UriRepository();
  * $repo->register('puli', $puliRepo);
@@ -47,7 +47,7 @@ use Puli\Repository\Uri\UriRepositoryInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceStreamWrapper implements StreamWrapperInterface
+class ResourceStreamWrapper implements StreamWrapper
 {
     const DEVICE_ASSOC = 'dev';
 
@@ -207,7 +207,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         // Provoke ResourceNotFoundException if not found
         $directory = self::$repo->get($uri);
 
-        if (!$directory instanceof DirectoryResourceInterface) {
+        if (!$directory instanceof DirectoryResource) {
             throw new NoDirectoryException($uri);
         }
 
@@ -307,7 +307,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
             'The removal of directories through the stream wrapper is not '.
             'supported. Tried to remove "%s"%s.',
             $uri,
-            $resource instanceof LocalResourceInterface
+            $resource instanceof LocalResource
                 ? sprintf(' which points to "%s"', $resource->getLocalPath())
                 : ''
         ));
@@ -430,16 +430,16 @@ class ResourceStreamWrapper implements StreamWrapperInterface
 
         $resource = $this->getRepository()->get($uri);
 
-        if (!$resource instanceof FileResourceInterface) {
+        if (!$resource instanceof FileResource) {
             throw new UnsupportedResourceException(sprintf(
                 'Can only open file resources for reading. Tried to open "%s" '.
-                'of type %s which does not implement FileResourceInterface.',
+                'of type %s which does not implement FileResource.',
                 $uri,
                 get_class($resource)
             ));
         }
 
-        if ($resource instanceof LocalResourceInterface) {
+        if ($resource instanceof LocalResource) {
             $this->handle = fopen($resource->getLocalPath(), 'r', $options & STREAM_USE_PATH) ?: null;
 
             return null !== $this->handle;
@@ -558,7 +558,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
         try {
             $resource = $this->getRepository()->get($uri);
 
-            if ($resource instanceof LocalResourceInterface) {
+            if ($resource instanceof LocalResource) {
                 $path = $resource->getLocalPath();
 
                 if ($flags & STREAM_URL_STAT_LINK) {
@@ -568,7 +568,7 @@ class ResourceStreamWrapper implements StreamWrapperInterface
                 return stat($path);
             }
 
-            if ($resource instanceof FileResourceInterface) {
+            if ($resource instanceof FileResource) {
                 $stat = self::$defaultStat;
                 $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $resource->getSize();
                 $stat[self::ACCESS_TIME_NUM] = $stat[self::ACCESS_TIME_ASSOC] = $resource->getLastAccessedAt();

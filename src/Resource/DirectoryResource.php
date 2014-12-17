@@ -12,69 +12,42 @@
 namespace Puli\Repository\Resource;
 
 use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\ResourceNotFoundException;
 
 /**
- * An in-memory directory in the repository.
- *
- * This class is mostly used for repository directories that are created on
- * demand:
- *
- * ```php
- * use Puli\Repository\ResourceRepository;
- *
- * $repo = new ResourceRepository();
- * $repo->add('/webmozart/puli/file', $resource);
- *
- * // implies:
- * $repo->add('/', new DirectoryResource());
- * $repo->add('/webmozart', new DirectoryResource());
- * $repo->add('/webmozart/puli', new DirectoryResource());
- * ```
+ * A resource which acts as directory in the repository.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DirectoryResource extends AbstractResource implements DirectoryResourceInterface
+interface DirectoryResource extends Resource
 {
     /**
-     * {@inheritdoc}
+     * Returns the resource with the given name from the directory.
+     *
+     * "." and ".." are supported as names.
+     *
+     * @param string $name The name of the resource.
+     *
+     * @return Resource The resource with the given name.
+     *
+     * @throws ResourceNotFoundException If the resource cannot be found.
      */
-    public function get($name)
-    {
-        if (!$this->getRepository()) {
-            throw new DetachedException('Cannot read files from a detached directory.');
-        }
-
-        return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
-    }
+    public function get($name);
 
     /**
-     * {@inheritdoc}
+     * Returns whether the resource with the given name exists in the directory.
+     *
+     * @param string $name The name of the resource.
+     *
+     * @return boolean Whether a resource with the given name exists.
      */
-    public function contains($name)
-    {
-        if (!$this->getRepository()) {
-            throw new DetachedException('Cannot read files from a detached directory.');
-        }
-
-        return $this->getRepository()->contains($this->getRepositoryPath().'/'.$name);
-    }
+    public function contains($name);
 
     /**
-     * {@inheritdoc}
+     * Lists all resources in the directory.
+     *
+     * @return ResourceCollection The resources indexed by their names.
      */
-    public function listEntries()
-    {
-        if (!$this->getRepository()) {
-            throw new DetachedException('Cannot read files from a detached directory.');
-        }
-
-        $entries = new ResourceCollection();
-
-        foreach ($this->getRepository()->listDirectory($this->getRepositoryPath()) as $entry) {
-            $entries[$entry->getName()] = $entry;
-        }
-
-        return $entries;
-    }
+    public function listEntries();
 }

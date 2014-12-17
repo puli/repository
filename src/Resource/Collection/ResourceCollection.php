@@ -11,238 +11,130 @@
 
 namespace Puli\Repository\Resource\Collection;
 
-use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
 
 /**
- * A basic collection of {@link ResourceInterface} instances.
+ * A collection of {@link Resource} instances.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceCollection implements \IteratorAggregate, ResourceCollectionInterface
+interface ResourceCollection extends \Traversable, \ArrayAccess, \Countable
 {
     /**
-     * @var ResourceInterface[]
+     * Adds a resource to the collection.
+     *
+     * @param Resource $resource The added resource.
      */
-    private $resources;
+    public function add(Resource $resource);
 
     /**
-     * Creates a new collection.
+     * Sets a resource at a collection key.
      *
-     * You can pass the resources that you want to initially store in the
-     * collection as argument.
+     * @param integer  $key      The collection key.
+     * @param Resource $resource The resource to set.
+     */
+    public function set($key, Resource $resource);
+
+    /**
+     * Returns the resource for a collection key.
      *
-     * @param ResourceInterface[] $resources The resources to store in the
+     * @param integer $key The collection key.
+     *
+     * @return Resource The resource at the key.
+     *
+     * @throws \OutOfBoundsException If the key does not exist.
+     */
+    public function get($key);
+
+    /**
+     * Removes a collection key from the collection.
+     *
+     * @param integer $key The collection key.
+     */
+    public function remove($key);
+
+    /**
+     * Returns whether a collection key exists.
+     *
+     * @param integer $key The collection key.
+     *
+     * @return bool Whether the collection key exists.
+     */
+    public function has($key);
+
+    /**
+     * Removes all resources from the collection.
+     */
+    public function clear();
+
+    /**
+     * Returns the keys of the collection.
+     *
+     * @return integer[] The collection keys.
+     */
+    public function keys();
+
+    /**
+     * Replaces the collection contents with the given resources.
+     *
+     * @param Resource[] $resources The resources to write into the
      *                                       collection.
      *
      * @throws \InvalidArgumentException If the resources are not an array and
      *                                   not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
-     *                                      {@link ResourceInterface}.
+     *                                      {@link Resource}.
      */
-    public function __construct($resources = array())
-    {
-        $this->replace($resources);
-    }
+    public function replace($resources);
 
     /**
-     * {@inheritdoc}
+     * Merges the given resources into the collection.
+     *
+     * @param Resource[] $resources The resources to merge into the
+     *                                       collection.
+     *
+     * @throws \InvalidArgumentException If the resources are not an array and
+     *                                   not a traversable object.
+     * @throws UnsupportedResourceException If a resource does not implement
+     *                                      {@link Resource}.
      */
-    public function add(ResourceInterface $resource)
-    {
-        $this->resources[] = $resource;
-    }
+    public function merge($resources);
 
     /**
-     * {@inheritdoc}
+     * Returns whether the collection is empty.
+     *
+     * @return bool Returns `true` only if the collection contains no resources.
      */
-    public function set($key, ResourceInterface $resource)
-    {
-        $this->resources[$key] = $resource;
-    }
+    public function isEmpty();
 
     /**
-     * {@inheritdoc}
+     * Returns the paths of all resources in the collection.
+     *
+     * The paths are returned in the order of their resources in the collection.
+     *
+     * @return string[] The paths of the resources in the collection.
+     *
+     * @see Resource::getPath
      */
-    public function get($key)
-    {
-        if (!isset($this->resources[$key])) {
-            throw new \OutOfBoundsException(sprintf(
-                'The offset "%s" does not exist.',
-                $key
-            ));
-        }
-
-        return $this->resources[$key];
-    }
+    public function getPaths();
 
     /**
-     * {@inheritdoc}
+     * Returns the names of all resources in the collection.
+     *
+     * The names are returned in the order of their resources in the collection.
+     *
+     * @return string[] The names of the resources in the collection.
+     *
+     * @see Resource::getName
      */
-    public function remove($key)
-    {
-        unset($this->resources[$key]);
-    }
+    public function getNames();
 
     /**
-     * {@inheritdoc}
+     * Returns the collection contents as array.
+     *
+     * @return Resource[] The resources in the collection.
      */
-    public function has($key)
-    {
-        return isset($this->resources[$key]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function clear()
-    {
-        $this->resources = array();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function keys()
-    {
-        return array_keys($this->resources);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function replace($resources)
-    {
-        if (!is_array($resources) && !$resources instanceof \Traversable) {
-            throw new \InvalidArgumentException(sprintf(
-                'The resources must be passed as array or traversable object. '.
-                'Got: "%s"',
-                is_object($resources) ? get_class($resources) : gettype($resources)
-            ));
-        }
-
-        foreach ($resources as $resource) {
-            if (!$resource instanceof ResourceInterface) {
-                throw new UnsupportedResourceException(sprintf(
-                    'ResourceCollection supports ResourceInterface '.
-                    'implementations only. Got: %s',
-                    is_object($resource) ? get_class($resource) : gettype($resource)
-                ));
-            }
-        }
-
-        $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function merge($resources)
-    {
-        if (!is_array($resources) && !$resources instanceof \Traversable) {
-            throw new \InvalidArgumentException(sprintf(
-                'The resources must be passed as array or traversable object. '.
-                'Got: "%s"',
-                is_object($resources) ? get_class($resources) : gettype($resources)
-            ));
-        }
-
-        foreach ($resources as $resource) {
-            if (!$resource instanceof ResourceInterface) {
-                throw new UnsupportedResourceException(sprintf(
-                    'ResourceCollection supports ResourceInterface '.
-                    'implementations only. Got: %s',
-                    is_object($resource) ? get_class($resource) : gettype($resource)
-                ));
-            }
-        }
-
-        // only start merging after validating all resources
-        foreach ($resources as $resource) {
-            $this->resources[] = $resource;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isEmpty()
-    {
-        return 0 === count($this->resources);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($key)
-    {
-        return $this->has($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($key)
-    {
-        return $this->get($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($key, $value)
-    {
-        if (null !== $key) {
-            $this->set($key, $value);
-        } else {
-            $this->add($value);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($key)
-    {
-        $this->remove($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaths()
-    {
-        return array_map(
-            function (ResourceInterface $r) { return $r->getPath(); },
-            $this->resources
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNames()
-    {
-        return array_map(
-            function (ResourceInterface $r) { return $r->getName(); },
-            $this->resources
-        );
-    }
-
-    public function count()
-    {
-        return count($this->resources);
-    }
-
-    public function getIterator($mode = ResourceCollectionIterator::KEY_AS_CURSOR)
-    {
-        return new ResourceCollectionIterator($this, $mode);
-    }
-
-    public function toArray()
-    {
-        return $this->resources;
-    }
+    public function toArray();
 }

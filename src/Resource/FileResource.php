@@ -17,7 +17,7 @@ namespace Puli\Repository\Resource;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface FileResourceInterface extends ResourceInterface
+interface FileResource extends Resource
 {
     /**
      * Returns the contents of the resource.

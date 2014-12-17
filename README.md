@@ -16,9 +16,9 @@ Puli manages files and directories in a virtual repository. Whenever you need
 to access these resources in your project, you can find them by their Puli path:
 
 ```php
-use Puli\Repository\ResourceRepository;
+use Puli\Repository\InMemoryRepository;
 
-$repo = new ResourceRepository();
+$repo = new InMemoryRepository();
 $repo->add('/config', '/path/to/resources/config');
 
 // /path/to/resources/config/routing.yml

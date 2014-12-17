@@ -12,8 +12,8 @@
 namespace Puli\Repository;
 
 /**
- * Thrown when a specific implementation of {@link ResourceInterface} is not
- * accepted by the invoked method.
+ * Thrown when a specific implementation of {@link Resource} is not accepted by
+ * the invoked method.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>

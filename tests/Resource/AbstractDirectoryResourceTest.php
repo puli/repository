@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
  * @since  1.0
@@ -23,8 +23,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
     {
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
-        $resources = new ResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $resources = new ArrayResourceCollection(array($file1, $file2));
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('listDirectory')
@@ -36,7 +36,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
         $entries = $directory->listEntries();
 
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $entries);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
@@ -44,8 +44,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
     {
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
-        $resources = new ResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $resources = new ArrayResourceCollection(array($file1, $file2));
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('listDirectory')
@@ -60,7 +60,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
         $entries = $reference->listEntries();
 
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollectionInterface', $entries);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
@@ -76,8 +76,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testGet()
     {
-        $entry = $this->getMock('Puli\Repository\Resource\ResourceInterface');
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $entry = $this->getMock('Puli\Repository\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
@@ -92,8 +92,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testGetWithReference()
     {
-        $entry = $this->getMock('Puli\Repository\Resource\ResourceInterface');
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $entry = $this->getMock('Puli\Repository\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
@@ -121,7 +121,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testContains()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('contains')
@@ -136,7 +136,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testContainsWithReference()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('contains')

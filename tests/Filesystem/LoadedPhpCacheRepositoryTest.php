@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests\Filesystem;
 
-use Puli\Repository\Resource\DirectoryResourceInterface;
+use Puli\Repository\Resource\DirectoryResource;
 
 /**
  * @since  1.0
@@ -28,10 +28,10 @@ class LoadedPhpCacheRepositoryTest extends AbstractPhpCacheRepositoryTest
         return $repo;
     }
 
-    private function load(DirectoryResourceInterface $resource)
+    private function load(DirectoryResource $resource)
     {
         foreach ($resource->listEntries() as $entry) {
-            if ($entry instanceof DirectoryResourceInterface) {
+            if ($entry instanceof DirectoryResource) {
                 $this->load($entry);
             }
         }

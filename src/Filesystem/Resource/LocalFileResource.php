@@ -12,8 +12,8 @@
 namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
-use Puli\Repository\Resource\FileResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
 
 /**
@@ -22,12 +22,12 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalFileResource extends AbstractLocalResource implements FileResourceInterface
+class LocalFileResource extends AbstractLocalResource implements FileResource
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
+    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
         parent::__construct($localPath, $path, $pathLoader);
 
@@ -74,9 +74,9 @@ class LocalFileResource extends AbstractLocalResource implements FileResourceInt
     /**
      * {@inheritdoc}
      */
-    public function override(ResourceInterface $file)
+    public function override(Resource $file)
     {
-        if (!($file instanceof FileResourceInterface && $file instanceof LocalResourceInterface)) {
+        if (!($file instanceof FileResource && $file instanceof LocalResource)) {
             throw new UnsupportedResourceException('Can only override other local file resources.');
         }
 

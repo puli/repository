@@ -14,8 +14,8 @@ namespace Puli\Repository\Filesystem\Resource;
 use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Resource;
+use Puli\Repository\Resource\VirtualDirectoryResource;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\UnsupportedResourceException;
 
@@ -25,12 +25,12 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalDirectoryResource extends AbstractLocalResource implements DirectoryResourceInterface
+class LocalDirectoryResource extends AbstractLocalResource implements DirectoryResource
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
+    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
         if (!is_dir($localPath)) {
             throw new FilesystemException(sprintf(
@@ -113,14 +113,14 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     /**
      * {@inheritdoc}
      */
-    public function override(ResourceInterface $resource)
+    public function override(Resource $resource)
     {
         // Virtual directories may be overridden
-        if ($resource instanceof DirectoryResource) {
+        if ($resource instanceof VirtualDirectoryResource) {
             return;
         }
 
-        if (!($resource instanceof DirectoryResourceInterface && $resource instanceof LocalResourceInterface)) {
+        if (!($resource instanceof DirectoryResource && $resource instanceof LocalResource)) {
             throw new UnsupportedResourceException('Can only override other local directory resources.');
         }
 

@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
 
 /**
  * @since  1.0
@@ -29,7 +29,7 @@ class LocalDirectoryResourceLocalTest extends AbstractLocalResourceTest
         $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }
 
-    protected function createLocalResource($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
+    protected function createLocalResource($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
         return new LocalDirectoryResource($localPath, $path, $pathLoader);
     }

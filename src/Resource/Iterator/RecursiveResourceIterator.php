@@ -12,51 +12,13 @@
 namespace Puli\Repository\Resource\Iterator;
 
 /**
- * Iterates recursively over {@link RecursiveResourceIteratorInterface} instances.
+ * A resource iterator that can be iterated recursively.
  *
- * Use this iterator to iterate recursively over a recursive resource iterator:
- *
- * ```php
- * $iterator = new RecursiveResourceIterator(
- *     new ResourceCollectionIterator(
- *         $collection,
- *         ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_RESOURCE
- *     ),
- *     RecursiveResourceIterator::SELF_FIRST
- * );
- *
- * foreach ($iterator as $path => $resource) {
- *     // ...
- * }
- * ```
- *
- * The configuration of this iterator works identically to its parent class
- * {@link \RecursiveIteratorIterator}.
+ * Use {@link RecursiveResourceIteratorIterator} to iterate over the iterator.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RecursiveResourceIterator extends \RecursiveIteratorIterator implements ResourceIteratorInterface
+interface RecursiveResourceIterator extends ResourceIterator, \RecursiveIterator
 {
-    /**
-     * Creates a new iterator.
-     *
-     * @param RecursiveResourceIteratorInterface $iterator The inner iterator.
-     * @param int                                $mode     The iteration mode.
-     * @param int                                $flags    The iteration flags.
-     *
-     * @see \RecursiveIteratorIterator::__construct
-     */
-    public function __construct(RecursiveResourceIteratorInterface $iterator, $mode = self::LEAVES_ONLY, $flags = 0)
-    {
-        parent::__construct($iterator, $mode, $flags);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCurrentResource()
-    {
-        return $this->getInnerIterator()->getCurrentResource();
-    }
 }

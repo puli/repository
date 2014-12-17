@@ -11,8 +11,8 @@
 
 namespace Puli\Repository;
 
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
 use Puli\Repository\Uri\RepositoryFactoryException;
 use Webmozart\PathUtil\Path;
 
@@ -24,10 +24,10 @@ use Webmozart\PathUtil\Path;
  *
  * ```php
  * use Puli\Repository\CompositeRepository;
- * use Puli\Repository\ResourceRepository;
+ * use Puli\Repository\InMemoryRepository;
  *
- * $puliRepo = new ResourceRepository();
- * $psr4Repo = new ResourceRepository();
+ * $puliRepo = new InMemoryRepository();
+ * $psr4Repo = new InMemoryRepository();
  *
  * $repo = new CompositeRepository();
  * $repo->mount('/puli', $puliRepo);
@@ -45,11 +45,11 @@ use Webmozart\PathUtil\Path;
  *
  * ```php
  * use Puli\Repository\CompositeRepository;
- * use Puli\Repository\ResourceRepository;
+ * use Puli\Repository\InMemoryRepository;
  *
  * $repo = new CompositeRepository();
  * $repo->mount('/puli', function () {
- *     $repo = new ResourceRepository();
+ *     $repo = new InMemoryRepository();
  *     // configuration...
  *
  *     return $repo;
@@ -62,10 +62,10 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class CompositeRepository implements ResourceRepositoryInterface
+class CompositeRepository implements ResourceRepository
 {
     /**
-     * @var ResourceRepositoryInterface[]|callable[]
+     * @var ResourceRepository[]|callable[]
      */
     private $repos = array();
 
@@ -77,13 +77,13 @@ class CompositeRepository implements ResourceRepositoryInterface
     /**
      * Mounts a repository to a path.
      *
-     * The repository may either be passed as {@link ResourceRepositoryInterface}
-     * or as callable. If a callable is passed, the callable is invoked as soon
-     * as the scheme is used for the first time. The callable should return a
-     * {@link ResourceRepositoryInterface} object.
+     * The repository may either be passed as {@link ResourceRepository} or as
+     * callable. If a callable is passed, the callable is invoked as soon as the
+     * scheme is used for the first time. The callable should return a
+     * {@link ResourceRepository} object.
      *
-     * @param string                               $path              An absolute path.
-     * @param callable|ResourceRepositoryInterface $repositoryFactory The repository to use.
+     * @param string                      $path              An absolute path.
+     * @param callable|ResourceRepository $repositoryFactory The repository to use.
      *
      * @throws InvalidPathException If the path is invalid. The path must be a
      *                              non-empty string starting with "/".
@@ -91,11 +91,11 @@ class CompositeRepository implements ResourceRepositoryInterface
      */
     public function mount($path, $repositoryFactory)
     {
-        if (!$repositoryFactory instanceof ResourceRepositoryInterface
+        if (!$repositoryFactory instanceof ResourceRepository
                 && !is_callable($repositoryFactory)) {
             throw new \InvalidArgumentException(
                 'The repository factory should be a callable or an instance '.
-                'of "Puli\Repository\ResourceRepositoryInterface".'
+                'of "Puli\Repository\ResourceRepository".'
             );
         }
 
@@ -194,7 +194,7 @@ class CompositeRepository implements ResourceRepositoryInterface
         list ($mountPoint, $subSelector) = $this->splitPath($selector);
 
         if (null === $mountPoint) {
-            return new ResourceCollection();
+            return new ArrayResourceCollection();
         }
 
         $resources = $this->getRepository($mountPoint)->find($subSelector);
@@ -287,10 +287,10 @@ class CompositeRepository implements ResourceRepositoryInterface
      *
      * @param string $mountPoint An existing mount point.
      *
-     * @return ResourceRepositoryInterface The resource repository.
+     * @return ResourceRepository The resource repository.
      *
      * @throws RepositoryFactoryException If the callable did not return an
-     *                                    instance of {@link ResourceRepositoryInterface}.
+     *                                    instance of {@link ResourceRepository}.
      */
     private function getRepository($mountPoint)
     {
@@ -298,11 +298,11 @@ class CompositeRepository implements ResourceRepositoryInterface
             $callable = $this->repos[$mountPoint];
             $result = $callable($mountPoint);
 
-            if (!$result instanceof ResourceRepositoryInterface) {
+            if (!$result instanceof ResourceRepository) {
                 throw new RepositoryFactoryException(sprintf(
                     'The value of type "%s" returned by the locator factory '.
                     'registered for the mount point "%s" does not implement '.
-                    '"\Puli\Repository\ResourceRepositoryInterface".',
+                    '"\Puli\Repository\ResourceRepository".',
                     gettype($result),
                     $mountPoint
                 ));
@@ -315,38 +315,16 @@ class CompositeRepository implements ResourceRepositoryInterface
     }
 
     /**
-     * Filters out overshadowed resources from a resource collection.
-     *
-     * Read {@link rebuildShadows()} to learn more about shadows.
-     *
-     * @param ResourceCollectionInterface $resources  The resources to filter.
-     * @param string                      $mountPoint The mount point from which
-     *                                                the resources were loaded.
-     */
-    private function filterOvershadowedResources(ResourceCollectionInterface $resources, $mountPoint)
-    {
-        foreach ($resources as $key => $resource) {
-            $path = $resource->getPath();
-
-            foreach ($this->shadows[$mountPoint] as $shadow) {
-                if (Path::isBasePath($shadow, $path)) {
-                    unset($resources[$key]);
-                }
-            }
-        }
-    }
-
-    /**
      * Replaces all resources in the collection by references.
      *
      * If a resource "/resource" was loaded from a mount point "/mount", the
      * resource is replaced by a reference with the path "/mount/resource".
      *
-     * @param ResourceCollectionInterface $resources  The resources to replace.
-     * @param string                      $mountPoint The mount point from which
-     *                                                the resources were loaded.
+     * @param ResourceCollection $resources  The resources to replace.
+     * @param string             $mountPoint The mount point from which the
+     *                                       resources were loaded.
      */
-    private function replaceByReferences(ResourceCollectionInterface $resources, $mountPoint)
+    private function replaceByReferences(ResourceCollection $resources, $mountPoint)
     {
         if ('/' !== $mountPoint) {
             foreach ($resources as $key => $resource) {

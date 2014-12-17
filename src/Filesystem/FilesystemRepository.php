@@ -18,9 +18,8 @@ use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
-use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepository;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -35,7 +34,7 @@ use Webmozart\PathUtil\Path;
  * $resource = $repo->get('/home/puli/.gitconfig');
  * ```
  *
- * The returned resources implement {@link LocalResourceInterface}.
+ * The returned resources implement {@link LocalResource}.
  *
  * Optionally, a root directory can be passed to the constructor. Then all paths
  * will be read relative to that directory:
@@ -51,7 +50,7 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepository implements ResourceRepositoryInterface
+class FilesystemRepository implements ResourceRepository
 {
     /**
      * @var string

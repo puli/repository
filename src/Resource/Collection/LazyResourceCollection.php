@@ -12,8 +12,8 @@
 namespace Puli\Repository\Resource\Collection;
 
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\ResourceInterface;
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\Resource\Resource;
+use Puli\Repository\ResourceRepository;
 
 /**
  * A resource collection which loads its resources on demand.
@@ -24,15 +24,15 @@ use Puli\Repository\ResourceRepositoryInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionInterface
+class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
 {
     /**
-     * @var string[]|ResourceInterface[]
+     * @var string[]|Resource[]
      */
     private $resources;
 
     /**
-     * @var ResourceRepositoryInterface
+     * @var ResourceRepository
      */
     private $repo;
 
@@ -44,13 +44,12 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Creates a new collection.
      *
-     * @param ResourceRepositoryInterface $repo  The repository that will be
-     *                                           used to load the resources.
-     * @param array                       $paths The paths of the resources
-     *                                           which will be loaded into the
-     *                                           collection.
+     * @param ResourceRepository $repo  The repository that will be used to load
+     *                                  the resources.
+     * @param array              $paths The paths of the resources which will be
+     *                                  loaded into the collection.
      */
-    public function __construct(ResourceRepositoryInterface $repo, array $paths)
+    public function __construct(ResourceRepository $repo, array $paths)
     {
         $this->resources = $paths;
         $this->repo = $repo;
@@ -59,11 +58,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Not supported.
      *
-     * @param ResourceInterface $resource The resource to add.
+     * @param Resource $resource The resource to add.
      *
      * @throws \BadMethodCallException The collection is read-only.
      */
-    public function add(ResourceInterface $resource)
+    public function add(Resource $resource)
     {
         throw new \BadMethodCallException(
             'Lazy resource collections cannot be modified.'
@@ -73,12 +72,12 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Not supported.
      *
-     * @param integer           $key      The collection key.
-     * @param ResourceInterface $resource The resource to add.
+     * @param integer  $key      The collection key.
+     * @param Resource $resource The resource to add.
      *
      * @throws \BadMethodCallException The collection is read-only.
      */
-    public function set($key, ResourceInterface $resource)
+    public function set($key, Resource $resource)
     {
         throw new \BadMethodCallException(
             'Lazy resource collections cannot be modified.'
@@ -97,7 +96,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
             ));
         }
 
-        if (!$this->resources[$key] instanceof ResourceInterface) {
+        if (!$this->resources[$key] instanceof Resource) {
             $this->resources[$key] = $this->repo->get($this->resources[$key]);
         }
 
@@ -153,7 +152,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Not supported.
      *
-     * @param ResourceInterface[] $resources The resources to replace the
+     * @param Resource[] $resources The resources to replace the
      *                                       collection contents with.
      *
      * @throws \BadMethodCallException The collection is read-only.
@@ -168,7 +167,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Not supported.
      *
-     * @param ResourceInterface[] $resources The resources to merge into the
+     * @param Resource[] $resources The resources to merge into the
      *                                       collection.
      *
      * @throws \BadMethodCallException The collection is read-only.
@@ -207,8 +206,8 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     /**
      * Not supported.
      *
-     * @param string            $key      The collection key to set.
-     * @param ResourceInterface $resource The resource to set.
+     * @param string   $key      The collection key to set.
+     * @param Resource $resource The resource to set.
      *
      * @throws \BadMethodCallException The collection is read-only.
      */
@@ -243,7 +242,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
         }
 
         return array_map(
-            function (ResourceInterface $r) { return $r->getPath(); },
+            function (Resource $r) { return $r->getPath(); },
             $this->resources
         );
     }
@@ -258,7 +257,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
         }
 
         return array_map(
-            function (ResourceInterface $r) { return $r->getName(); },
+            function (Resource $r) { return $r->getName(); },
             $this->resources
         );
     }
@@ -301,7 +300,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollectionIn
     private function load()
     {
         foreach ($this->resources as $key => $resource) {
-            if (!$resource instanceof ResourceInterface) {
+            if (!$resource instanceof Resource) {
                 $this->resources[$key] = $this->repo->get($resource);
             }
         }

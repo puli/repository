@@ -12,14 +12,13 @@
 namespace Puli\Repository\Resource\Iterator;
 
 /**
- * Iterates over a {@link ResourceIteratorInterface} and filters out individual
- * entries.
+ * Iterates over a {@link ResourceIterator} and filters out individual entries.
  *
  * You can use the iterator to filter files with a specific extension:
  *
  * ```php
  * $iterator = new ResourceFilterIterator(
- *     new RecursiveResourceIterator(
+ *     new RecursiveResourceIteratorIterator(
  *         new ResourceCollectionIterator($collection),
  *     ),
  *     '.css',
@@ -36,7 +35,7 @@ namespace Puli\Repository\Resource\Iterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceFilterIterator extends \FilterIterator implements ResourceIteratorInterface
+class ResourceFilterIterator extends \FilterIterator implements ResourceIterator
 {
     /**
      * Matches the pattern against the resource path.
@@ -98,12 +97,12 @@ class ResourceFilterIterator extends \FilterIterator implements ResourceIterator
      *
      * By default, the mode `FILTER_BY_PATH | MATCH_REGEX` is used.
      *
-     * @param ResourceIteratorInterface $iterator The filtered iterator.
-     * @param string                    $pattern  The pattern to match.
-     * @param int|null                  $mode     A bitwise combination of the
-     *                                            mode constants.
+     * @param ResourceIterator $iterator The filtered iterator.
+     * @param string           $pattern  The pattern to match.
+     * @param int|null         $mode     A bitwise combination of the mode
+     *                                   constants.
      */
-    public function __construct(ResourceIteratorInterface $iterator, $pattern, $mode = null)
+    public function __construct(ResourceIterator $iterator, $pattern, $mode = null)
     {
         parent::__construct($iterator);
 

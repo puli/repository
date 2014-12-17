@@ -11,9 +11,8 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
 
 /**
  * A recursive iterator for resource collections.
@@ -33,15 +32,15 @@ use Puli\Repository\Resource\ResourceInterface;
  * ```
  *
  * If you want to iterate the collection recursively, wrap it in a
- * {@link RecursiveResourceIterator}:
+ * {@link RecursiveResourceIteratorIterator}:
  *
  * ```php
- * $iterator = new RecursiveResourceIterator(
+ * $iterator = new RecursiveResourceIteratorIterator(
  *     new ResourceCollectionIterator(
  *         $collection,
  *         ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_RESOURCE
  *     ),
- *     RecursiveResourceIterator::SELF_FIRST
+ *     RecursiveResourceIteratorIterator::SELF_FIRST
  * );
  *
  * foreach ($iterator as $path => $resource) {
@@ -52,10 +51,10 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
+class ResourceCollectionIterator implements RecursiveResourceIterator
 {
     /**
-     * Return {@link ResourceInterface} instances as values.
+     * Return {@link Resource} instances as values.
      */
     const CURRENT_AS_RESOURCE = 1;
 
@@ -83,7 +82,7 @@ class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
     const KEY_AS_CURSOR = 128;
 
     /**
-     * @var ResourceInterface[]
+     * @var Resource[]
      */
     protected $resources;
 
@@ -98,7 +97,7 @@ class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
      * The following constants can be used to configure the values returned by
      * the iterator:
      *
-     *  * {@link CURRENT_AS_RESOURCE}: The {@link ResourceInterface} objects are
+     *  * {@link CURRENT_AS_RESOURCE}: The {@link Resource} objects are
      *                                 returned as values;
      *  * {@link CURRENT_AS_PATH}: The resource paths are returned as values;
      *  * {@link CURRENT_AS_NAME}: The resource names are returned as values.
@@ -111,11 +110,11 @@ class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
      *
      * By default, the mode `KEY_AS_PATH | CURRENT_AS_RESOURCE` is used.
      *
-     * @param ResourceCollectionInterface $resources The resources to iterate.
-     * @param int|null                    $mode      A bitwise combination of
-     *                                               the mode constants.
+     * @param ResourceCollection $resources The resources to iterate.
+     * @param int|null           $mode      A bitwise combination of the mode
+     *                                      constants.
      */
-    public function __construct(ResourceCollectionInterface $resources, $mode = null)
+    public function __construct(ResourceCollection $resources, $mode = null)
     {
         if (!($mode & (self::CURRENT_AS_PATH | self::CURRENT_AS_RESOURCE | self::CURRENT_AS_NAME))) {
             $mode |= self::CURRENT_AS_RESOURCE;
@@ -132,8 +131,8 @@ class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
     /**
      * Returns the current value of the iterator.
      *
-     * @return ResourceInterface|string The current value as configured in
-     *                                  {@link __construct}.
+     * @return Resource|string The current value as configured in
+     *                         {@link __construct}.
      */
     public function current()
     {
@@ -202,7 +201,7 @@ class ResourceCollectionIterator implements RecursiveResourceIteratorInterface
      */
     public function hasChildren()
     {
-        return current($this->resources) instanceof DirectoryResourceInterface;
+        return current($this->resources) instanceof DirectoryResource;
     }
 
     /**

@@ -11,9 +11,9 @@
 
 namespace Puli\Repository\Tests\Filesystem\Resource;
 
-use Puli\Repository\Filesystem\Resource\LocalResourceInterface;
-use Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Filesystem\Resource\LocalResource;
+use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
+use Puli\Repository\Resource\Resource;
 use Puli\Repository\Tests\Resource\AbstractResourceTest;
 
 /**
@@ -34,7 +34,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
     /**
      * @param string|null $path
      *
-     * @return ResourceInterface
+     * @return Resource
      */
     protected function createResource($path = null)
     {
@@ -44,11 +44,11 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
     /**
      * @param string                        $localPath
      * @param string|null                   $path
-     * @param OverriddenPathLoaderInterface $pathLoader
+     * @param OverriddenPathLoader $pathLoader
      *
-     * @return LocalResourceInterface
+     * @return LocalResource
      */
-    abstract protected function createLocalResource($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null);
+    abstract protected function createLocalResource($localPath, $path = null, OverriddenPathLoader $pathLoader = null);
 
     abstract protected function getValidLocalPath();
 
@@ -123,7 +123,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testLoadOverriddenPathsFromPathLoader()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $resource = $this->createLocalResource($localPath, null, $loader);
@@ -142,7 +142,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testAttachDoesNotChangeLoadedOverriddenPaths()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $resource = $this->createLocalResource($localPath, null, $loader);
@@ -159,7 +159,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testDetachDoesNotChangeLoadedOverriddenPaths()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $resource = $this->createLocalResource($localPath, null, $loader);
@@ -181,7 +181,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
     {
         $resource = $this->createResource();
 
-        $resource->override($this->getMock('Puli\Repository\Resource\ResourceInterface'));
+        $resource->override($this->getMock('Puli\Repository\Resource\Resource'));
     }
 
     public function testOverride()
@@ -239,7 +239,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testOverrideLoadsPathsForOverridingResource()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $overriddenLocalPath = $this->getValidLocalPath2();
@@ -263,7 +263,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testOverrideLoadsPathsForOverriddenResource()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $overriddenLocalPath = $this->getValidLocalPath2();
@@ -316,7 +316,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testSerializeKeepsLoadedPaths()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $resource = $this->createLocalResource($localPath, null, $loader);
@@ -339,7 +339,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     public function testSerializeLoadsPathsIfNotYetLoaded()
     {
-        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoaderInterface');
+        $loader = $this->getMock('Puli\Repository\Filesystem\Resource\OverriddenPathLoader');
 
         $localPath = $this->getValidLocalPath();
         $resource = $this->createLocalResource($localPath, null, $loader);

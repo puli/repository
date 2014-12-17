@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Tests\Resource\Iterator;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Resource\Iterator\ResourceFilterIterator;
 use Puli\Repository\Tests\Resource\TestDirectory;
@@ -25,13 +25,13 @@ use Puli\Repository\Tests\Resource\TestFile;
 class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ResourceCollection
+     * @var ArrayResourceCollection
      */
     private $collection;
 
     protected function setUp()
     {
-        $this->collection = new ResourceCollection(array(
+        $this->collection = new ArrayResourceCollection(array(
             new TestDirectory('/webmozart', array(
                 new TestDirectory('/webmozart/puli', array(
                     new TestDirectory('/webmozart/puli/config', array(
@@ -56,7 +56,7 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectEmptyPattern()
     {
-        $innerIterator = new ResourceCollectionIterator(new ResourceCollection());
+        $innerIterator = new ResourceCollectionIterator(new ArrayResourceCollection());
 
         new ResourceFilterIterator($innerIterator, '');
     }
@@ -64,12 +64,12 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
     public function testFilterPathPrefix()
     {
         $iterator = new ResourceFilterIterator(
-            new RecursiveResourceIterator(
+            new RecursiveResourceIteratorIterator(
                 new ResourceCollectionIterator(
                     $this->collection,
                     ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_NAME
                 ),
-                RecursiveResourceIterator::SELF_FIRST
+                RecursiveResourceIteratorIterator::SELF_FIRST
             ),
             '/webmozart/puli/css',
             ResourceFilterIterator::MATCH_PREFIX
@@ -89,12 +89,12 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
     public function testFilterPathSuffix()
     {
         $iterator = new ResourceFilterIterator(
-            new RecursiveResourceIterator(
+            new RecursiveResourceIteratorIterator(
                 new ResourceCollectionIterator(
                     $this->collection,
                     ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_NAME
                 ),
-                RecursiveResourceIterator::SELF_FIRST
+                RecursiveResourceIteratorIterator::SELF_FIRST
             ),
             '.css',
             ResourceFilterIterator::MATCH_SUFFIX
@@ -112,12 +112,12 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
     public function testFilterPathRegexImplicit()
     {
         $iterator = new ResourceFilterIterator(
-            new RecursiveResourceIterator(
+            new RecursiveResourceIteratorIterator(
                 new ResourceCollectionIterator(
                     $this->collection,
                     ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_NAME
                 ),
-                RecursiveResourceIterator::SELF_FIRST
+                RecursiveResourceIteratorIterator::SELF_FIRST
             ),
             '/\.css$/'
         );
@@ -134,12 +134,12 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
     public function testFilterPathRegexExplicit()
     {
         $iterator = new ResourceFilterIterator(
-            new RecursiveResourceIterator(
+            new RecursiveResourceIteratorIterator(
                 new ResourceCollectionIterator(
                     $this->collection,
                     ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_NAME
                 ),
-                RecursiveResourceIterator::SELF_FIRST
+                RecursiveResourceIteratorIterator::SELF_FIRST
             ),
             '/\.css$/',
             ResourceFilterIterator::MATCH_REGEX
@@ -157,12 +157,12 @@ class ResourceFilterIteratorTest extends \PHPUnit_Framework_TestCase
     public function testFilterNamePrefix()
     {
         $iterator = new ResourceFilterIterator(
-            new RecursiveResourceIterator(
+            new RecursiveResourceIteratorIterator(
                 new ResourceCollectionIterator(
                     $this->collection,
                     ResourceCollectionIterator::KEY_AS_PATH | ResourceCollectionIterator::CURRENT_AS_NAME
                 ),
-                RecursiveResourceIterator::SELF_FIRST
+                RecursiveResourceIteratorIterator::SELF_FIRST
             ),
             'bootstrap',
             ResourceFilterIterator::FILTER_BY_NAME | ResourceFilterIterator::MATCH_PREFIX

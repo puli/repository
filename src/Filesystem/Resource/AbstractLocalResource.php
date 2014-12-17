@@ -13,7 +13,7 @@ namespace Puli\Repository\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
 
 /**
@@ -22,7 +22,7 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractLocalResource extends AbstractResource implements LocalResourceInterface
+abstract class AbstractLocalResource extends AbstractResource implements LocalResource
 {
     /**
      * @var string
@@ -35,18 +35,18 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
     private $overriddenPaths;
 
     /**
-     * @var OverriddenPathLoaderInterface|null
+     * @var OverriddenPathLoader|null
      */
     private $pathLoader;
 
     /**
      * Creates a new local resource.
      *
-     * @param string                        $localPath  The path on the local file system.
-     * @param string|null                   $path       The repository path of the resource.
-     * @param OverriddenPathLoaderInterface $pathLoader The loader for the overridden paths.
+     * @param string               $localPath  The path on the local file system.
+     * @param string|null          $path       The repository path of the resource.
+     * @param OverriddenPathLoader $pathLoader The loader for the overridden paths.
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoaderInterface $pathLoader = null)
+    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
         parent::__construct($path);
 
@@ -87,9 +87,9 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
     /**
      * {@inheritdoc}
      */
-    public function override(ResourceInterface $resource)
+    public function override(Resource $resource)
     {
-        if (!$resource instanceof LocalResourceInterface) {
+        if (!$resource instanceof LocalResource) {
             throw new UnsupportedResourceException('Can only override other local resources.');
         }
 

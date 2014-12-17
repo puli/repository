@@ -11,20 +11,18 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Repository\Resource\ResourceInterface;
-
 /**
- * An iterator over {@link ResourceInterface} objects.
+ * An iterator over {@link Resource} objects.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceIteratorInterface extends \Iterator
+interface ResourceIterator extends \Iterator
 {
     /**
      * Returns the resource at the current position of the iterator.
      *
-     * @return ResourceInterface The resource at the current position.
+     * @return Resource The resource at the current position.
      */
     public function getCurrentResource();
 }

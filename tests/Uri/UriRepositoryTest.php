@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests\Uri;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Tests\Resource\TestFile;
 use Puli\Repository\Uri\UriRepository;
 
@@ -56,7 +56,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegisterRepository($scheme)
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register($scheme, $repo);
 
@@ -70,7 +70,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testRegisterRepositoryFactory()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', function () use ($repo) {
             return $repo;
@@ -98,7 +98,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegisterExpectsValidScheme($scheme)
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register($scheme, $repo);
     }
@@ -108,7 +108,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testRepositoryFactoryMustReturnRepository()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', function () use ($repo) {
             return 'foo';
@@ -121,10 +121,10 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertNull($this->repo->getDefaultScheme());
 
-        $this->repo->register('first', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('first', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->assertSame('first', $this->repo->getDefaultScheme());
 
-        $this->repo->register('second', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('second', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->assertSame('first', $this->repo->getDefaultScheme());
 
         $this->repo->unregister('second');
@@ -136,8 +136,8 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testSetDefaultScheme()
     {
-        $this->repo->register('first', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
-        $this->repo->register('second', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('first', $this->getMock('Puli\Repository\ResourceRepository'));
+        $this->repo->register('second', $this->getMock('Puli\Repository\ResourceRepository'));
 
         $this->repo->setDefaultScheme('second');
 
@@ -157,9 +157,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUsesDefaultSchemeIfPathGiven()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
-        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -184,7 +184,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCantUseUnregisteredScheme()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', $repo);
         $this->repo->unregister('scheme');
@@ -196,7 +196,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(array(), $this->repo->getSupportedSchemes());
 
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('resource', $repo);
         $this->assertEquals(array('resource'), $this->repo->getSupportedSchemes());
@@ -229,7 +229,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContains()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', $repo);
 
@@ -248,9 +248,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testContainsUsesDefaultScheme()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
-        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -272,7 +272,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFind()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', $repo);
 
@@ -286,9 +286,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testFindUsesDefaultSchemeIfPathGiven()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
-        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 
@@ -310,7 +310,7 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testListDirectory()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->register('scheme', $repo);
 
@@ -324,9 +324,9 @@ class UriRepositoryTest extends \PHPUnit_Framework_TestCase
 
     public function testListDirectoryUsesDefaultSchemeIfPathGiven()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepositoryInterface');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
 
-        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepositoryInterface'));
+        $this->repo->register('scheme1', $this->getMock('Puli\Repository\ResourceRepository'));
         $this->repo->register('scheme2', $repo);
         $this->repo->setDefaultScheme('scheme2');
 

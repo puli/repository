@@ -11,8 +11,7 @@
 
 namespace Puli\Repository;
 
-use Puli\Repository\Resource\Collection\ResourceCollectionInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
  * A repository that supports the addition and removal of resources.
@@ -20,15 +19,17 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ManageableRepositoryInterface extends ResourceRepositoryInterface
+interface ManageableRepository extends ResourceRepository
 {
     /**
      * Adds a new resource to the repository.
      *
-     * All resources passed to this method must implement {@link ResourceInterface}.
+     * All resources passed to this method must implement {@link Resource}.
      *
-     * @param string                                        $path     The path at which to add the resource.
-     * @param ResourceInterface|ResourceCollectionInterface $resource The resource(s) to add at that path.
+     * @param string                      $path     The path at which to add the
+     *                                              resource.
+     * @param Resource|ResourceCollection $resource The resource(s) to add at
+     *                                              that path.
      *
      * @throws InvalidPathException If the path is invalid. The path must be a
      *                              non-empty string starting with "/".

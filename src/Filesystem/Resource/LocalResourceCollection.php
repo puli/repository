@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\Resource;
 
 /**
  * A collection of local resources.
@@ -23,7 +23,7 @@ use Puli\Repository\Resource\ResourceInterface;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalResourceCollection extends ResourceCollection
+class LocalResourceCollection extends ArrayResourceCollection
 {
     /**
      * Returns the local paths of all contained resources.
@@ -36,13 +36,13 @@ class LocalResourceCollection extends ResourceCollection
     public function getLocalPaths()
     {
         return array_map(
-            function (LocalResourceInterface $r) {
+            function (LocalResource $r) {
                 return $r->getLocalPath();
             },
             array_filter(
                 $this->toArray(),
-                function (ResourceInterface $r) {
-                    return $r instanceof LocalResourceInterface;
+                function (Resource $r) {
+                    return $r instanceof LocalResource;
                 }
             )
         );

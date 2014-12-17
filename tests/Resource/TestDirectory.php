@@ -12,18 +12,18 @@
 namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\ResourceInterface;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\Resource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestDirectory extends AbstractResource implements DirectoryResourceInterface
+class TestDirectory extends AbstractResource implements DirectoryResource
 {
     /**
-     * @var ResourceInterface[]
+     * @var Resource[]
      */
     private $entries = array();
 
@@ -50,10 +50,10 @@ class TestDirectory extends AbstractResource implements DirectoryResourceInterfa
 
     public function listEntries()
     {
-        return new ResourceCollection($this->entries);
+        return new ArrayResourceCollection($this->entries);
     }
 
-    public function override(ResourceInterface $resource)
+    public function override(Resource $resource)
     {
         $this->overrides = $resource;
     }

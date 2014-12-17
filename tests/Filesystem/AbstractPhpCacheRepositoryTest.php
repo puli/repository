@@ -15,10 +15,10 @@ use Puli\Repository\Filesystem\PhpCacheRepository;
 use Puli\Repository\Filesystem\Resource\AbstractLocalResource;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\ResourceRepository;
+use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Tests\AbstractRepositoryTest;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -64,23 +64,23 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
         $this->filesystem->remove($this->root);
     }
 
-    protected function createRepository(DirectoryResourceInterface $root)
+    protected function createRepository(DirectoryResource $root)
     {
-        $iterator = new RecursiveResourceIterator(
+        $iterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator($root->listEntries()),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         foreach ($iterator as $resource) {
             $localPath = $this->repoRoot.$resource->getPath();
-            if ($resource instanceof DirectoryResourceInterface) {
+            if ($resource instanceof DirectoryResource) {
                 $this->filesystem->mkdir($localPath);
             } else {
                 file_put_contents($localPath, $resource->getContents());
             }
         }
 
-        $repo = new ResourceRepository();
+        $repo = new InMemoryRepository();
         $repo->add('/', new LocalDirectoryResource($this->repoRoot));
 
         PhpCacheRepository::dumpRepository($repo, $this->cacheRoot);
@@ -115,7 +115,7 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
      */
     public function testFailIfInvalidDump()
     {
-        PhpCacheRepository::dumpRepository(new ResourceRepository(), $this->cacheRoot);
+        PhpCacheRepository::dumpRepository(new InMemoryRepository(), $this->cacheRoot);
 
         $files = glob($this->cacheRoot.'/*');
         unlink($files[1]);
@@ -162,7 +162,7 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
         touch($this->repoRoot.'/file1');
         touch($this->repoRoot.'/file2');
 
-        $repo = new ResourceRepository();
+        $repo = new InMemoryRepository();
         $repo->add('/webmozart/puli/file', new LocalFileResource($this->repoRoot.'/file1'));
         $repo->add('/webmozart/puli/file', new LocalFileResource($this->repoRoot.'/file2'));
 
@@ -185,7 +185,7 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
         touch($this->repoRoot.'/dir2/foo');
         touch($this->repoRoot.'/dir2/bar');
 
-        $repo = new ResourceRepository();
+        $repo = new InMemoryRepository();
         $repo->add('/webmozart/puli/dir', new LocalDirectoryResource($this->repoRoot.'/dir1'));
         $repo->add('/webmozart/puli/dir', new LocalDirectoryResource($this->repoRoot.'/dir2'));
 

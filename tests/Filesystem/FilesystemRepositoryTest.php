@@ -14,10 +14,10 @@ namespace Puli\Repository\Tests\Filesystem;
 use Puli\Repository\Filesystem\FilesystemRepository;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Resource\DirectoryResourceInterface;
-use Puli\Repository\Resource\Iterator\RecursiveResourceIterator;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\ResourceRepositoryInterface;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\AbstractRepositoryTest;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -53,19 +53,19 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @param DirectoryResourceInterface $root
+     * @param DirectoryResource $root
      *
-     * @return ResourceRepositoryInterface
+     * @return ResourceRepository
      */
-    protected function createRepository(DirectoryResourceInterface $root)
+    protected function createRepository(DirectoryResource $root)
     {
-        $iterator = new RecursiveResourceIterator(
+        $iterator = new RecursiveResourceIteratorIterator(
             new ResourceCollectionIterator($root->listEntries()),
-            RecursiveResourceIterator::SELF_FIRST
+            RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         foreach ($iterator as $resource) {
-            if ($resource instanceof DirectoryResourceInterface) {
+            if ($resource instanceof DirectoryResource) {
                 $this->filesystem->mkdir($this->root.$resource->getPath());
             } else {
                 file_put_contents($this->root.$resource->getPath(), $resource->getContents());
