@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Resource;
 
+use RuntimeException;
+
 /**
  * Thrown when an operation is requested that requires a resource to be
  * attached to a repository.
@@ -18,6 +20,6 @@ namespace Puli\Repository\Resource;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class DetachedException extends \RuntimeException
+class DetachedException extends RuntimeException
 {
 }

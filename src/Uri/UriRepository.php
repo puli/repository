@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Uri;
 
+use InvalidArgumentException;
 use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\Collection\ResourceCollection;
@@ -83,7 +84,7 @@ use Puli\Repository\ResourceRepository;
 class UriRepository implements UriRepositoryInterface
 {
     /**
-     * @var callable[]|\Puli\Repository\ResourceRepository[]
+     * @var callable[]|ResourceRepository[]
      */
     private $repos = array();
 
@@ -103,35 +104,35 @@ class UriRepository implements UriRepositoryInterface
      * @param string                               $scheme            A URI scheme.
      * @param callable|ResourceRepository $repositoryFactory The repository to use.
      *
-     * @throws \InvalidArgumentException If the repository factory or the URI
-     *                                   scheme is invalid.
+     * @throws InvalidArgumentException If the repository factory or the URI
+     *                                  scheme is invalid.
      */
     public function register($scheme, $repositoryFactory)
     {
         if (!$repositoryFactory instanceof ResourceRepository
                 && !is_callable($repositoryFactory)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The repository factory should be a callable or an instance '.
                 'of "Puli\Repository\ResourceRepository".'
             );
         }
 
         if (!is_string($scheme)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The scheme must be a string, but is a "%s".',
                 gettype($scheme)
             ));
         }
 
         if (!ctype_alnum($scheme)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The scheme "%s" should consist of letters and digits only.',
                 $scheme
             ));
         }
 
         if (!ctype_alpha($scheme[0])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The first character of the scheme "%s" should be a letter.',
                 $scheme
             ));

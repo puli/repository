@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
@@ -20,7 +21,7 @@ use Puli\Repository\Tests\Resource\TestFile;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @param DirectoryResource $root

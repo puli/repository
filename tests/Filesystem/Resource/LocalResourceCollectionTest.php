@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests\Filesystem\Resource;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
@@ -21,7 +22,7 @@ use Puli\Repository\Tests\Resource\TestFile;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LocalResourceCollectionTest extends \PHPUnit_Framework_TestCase
+class LocalResourceCollectionTest extends PHPUnit_Framework_TestCase
 {
     private $fixturesDir;
 

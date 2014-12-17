@@ -11,13 +11,14 @@
 
 namespace Puli\Repository\Tests\Resource\Collection;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ArrayResourceCollectionTest extends \PHPUnit_Framework_TestCase
+class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
 {
     public function testConstruct()
     {

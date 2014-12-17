@@ -11,13 +11,17 @@
 
 namespace Puli\Repository\Tests\Filesystem\Iterator;
 
+use ArrayIterator;
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Filesystem\Iterator\SortingIterator;
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class SortingIteratorTest extends \PHPUnit_Framework_TestCase
+class SortingIteratorTest extends PHPUnit_Framework_TestCase
 {
     private static $array = array(
         'a' => 'b',
@@ -33,7 +37,7 @@ class SortingIteratorTest extends \PHPUnit_Framework_TestCase
     public function testSortValuesByDefault()
     {
         $iterator = new SortingIterator(
-            new \ArrayIterator(self::$array),
+            new ArrayIterator(self::$array),
             0
         );
 
@@ -52,7 +56,7 @@ class SortingIteratorTest extends \PHPUnit_Framework_TestCase
     public function testSortValues()
     {
         $iterator = new SortingIterator(
-            new \ArrayIterator(self::$array),
+            new ArrayIterator(self::$array),
             SortingIterator::SORT_VALUE
         );
 
@@ -70,12 +74,12 @@ class SortingIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testRecursiveSortValues()
     {
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveIteratorIterator(
             new SortingIterator(
-                new \RecursiveArrayIterator(self::$array),
+                new RecursiveArrayIterator(self::$array),
                 SortingIterator::SORT_VALUE
             ),
-            \RecursiveIteratorIterator::LEAVES_ONLY
+            RecursiveIteratorIterator::LEAVES_ONLY
         );
 
         $this->assertSame(array(
@@ -91,7 +95,7 @@ class SortingIteratorTest extends \PHPUnit_Framework_TestCase
     public function testSortKeys()
     {
         $iterator = new SortingIterator(
-            new \ArrayIterator(self::$array),
+            new ArrayIterator(self::$array),
             SortingIterator::SORT_KEY
         );
 
@@ -109,12 +113,12 @@ class SortingIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testRecursiveSortKeys()
     {
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveIteratorIterator(
             new SortingIterator(
-                new \RecursiveArrayIterator(self::$array),
+                new RecursiveArrayIterator(self::$array),
                 SortingIterator::SORT_KEY
             ),
-            \RecursiveIteratorIterator::LEAVES_ONLY
+            RecursiveIteratorIterator::LEAVES_ONLY
         );
 
         $this->assertSame(array(

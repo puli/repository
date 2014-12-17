@@ -11,8 +11,13 @@
 
 namespace Puli\Repository\Resource\Collection;
 
+use ArrayAccess;
+use Countable;
+use InvalidArgumentException;
+use OutOfBoundsException;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
+use Traversable;
 
 /**
  * A collection of {@link Resource} instances.
@@ -20,7 +25,7 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceCollection extends \Traversable, \ArrayAccess, \Countable
+interface ResourceCollection extends Traversable, ArrayAccess, Countable
 {
     /**
      * Adds a resource to the collection.
@@ -44,7 +49,7 @@ interface ResourceCollection extends \Traversable, \ArrayAccess, \Countable
      *
      * @return Resource The resource at the key.
      *
-     * @throws \OutOfBoundsException If the key does not exist.
+     * @throws OutOfBoundsException If the key does not exist.
      */
     public function get($key);
 
@@ -82,8 +87,8 @@ interface ResourceCollection extends \Traversable, \ArrayAccess, \Countable
      * @param Resource[] $resources The resources to write into the
      *                                       collection.
      *
-     * @throws \InvalidArgumentException If the resources are not an array and
-     *                                   not a traversable object.
+     * @throws InvalidArgumentException If the resources are not an array and
+     *                                  not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */
@@ -95,8 +100,8 @@ interface ResourceCollection extends \Traversable, \ArrayAccess, \Countable
      * @param Resource[] $resources The resources to merge into the
      *                                       collection.
      *
-     * @throws \InvalidArgumentException If the resources are not an array and
-     *                                   not a traversable object.
+     * @throws InvalidArgumentException If the resources are not an array and
+     *                                  not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */

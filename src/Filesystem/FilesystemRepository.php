@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Filesystem;
 
+use InvalidArgumentException;
+use Iterator;
 use Puli\Repository\Filesystem\Iterator\GlobIterator;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
@@ -66,7 +68,7 @@ class FilesystemRepository implements ResourceRepository
     public function __construct($rootDirectory = null)
     {
         if ($rootDirectory && !is_dir($rootDirectory)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The path "%s" is not a directory.',
                 $rootDirectory
             ));
@@ -221,7 +223,7 @@ class FilesystemRepository implements ResourceRepository
         return $this->iteratorToCollection(new RecursiveDirectoryIterator($localPath));
     }
 
-    private function iteratorToCollection(\Iterator $iterator)
+    private function iteratorToCollection(Iterator $iterator)
     {
         $offset = strlen($this->rootDirectory);
         $resources = array();

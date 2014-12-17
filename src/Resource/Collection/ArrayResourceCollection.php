@@ -11,9 +11,13 @@
 
 namespace Puli\Repository\Resource\Collection;
 
+use InvalidArgumentException;
+use IteratorAggregate;
+use OutOfBoundsException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
+use Traversable;
 
 /**
  * A collection of {@link Resource} instances backed by an array.
@@ -21,7 +25,7 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ArrayResourceCollection implements \IteratorAggregate, ResourceCollection
+class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
 {
     /**
      * @var Resource[]
@@ -36,8 +40,8 @@ class ArrayResourceCollection implements \IteratorAggregate, ResourceCollection
      *
      * @param Resource[] $resources The resources to store in the collection.
      *
-     * @throws \InvalidArgumentException If the resources are not an array and
-     *                                   not a traversable object.
+     * @throws InvalidArgumentException If the resources are not an array and
+     *                                  not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */
@@ -68,7 +72,7 @@ class ArrayResourceCollection implements \IteratorAggregate, ResourceCollection
     public function get($key)
     {
         if (!isset($this->resources[$key])) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'The offset "%s" does not exist.',
                 $key
             ));
@@ -114,8 +118,8 @@ class ArrayResourceCollection implements \IteratorAggregate, ResourceCollection
      */
     public function replace($resources)
     {
-        if (!is_array($resources) && !$resources instanceof \Traversable) {
-            throw new \InvalidArgumentException(sprintf(
+        if (!is_array($resources) && !$resources instanceof Traversable) {
+            throw new InvalidArgumentException(sprintf(
                 'The resources must be passed as array or traversable object. '.
                 'Got: "%s"',
                 is_object($resources) ? get_class($resources) : gettype($resources)
@@ -140,8 +144,8 @@ class ArrayResourceCollection implements \IteratorAggregate, ResourceCollection
      */
     public function merge($resources)
     {
-        if (!is_array($resources) && !$resources instanceof \Traversable) {
-            throw new \InvalidArgumentException(sprintf(
+        if (!is_array($resources) && !$resources instanceof Traversable) {
+            throw new InvalidArgumentException(sprintf(
                 'The resources must be passed as array or traversable object. '.
                 'Got: "%s"',
                 is_object($resources) ? get_class($resources) : gettype($resources)

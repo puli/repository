@@ -11,6 +11,8 @@
 
 namespace Puli\Repository;
 
+use RuntimeException;
+
 /**
  * Thrown when an invalid resource path is passed.
  *
@@ -19,6 +21,6 @@ namespace Puli\Repository;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class InvalidPathException extends \RuntimeException
+class InvalidPathException extends RuntimeException
 {
 }

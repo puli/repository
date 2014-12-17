@@ -13,6 +13,7 @@ namespace Puli\Repository\Resource;
 
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\UnsupportedResourceException;
+use Serializable;
 
 /**
  * A resource.
@@ -47,7 +48,7 @@ use Puli\Repository\UnsupportedResourceException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface Resource extends \Serializable
+interface Resource extends Serializable
 {
     /**
      * Returns the path of the resource.

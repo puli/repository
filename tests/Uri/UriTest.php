@@ -11,13 +11,14 @@
 
 namespace Puli\Repository\Tests\Uri;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Uri\Uri;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UriTest extends \PHPUnit_Framework_TestCase
+class UriTest extends PHPUnit_Framework_TestCase
 {
 
     public function provideValidUris()

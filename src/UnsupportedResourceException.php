@@ -11,6 +11,8 @@
 
 namespace Puli\Repository;
 
+use RuntimeException;
+
 /**
  * Thrown when a specific implementation of {@link Resource} is not accepted by
  * the invoked method.
@@ -18,6 +20,6 @@ namespace Puli\Repository;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UnsupportedResourceException extends \RuntimeException
+class UnsupportedResourceException extends RuntimeException
 {
 }

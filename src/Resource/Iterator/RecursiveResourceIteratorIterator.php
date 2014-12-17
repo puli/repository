@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use RecursiveIteratorIterator;
+
 /**
  * Iterates recursively over {@link RecursiveResourceIterator} instances.
  *
@@ -31,12 +33,12 @@ namespace Puli\Repository\Resource\Iterator;
  * ```
  *
  * The configuration of this iterator works identically to its parent class
- * {@link \RecursiveIteratorIterator}.
+ * {@link RecursiveIteratorIterator}.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RecursiveResourceIteratorIterator extends \RecursiveIteratorIterator implements ResourceIterator
+class RecursiveResourceIteratorIterator extends RecursiveIteratorIterator implements ResourceIterator
 {
     /**
      * Creates a new iterator.
@@ -45,7 +47,7 @@ class RecursiveResourceIteratorIterator extends \RecursiveIteratorIterator imple
      * @param int                       $mode     The iteration mode.
      * @param int                       $flags    The iteration flags.
      *
-     * @see \RecursiveIteratorIterator::__construct
+     * @see RecursiveIteratorIterator::__construct
      */
     public function __construct(RecursiveResourceIterator $iterator, $mode = self::LEAVES_ONLY, $flags = 0)
     {

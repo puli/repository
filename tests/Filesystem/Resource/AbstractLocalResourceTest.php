@@ -13,7 +13,6 @@ namespace Puli\Repository\Tests\Filesystem\Resource;
 
 use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\Tests\Resource\AbstractResourceTest;
 
 /**

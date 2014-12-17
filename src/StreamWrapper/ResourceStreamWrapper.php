@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\StreamWrapper;
 
+use IteratorIterator;
 use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\DirectoryResource;
@@ -149,7 +150,7 @@ class ResourceStreamWrapper implements StreamWrapper
     private $handle;
 
     /**
-     * @var \IteratorIterator
+     * @var IteratorIterator
      */
     private $directoryIterator;
 
@@ -596,8 +597,7 @@ class ResourceStreamWrapper implements StreamWrapper
         if (null === self::$repo) {
             throw new StreamWrapperException(
                 'The stream wrapper has not been registered. Please call '.
-                '\Puli\Repository\StreamWrapper\ResourceStreamWrapper::register() '.
-                'first.'
+                'ResourceStreamWrapper::register() first.'
             );
         }
 

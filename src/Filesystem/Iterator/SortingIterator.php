@@ -11,7 +11,9 @@
 
 namespace Puli\Repository\Filesystem\Iterator;
 
+use ArrayIterator;
 use RecursiveIterator;
+use SeekableIterator;
 
 /**
  * Sorts another iterator.
@@ -30,7 +32,7 @@ use RecursiveIterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class SortingIterator extends \ArrayIterator implements \RecursiveIterator
+class SortingIterator extends ArrayIterator implements RecursiveIterator
 {
     /**
      * Flag: Sort by value.
@@ -43,7 +45,7 @@ class SortingIterator extends \ArrayIterator implements \RecursiveIterator
     const SORT_KEY = 2;
 
     /**
-     * @var \SeekableIterator
+     * @var SeekableIterator
      */
     private $innerIterator;
 
@@ -58,10 +60,10 @@ class SortingIterator extends \ArrayIterator implements \RecursiveIterator
      * Pass the flag {@link SORT_VALUE} if you want to sort by the iterator
      * values (the default) and {@link SORT_KEY} to sort by the iterator keys.
      *
-     * @param \SeekableIterator $iterator The sorted iterator.
-     * @param int|null          $flags    The flags.
+     * @param SeekableIterator $iterator The sorted iterator.
+     * @param int|null         $flags    The flags.
      */
-    public function __construct(\SeekableIterator $iterator, $flags = null)
+    public function __construct(SeekableIterator $iterator, $flags = null)
     {
         if (!($flags & (self::SORT_KEY | self::SORT_VALUE))) {
             $flags |= self::SORT_VALUE;
@@ -118,7 +120,7 @@ class SortingIterator extends \ArrayIterator implements \RecursiveIterator
 
     public function hasChildren()
     {
-        return $this->innerIterator instanceof \RecursiveIterator && $this->innerIterator->hasChildren();
+        return $this->innerIterator instanceof RecursiveIterator && $this->innerIterator->hasChildren();
     }
 
     public function getChildren()

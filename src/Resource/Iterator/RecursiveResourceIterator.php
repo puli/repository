@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use RecursiveIterator;
+
 /**
  * A resource iterator that can be iterated recursively.
  *
@@ -19,6 +21,6 @@ namespace Puli\Repository\Resource\Iterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface RecursiveResourceIterator extends ResourceIterator, \RecursiveIterator
+interface RecursiveResourceIterator extends ResourceIterator, RecursiveIterator
 {
 }

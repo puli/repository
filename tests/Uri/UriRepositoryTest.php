@@ -11,15 +11,14 @@
 
 namespace Puli\Repository\Tests\Uri;
 
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Tests\Resource\TestFile;
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Uri\UriRepository;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UriRepositoryTest extends \PHPUnit_Framework_TestCase
+class UriRepositoryTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var UriRepository

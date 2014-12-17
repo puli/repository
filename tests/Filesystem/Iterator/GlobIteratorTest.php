@@ -11,13 +11,14 @@
 
 namespace Puli\Repository\Tests\Filesystem\Iterator;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Filesystem\Iterator\GlobIterator;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GlobIteratorTest extends \PHPUnit_Framework_TestCase
+class GlobIteratorTest extends PHPUnit_Framework_TestCase
 {
     private $fixturesDir;
 

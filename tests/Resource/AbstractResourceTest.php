@@ -11,17 +11,18 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\Resource;
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\ResourceRepository;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractResourceTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|ResourceRepository
+     * @var PHPUnit_Framework_MockObject_MockObject|ResourceRepository
      */
     protected $repo;
 

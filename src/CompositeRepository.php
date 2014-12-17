@@ -11,6 +11,7 @@
 
 namespace Puli\Repository;
 
+use InvalidArgumentException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Uri\RepositoryFactoryException;
@@ -82,13 +83,13 @@ class CompositeRepository implements ResourceRepository
      *
      * @throws InvalidPathException If the path is invalid. The path must be a
      *                              non-empty string starting with "/".
-     * @throws \InvalidArgumentException If the repository factory is invalid.
+     * @throws InvalidArgumentException If the repository factory is invalid.
      */
     public function mount($path, $repositoryFactory)
     {
         if (!$repositoryFactory instanceof ResourceRepository
                 && !is_callable($repositoryFactory)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The repository factory should be a callable or an instance '.
                 'of "Puli\Repository\ResourceRepository".'
             );
@@ -291,7 +292,7 @@ class CompositeRepository implements ResourceRepository
                 throw new RepositoryFactoryException(sprintf(
                     'The value of type "%s" returned by the locator factory '.
                     'registered for the mount point "%s" does not implement '.
-                    '"\Puli\Repository\ResourceRepository".',
+                    'ResourceRepository.',
                     gettype($result),
                     $mountPoint
                 ));

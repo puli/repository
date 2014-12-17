@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Iterator;
 
+use ArrayIterator;
 use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\NoDirectoryException;
 use RecursiveIterator;
@@ -27,7 +28,7 @@ use RecursiveIterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RecursiveDirectoryIterator extends \ArrayIterator implements \RecursiveIterator
+class RecursiveDirectoryIterator extends ArrayIterator implements RecursiveIterator
 {
     /**
      * Flag: Return current value as file path.

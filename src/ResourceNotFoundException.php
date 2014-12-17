@@ -11,12 +11,14 @@
 
 namespace Puli\Repository;
 
+use RuntimeException;
+
 /**
  * Thrown when a requested resource was not found.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceNotFoundException extends \RuntimeException
+class ResourceNotFoundException extends RuntimeException
 {
 }

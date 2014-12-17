@@ -11,12 +11,14 @@
 
 namespace Puli\Repository\Filesystem;
 
+use RuntimeException;
+
 /**
  * Thrown when filesystem-related errors occur.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemException extends \RuntimeException
+class FilesystemException extends RuntimeException
 {
 }

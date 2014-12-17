@@ -11,6 +11,9 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use FilterIterator;
+use InvalidArgumentException;
+
 /**
  * Iterates over a {@link ResourceIterator} and filters out individual entries.
  *
@@ -35,7 +38,7 @@ namespace Puli\Repository\Resource\Iterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceFilterIterator extends \FilterIterator implements ResourceIterator
+class ResourceFilterIterator extends FilterIterator implements ResourceIterator
 {
     /**
      * Matches the pattern against the resource path.
@@ -117,7 +120,7 @@ class ResourceFilterIterator extends \FilterIterator implements ResourceIterator
         $pattern = (string) $pattern;
 
         if ('' === $pattern) {
-            throw new \InvalidArgumentException('The pattern must not be empty.');
+            throw new InvalidArgumentException('The pattern must not be empty.');
         }
 
         $this->pattern = $pattern;

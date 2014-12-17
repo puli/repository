@@ -11,12 +11,14 @@
 
 namespace Puli\Repository\Uri;
 
+use RuntimeException;
+
 /**
  * Thrown when a URI is invalid.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class InvalidUriException extends \Exception
+class InvalidUriException extends RuntimeException
 {
 }

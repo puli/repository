@@ -11,13 +11,15 @@
 
 namespace Puli\Repository\Tests\Filesystem\Iterator;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RecursiveDirectoryIteratorTest extends \PHPUnit_Framework_TestCase
+class RecursiveDirectoryIteratorTest extends PHPUnit_Framework_TestCase
 {
     private $fixturesDir;
 
@@ -72,9 +74,9 @@ class RecursiveDirectoryIteratorTest extends \PHPUnit_Framework_TestCase
 
     public function testIterateRecursively()
     {
-        $iterator = new \RecursiveIteratorIterator(
+        $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($this->fixturesDir, RecursiveDirectoryIterator::CURRENT_AS_FILE),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveIteratorIterator::SELF_FIRST
         );
 
         $this->assertSame(array(

@@ -25,6 +25,7 @@ use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\Selector\Selector;
 use Puli\Repository\UnsupportedResourceException;
+use RuntimeException;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -201,14 +202,14 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
      * @param string $cacheDir The path to the directory that contains the
      *                         dumped files.
      *
-     * @throws \RuntimeException If the dump is invalid.
+     * @throws RuntimeException If the dump is invalid.
      */
     public function __construct($cacheDir)
     {
         if (!file_exists($cacheDir.'/'.self::FILE_PATHS_FILE) ||
             !file_exists($cacheDir.'/'.self::DIR_PATHS_FILE) ||
             !file_exists($cacheDir.'/'.self::OVERRIDDEN_PATHS_FILE)) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'The dump at "%s" is invalid. Please recreate it.',
                 $cacheDir
             ));

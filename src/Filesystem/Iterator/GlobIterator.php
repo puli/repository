@@ -11,7 +11,10 @@
 
 namespace Puli\Repository\Filesystem\Iterator;
 
+use EmptyIterator;
+use FilterIterator;
 use Puli\Repository\Selector\Selector;
+use RecursiveIteratorIterator;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -23,7 +26,7 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GlobIterator extends \FilterIterator
+class GlobIterator extends FilterIterator
 {
     /**
      * @var string
@@ -52,12 +55,12 @@ class GlobIterator extends \FilterIterator
         $basePath = Selector::getBasePath($glob);
 
         if (is_dir($basePath)) {
-            $innerIterator = new \RecursiveIteratorIterator(
+            $innerIterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($basePath),
-                \RecursiveIteratorIterator::SELF_FIRST
+                RecursiveIteratorIterator::SELF_FIRST
             );
         } else {
-            $innerIterator = new \EmptyIterator();
+            $innerIterator = new EmptyIterator();
         }
 
         parent::__construct($innerIterator);
@@ -79,7 +82,7 @@ class GlobIterator extends \FilterIterator
     /**
      * Advances to the next match.
      *
-     * @see \Iterator::next()
+     * @see Iterator::next()
      */
     public function next()
     {

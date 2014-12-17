@@ -11,13 +11,14 @@
 
 namespace Puli\Repository\Tests\Selector;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\Selector\Selector;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class SelectorTest extends \PHPUnit_Framework_TestCase
+class SelectorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider provideMatches

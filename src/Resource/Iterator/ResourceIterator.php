@@ -11,13 +11,15 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use Iterator;
+
 /**
  * An iterator over {@link Resource} objects.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceIterator extends \Iterator
+interface ResourceIterator extends Iterator
 {
     /**
      * Returns the resource at the current position of the iterator.

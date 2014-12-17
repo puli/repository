@@ -77,7 +77,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
      * Return the collection keys as keys.
      *
      * Attention: Don't use this mode when iterating recursively, as PHP's
-     * {@link \RecursiveIteratorIterator} skips inner nodes then.
+     * {@link RecursiveIteratorIterator} skips inner nodes then.
      */
     const KEY_AS_CURSOR = 128;
 

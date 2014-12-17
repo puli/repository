@@ -12,6 +12,7 @@
 namespace Puli\Repository;
 
 use Exception;
+use RuntimeException;
 
 /**
  * Thrown when a resource was expected to be a directory, but is none.
@@ -19,7 +20,7 @@ use Exception;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class NoDirectoryException extends \Exception
+class NoDirectoryException extends RuntimeException
 {
     /**
      * Creates a new exception.
@@ -28,7 +29,7 @@ class NoDirectoryException extends \Exception
      * @param int       $code     The error code.
      * @param Exception $previous The exception that caused this exception.
      */
-    public function __construct($path, $code = 0, \Exception $previous = null)
+    public function __construct($path, $code = 0, Exception $previous = null)
     {
         parent::__construct(sprintf(
             'The path "%s" is not a directory.',

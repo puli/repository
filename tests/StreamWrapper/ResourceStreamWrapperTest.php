@@ -11,17 +11,19 @@
 
 namespace Puli\Repository\Tests\StreamWrapper;
 
+use PHPUnit_Framework_TestCase;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
 use Puli\Repository\Tests\Filesystem\TestLocalFile;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
+use Puli\Repository\Uri\UriRepository;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
+class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 {
     const FILE_CONTENTS = "LINE 1\nLINE 2\n";
 
@@ -50,15 +52,11 @@ class ResourceStreamWrapperTest extends \PHPUnit_Framework_TestCase
         $tempnam = tempnam(sys_get_temp_dir(), 'ResourceStreamWrapperTest');
         file_put_contents($tempnam, self::FILE_CONTENTS);
 
-        $file = new TestLocalFile('/webmozart/puli/file', $tempnam);
-        $dir = new TestDirectory('/webmozart/puli/dir');
-        $nonLocal = new TestFile('/webmozart/puli/non-local');
-
         $this->repo = $this->getMock('Puli\Repository\Uri\UriRepositoryInterface');
 
         $this->repo->expects($this->any())
             ->method('get')
-            ->will($this->returnCallback(function ($path) use ($tempnam, $dir, $nonLocal) {
+            ->will($this->returnCallback(function ($path) use ($tempnam) {
                 if ('puli:///webmozart/puli/file' === $path) {
                     return new TestLocalFile('/webmozart/puli/file', $tempnam);
                 }

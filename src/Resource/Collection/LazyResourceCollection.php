@@ -11,6 +11,9 @@
 
 namespace Puli\Repository\Resource\Collection;
 
+use BadMethodCallException;
+use IteratorAggregate;
+use OutOfBoundsException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\ResourceRepository;
@@ -24,7 +27,7 @@ use Puli\Repository\ResourceRepository;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
+class LazyResourceCollection implements IteratorAggregate, ResourceCollection
 {
     /**
      * @var string[]|Resource[]
@@ -60,11 +63,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      *
      * @param Resource $resource The resource to add.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function add(Resource $resource)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -75,11 +78,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      * @param integer  $key      The collection key.
      * @param Resource $resource The resource to add.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function set($key, Resource $resource)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -90,7 +93,7 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
     public function get($key)
     {
         if (!isset($this->resources[$key])) {
-            throw new \OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(sprintf(
                 'The offset "%s" does not exist.',
                 $key
             ));
@@ -108,11 +111,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      *
      * @param string $key The collection key to remove.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function remove($key)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -128,11 +131,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function clear()
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -155,11 +158,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      * @param Resource[] $resources The resources to replace the
      *                                       collection contents with.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function replace($resources)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -170,11 +173,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      * @param Resource[] $resources The resources to merge into the
      *                                       collection.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function merge($resources)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -209,11 +212,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      * @param string   $key      The collection key to set.
      * @param Resource $resource The resource to set.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function offsetSet($key, $resource)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
@@ -223,11 +226,11 @@ class LazyResourceCollection implements \IteratorAggregate, ResourceCollection
      *
      * @param string $key The collection key to remove.
      *
-     * @throws \BadMethodCallException The collection is read-only.
+     * @throws BadMethodCallException The collection is read-only.
      */
     public function offsetUnset($key)
     {
-        throw new \BadMethodCallException(
+        throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
         );
     }
