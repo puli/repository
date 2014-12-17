@@ -70,11 +70,6 @@ class CompositeRepository implements ResourceRepository
     private $repos = array();
 
     /**
-     * @var string[][]
-     */
-    private $shadows = array();
-
-    /**
      * Mounts a repository to a path.
      *
      * The repository may either be passed as {@link ResourceRepository} or as
@@ -120,13 +115,10 @@ class CompositeRepository implements ResourceRepository
         $path = Path::canonicalize($path);
 
         $this->repos[$path] = $repositoryFactory;
-        $this->shadows[$path] = array();
 
         // Prefer more specific mount points (e.g. "/app) over less specific
         // ones (e.g. "/")
         krsort($this->repos);
-
-        $this->rebuildShadows();
     }
 
     /**
@@ -162,9 +154,6 @@ class CompositeRepository implements ResourceRepository
         $path = Path::canonicalize($path);
 
         unset($this->repos[$path]);
-        unset($this->shadows[$path]);
-
-        $this->rebuildShadows();
     }
 
     /**
@@ -329,50 +318,6 @@ class CompositeRepository implements ResourceRepository
         if ('/' !== $mountPoint) {
             foreach ($resources as $key => $resource) {
                 $resources[$key] = $resource->createReference($mountPoint.$resource->getPath());
-            }
-        }
-    }
-
-    /**
-     * Rebuilds the shadows of the mount points.
-     *
-     * This method should be called after adding or removing mount points.
-     *
-     * Shadows are mount points that are located within another mount point.
-     * For example, if the paths "/app" and "/app/data" are mounted, then
-     * "/data" is a shadow of "/app". This means that Resources in the "/data"
-     * directory are overshadowed by the resources in the "/app/data"
-     * repository.
-     *
-     * Overshadowed resources are filtered out from the results of all methods.
-     */
-    private function rebuildShadows()
-    {
-        $mountPoints = array_keys($this->shadows);
-
-        foreach ($mountPoints as $mountPoint) {
-            $this->shadows[$mountPoint] = array();
-
-            foreach ($mountPoints as $maybeShadow) {
-                if ($mountPoint === $maybeShadow) {
-                    continue;
-                }
-
-                // $mountPoint = "/app"
-                // $maybeShadow = "/app/data"
-                // => $maybeShadow is a shadow
-
-                // $mountPoint = "/app"
-                // $maybeShadow = "/data"
-                // => $maybeShadow is not a shadow
-
-                // The root "/" is overshadowed by all other mount points
-                if ('/' === $mountPoint) {
-                    $this->shadows[$mountPoint][] = $maybeShadow;
-                } elseif (Path::isBasePath($mountPoint, $maybeShadow)) {
-                    // Only store "/data" for the shadow "/app/data" in "/app"
-                    $this->shadows[$mountPoint][] = substr($maybeShadow, strlen($mountPoint));
-                }
             }
         }
     }
