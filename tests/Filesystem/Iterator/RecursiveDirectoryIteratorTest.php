@@ -111,7 +111,7 @@ class RecursiveDirectoryIteratorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\Filesystem\FilesystemException
+     * @expectedException \InvalidArgumentException
      */
     public function testFailIfNonExistingBaseDirectory()
     {

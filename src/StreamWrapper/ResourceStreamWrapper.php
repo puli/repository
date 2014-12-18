@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\StreamWrapper;
 
+use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorIterator;
 use Puli\Repository\Filesystem\Resource\LocalResource;
@@ -185,26 +186,8 @@ class ResourceStreamWrapper implements StreamWrapper
             ));
         }
 
-        if (!is_string($scheme)) {
-            throw new InvalidArgumentException(sprintf(
-                'The scheme must be a string. Got: %s',
-                is_object($scheme) ? get_class($scheme) : gettype($scheme)
-            ));
-        }
-
-        if (!ctype_alnum($scheme)) {
-            throw new InvalidArgumentException(sprintf(
-                'The scheme "%s" should consist of letters and digits only.',
-                $scheme
-            ));
-        }
-
-        if (!ctype_alpha($scheme[0])) {
-            throw new InvalidArgumentException(sprintf(
-                'The first character of the scheme "%s" should be a letter.',
-                $scheme
-            ));
-        }
+        Assertion::string($scheme, 'The scheme must be a string. Got: %2$s');
+        Assertion::alnum($scheme, 'The scheme "%s" should consist of letters and digits only and start with a letter.');
 
         if (isset(self::$repos[$scheme])) {
             throw new StreamWrapperException(sprintf(

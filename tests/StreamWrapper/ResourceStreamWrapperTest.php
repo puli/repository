@@ -584,7 +584,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage first character
+     * @expectedExceptionMessage start with a letter
      */
     public function testRegisterFailsIfSchemeDoesNotStartWithLetter()
     {

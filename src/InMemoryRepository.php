@@ -11,6 +11,8 @@
 
 namespace Puli\Repository;
 
+use Assert\Assertion;
+use InvalidArgumentException;
 use Puli\Repository\Filesystem\FilesystemRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
@@ -93,23 +95,9 @@ class InMemoryRepository implements ManageableRepository
      */
     public function get($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -128,23 +116,9 @@ class InMemoryRepository implements ManageableRepository
      */
     public function find($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
         $staticPrefix = Selector::getStaticPrefix($selector);
@@ -177,23 +151,9 @@ class InMemoryRepository implements ManageableRepository
      */
     public function contains($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
         $staticPrefix = Selector::getStaticPrefix($selector);
@@ -231,29 +191,15 @@ class InMemoryRepository implements ManageableRepository
      * @param string|Resource|ResourceCollection $resource The resource(s) to
      *                                                     add at that path.
      *
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
+     * @throws InvalidArgumentException If the path is invalid. The path must be
+     *                                  a non-empty string starting with "/".
      * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -270,17 +216,6 @@ class InMemoryRepository implements ManageableRepository
         }
 
         if ($resource instanceof ResourceCollection) {
-            // Validate all resources
-            foreach ($resource as $entry) {
-                if (!$entry instanceof Resource) {
-                    throw new UnsupportedResourceException(sprintf(
-                        'The passed resources must implement Resource. Got: %s',
-                        is_object($entry) ? get_class($entry) : gettype($entry)
-                    ));
-                }
-            }
-
-            // If all are valid, attach them
             foreach ($resource as $entry) {
                 $this->attachResource($entry, $path.'/'.$entry->getName());
             }
@@ -304,23 +239,9 @@ class InMemoryRepository implements ManageableRepository
      */
     public function remove($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
 
@@ -359,23 +280,9 @@ class InMemoryRepository implements ManageableRepository
      */
     public function listDirectory($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 

@@ -12,8 +12,7 @@
 namespace Puli\Repository\Filesystem\Iterator;
 
 use ArrayIterator;
-use Puli\Repository\Filesystem\FilesystemException;
-use Puli\Repository\NoDirectoryException;
+use Assert\Assertion;
 use RecursiveIterator;
 
 /**
@@ -50,25 +49,10 @@ class RecursiveDirectoryIterator extends ArrayIterator implements RecursiveItera
      *
      * @param string $path  A canonical directory path.
      * @param int    $flags The flags.
-     *
-     * @throws FilesystemException If the path does not exist.
-     * @throws NoDirectoryException If the path is no directory.
      */
     public function __construct($path, $flags = null)
     {
-        if (!file_exists($path)) {
-            throw new FilesystemException(sprintf(
-                'The path %s is no directory.',
-                $path
-            ));
-        }
-
-        if (!is_dir($path)) {
-            throw new NoDirectoryException(sprintf(
-                'The path %s is no directory.',
-                $path
-            ));
-        }
+        Assertion::directory($path);
 
         if (!($flags & (self::CURRENT_AS_FILE | self::CURRENT_AS_PATH))) {
             $flags |= self::CURRENT_AS_PATH;

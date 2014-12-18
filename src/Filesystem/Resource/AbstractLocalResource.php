@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Repository\Filesystem\FilesystemException;
 use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
@@ -49,13 +48,6 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
     public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
         parent::__construct($path);
-
-        if (!file_exists($localPath)) {
-            throw new FilesystemException(sprintf(
-                'The file "%s" does not exist.',
-                $localPath
-            ));
-        }
 
         $this->localPath = $localPath;
         $this->pathLoader = $pathLoader;

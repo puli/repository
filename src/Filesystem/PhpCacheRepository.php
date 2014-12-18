@@ -11,12 +11,12 @@
 
 namespace Puli\Repository\Filesystem;
 
+use Assert\Assertion;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
 use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
-use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\Resource;
@@ -223,23 +223,9 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
      */
     public function get($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -283,23 +269,9 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
      */
     public function find($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
 
@@ -389,23 +361,9 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
      */
     public function contains($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         if (null === $this->filePaths) {
             $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);
@@ -474,23 +432,9 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
      */
     public function listDirectory($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         if (null === $this->filePaths) {
             $this->filePaths = require ($this->cacheDir.'/'.self::FILE_PATHS_FILE);

@@ -41,8 +41,8 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
     }
 
     /**
-     * @param string                        $localPath
-     * @param string|null                   $path
+     * @param string               $localPath
+     * @param string|null          $path
      * @param OverriddenPathLoader $pathLoader
      *
      * @return LocalResource
@@ -59,7 +59,7 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     /**
      * @dataProvider getInvalidLocalPaths
-     * @expectedException \Puli\Repository\Filesystem\FilesystemException
+     * @expectedException \InvalidArgumentException
      */
     public function testFailIfNonExistingFile($localPath)
     {

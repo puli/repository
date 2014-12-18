@@ -146,7 +146,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testContainsExpectsAbsolutePath()
     {
@@ -158,7 +158,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testContainsExpectsNonEmptyPath()
     {
@@ -168,7 +168,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testContainsExpectsStringPath()
     {
@@ -238,7 +238,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testGetExpectsAbsolutePath()
     {
@@ -250,7 +250,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testGetExpectsNonEmptyPath()
     {
@@ -260,7 +260,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testGetExpectsStringPath()
     {
@@ -408,7 +408,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testListDirectoryExpectsAbsolutePath()
     {
@@ -420,7 +420,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testListDirectoryExpectsNonEmptyPath()
     {
@@ -430,7 +430,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testListDirectoryExpectsStringPath()
     {
@@ -520,7 +520,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testFindExpectsAbsolutePath()
     {
@@ -530,7 +530,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testFindExpectsNonEmptyPath()
     {
@@ -540,7 +540,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testFindExpectsStringPath()
     {

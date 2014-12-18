@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Repository\Filesystem\FilesystemException;
+use Assert\Assertion;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
@@ -29,14 +29,9 @@ class LocalFileResource extends AbstractLocalResource implements FileResource
      */
     public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
-        parent::__construct($localPath, $path, $pathLoader);
+        Assertion::file($localPath);
 
-        if (!is_file($localPath)) {
-            throw new FilesystemException(sprintf(
-                'The path "%s" is not a file.',
-                $localPath
-            ));
-        }
+        parent::__construct($localPath, $path, $pathLoader);
     }
 
     /**

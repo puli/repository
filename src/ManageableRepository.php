@@ -11,6 +11,7 @@
 
 namespace Puli\Repository;
 
+use InvalidArgumentException;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
@@ -31,8 +32,8 @@ interface ManageableRepository extends ResourceRepository
      * @param Resource|ResourceCollection $resource The resource(s) to add at
      *                                              that path.
      *
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
+     * @throws InvalidArgumentException If the path is invalid. The path must be
+     *                                  a non-empty string starting with "/".
      * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource);
@@ -46,8 +47,9 @@ interface ManageableRepository extends ResourceRepository
      *
      * @return integer The number of resources removed from the repository.
      *
-     * @throws InvalidPathException If the selector is invalid. The selector
-     *                              must be a non-empty string starting with "/".
+     * @throws InvalidArgumentException If the selector is invalid. The selector
+     *                                  must be a non-empty string starting with
+     *                                  "/".
      */
     public function remove($selector);
 }

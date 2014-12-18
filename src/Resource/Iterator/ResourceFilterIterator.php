@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use Assert\Assertion;
 use FilterIterator;
-use InvalidArgumentException;
 
 /**
  * Iterates over a {@link ResourceIterator} and filters out individual entries.
@@ -107,6 +107,9 @@ class ResourceFilterIterator extends FilterIterator implements ResourceIterator
      */
     public function __construct(ResourceIterator $iterator, $pattern, $mode = null)
     {
+        Assertion::string($pattern, 'The pattern must be a string. Got: %2$s');
+        Assertion::notEmpty($pattern, 'The pattern must not be empty');
+
         parent::__construct($iterator);
 
         if (!($mode & (self::FILTER_BY_PATH | self::FILTER_BY_NAME))) {
@@ -115,12 +118,6 @@ class ResourceFilterIterator extends FilterIterator implements ResourceIterator
 
         if (!($mode & (self::MATCH_PREFIX | self::MATCH_SUFFIX | self::MATCH_REGEX))) {
             $mode |= self::MATCH_REGEX;
-        }
-
-        $pattern = (string) $pattern;
-
-        if ('' === $pattern) {
-            throw new InvalidArgumentException('The pattern must not be empty.');
         }
 
         $this->pattern = $pattern;

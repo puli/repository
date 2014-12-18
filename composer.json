@@ -8,9 +8,16 @@
             "email": "bschussek@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/webmozart/assert"
+        }
+    ],
     "require": {
         "php": ">=5.3.9",
-        "webmozart/path-util": "~1.0"
+        "webmozart/path-util": "~1.0",
+        "beberlei/assert": "dev-merged"
     },
     "require-dev": {
         "symfony/filesystem": "~2.0"

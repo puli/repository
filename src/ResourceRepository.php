@@ -11,6 +11,7 @@
 
 namespace Puli\Repository;
 
+use InvalidArgumentException;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
@@ -48,8 +49,8 @@ interface ResourceRepository
      * @return Resource The resource at this path.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
+     * @throws InvalidArgumentException If the path is invalid. The path must be
+     *                                  a non-empty string starting with "/".
      */
     public function get($path);
 
@@ -62,8 +63,9 @@ interface ResourceRepository
      *
      * @return ResourceCollection The resources matching the selector.
      *
-     * @throws InvalidPathException If the selector is invalid. The selector
-     *                              must be a non-empty string starting with "/".
+     * @throws InvalidArgumentException If the selector is invalid. The selector
+     *                                  must be a non-empty string starting with
+     *                                  "/".
      */
     public function find($selector);
 
@@ -76,8 +78,9 @@ interface ResourceRepository
      *
      * @return bool Returns whether any resources exist that match the selector.
      *
-     * @throws InvalidPathException If the selector is invalid. The selector
-     *                              must be a non-empty string starting with "/".
+     * @throws InvalidArgumentException If the selector is invalid. The selector
+     *                                  must be a non-empty string starting with
+     *                                  "/".
      */
     public function contains($selector);
 
@@ -91,8 +94,8 @@ interface ResourceRepository
      *
      * @throws ResourceNotFoundException If the directory cannot be found.
      * @throws NoDirectoryException If the resource is no directory.
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
+     * @throws InvalidArgumentException If the path is invalid. The path must be
+     *                                  a non-empty string starting with "/".
      */
     public function listDirectory($path);
 }

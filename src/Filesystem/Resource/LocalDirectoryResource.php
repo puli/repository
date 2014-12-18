@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Resource;
 
-use Puli\Repository\Filesystem\FilesystemException;
+use Assert\Assertion;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\Resource;
@@ -32,12 +32,7 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
      */
     public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
     {
-        if (!is_dir($localPath)) {
-            throw new FilesystemException(sprintf(
-                'The path "%s" is not a directory.',
-                $localPath
-            ));
-        }
+        Assertion::directory($localPath);
 
         parent::__construct($localPath, $path, $pathLoader);
     }

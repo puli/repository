@@ -336,7 +336,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testAddExpectsAbsolutePath()
     {
@@ -344,7 +344,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testAddExpectsNonEmptyPath()
     {
@@ -352,7 +352,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testAddExpectsStringPath()
     {
@@ -365,18 +365,6 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     public function testAddExpectsResource()
     {
         $this->repo->add('/webmozart', new \stdClass());
-    }
-
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testAddExpectsAttachableResourcesInCollection()
-    {
-        $resources = new ArrayResourceCollection(array(
-            new \stdClass(),
-        ));
-
-        $this->repo->add('/webmozart', $resources);
     }
 
     public function testRemoveFile()
@@ -511,7 +499,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testRemoveExpectsAbsolutePath()
     {
@@ -519,7 +507,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testRemoveExpectsNonEmptyPath()
     {
@@ -527,7 +515,7 @@ class InMemoryRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\InvalidPathException
+     * @expectedException \InvalidArgumentException
      */
     public function testRemoveExpectsStringPath()
     {

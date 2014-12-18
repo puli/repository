@@ -11,6 +11,7 @@
 
 namespace Puli\Repository;
 
+use Assert\Assertion;
 use InvalidArgumentException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
@@ -80,9 +81,9 @@ class CompositeRepository implements ResourceRepository
      * @param string                      $path              An absolute path.
      * @param callable|ResourceRepository $repositoryFactory The repository to use.
      *
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
-     * @throws InvalidArgumentException If the repository factory is invalid.
+     * @throws InvalidArgumentException If the path or the repository is invalid.
+     *                                  The path must be a non-empty string
+     *                                  starting with "/".
      */
     public function mount($path, $repositoryFactory)
     {
@@ -94,23 +95,9 @@ class CompositeRepository implements ResourceRepository
             );
         }
 
-        if ('' === $path) {
-            throw new InvalidPathException('The mount point must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The mount point must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The mount point "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The mount point must not be empty.');
+        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -128,28 +115,14 @@ class CompositeRepository implements ResourceRepository
      *
      * @param string $path The path of the mount point.
      *
-     * @throws InvalidPathException If the path is invalid. The path must be a
-     *                              non-empty string starting with "/".
+     * @throws InvalidArgumentException If the path is invalid. The path must be
+     *                                  a non-empty string starting with "/".
      */
     public function unmount($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The mount point must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The mount point must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The mount point "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The mount point must not be empty.');
+        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -236,23 +209,9 @@ class CompositeRepository implements ResourceRepository
      */
     private function splitPath($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The mount point must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The mount point must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The mount point "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The mount point must not be empty.');
+        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
 
         $path = Path::canonicalize($path);
 

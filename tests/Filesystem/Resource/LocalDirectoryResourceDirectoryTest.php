@@ -61,7 +61,7 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Filesystem\FilesystemException
+     * @expectedException \InvalidArgumentException
      */
     public function testFailIfNoDirectory()
     {

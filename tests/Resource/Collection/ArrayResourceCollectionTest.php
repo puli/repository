@@ -42,7 +42,7 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
+     * @expectedException \InvalidArgumentException
      */
     public function testConstructFailsIfNoResource()
     {
@@ -80,7 +80,7 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
+     * @expectedException \InvalidArgumentException
      */
     public function testReplaceFailsIfNoResource()
     {
@@ -122,7 +122,7 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
+     * @expectedException \InvalidArgumentException
      */
     public function testMergeFailsIfNoResource()
     {

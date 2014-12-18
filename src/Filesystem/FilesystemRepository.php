@@ -11,14 +11,13 @@
 
 namespace Puli\Repository\Filesystem;
 
-use InvalidArgumentException;
+use Assert\Assertion;
 use Iterator;
 use Puli\Repository\Filesystem\Iterator\GlobIterator;
 use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
-use Puli\Repository\InvalidPathException;
 use Puli\Repository\NoDirectoryException;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepository;
@@ -67,14 +66,9 @@ class FilesystemRepository implements ResourceRepository
      */
     public function __construct($rootDirectory = null)
     {
-        if ($rootDirectory && !is_dir($rootDirectory)) {
-            throw new InvalidArgumentException(sprintf(
-                'The path "%s" is not a directory.',
-                $rootDirectory
-            ));
-        }
-
         if ($rootDirectory) {
+            Assertion::directory($rootDirectory);
+
             $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');
         }
     }
@@ -84,23 +78,9 @@ class FilesystemRepository implements ResourceRepository
      */
     public function get($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
         $localPath = $this->rootDirectory.$path;
@@ -126,23 +106,9 @@ class FilesystemRepository implements ResourceRepository
      */
     public function find($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
         $localSelector = $this->rootDirectory.$selector;
@@ -155,23 +121,9 @@ class FilesystemRepository implements ResourceRepository
      */
     public function contains($selector)
     {
-        if ('' === $selector) {
-            throw new InvalidPathException('The selector must not be empty.');
-        }
-
-        if (!is_string($selector)) {
-            throw new InvalidPathException(sprintf(
-                'The selector must be a string. Is: %s.',
-                is_object($selector) ? get_class($selector) : gettype($selector)
-            ));
-        }
-
-        if ('/' !== $selector[0]) {
-            throw new InvalidPathException(sprintf(
-                'The selector "%s" is not absolute.',
-                $selector
-            ));
-        }
+        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
+        Assertion::notEmpty($selector, 'The selector must not be empty.');
+        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
         $iterator = new GlobIterator($this->rootDirectory.$selector);
@@ -185,23 +137,9 @@ class FilesystemRepository implements ResourceRepository
      */
     public function listDirectory($path)
     {
-        if ('' === $path) {
-            throw new InvalidPathException('The path must not be empty.');
-        }
-
-        if (!is_string($path)) {
-            throw new InvalidPathException(sprintf(
-                'The path must be a string. Is: %s.',
-                is_object($path) ? get_class($path) : gettype($path)
-            ));
-        }
-
-        if ('/' !== $path[0]) {
-            throw new InvalidPathException(sprintf(
-                'The path "%s" is not absolute.',
-                $path
-            ));
-        }
+        Assertion::string($path, 'The path must be a string. Got: %2$s');
+        Assertion::notEmpty($path, 'The path must not be empty.');
+        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
         $localPath = $this->rootDirectory.$path;

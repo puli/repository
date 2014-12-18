@@ -11,13 +11,13 @@
 
 namespace Puli\Repository\Resource\Collection;
 
+use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
-use Traversable;
 
 /**
  * A collection of {@link Resource} instances backed by an array.
@@ -118,23 +118,8 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      */
     public function replace($resources)
     {
-        if (!is_array($resources) && !$resources instanceof Traversable) {
-            throw new InvalidArgumentException(sprintf(
-                'The resources must be passed as array or traversable object. '.
-                'Got: "%s"',
-                is_object($resources) ? get_class($resources) : gettype($resources)
-            ));
-        }
-
-        foreach ($resources as $resource) {
-            if (!$resource instanceof Resource) {
-                throw new UnsupportedResourceException(sprintf(
-                    'ArrayResourceCollection supports Resource implementations '.
-                    'only. Got: %s',
-                    is_object($resource) ? get_class($resource) : gettype($resource)
-                ));
-            }
-        }
+        Assertion::isTraversable($resources);
+        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Resource\Resource');
 
         $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
     }
@@ -144,23 +129,8 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      */
     public function merge($resources)
     {
-        if (!is_array($resources) && !$resources instanceof Traversable) {
-            throw new InvalidArgumentException(sprintf(
-                'The resources must be passed as array or traversable object. '.
-                'Got: "%s"',
-                is_object($resources) ? get_class($resources) : gettype($resources)
-            ));
-        }
-
-        foreach ($resources as $resource) {
-            if (!$resource instanceof Resource) {
-                throw new UnsupportedResourceException(sprintf(
-                    'ArrayResourceCollection supports Resource implementations '.
-                    'only. Got: %s',
-                    is_object($resource) ? get_class($resource) : gettype($resource)
-                ));
-            }
-        }
+        Assertion::isTraversable($resources);
+        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Resource\Resource');
 
         // only start merging after validating all resources
         foreach ($resources as $resource) {
