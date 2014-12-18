@@ -17,7 +17,7 @@
     "require": {
         "php": ">=5.3.9",
         "webmozart/path-util": "~1.0",
-        "beberlei/assert": "dev-merged"
+        "beberlei/assert": "dev-master"
     },
     "require-dev": {
         "symfony/filesystem": "~2.0"
