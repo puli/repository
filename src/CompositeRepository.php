@@ -14,7 +14,6 @@ namespace Puli\Repository;
 use InvalidArgumentException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Uri\RepositoryFactoryException;
 use Webmozart\PathUtil\Path;
 
 /**

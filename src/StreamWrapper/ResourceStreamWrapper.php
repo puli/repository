@@ -11,33 +11,32 @@
 
 namespace Puli\Repository\StreamWrapper;
 
+use InvalidArgumentException;
 use IteratorIterator;
 use Puli\Repository\Filesystem\Resource\LocalResource;
 use Puli\Repository\NoDirectoryException;
+use Puli\Repository\RepositoryFactoryException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\UnsupportedOperationException;
 use Puli\Repository\UnsupportedResourceException;
-use Puli\Repository\Uri\UriRepositoryInterface;
+use Puli\Repository\Uri\Uri;
 
 /**
- * Registers a PHP stream wrapper for a {@link UriRepositoryInterface}.
+ * Registers a PHP stream wrapper for a {@link ResourceRepository}.
  *
  * To register the stream wrapper, call {@link register}:
  *
  * ```php
  * use Puli\Repository\InMemoryRepository;
  * use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
- * use Puli\Repository\Uri\UriRepository;
  *
- * $puliRepo = new InMemoryRepository();
+ * $repo = new InMemoryRepository();
  *
- * $repo = new UriRepository();
- * $repo->register('puli', $puliRepo);
- *
- * ResourceStreamWrapper::register($repo);
+ * ResourceStreamWrapper::register('puli', $repo);
  *
  * file_get_contents('puli:///css/style.css');
  * // => $puliRepo->get('/css/style.css')->getContents()
@@ -103,16 +102,6 @@ class ResourceStreamWrapper implements StreamWrapper
     const NUM_BLOCKS_NUM = 12;
 
     /**
-     * @var UriRepositoryInterface
-     */
-    private static $repo;
-
-    /**
-     * @var array
-     */
-    private static $schemes = array();
-
-    /**
      * @var array
      */
     private static $defaultStat = array(
@@ -145,6 +134,11 @@ class ResourceStreamWrapper implements StreamWrapper
     );
 
     /**
+     * @var ResourceRepository[]|callable[]
+     */
+    private static $repos;
+
+    /**
      * @var resource
      */
     private $handle;
@@ -155,47 +149,91 @@ class ResourceStreamWrapper implements StreamWrapper
     private $directoryIterator;
 
     /**
-     * Registers a URI repository as PHP stream wrapper.
+     * Registers a repository as PHP stream wrapper.
      *
-     * @param UriRepositoryInterface $repo The repository.
+     * The resources of the repository can subsequently be accessed with PHP's
+     * file system by prefixing the resource paths with the registered URI
+     * scheme:
      *
-     * @throws StreamWrapperException If a repository was previously registered.
-     *                                Only one repository can be registered at
-     *                                a time. Call {@link unregister} to
-     *                                unregister.
+     * ```php
+     * ResourceStreamWrapper::register('puli', $repo);
+     *
+     * // /app/css/style.css
+     * $contents = file_get_contents('puli:///app/css/style.css');
+     * ```
+     *
+     * Instead of passing a repository, you can also pass a callable. The
+     * callable is executed when the repository is accessed for the first time
+     * and should return a valid {@link ResourceRepository} instance.
+     *
+     * @param string                      $scheme            The URI scheme.
+     * @param ResourceRepository|callable $repositoryFactory The repository to use.
+     *
+     * @throws StreamWrapperException If a repository was previously registered
+     *                                for the same scheme. Call
+     *                                {@link unregister()} to unregister the
+     *                                scheme first.
      */
-    public static function register(UriRepositoryInterface $repo)
+    public static function register($scheme, $repositoryFactory)
     {
-        if (null !== self::$repo) {
-            throw new StreamWrapperException(
-                'You can only register one URI locator with the '.
-                'stream wrapper.'
-            );
+        if (!$repositoryFactory instanceof ResourceRepository
+                && !is_callable($repositoryFactory)) {
+            throw new InvalidArgumentException(sprintf(
+                'The repository factory should be a callable or an instance '.
+                'of ResourceRepository. Got: %s',
+                $repositoryFactory
+            ));
         }
 
-        foreach ($repo->getSupportedSchemes() as $scheme) {
-            self::$schemes[$scheme] = true;
-
-            stream_wrapper_register($scheme, __CLASS__);
+        if (!is_string($scheme)) {
+            throw new InvalidArgumentException(sprintf(
+                'The scheme must be a string. Got: %s',
+                is_object($scheme) ? get_class($scheme) : gettype($scheme)
+            ));
         }
 
-        self::$repo = $repo;
+        if (!ctype_alnum($scheme)) {
+            throw new InvalidArgumentException(sprintf(
+                'The scheme "%s" should consist of letters and digits only.',
+                $scheme
+            ));
+        }
+
+        if (!ctype_alpha($scheme[0])) {
+            throw new InvalidArgumentException(sprintf(
+                'The first character of the scheme "%s" should be a letter.',
+                $scheme
+            ));
+        }
+
+        if (isset(self::$repos[$scheme])) {
+            throw new StreamWrapperException(sprintf(
+                'The scheme "%s" has already been registered.',
+                $scheme
+            ));
+        }
+
+        self::$repos[$scheme] = $repositoryFactory;
+
+        stream_wrapper_register($scheme, __CLASS__);
     }
 
     /**
-     * Unregisters the stream wrapper.
+     * Unregisters the given scheme.
      *
-     * If no stream wrapper was registered, this method does nothing.
+     * Unknown schemes are ignored.
+     *
+     * @param string $scheme A URI scheme.
      */
-    public static function unregister()
+    public static function unregister($scheme)
     {
-        self::$repo = null;
-
-        foreach (self::$schemes as $scheme => $foo) {
-            stream_wrapper_unregister($scheme);
+        if (!isset(self::$repos[$scheme])) {
+            return;
         }
 
-        self::$schemes = array();
+        unset(self::$repos[$scheme]);
+
+        stream_wrapper_unregister($scheme);
     }
 
     /**
@@ -205,8 +243,10 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function dir_opendir($uri, $options)
     {
+        $parts = Uri::parse($uri);
+
         // Provoke ResourceNotFoundException if not found
-        $directory = self::$repo->get($uri);
+        $directory = $this->getRepository($parts['scheme'])->get($parts['path']);
 
         if (!$directory instanceof DirectoryResource) {
             throw new NoDirectoryException($uri);
@@ -283,8 +323,10 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function rename($uriFrom, $uriTo)
     {
+        $parts = Uri::parse($uriFrom);
+
         // validate whether the URL exists
-        $this->getRepository()->get($uriFrom);
+        $this->getRepository($parts['scheme'])->get($parts['path']);
 
         throw new UnsupportedOperationException(sprintf(
             'The renaming of resources through the stream wrapper is not '.
@@ -301,8 +343,10 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function rmdir($uri, $options)
     {
+        $parts = Uri::parse($uri);
+
         // validate whether the URL exists
-        $resource = $this->getRepository()->get($uri);
+        $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
         throw new UnsupportedOperationException(sprintf(
             'The removal of directories through the stream wrapper is not '.
@@ -420,7 +464,7 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function stream_open($uri, $mode, $options, &$openedPath)
     {
-        if ('r' !== $mode) {
+        if (!preg_match('/^[rbt]+$/', $mode)) {
             throw new UnsupportedOperationException(sprintf(
                 'Resources can only be opened for reading. Tried to open "%s" '.
                 'with mode "%s".',
@@ -429,7 +473,9 @@ class ResourceStreamWrapper implements StreamWrapper
             ));
         }
 
-        $resource = $this->getRepository()->get($uri);
+        $parts = Uri::parse($uri);
+
+        $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
         if (!$resource instanceof FileResource) {
             throw new UnsupportedResourceException(sprintf(
@@ -557,7 +603,9 @@ class ResourceStreamWrapper implements StreamWrapper
     public function url_stat($uri, $flags)
     {
         try {
-            $resource = $this->getRepository()->get($uri);
+            $parts = Uri::parse($uri);
+
+            $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
             if ($resource instanceof LocalResource) {
                 $path = $resource->getLocalPath();
@@ -592,15 +640,43 @@ class ResourceStreamWrapper implements StreamWrapper
         }
     }
 
-    private function getRepository()
+    /**
+     * Constructs (if necessary) and returns the repository for the given scheme.
+     *
+     * @param string $scheme A URI scheme.
+     *
+     * @return ResourceRepository The resource repository.
+     *
+     * @throws RepositoryFactoryException If the callable did not return an
+     *                                    instance of {@link ResourceRepository}.
+     * @throws StreamWrapperException If the scheme is not supported.
+     */
+    private function getRepository($scheme)
     {
-        if (null === self::$repo) {
-            throw new StreamWrapperException(
-                'The stream wrapper has not been registered. Please call '.
-                'ResourceStreamWrapper::register() first.'
-            );
+        if (!isset(self::$repos[$scheme])) {
+            throw new StreamWrapperException(sprintf(
+                'The stream wrapper has not been registered for the scheme "%s". '.
+                'Please call ResourceStreamWrapper::register() first.',
+                $scheme
+            ));
         }
 
-        return self::$repo;
+        if (is_callable(self::$repos[$scheme])) {
+            $callable = self::$repos[$scheme];
+            $result = $callable($scheme);
+
+            if (!$result instanceof ResourceRepository) {
+                throw new RepositoryFactoryException(sprintf(
+                    'The repository factory registered for scheme "%s" should '.
+                    'return a ResourceRepository instance. Got: %s',
+                    $scheme,
+                    is_object($result) ? get_class($result) : gettype($result)
+                ));
+            }
+
+            self::$repos[$scheme] = $result;
+        }
+
+        return self::$repos[$scheme];
     }
 }

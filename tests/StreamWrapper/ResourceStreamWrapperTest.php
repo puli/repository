@@ -11,13 +11,14 @@
 
 namespace Puli\Repository\Tests\StreamWrapper;
 
+use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\ResourceRepository;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
 use Puli\Repository\Tests\Filesystem\TestLocalFile;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
-use Puli\Repository\Uri\UriRepository;
 
 /**
  * @since  1.0
@@ -43,7 +44,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     private $dir2;
 
     /**
-     * @var UriRepository
+     * @var ResourceRepository
      */
     private $repo;
 
@@ -52,24 +53,24 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
         $tempnam = tempnam(sys_get_temp_dir(), 'ResourceStreamWrapperTest');
         file_put_contents($tempnam, self::FILE_CONTENTS);
 
-        $this->repo = $this->getMock('Puli\Repository\Uri\UriRepositoryInterface');
+        $this->repo = $this->getMock('Puli\Repository\ResourceRepository');
 
         $this->repo->expects($this->any())
             ->method('get')
             ->will($this->returnCallback(function ($path) use ($tempnam) {
-                if ('puli:///webmozart/puli/file' === $path) {
+                if ('/webmozart/puli/file' === $path) {
                     return new TestLocalFile('/webmozart/puli/file', $tempnam);
                 }
-                if ('puli:///webmozart/puli/non-local' === $path) {
+                if ('/webmozart/puli/non-local' === $path) {
                     return new TestFile('/webmozart/puli/non-local');
                 }
-                if ('puli:///webmozart/puli/dir' === $path) {
+                if ('/webmozart/puli/dir' === $path) {
                     return new TestDirectory('/webmozart/puli/dir', array(
                         new TestFile('/webmozart/puli/dir/file1'),
                         new TestFile('/webmozart/puli/dir/file2'),
                     ));
                 }
-                if ('puli:///webmozart/puli/dir2' === $path) {
+                if ('/webmozart/puli/dir2' === $path) {
                     return new TestDirectory('/webmozart/puli/dir2', array(
                         new TestFile('/webmozart/puli/dir2/.dotfile'),
                         new TestFile('/webmozart/puli/dir2/foo'),
@@ -79,17 +80,11 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
                 throw new ResourceNotFoundException();
             }));
-
-        $this->repo->expects($this->any())
-            ->method('getSupportedSchemes')
-            ->will($this->returnValue(array('puli')));
-
-        ResourceStreamWrapper::register($this->repo);
     }
 
     protected function tearDown()
     {
-        ResourceStreamWrapper::unregister();
+        ResourceStreamWrapper::unregister('puli');
 
         if (is_resource($this->handle)) {
             fclose($this->handle);
@@ -113,6 +108,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testOpenNonFile()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         fopen('puli:///webmozart/puli/dir', 'r');
     }
 
@@ -129,6 +126,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testRead($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
 
         $this->assertInternalType('resource', $this->handle);
@@ -145,6 +144,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testSeekSet($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
 
         fread($this->handle, 2);
@@ -159,6 +160,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testSeekCur($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
 
         fread($this->handle, 2);
@@ -170,6 +173,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testSeekInvalidPositiveOffsetLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/file', 'r');
 
         // fseek() lets you seek non-existing positive offsets
@@ -181,6 +186,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testSeekInvalidPositiveOffsetNonLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/non-local', 'r');
 
         fseek($this->handle, 5);
@@ -197,6 +204,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testSeekInvalidNegativeOffset($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
 
         fseek($this->handle, 5);
@@ -210,6 +219,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testStatLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/file', 'r');
 
         $stat = fstat($this->handle);
@@ -222,6 +233,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testStatNonLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/non-local', 'r');
 
         $stat = fstat($this->handle);
@@ -234,6 +247,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testIsLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/file', 'r');
 
         $this->assertTrue(stream_is_local($this->handle));
@@ -241,6 +256,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testIsNonLocal()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen('puli:///webmozart/puli/non-local', 'r');
 
         // stream_is_local() only returns false if STREAM_IS_URL is passed
@@ -250,6 +267,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testExists()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         // uses url_stat()
         $this->assertTrue(file_exists('puli:///webmozart/puli/file'));
         $this->assertTrue(file_exists('puli:///webmozart/puli/dir'));
@@ -262,6 +281,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testSelect($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
 
         $read = array($this->handle);
@@ -282,6 +303,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testCannotOpenForWriting($mode)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         fopen('puli:///webmozart/puli/file', $mode);
     }
 
@@ -306,6 +329,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testLockIsProhibited($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->handle = fopen($path, 'r');
         flock($this->handle, LOCK_SH);
     }
@@ -321,6 +346,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             return;
         }
 
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         touch($path);
     }
 
@@ -333,6 +360,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('Only supported in PHP 5.4+.');
             return;
         }
+
+        ResourceStreamWrapper::register('puli', $this->repo);
 
         touch('puli:///webmozart/puli/new');
     }
@@ -348,6 +377,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             return;
         }
 
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         chown($path, 'root');
     }
 
@@ -361,6 +392,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             $this->markTestSkipped('Only supported in PHP 5.4+.');
             return;
         }
+
+        ResourceStreamWrapper::register('puli', $this->repo);
 
         chgrp($path, 'root');
     }
@@ -376,6 +409,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             return;
         }
 
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         chmod($path, 0777);
     }
 
@@ -385,6 +420,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testUnlinkIsProhibited($path)
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         unlink($path);
     }
 
@@ -393,6 +430,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testRenameIsProhibited()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         rename('puli:///webmozart/puli/file', 'puli:///webmozart/puli/baz');
     }
 
@@ -401,6 +440,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testRmdirIsProhibited()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         rmdir('puli:///webmozart/puli/dir');
     }
 
@@ -409,11 +450,15 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testMkdirIsProhibited()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         mkdir('puli:///webmozart/puli/new-dir');
     }
 
     public function testListDirectory()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         $this->dir = opendir('puli:///webmozart/puli/dir');
 
         $this->assertInternalType('resource', $this->dir);
@@ -428,6 +473,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     public function testListMultipleDirectories()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         // Test whether simultaneous traversal works
         $this->dir = opendir('puli:///webmozart/puli/dir');
         $this->dir2 = opendir('puli:///webmozart/puli/dir2');
@@ -446,6 +493,8 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testOpenNonExistingDirectory()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         opendir('puli:///webmozart/puli/foobar');
     }
 
@@ -454,7 +503,48 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testOpenNonDirectory()
     {
+        ResourceStreamWrapper::register('puli', $this->repo);
+
         opendir('puli:///webmozart/puli/file');
+    }
+
+    public function testRegisterCallable()
+    {
+        $repo = $this->repo;
+
+        ResourceStreamWrapper::register('puli', function () use ($repo) {
+            return $repo;
+        });
+
+        $this->assertSame(self::FILE_CONTENTS, file_get_contents('puli:///webmozart/puli/file'));
+    }
+
+    public function testCallableNotInvokedIfNotUsed()
+    {
+        $repo = $this->repo;
+
+        ResourceStreamWrapper::register('puli', function () use ($repo) {
+            return $repo;
+        });
+
+        ResourceStreamWrapper::register('unused', function () {
+            PHPUnit_Framework_Assert::fail('Should not be called.');
+        });
+
+        $this->assertSame(self::FILE_CONTENTS, file_get_contents('puli:///webmozart/puli/file'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\RepositoryFactoryException
+     * @expectedExceptionMessage stdClass
+     */
+    public function testFailIfCallableDoesNotReturnValidRepository()
+    {
+        ResourceStreamWrapper::register('puli', function () {
+            return new \stdClass();
+        });
+
+        file_get_contents('puli:///webmozart/puli/file');
     }
 
     /**
@@ -462,14 +552,49 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testRegisterTwice()
     {
-        // first registration happens during setUp()
-        ResourceStreamWrapper::register($this->repo);
+        ResourceStreamWrapper::register('puli', $this->repo);
+        ResourceStreamWrapper::register('puli', $this->repo);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRegisterFailsIfNotRepoNorCallable()
+    {
+        ResourceStreamWrapper::register('puli', 'foobar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Got: integer
+     */
+    public function testRegisterFailsIfSchemeNotString()
+    {
+        ResourceStreamWrapper::register(1234, $this->repo);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage letters and digits
+     */
+    public function testRegisterFailsIfSchemeContainsSpecialChars()
+    {
+        ResourceStreamWrapper::register('puli{', $this->repo);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage first character
+     */
+    public function testRegisterFailsIfSchemeDoesNotStartWithLetter()
+    {
+        ResourceStreamWrapper::register('1puli', $this->repo);
     }
 
     public function testUnregisterIsIdempotent()
     {
-        ResourceStreamWrapper::unregister();
-        ResourceStreamWrapper::unregister();
+        ResourceStreamWrapper::unregister('puli');
+        ResourceStreamWrapper::unregister('puli');
     }
 
     /**
@@ -477,8 +602,6 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
      */
     public function testWrapperShouldNotBeRegisteredManually()
     {
-        ResourceStreamWrapper::unregister();
-
         stream_wrapper_register('manual', '\Puli\Repository\StreamWrapper\ResourceStreamWrapper');
 
         fopen('manual:///webmozart/puli/file1', 'r');

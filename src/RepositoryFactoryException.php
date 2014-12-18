@@ -9,16 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Uri;
+namespace Puli\Repository;
 
 use RuntimeException;
 
 /**
- * Thrown if a URI scheme is not supported.
+ * Thrown if a factory closure did not create valid repository.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UnsupportedSchemeException extends RuntimeException
+class RepositoryFactoryException extends RuntimeException
 {
 }

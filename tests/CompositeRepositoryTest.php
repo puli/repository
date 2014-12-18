@@ -145,7 +145,7 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\Uri\RepositoryFactoryException
+     * @expectedException \Puli\Repository\RepositoryFactoryException
      */
     public function testRepositoryFactoryMustReturnRepository()
     {

@@ -37,6 +37,9 @@ Changelog
    * `DirectoryResource` to `VirtualDirectoryResource`
    * `RecursiveResourceIterator` to `RecursiveResourceIteratorIterator`
  * removed `Interface` suffixes of all interfaces
+ * removed `UriRepository`
+ * added `$scheme` argument to `ResourceStreamWrapper::register()` and
+   `ResourceStreamWrapper::unregister()`
 
 * 1.0.0-alpha4 (2014-12-03)
 
