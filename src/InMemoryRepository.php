@@ -13,7 +13,6 @@ namespace Puli\Repository;
 
 use Assert\Assertion;
 use InvalidArgumentException;
-use Puli\Repository\Filesystem\FilesystemRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
@@ -25,36 +24,36 @@ use Webmozart\PathUtil\Path;
 /**
  * An in-memory resource repository.
  *
- * Resources can be added with the method {@link add}:
+ * Resources can be added with the method {@link add()}:
  *
  * ```php
  * use Puli\Repository\InMemoryRepository;
  *
  * $repo = new InMemoryRepository();
- * $repo->add('/css', new LocalDirectoryResource('/path/to/project/assets/css'));
+ * $repo->add('/css', new LocalDirectoryResource('/path/to/project/res/css'));
  * ```
  *
  * Alternatively, another repository can be passed as "backend". The paths of
- * this backend can be passed to the second argument of {@link add}. By default,
- * a {@link FilesystemRepository} is used:
+ * this backend can be passed to the second argument of {@link add()}. By
+ * default, a {@link FilesystemRepository} is used:
  *
  * ```php
  * use Puli\Repository\InMemoryRepository;
  *
  * $repo = new InMemoryRepository();
- * $repo->add('/css', '/path/to/project/assets/css');
+ * $repo->add('/css', '/path/to/project/res/css');
  * ```
  *
  * You can also create the backend manually and pass it to the constructor:
  *
  * ```php
- * use Puli\Repository\Filesystem\FilesystemRepository;
+ * use Puli\Repository\FilesystemRepository;
  * use Puli\Repository\InMemoryRepository;
  *
  * $backend = new FilesystemRepository('/path/to/project');
  *
  * $repo = new InMemoryRepository($backend)
- * $repo->add('/css', '/assets/css');
+ * $repo->add('/css', '/res/css');
  * ```
  *
  * @since  1.0
@@ -213,13 +212,22 @@ class InMemoryRepository implements ManageableRepository
         }
 
         if ($resource instanceof ResourceCollection) {
+            $this->ensureDirectoryExists($path);
             foreach ($resource as $entry) {
-                $this->attachResource($entry, $path.'/'.$entry->getName());
+                $this->addResource($path.'/'.$entry->getName(), $entry);
             }
 
+            // Keep the resources sorted by file name
+            ksort($this->resources);
+
             return;
-        } elseif ($resource instanceof Resource) {
-            $this->attachResource($resource, $path);
+        }
+
+        if ($resource instanceof Resource) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
+            $this->addResource($path, $resource);
+
+            ksort($this->resources);
 
             return;
         }
@@ -242,7 +250,10 @@ class InMemoryRepository implements ManageableRepository
 
         $selector = Path::canonicalize($selector);
 
+        Assertion::notEq('/', $selector, 'The root directory cannot be removed.');
+
         $staticPrefix = Selector::getStaticPrefix($selector);
+        $pathsToRemove = array();
         $removed = 0;
 
         // Is there a dynamic part ("*") in the selector?
@@ -259,14 +270,17 @@ class InMemoryRepository implements ManageableRepository
                     continue;
                 }
 
-                $this->detachResource($resource, $removed);
+                $pathsToRemove[] = $path;
             }
-
-            return $removed;
+        } else {
+            $pathsToRemove[] = $selector;
         }
 
-        if (isset($this->resources[$selector])) {
-            $this->detachResource($this->resources[$selector], $removed);
+        foreach ($pathsToRemove as $path) {
+            // Skip resources that have already been removed
+            if (isset($this->resources[$path])) {
+                $this->removeResource($this->resources[$path], $removed);
+            }
         }
 
         return $removed;
@@ -312,69 +326,33 @@ class InMemoryRepository implements ManageableRepository
     }
 
     /**
-     * Recursively creates the base directories of a path.
+     * Recursively creates a directory for a path.
      *
-     * @param string $path A repository path.
+     * @param string $path A directory path.
      *
-     * @throws NoDirectoryException If a resource with one of the base paths
-     *                              exists, but is no directory.
+     * @throws NoDirectoryException If a resource with that path exists, but is
+     *                              no directory.
      */
-    private function initContainingDirectories($path)
+    private function ensureDirectoryExists($path)
     {
-        if ('/' === $path) {
-            return;
-        }
-
-        $parentPath = Path::getDirectory($path);
-
-        // Relative paths don't have parent directories
-        if ('' === $parentPath) {
-            return;
-        }
-
-        if (!isset($this->resources[$parentPath])) {
+        if (!isset($this->resources[$path])) {
             // Recursively initialize parent directories
-            $this->initContainingDirectories($parentPath);
-            $this->resources[$parentPath] = new VirtualDirectoryResource($parentPath);
-            $this->resources[$parentPath]->attachTo($this);
+            if ($path !== '/') {
+                $this->ensureDirectoryExists(Path::getDirectory($path));
+            }
+
+            $this->resources[$path] = new VirtualDirectoryResource($path);
+            $this->resources[$path]->attachTo($this);
 
             return;
         }
 
-        if (!$this->resources[$parentPath] instanceof DirectoryResource) {
-            throw NoDirectoryException::forPath($parentPath);
+        if (!$this->resources[$path] instanceof DirectoryResource) {
+            throw NoDirectoryException::forPath($path);
         }
     }
 
-    /**
-     * Recursively attaches a resource to the repository.
-     *
-     * @param Resource $resource The resource to attach.
-     * @param string   $path     The path at which to add the resource.
-     */
-    private function attachResource(Resource $resource, $path)
-    {
-        $this->initContainingDirectories($path);
-
-        // Add the resource
-        $this->attachRecursively($resource, $path);
-
-        // Keep the resources sorted by file name
-        ksort($this->resources);
-    }
-
-    /**
-     * Recursively detaches a resource from the repository.
-     *
-     * @param Resource $resource The resource to detach.
-     * @param integer  $counter  Counts the number of detached resources.
-     */
-    private function detachResource(Resource $resource, &$counter)
-    {
-        $this->detachRecursively($resource, $counter);
-    }
-
-    private function attachRecursively(Resource $resource, $path)
+    private function addResource($path, Resource $resource)
     {
         // Don't modify resources attached to other repositories
         if ($resource->isAttached()) {
@@ -396,7 +374,7 @@ class InMemoryRepository implements ManageableRepository
         // Recursively attach directory contents
         if ($resource instanceof DirectoryResource) {
             foreach ($resource->listEntries() as $name => $entry) {
-                $this->attachRecursively($entry, $basePath.$name);
+                $this->addResource($basePath.$name, $entry);
             }
         }
 
@@ -406,12 +384,12 @@ class InMemoryRepository implements ManageableRepository
         $resource->attachTo($this, $path);
     }
 
-    private function detachRecursively(Resource $resource, &$counter)
+    private function removeResource(Resource $resource, &$counter)
     {
         // Recursively register directory contents
         if ($resource instanceof DirectoryResource) {
             foreach ($this->listDirectory($resource->getPath()) as $entry) {
-                $this->detachRecursively($entry, $counter);
+                $this->removeResource($entry, $counter);
             }
         }
 

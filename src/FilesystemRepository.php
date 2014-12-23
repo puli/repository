@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Filesystem;
+namespace Puli\Repository;
 
 use Assert\Assertion;
 use Iterator;
@@ -18,9 +18,6 @@ use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
 use Puli\Repository\Filesystem\Resource\LocalFileResource;
 use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
-use Puli\Repository\NoDirectoryException;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepository;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -29,7 +26,7 @@ use Webmozart\PathUtil\Path;
  * Resources can be read using their absolute file system paths:
  *
  * ```php
- * use Puli\Repository\Filesystem\FilesystemRepository;
+ * use Puli\Repository\FilesystemRepository;
  *
  * $repo = new FilesystemRepository();
  * $resource = $repo->get('/home/puli/.gitconfig');
@@ -56,20 +53,20 @@ class FilesystemRepository implements ResourceRepository
     /**
      * @var string
      */
-    private $rootDirectory = '';
+    protected $baseDir;
 
     /**
      * Creates a new repository.
      *
-     * @param string|null $rootDirectory The root directory of the repository
-     *                                   on the local file system.
+     * @param string|null $baseDir The base directory of the repository on the
+     *                             local file system.
      */
-    public function __construct($rootDirectory = null)
+    public function __construct($baseDir = null)
     {
-        if ($rootDirectory) {
-            Assertion::directory($rootDirectory);
+        if ($baseDir) {
+            Assertion::directory($baseDir);
 
-            $this->rootDirectory = rtrim(Path::canonicalize($rootDirectory), '/');
+            $this->baseDir = rtrim(Path::canonicalize($baseDir), '/');
         }
     }
 
@@ -83,7 +80,7 @@ class FilesystemRepository implements ResourceRepository
         Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
-        $localPath = $this->rootDirectory.$path;
+        $localPath = $this->baseDir.$path;
 
         if (!file_exists($localPath)) {
             throw ResourceNotFoundException::forPath($path);
@@ -108,7 +105,7 @@ class FilesystemRepository implements ResourceRepository
         Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
-        $localSelector = $this->rootDirectory.$selector;
+        $localSelector = $this->baseDir.$selector;
 
         return $this->iteratorToCollection(new GlobIterator($localSelector));
     }
@@ -123,7 +120,7 @@ class FilesystemRepository implements ResourceRepository
         Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
 
         $selector = Path::canonicalize($selector);
-        $iterator = new GlobIterator($this->rootDirectory.$selector);
+        $iterator = new GlobIterator($this->baseDir.$selector);
         $iterator->rewind();
 
         return $iterator->valid();
@@ -139,7 +136,7 @@ class FilesystemRepository implements ResourceRepository
         Assertion::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
-        $localPath = $this->rootDirectory.$path;
+        $localPath = $this->baseDir.$path;
 
         if (!file_exists($localPath)) {
             throw ResourceNotFoundException::forPath($path);
@@ -154,7 +151,7 @@ class FilesystemRepository implements ResourceRepository
 
     private function iteratorToCollection(Iterator $iterator)
     {
-        $offset = strlen($this->rootDirectory);
+        $offset = strlen($this->baseDir);
         $resources = array();
 
         foreach ($iterator as $localPath) {

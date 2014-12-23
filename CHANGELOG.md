@@ -43,6 +43,7 @@ Changelog
  * added `ResourceNotFoundException::forPath()`
  * added `NoDirectoryException::forPath()`
  * added `DirectoryResource::count()`
+ * added `FileCopyRepository`
 
 * 1.0.0-alpha4 (2014-12-03)
 

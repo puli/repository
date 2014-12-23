@@ -45,7 +45,7 @@ abstract class AbstractPhpCacheRepositoryTest extends AbstractRepositoryTest
     {
         $this->filesystem = new Filesystem();
 
-        while (false === mkdir($root = sys_get_temp_dir().'/puli/PhpCacheRepositoryTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === mkdir($root = sys_get_temp_dir().'/puli-repository/PhpCacheRepositoryTest'.rand(10000, 99999), 0777, true)) {}
 
         mkdir($root.'/repo');
         mkdir($root.'/cache');

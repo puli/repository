@@ -13,6 +13,7 @@ namespace Puli\Repository\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\Resource;
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -29,8 +30,6 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      * @return ResourceRepository
      */
     abstract protected function createRepository(DirectoryResource $root);
-
-    abstract protected function assertSameResource($expected, $actual);
 
     protected function pass()
     {
@@ -177,9 +176,37 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $repo->contains(new \stdClass());
     }
 
-    abstract public function testGetFile();
+    public function testGetFile()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestFile('/webmozart/puli/file'),
+                )),
+            )),
+        )));
 
-    abstract public function testGetDirectory();
+        $file = $repo->get('/webmozart/puli/file');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertSame('/webmozart/puli/file', $file->getPath());
+        $this->assertSame($repo, $file->getRepository());
+    }
+
+    public function testGetDirectory()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli'),
+            )),
+        )));
+
+        $dir = $repo->get('/webmozart/puli');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
+        $this->assertSame('/webmozart/puli', $dir->getPath());
+        $this->assertSame($repo, $dir->getRepository());
+    }
 
     abstract public function testGetOverriddenFile();
 
@@ -191,14 +218,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             new TestDirectory('/webmozart'),
         )));
 
-        $this->assertSameResource($repo->get('/webmozart'), $repo->get('/webmozart/'));
+        $this->assertEquals($repo->get('/webmozart'), $repo->get('/webmozart/'));
     }
 
     public function testGetInterpretsConsecutiveSlashesAsRoot()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $this->assertSameResource($repo->get('/'), $repo->get('///'));
+        $this->assertEquals($repo->get('/'), $repo->get('///'));
     }
 
     public function testGetCanonicalizesFilePaths()
@@ -211,7 +238,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $this->assertSameResource($repo->get('/webmozart/puli/file'), $repo->get('/webmozart/puli/../puli/./file'));
+        $this->assertEquals($repo->get('/webmozart/puli/file'), $repo->get('/webmozart/puli/../puli/./file'));
     }
 
     public function testGetCanonicalizesDirectoryPaths()
@@ -224,7 +251,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $this->assertSameResource($repo->get('/webmozart/puli/dir'), $repo->get('/webmozart/puli/../puli/dir'));
+        $this->assertEquals($repo->get('/webmozart/puli/dir'), $repo->get('/webmozart/puli/../puli/dir'));
     }
 
     /**
@@ -275,7 +302,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             new TestDirectory('/webmozart'),
         )));
 
-        $this->assertSameResource($repo->get('/webmozart'), $repo->get('/webmozart/.'));
+        $this->assertEquals($repo->get('/webmozart'), $repo->get('/webmozart/.'));
     }
 
     public function testGetDotInFile()
@@ -292,14 +319,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         // on a regular file system, because recognizing files would be too
         // big a performance impact
         // You should not rely on this however, as this may change anytime
-        $this->assertSameResource($repo->get('/webmozart/puli/file1'), $repo->get('/webmozart/puli/file1/.'));
+        $this->assertEquals($repo->get('/webmozart/puli/file1'), $repo->get('/webmozart/puli/file1/.'));
     }
 
     public function testGetDotInRoot()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $this->assertSameResource($repo->get('/'), $repo->get('/.'));
+        $this->assertEquals($repo->get('/'), $repo->get('/.'));
     }
 
     public function testGetDotDotInDirectory()
@@ -310,7 +337,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $this->assertSameResource($repo->get('/webmozart'), $repo->get('/webmozart/puli/..'));
+        $this->assertEquals($repo->get('/webmozart'), $repo->get('/webmozart/puli/..'));
     }
 
     public function testGetDotDotInFile()
@@ -327,14 +354,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         // on a regular file system, because recognizing files would be too
         // big a performance impact
         // You should not rely on this however, as this may change anytime
-        $this->assertSameResource($repo->get('/webmozart/puli'), $repo->get('/webmozart/puli/file1/..'));
+        $this->assertEquals($repo->get('/webmozart/puli'), $repo->get('/webmozart/puli/file1/..'));
     }
 
     public function testGetDotDotInRoot()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $this->assertSameResource($repo->get('/'), $repo->get('/..'));
+        $this->assertEquals($repo->get('/'), $repo->get('/..'));
     }
 
     public function testListDirectory()
@@ -363,10 +390,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertCount(4, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
         // sorted
-        $this->assertSameResource($repo->get('/webmozart/puli/.dotfile'), $resources[0]);
-        $this->assertSameResource($repo->get('/webmozart/puli/bar'), $resources[1]);
-        $this->assertSameResource($repo->get('/webmozart/puli/dir'), $resources[2]);
-        $this->assertSameResource($repo->get('/webmozart/puli/foo'), $resources[3]);
+        $this->assertEquals($repo->get('/webmozart/puli/.dotfile'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/bar'), $resources[1]);
+        $this->assertEquals($repo->get('/webmozart/puli/dir'), $resources[2]);
+        $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[3]);
     }
 
     public function testListRootDirectory()
@@ -381,8 +408,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
         // sorted
-        $this->assertSameResource($repo->get('/acme'), $resources[0]);
-        $this->assertSameResource($repo->get('/webmozart'), $resources[1]);
+        $this->assertEquals($repo->get('/acme'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart'), $resources[1]);
     }
 
     /**
@@ -457,9 +484,9 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertCount(3, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
         // sorted
-        $this->assertSameResource($repo->get('/webmozart/puli/.dotfoo'), $resources[0]);
-        $this->assertSameResource($repo->get('/webmozart/puli/dirfoo'), $resources[1]);
-        $this->assertSameResource($repo->get('/webmozart/puli/foo'), $resources[2]);
+        $this->assertEquals($repo->get('/webmozart/puli/.dotfoo'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/dirfoo'), $resources[1]);
+        $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[2]);
     }
 
     public function testFindFile()
@@ -476,7 +503,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
-        $this->assertSameResource($repo->get('/webmozart/puli/file'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/file'), $resources[0]);
     }
 
     public function testFindDirectory()
@@ -489,7 +516,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
-        $this->assertSameResource($repo->get('/webmozart'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart'), $resources[0]);
     }
 
     public function testFindCanonicalizesSelector()
@@ -506,7 +533,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $resources);
         $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
-        $this->assertSameResource($repo->get('/webmozart/puli/file1'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
     public function testFindNoMatches()
