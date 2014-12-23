@@ -97,4 +97,13 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
         $this->assertTrue($directory->contains('..'));
         $this->assertFalse($directory->contains('foobar'));
     }
+
+    public function testCountDetached()
+    {
+        $directory = new LocalDirectoryResource($this->fixturesDir);
+
+        $this->assertSame(3, $directory->count(false));
+        $this->assertSame(8, $directory->count(true));
+    }
+
 }

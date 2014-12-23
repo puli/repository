@@ -118,4 +118,23 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
 
         parent::override($resource);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count($deep = false)
+    {
+        $entries = $this->listEntries();
+        $count = count($entries);
+
+        if ($deep) {
+            foreach ($entries as $entry) {
+                if ($entry instanceof DirectoryResource) {
+                    $count += $entry->count(true);
+                }
+            }
+        }
+
+        return $count;
+    }
 }

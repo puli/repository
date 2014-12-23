@@ -161,4 +161,62 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
         $directory->contains('file');
     }
+
+    public function testCount()
+    {
+        $dir = $this->createResource('/path');
+        $file1 = new TestFile('/path/file1');
+        $file2 = new TestFile('/path/file2');
+        $nestedDir = $this->createResource('/path/dir');
+        $entries = new ArrayResourceCollection(array($file1, $file2, $nestedDir));
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('listDirectory')
+            ->with('/path')
+            ->will($this->returnValue($entries));
+
+        $dir->attachTo($repo);
+        $nestedDir->attachTo($repo);
+
+        $this->assertSame(3, $dir->count(false));
+    }
+
+    public function testCountDeep()
+    {
+        $dir = $this->createResource('/path');
+        $file1 = new TestFile('/path/file1');
+        $file2 = new TestFile('/path/file2');
+        $nestedDir = $this->createResource('/path/dir');
+        $file3 = new TestFile('/path/dir/file3');
+        $file4 = new TestFile('/path/dir/file4');
+        $entries = new ArrayResourceCollection(array($file1, $file2, $nestedDir));
+        $nestedEntries = new ArrayResourceCollection(array($file3, $file4));
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+
+        $repo->expects($this->at(0))
+            ->method('listDirectory')
+            ->with('/path')
+            ->will($this->returnValue($entries));
+
+        $repo->expects($this->at(1))
+            ->method('listDirectory')
+            ->with('/path/dir')
+            ->will($this->returnValue($nestedEntries));
+
+        $dir->attachTo($repo);
+        $nestedDir->attachTo($repo);
+
+        $this->assertSame(5, $dir->count(true));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Resource\DetachedException
+     */
+    public function testCountDetached()
+    {
+        $directory = $this->createResource();
+
+        $directory->count();
+    }
 }

@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
+use Countable;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\ResourceNotFoundException;
 
@@ -20,7 +21,7 @@ use Puli\Repository\ResourceNotFoundException;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface DirectoryResource extends Resource
+interface DirectoryResource extends Resource, Countable
 {
     /**
      * Returns the resource with the given name from the directory.
@@ -50,4 +51,13 @@ interface DirectoryResource extends Resource
      * @return ResourceCollection The resources indexed by their names.
      */
     public function listEntries();
+
+    /**
+     * Returns the number of entries in the directory.
+     *
+     * @param bool $deep Whether to count the entries of sub-directories.
+     *
+     * @return int The number of entries in the directory.
+     */
+    public function count($deep = false);
 }

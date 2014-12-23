@@ -62,4 +62,19 @@ class TestDirectory extends AbstractResource implements DirectoryResource
     {
         return $this->overrides;
     }
+
+    public function count($deep = false)
+    {
+        $count = count($this->entries);
+
+        if ($deep) {
+            foreach ($this->entries as $entry) {
+                if ($entry instanceof DirectoryResource) {
+                    $count += $entry->count(true);
+                }
+            }
+        }
+
+        return $count;
+    }
 }

@@ -42,6 +42,7 @@ Changelog
    `ResourceStreamWrapper::unregister()`
  * added `ResourceNotFoundException::forPath()`
  * added `NoDirectoryException::forPath()`
+ * added `DirectoryResource::count()`
 
 * 1.0.0-alpha4 (2014-12-03)
 

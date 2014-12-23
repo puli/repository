@@ -77,4 +77,27 @@ class VirtualDirectoryResource extends AbstractResource implements DirectoryReso
 
         return $entries;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count($deep = false)
+    {
+        if (!$this->getRepository()) {
+            throw new DetachedException('Cannot count entries of a detached directory.');
+        }
+
+        $entries = $this->getRepository()->listDirectory($this->getRepositoryPath());
+        $count = count($entries);
+
+        if ($deep) {
+            foreach ($entries as $entry) {
+                if ($entry instanceof DirectoryResource) {
+                    $count += $entry->count(true);
+                }
+            }
+        }
+
+        return $count;
+    }
 }
