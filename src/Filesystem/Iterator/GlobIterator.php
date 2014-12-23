@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Filesystem\Iterator;
 
+use ArrayIterator;
 use EmptyIterator;
 use FilterIterator;
 use Puli\Repository\Selector\Selector;
@@ -54,12 +55,17 @@ class GlobIterator extends FilterIterator
         $glob = Path::canonicalize($glob);
         $basePath = Selector::getBasePath($glob);
 
-        if (is_dir($basePath)) {
+        if (file_exists($glob)) {
+            // If the glob is a file path, return that path
+            $innerIterator = new ArrayIterator(array($glob));
+        } elseif (is_dir($basePath)) {
+            // Otherwise scan the glob's base directory for matches
             $innerIterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($basePath),
                 RecursiveIteratorIterator::SELF_FIRST
             );
         } else {
+            // If the glob's base directory does not exist, return nothing
             $innerIterator = new EmptyIterator();
         }
 

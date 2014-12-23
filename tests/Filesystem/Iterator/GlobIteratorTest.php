@@ -22,9 +22,17 @@ class GlobIteratorTest extends PHPUnit_Framework_TestCase
 {
     private $fixturesDir;
 
+    private $tempFile;
+
     protected function setUp()
     {
         $this->fixturesDir = __DIR__.'/Fixtures';
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'puli-GlobIteratorTest');
+    }
+
+    protected function tearDown()
+    {
+        unlink($this->tempFile);
     }
 
     public function testIterate()
@@ -35,6 +43,33 @@ class GlobIteratorTest extends PHPUnit_Framework_TestCase
             $this->fixturesDir.'/base.css',
             $this->fixturesDir.'/css/reset.css',
             $this->fixturesDir.'/css/style.css',
+        ), iterator_to_array($iterator));
+    }
+
+    public function testIterateSingleDirectory()
+    {
+        $iterator = new GlobIterator($this->fixturesDir.'/css');
+
+        $this->assertSame(array(
+            $this->fixturesDir.'/css',
+        ), iterator_to_array($iterator));
+    }
+
+    public function testIterateSingleFile()
+    {
+        $iterator = new GlobIterator($this->fixturesDir.'/css/style.css');
+
+        $this->assertSame(array(
+            $this->fixturesDir.'/css/style.css',
+        ), iterator_to_array($iterator));
+    }
+
+    public function testIterateSingleFileInDirectoryWithUnreadableFiles()
+    {
+        $iterator = new GlobIterator($this->tempFile);
+
+        $this->assertSame(array(
+            $this->tempFile,
         ), iterator_to_array($iterator));
     }
 
