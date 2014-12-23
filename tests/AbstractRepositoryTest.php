@@ -13,7 +13,6 @@ namespace Puli\Repository\Tests;
 
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;

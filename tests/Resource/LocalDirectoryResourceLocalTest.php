@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\OverriddenPathLoader;
+use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\OverriddenPathLoader;
 
 /**
  * @since  1.0

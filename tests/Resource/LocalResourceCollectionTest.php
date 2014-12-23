@@ -9,14 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Resource;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
-use Puli\Repository\Tests\Resource\TestDirectory;
-use Puli\Repository\Tests\Resource\TestFile;
+use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\LocalResourceCollection;
 
 /**
  * @since  1.0

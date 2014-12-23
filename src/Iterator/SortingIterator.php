@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Filesystem\Iterator;
+namespace Puli\Repository\Iterator;
 
 use ArrayIterator;
 use RecursiveIterator;

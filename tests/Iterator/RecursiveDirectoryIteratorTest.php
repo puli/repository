@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Filesystem\Iterator;
+namespace Puli\Repository\Tests\Iterator;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
+use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
 /**

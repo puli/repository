@@ -12,12 +12,12 @@
 namespace Puli\Repository;
 
 use Assert\Assertion;
-use Puli\Repository\Filesystem\Iterator\GlobIterator;
-use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\LocalResource;
+use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\LocalResource;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\Selector\Selector;
 use Symfony\Component\Filesystem\Filesystem;

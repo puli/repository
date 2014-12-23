@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Filesystem\Resource;
+namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Tests\Resource\AbstractDirectoryResourceTest;
+use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\LocalFileResource;
 
 /**
  * @since  1.0
@@ -75,7 +74,7 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
         $entries = $directory->listEntries();
 
         $this->assertCount(2, $entries);
-        $this->assertInstanceOf('Puli\Repository\\Filesystem\\Resource\\LocalResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\Repository\\Resource\\LocalResourceCollection', $entries);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $entries['file1']);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
     }

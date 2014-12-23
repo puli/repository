@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Filesystem\Iterator;
+namespace Puli\Repository\Tests\Iterator;
 
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Filesystem\Iterator\SortingIterator;
+use Puli\Repository\Iterator\SortingIterator;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 

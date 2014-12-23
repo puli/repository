@@ -44,6 +44,10 @@ Changelog
  * added `NoDirectoryException::forPath()`
  * added `DirectoryResource::count()`
  * added `FileCopyRepository`
+ * moved contents of `Puli\Repository\Filesystem\Iterator` to `Puli\Repository\Iterator`
+ * moved contents of `Puli\Repository\Filesystem\Resource` to `Puli\Repository\Resource`
+ * moved `FilesystemRepository` to `Puli\Repository`
+ * removed `PhpCacheRepository`
 
 * 1.0.0-alpha4 (2014-12-03)
 

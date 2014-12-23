@@ -13,11 +13,11 @@ namespace Puli\Repository;
 
 use Assert\Assertion;
 use Iterator;
-use Puli\Repository\Filesystem\Iterator\GlobIterator;
-use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
-use Puli\Repository\Filesystem\Resource\LocalDirectoryResource;
-use Puli\Repository\Filesystem\Resource\LocalFileResource;
-use Puli\Repository\Filesystem\Resource\LocalResourceCollection;
+use Puli\Repository\Iterator\GlobIterator;
+use Puli\Repository\Iterator\RecursiveDirectoryIterator;
+use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\LocalResourceCollection;
 use Webmozart\PathUtil\Path;
 
 /**

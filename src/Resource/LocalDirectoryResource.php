@@ -9,13 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Filesystem\Resource;
+namespace Puli\Repository\Resource;
 
 use Assert\Assertion;
-use Puli\Repository\Filesystem\Iterator\RecursiveDirectoryIterator;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\Resource;
-use Puli\Repository\Resource\VirtualDirectoryResource;
+use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\UnsupportedResourceException;
 

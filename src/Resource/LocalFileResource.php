@@ -9,11 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Filesystem\Resource;
+namespace Puli\Repository\Resource;
 
 use Assert\Assertion;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
 
 /**

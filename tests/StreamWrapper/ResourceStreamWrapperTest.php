@@ -13,10 +13,10 @@ namespace Puli\Repository\Tests\StreamWrapper;
 
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_TestCase;
+use Puli\Repository\Resource\LocalFileResource;
 use Puli\Repository\ResourceNotFoundException;
 use Puli\Repository\ResourceRepository;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
-use Puli\Repository\Tests\Filesystem\TestLocalFile;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
@@ -59,7 +59,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             ->method('get')
             ->will($this->returnCallback(function ($path) use ($tempnam) {
                 if ('/webmozart/puli/file' === $path) {
-                    return new TestLocalFile('/webmozart/puli/file', $tempnam);
+                    return new LocalFileResource($tempnam, '/webmozart/puli/file');
                 }
                 if ('/webmozart/puli/non-local' === $path) {
                     return new TestFile('/webmozart/puli/non-local');

@@ -9,10 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Filesystem\Resource;
+namespace Puli\Repository\Resource;
 
-use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\UnsupportedResourceException;
 
 /**
