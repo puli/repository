@@ -23,16 +23,18 @@ use RuntimeException;
 class NoDirectoryException extends RuntimeException
 {
     /**
-     * Creates a new exception.
+     * Creates a new exception for a resource path.
      *
      * @param string    $path     The path which was supposed to be a directory.
      * @param int       $code     The error code.
      * @param Exception $previous The exception that caused this exception.
+     *
+     * @return static The created exception.
      */
-    public function __construct($path, $code = 0, Exception $previous = null)
+    public static function forPath($path, $code = null, Exception $previous = null)
     {
-        parent::__construct(sprintf(
-            'The path "%s" is not a directory.',
+        return new static(sprintf(
+            'The resource %s is not a directory.',
             $path
         ), $code, $previous);
     }

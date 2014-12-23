@@ -86,10 +86,7 @@ class FilesystemRepository implements ResourceRepository
         $localPath = $this->rootDirectory.$path;
 
         if (!file_exists($localPath)) {
-            throw new ResourceNotFoundException(sprintf(
-                'The file "%s" does not exist.',
-                $path
-            ));
+            throw ResourceNotFoundException::forPath($path);
         }
 
         $resource = is_dir($localPath)
@@ -145,17 +142,11 @@ class FilesystemRepository implements ResourceRepository
         $localPath = $this->rootDirectory.$path;
 
         if (!file_exists($localPath)) {
-            throw new ResourceNotFoundException(sprintf(
-                'The directory "%s" does not exist.',
-                $path
-            ));
+            throw ResourceNotFoundException::forPath($path);
         }
 
         if (!is_dir($localPath)) {
-            throw new NoDirectoryException(sprintf(
-                'The path "%s" is not a directory.',
-                $path
-            ));
+            throw NoDirectoryException::forPath($path);
         }
 
         return $this->iteratorToCollection(new RecursiveDirectoryIterator($localPath));

@@ -137,7 +137,7 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
         }
 
         if (!is_dir($targetPath)) {
-            throw new NoDirectoryException($targetPath);
+            throw NoDirectoryException::forPath($targetPath);
         }
 
         file_put_contents($targetPath.'/'.self::FILE_PATHS_FILE, "<?php\n\nreturn ".var_export($filePaths, true).";");
@@ -258,10 +258,7 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
             return $this->resources[$path];
         }
 
-        throw new ResourceNotFoundException(sprintf(
-            'The resource "%s" does not exist.',
-            $path
-        ));
+        throw ResourceNotFoundException::forPath($path);
     }
 
     /**
@@ -450,17 +447,11 @@ class PhpCacheRepository implements ResourceRepository, OverriddenPathLoader
         $isUnloadedFile = array_key_exists($path, $this->filePaths);
 
         if (!$isLoaded && !$isUnloadedDir && !$isUnloadedFile) {
-            throw new ResourceNotFoundException(sprintf(
-                'The directory "%s" does not exist.',
-                $path
-            ));
+            throw ResourceNotFoundException::forPath($path);
         }
 
         if ($isUnloadedFile || $isLoaded && !($this->resources[$path] instanceof DirectoryResource)) {
-            throw new NoDirectoryException(sprintf(
-                'The resource "%s" is not a directory.',
-                $path
-            ));
+            throw NoDirectoryException::forPath($path);
         }
 
         $staticPrefix = rtrim($path, '/').'/';

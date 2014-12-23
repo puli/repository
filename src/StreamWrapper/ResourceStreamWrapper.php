@@ -232,7 +232,7 @@ class ResourceStreamWrapper implements StreamWrapper
         $directory = $this->getRepository($parts['scheme'])->get($parts['path']);
 
         if (!$directory instanceof DirectoryResource) {
-            throw new NoDirectoryException($uri);
+            throw NoDirectoryException::forPath($uri);
         }
 
         $this->directoryIterator = new ResourceCollectionIterator(

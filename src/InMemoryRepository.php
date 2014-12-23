@@ -102,10 +102,7 @@ class InMemoryRepository implements ManageableRepository
         $path = Path::canonicalize($path);
 
         if (!isset($this->resources[$path])) {
-            throw new ResourceNotFoundException(sprintf(
-                'The resource "%s" does not exist.',
-                $path
-            ));
+            throw ResourceNotFoundException::forPath($path);
         }
 
         return $this->resources[$path];
@@ -287,17 +284,11 @@ class InMemoryRepository implements ManageableRepository
         $path = Path::canonicalize($path);
 
         if (!isset($this->resources[$path])) {
-            throw new ResourceNotFoundException(sprintf(
-                'The resource "%s" does not exist.',
-                $path
-            ));
+            throw ResourceNotFoundException::forPath($path);
         }
 
         if (!$this->resources[$path] instanceof DirectoryResource) {
-            throw new NoDirectoryException(sprintf(
-                'The resource "%s" is not a directory.',
-                $path
-            ));
+            throw NoDirectoryException::forPath($path);
         }
 
         $staticPrefix = rtrim($path, '/').'/';
@@ -351,7 +342,7 @@ class InMemoryRepository implements ManageableRepository
         }
 
         if (!$this->resources[$parentPath] instanceof DirectoryResource) {
-            throw new NoDirectoryException($parentPath);
+            throw NoDirectoryException::forPath($parentPath);
         }
     }
 

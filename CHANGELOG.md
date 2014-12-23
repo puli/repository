@@ -40,6 +40,8 @@ Changelog
  * removed `UriRepository`
  * added `$scheme` argument to `ResourceStreamWrapper::register()` and
    `ResourceStreamWrapper::unregister()`
+ * added `ResourceNotFoundException::forPath()`
+ * added `NoDirectoryException::forPath()`
 
 * 1.0.0-alpha4 (2014-12-03)
 

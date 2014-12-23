@@ -50,10 +50,7 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
         $localPath = $this->getLocalPath().'/'.$name;
 
         if (!file_exists($localPath)) {
-            throw new ResourceNotFoundException(sprintf(
-                'The file "%s" does not exist.',
-                $localPath
-            ));
+            throw ResourceNotFoundException::forPath($localPath);
         }
 
         return is_dir($localPath)
