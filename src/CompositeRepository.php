@@ -11,8 +11,8 @@
 
 namespace Puli\Repository;
 
-use Assert\Assertion;
 use InvalidArgumentException;
+use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Webmozart\PathUtil\Path;
@@ -95,9 +95,7 @@ class CompositeRepository implements ResourceRepository
             );
         }
 
-        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The mount point must not be empty.');
-        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -120,9 +118,7 @@ class CompositeRepository implements ResourceRepository
      */
     public function unmount($path)
     {
-        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The mount point must not be empty.');
-        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -209,9 +205,7 @@ class CompositeRepository implements ResourceRepository
      */
     private function splitPath($path)
     {
-        Assertion::string($path, 'The mount point must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The mount point must not be empty.');
-        Assertion::startsWith($path, '/', 'The mount point %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
 

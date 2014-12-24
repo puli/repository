@@ -11,7 +11,7 @@
 
 namespace Puli\Repository;
 
-use Assert\Assertion;
+use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
@@ -110,9 +110,7 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
      */
     public function add($path, $resource)
     {
-        Assertion::string($path, 'The path must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The path must not be empty.');
-        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -152,9 +150,7 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
      */
     public function remove($selector)
     {
-        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
-        Assertion::notEmpty($selector, 'The selector must not be empty.');
-        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
+        Assertion::selector($selector);
 
         $selector = Path::canonicalize($selector);
 

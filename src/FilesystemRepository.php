@@ -11,8 +11,8 @@
 
 namespace Puli\Repository;
 
-use Assert\Assertion;
 use Iterator;
+use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\LocalDirectoryResource;
@@ -75,9 +75,7 @@ class FilesystemRepository implements ResourceRepository
      */
     public function get($path)
     {
-        Assertion::string($path, 'The path must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The path must not be empty.');
-        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
         $localPath = $this->baseDir.$path;
@@ -100,9 +98,7 @@ class FilesystemRepository implements ResourceRepository
      */
     public function find($selector)
     {
-        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
-        Assertion::notEmpty($selector, 'The selector must not be empty.');
-        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
+        Assertion::selector($selector);
 
         $selector = Path::canonicalize($selector);
         $localSelector = $this->baseDir.$selector;
@@ -115,9 +111,7 @@ class FilesystemRepository implements ResourceRepository
      */
     public function contains($selector)
     {
-        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
-        Assertion::notEmpty($selector, 'The selector must not be empty.');
-        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
+        Assertion::selector($selector);
 
         $selector = Path::canonicalize($selector);
         $iterator = new GlobIterator($this->baseDir.$selector);
@@ -131,9 +125,7 @@ class FilesystemRepository implements ResourceRepository
      */
     public function listDirectory($path)
     {
-        Assertion::string($path, 'The path must be a string. Got: %2$s');
-        Assertion::notEmpty($path, 'The path must not be empty.');
-        Assertion::startsWith($path, '/', 'The path %s is not absolute.');
+        Assertion::path($path);
 
         $path = Path::canonicalize($path);
         $localPath = $this->baseDir.$path;

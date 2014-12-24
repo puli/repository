@@ -48,6 +48,7 @@ Changelog
  * moved contents of `Puli\Repository\Filesystem\Resource` to `Puli\Repository\Resource`
  * moved `FilesystemRepository` to `Puli\Repository`
  * removed `PhpCacheRepository`
+ * added domain-specific `Assertion` class
 
 * 1.0.0-alpha4 (2014-12-03)
 
