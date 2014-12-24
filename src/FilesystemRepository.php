@@ -144,9 +144,13 @@ class FilesystemRepository implements ResourceRepository
     private function iteratorToCollection(Iterator $iterator)
     {
         $offset = strlen($this->baseDir);
+        $localPaths = iterator_to_array($iterator);
         $resources = array();
 
-        foreach ($iterator as $localPath) {
+        // RecursiveDirectoryIterator is not guaranteed to return sorted results
+        sort($localPaths);
+
+        foreach ($localPaths as $localPath) {
             $path = substr($localPath, $offset);
 
             $resource = is_dir($localPath)

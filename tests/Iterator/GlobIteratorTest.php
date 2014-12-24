@@ -90,12 +90,12 @@ class GlobIteratorTest extends PHPUnit_Framework_TestCase
         $iterator = new GlobIterator($this->fixturesDir.'/*');
 
         $this->assertSame(array(
+            $this->fixturesDir.'/js',
+            $this->fixturesDir.'/js/script.js',
             $this->fixturesDir.'/base.css',
             $this->fixturesDir.'/css',
             $this->fixturesDir.'/css/reset.css',
             $this->fixturesDir.'/css/style.css',
-            $this->fixturesDir.'/js',
-            $this->fixturesDir.'/js/script.js',
         ), iterator_to_array($iterator));
     }
 

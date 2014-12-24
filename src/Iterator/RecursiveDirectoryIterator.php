@@ -14,6 +14,7 @@ namespace Puli\Repository\Iterator;
 use ArrayIterator;
 use Assert\Assertion;
 use RecursiveIterator;
+use SeekableIterator;
 
 /**
  * Recursive directory iterator with a working seek() method.
@@ -27,7 +28,7 @@ use RecursiveIterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class RecursiveDirectoryIterator extends ArrayIterator implements RecursiveIterator
+class RecursiveDirectoryIterator implements RecursiveIterator, SeekableIterator
 {
     /**
      * Flag: Return current value as file path.
@@ -40,9 +41,34 @@ class RecursiveDirectoryIterator extends ArrayIterator implements RecursiveItera
     const CURRENT_AS_FILE = 2;
 
     /**
+     * @var resource
+     */
+    private $handle;
+
+    /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var string
+     */
+    private $current;
+
+    /**
+     * @var string
+     */
+    private $key;
+
+    /**
      * @var int
      */
     private $flags;
+
+    /**
+     * @var int
+     */
+    private $position;
 
     /**
      * Creates an iterator for the given path.
@@ -58,31 +84,117 @@ class RecursiveDirectoryIterator extends ArrayIterator implements RecursiveItera
             $flags |= self::CURRENT_AS_PATH;
         }
 
-        $basePath = rtrim($path, '/').'/';
-        $paths = array();
-
-        foreach (scandir($path) as $file) {
-            if ('.' === $file || '..' === $file) {
-                continue;
-            }
-
-            $paths[$basePath.$file] = ($flags & self::CURRENT_AS_FILE)
-                ? $file
-                : $basePath.$file;
-        }
-
-        parent::__construct($paths);
-
+        $this->path = rtrim($path, '/');
         $this->flags = $flags;
     }
 
-    public function hasChildren()
+    public function __destruct()
     {
-        return is_dir($this->key());
+        if (null !== $this->handle) {
+            closedir($this->handle);
+            $this->handle = null;
+        }
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function current()
+    {
+        return $this->current;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function next()
+    {
+        $file = readdir($this->handle);
+
+        if (false === $file) {
+            closedir($this->handle);
+            $this->current = null;
+            $this->key = null;
+            $this->handle = null;
+            $this->position = -1;
+
+            return;
+        }
+
+        if ('.' === $file || '..' === $file) {
+            $this->next();
+
+            return;
+        }
+
+        $path = $this->path.'/'.$file;
+
+        // handle concurrent deletions
+        if (!file_exists($path)) {
+            $this->next();
+
+            return;
+        }
+
+        $this->key = $path;
+        $this->current = ($this->flags & self::CURRENT_AS_FILE) ? $file : $this->key;
+        ++$this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function key()
+    {
+        return $this->key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function valid()
+    {
+        return null !== $this->key;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind()
+    {
+        $this->handle = opendir($this->path);
+        $this->position = -1;
+
+        $this->next();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChildren()
+    {
+        return is_dir($this->key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getChildren()
     {
-        return new static($this->key(), $this->flags);
+        return new static($this->key, $this->flags);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function seek($position)
+    {
+        if ($this->position > $position || null === $this->handle) {
+            $this->rewind();
+        }
+
+        while ($this->position < $position) {
+            $this->next();
+        }
     }
 }

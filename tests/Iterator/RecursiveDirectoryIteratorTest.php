@@ -14,6 +14,7 @@ namespace Puli\Repository\Tests\Iterator;
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @since  1.0
@@ -21,93 +22,127 @@ use RecursiveIteratorIterator;
  */
 class RecursiveDirectoryIteratorTest extends PHPUnit_Framework_TestCase
 {
-    private $fixturesDir;
+    private $tempDir;
 
     protected function setUp()
     {
-        $this->fixturesDir = __DIR__.'/Fixtures';
+        while (false === mkdir($this->tempDir = sys_get_temp_dir().'/puli-repository/RecursiveDirectoryIteratorTest'.rand(10000, 99999), 0777, true)) {}
+
+        $filesystem = new Filesystem();
+        $filesystem->mirror(__DIR__.'/Fixtures', $this->tempDir);
+    }
+
+    protected function tearDown()
+    {
+        $filesystem = new Filesystem();
+        $filesystem->remove($this->tempDir);
     }
 
     public function testIterate()
     {
-        $iterator = new RecursiveDirectoryIterator($this->fixturesDir);
+        $iterator = new RecursiveDirectoryIterator($this->tempDir);
 
         $this->assertSame(array(
-            $this->fixturesDir.'/base.css' => $this->fixturesDir.'/base.css',
-            $this->fixturesDir.'/css' => $this->fixturesDir.'/css',
-            $this->fixturesDir.'/js' => $this->fixturesDir.'/js',
+            $this->tempDir.'/base.css' => $this->tempDir.'/base.css',
+            $this->tempDir.'/css' => $this->tempDir.'/css',
+            $this->tempDir.'/js' => $this->tempDir.'/js',
         ), iterator_to_array($iterator));
     }
 
     public function testIterateTrailingSlash()
     {
-        $iterator = new RecursiveDirectoryIterator($this->fixturesDir.'/');
+        $iterator = new RecursiveDirectoryIterator($this->tempDir.'/');
 
         $this->assertSame(array(
-            $this->fixturesDir.'/base.css' => $this->fixturesDir.'/base.css',
-            $this->fixturesDir.'/css' => $this->fixturesDir.'/css',
-            $this->fixturesDir.'/js' => $this->fixturesDir.'/js',
+            $this->tempDir.'/base.css' => $this->tempDir.'/base.css',
+            $this->tempDir.'/css' => $this->tempDir.'/css',
+            $this->tempDir.'/js' => $this->tempDir.'/js',
         ), iterator_to_array($iterator));
     }
 
     public function testIterateCurrentAsPath()
     {
-        $iterator = new RecursiveDirectoryIterator($this->fixturesDir, RecursiveDirectoryIterator::CURRENT_AS_PATH);
+        $iterator = new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::CURRENT_AS_PATH);
 
         $this->assertSame(array(
-            $this->fixturesDir.'/base.css' => $this->fixturesDir.'/base.css',
-            $this->fixturesDir.'/css' => $this->fixturesDir.'/css',
-            $this->fixturesDir.'/js' => $this->fixturesDir.'/js',
+            $this->tempDir.'/base.css' => $this->tempDir.'/base.css',
+            $this->tempDir.'/css' => $this->tempDir.'/css',
+            $this->tempDir.'/js' => $this->tempDir.'/js',
         ), iterator_to_array($iterator));
     }
 
     public function testIterateCurrentAsFile()
     {
-        $iterator = new RecursiveDirectoryIterator($this->fixturesDir, RecursiveDirectoryIterator::CURRENT_AS_FILE);
+        $iterator = new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::CURRENT_AS_FILE);
 
         $this->assertSame(array(
-            $this->fixturesDir.'/base.css' => 'base.css',
-            $this->fixturesDir.'/css' => 'css',
-            $this->fixturesDir.'/js' => 'js',
+            $this->tempDir.'/base.css' => 'base.css',
+            $this->tempDir.'/css' => 'css',
+            $this->tempDir.'/js' => 'js',
         ), iterator_to_array($iterator));
     }
 
     public function testIterateRecursively()
     {
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($this->fixturesDir, RecursiveDirectoryIterator::CURRENT_AS_FILE),
+            new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::CURRENT_AS_FILE),
             RecursiveIteratorIterator::SELF_FIRST
         );
 
         $this->assertSame(array(
-            $this->fixturesDir.'/base.css' => 'base.css',
-            $this->fixturesDir.'/css' => 'css',
-            $this->fixturesDir.'/css/reset.css' => 'reset.css',
-            $this->fixturesDir.'/css/style.css' => 'style.css',
-            $this->fixturesDir.'/js' => 'js',
-            $this->fixturesDir.'/js/script.js' => 'script.js',
+            $this->tempDir.'/base.css' => 'base.css',
+            $this->tempDir.'/css' => 'css',
+            $this->tempDir.'/css/reset.css' => 'reset.css',
+            $this->tempDir.'/css/style.css' => 'style.css',
+            $this->tempDir.'/js' => 'js',
+            $this->tempDir.'/js/script.js' => 'script.js',
         ), iterator_to_array($iterator));
     }
 
     public function testSeek()
     {
-        $iterator = new RecursiveDirectoryIterator($this->fixturesDir, RecursiveDirectoryIterator::CURRENT_AS_FILE);
+        $iterator = new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::CURRENT_AS_FILE);
 
         $iterator->seek(0);
-        $this->assertSame($this->fixturesDir.'/base.css', $iterator->key());
+        $this->assertSame($this->tempDir.'/base.css', $iterator->key());
         $this->assertSame('base.css', $iterator->current());
 
         $iterator->seek(1);
-        $this->assertSame($this->fixturesDir.'/css', $iterator->key());
+        $this->assertSame($this->tempDir.'/css', $iterator->key());
         $this->assertSame('css', $iterator->current());
 
         $iterator->seek(2);
-        $this->assertSame($this->fixturesDir.'/js', $iterator->key());
+        $this->assertSame($this->tempDir.'/js', $iterator->key());
         $this->assertSame('js', $iterator->current());
 
         $iterator->seek(0);
-        $this->assertSame($this->fixturesDir.'/base.css', $iterator->key());
+        $this->assertSame($this->tempDir.'/base.css', $iterator->key());
         $this->assertSame('base.css', $iterator->current());
+    }
+
+    public function testIterateWithConcurrentDeletions()
+    {
+        $iterator = new RecursiveDirectoryIterator($this->tempDir);
+        $iterator->rewind();
+
+        $this->assertTrue($iterator->valid());
+        $this->assertSame($this->tempDir.'/base.css', $iterator->key());
+        $this->assertSame($this->tempDir.'/base.css', $iterator->current());
+
+        $filesystem = new Filesystem();
+        $filesystem->remove($this->tempDir.'/css');
+
+        $iterator->next();
+
+        $this->assertTrue($iterator->valid());
+        $this->assertSame($this->tempDir.'/js', $iterator->key());
+        $this->assertSame($this->tempDir.'/js', $iterator->current());
+
+        $iterator->next();
+
+        $this->assertFalse($iterator->valid());
+        $this->assertNull($iterator->key());
+        $this->assertNull($iterator->current());
     }
 
     /**
@@ -115,6 +150,6 @@ class RecursiveDirectoryIteratorTest extends PHPUnit_Framework_TestCase
      */
     public function testFailIfNonExistingBaseDirectory()
     {
-        new RecursiveDirectoryIterator($this->fixturesDir.'/foobar');
+        new RecursiveDirectoryIterator($this->tempDir.'/foobar');
     }
 }
