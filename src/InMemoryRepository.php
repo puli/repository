@@ -11,8 +11,11 @@
 
 namespace Puli\Repository;
 
+use ArrayIterator;
 use InvalidArgumentException;
 use Puli\Repository\Assert\Assertion;
+use Puli\Repository\Iterator\RegexIterator;
+use Puli\Repository\Iterator\SelectorIterator;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
@@ -113,26 +116,15 @@ class InMemoryRepository implements ManageableRepository
         Assertion::selector($selector);
 
         $selector = Path::canonicalize($selector);
-        $staticPrefix = Selector::getStaticPrefix($selector);
         $resources = array();
 
-        if (strlen($selector) > strlen($staticPrefix)) {
-            $regExp = Selector::toRegEx($selector);
-
-            foreach ($this->resources as $path => $resource) {
-                // strpos() is slightly faster than substr() here
-                if (0 !== strpos($path, $staticPrefix)) {
-                    continue;
-                }
-
-                if (!preg_match($regExp, $path)) {
-                    continue;
-                }
-
-                $resources[] = $resource;
-            }
+        if (Selector::isSelector($selector)) {
+            $resources = iterator_to_array(new SelectorIterator(
+                $selector,
+                new ArrayIterator($this->resources)
+            ));
         } elseif (isset($this->resources[$selector])) {
-            $resources[] = $this->resources[$selector];
+            $resources = array($this->resources[$selector]);
         }
 
         return new ArrayResourceCollection($resources);
@@ -146,25 +138,15 @@ class InMemoryRepository implements ManageableRepository
         Assertion::selector($selector);
 
         $selector = Path::canonicalize($selector);
-        $staticPrefix = Selector::getStaticPrefix($selector);
 
-        if (strlen($selector) > strlen($staticPrefix)) {
-            $regExp = Selector::toRegEx($selector);
+        if (Selector::isSelector($selector)) {
+            $iterator = new SelectorIterator(
+                $selector,
+                new ArrayIterator($this->resources)
+            );
+            $iterator->rewind();
 
-            foreach ($this->resources as $path => $resource) {
-                // strpos() is slightly faster than substr() here
-                if (0 !== strpos($path, $staticPrefix)) {
-                    continue;
-                }
-
-                if (!preg_match($regExp, $path)) {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
+            return $iterator->valid();
         }
 
         return isset($this->resources[$selector]);
@@ -242,35 +224,20 @@ class InMemoryRepository implements ManageableRepository
 
         Assertion::notEq('/', $selector, 'The root directory cannot be removed.');
 
-        $staticPrefix = Selector::getStaticPrefix($selector);
-        $pathsToRemove = array();
+        $resourcesToRemove = array();
         $removed = 0;
 
-        // Is there a dynamic part ("*") in the selector?
-        if (strlen($selector) > strlen($staticPrefix)) {
-            $regExp = Selector::toRegEx($selector);
-
-            foreach ($this->resources as $path => $resource) {
-                // strpos() is slightly faster than substr() here
-                if (0 !== strpos($path, $staticPrefix)) {
-                    continue;
-                }
-
-                if (!preg_match($regExp, $path)) {
-                    continue;
-                }
-
-                $pathsToRemove[] = $path;
-            }
-        } else {
-            $pathsToRemove[] = $selector;
+        if (Selector::isSelector($selector)) {
+            $resourcesToRemove = new SelectorIterator(
+                $selector,
+                new ArrayIterator($this->resources)
+            );
+        } elseif (isset($this->resources[$selector])) {
+            $resourcesToRemove[] = $this->resources[$selector];
         }
 
-        foreach ($pathsToRemove as $path) {
-            // Skip resources that have already been removed
-            if (isset($this->resources[$path])) {
-                $this->removeResource($this->resources[$path], $removed);
-            }
+        foreach ($resourcesToRemove as $resource) {
+            $this->removeResource($resource, $removed);
         }
 
         return $removed;
@@ -295,20 +262,12 @@ class InMemoryRepository implements ManageableRepository
 
         $staticPrefix = rtrim($path, '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
-        $resources = array();
 
-        foreach ($this->resources as $path => $resource) {
-            // strpos() is slightly faster than substr() here
-            if (0 !== strpos($path, $staticPrefix)) {
-                continue;
-            }
-
-            if (!preg_match($regExp, $path)) {
-                continue;
-            }
-
-            $resources[] = $resource;
-        }
+        $resources = iterator_to_array(new RegexIterator(
+            $regExp,
+            $staticPrefix,
+            new ArrayIterator($this->resources)
+        ));
 
         return new ArrayResourceCollection($resources);
     }
@@ -374,6 +333,11 @@ class InMemoryRepository implements ManageableRepository
 
     private function removeResource(Resource $resource, &$counter)
     {
+        // Ignore non-existing resources
+        if (!isset($this->resources[$resource->getPath()])) {
+            return;
+        }
+
         // Recursively register directory contents
         if ($resource instanceof DirectoryResource) {
             foreach ($this->listDirectory($resource->getPath()) as $entry) {

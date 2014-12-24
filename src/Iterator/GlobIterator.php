@@ -27,37 +27,20 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GlobIterator extends FilterIterator
+class GlobIterator extends SelectorIterator
 {
-    /**
-     * @var string
-     */
-    private $regExp;
-
-    /**
-     * @var string
-     */
-    private $staticPrefix;
-
-    /**
-     * @var int
-     */
-    private $cursor = 0;
-
     /**
      * Creates a new iterator.
      *
-     * @param string $glob The glob pattern.
+     * @param string $selector The glob pattern.
      */
-    public function __construct($glob)
+    public function __construct($selector)
     {
-        // Selector expects canonical patterns
-        $glob = Path::canonicalize($glob);
-        $basePath = Selector::getBasePath($glob);
+        $basePath = Selector::getBasePath($selector);
 
-        if (file_exists($glob)) {
+        if (file_exists($selector)) {
             // If the glob is a file path, return that path
-            $innerIterator = new ArrayIterator(array($glob));
+            $innerIterator = new ArrayIterator(array($selector => $selector));
         } elseif (is_dir($basePath)) {
             // Otherwise scan the glob's base directory for matches
             $innerIterator = new RecursiveIteratorIterator(
@@ -69,47 +52,6 @@ class GlobIterator extends FilterIterator
             $innerIterator = new EmptyIterator();
         }
 
-        parent::__construct($innerIterator);
-
-        $this->regExp = Selector::toRegEx($glob);
-        $this->staticPrefix = Selector::getStaticPrefix($glob);
-    }
-
-    /**
-     * Returns the current position.
-     *
-     * @return int The current position.
-     */
-    public function key()
-    {
-        return $this->cursor;
-    }
-
-    /**
-     * Advances to the next match.
-     *
-     * @see Iterator::next()
-     */
-    public function next()
-    {
-        parent::next();
-
-        ++$this->cursor;
-    }
-
-    /**
-     * Accepts paths matching the glob.
-     *
-     * @return bool Whether the path is accepted.
-     */
-    public function accept()
-    {
-        $path = $this->current();
-
-        if (0 !== strpos($path, $this->staticPrefix)) {
-            return false;
-        }
-
-        return (bool) preg_match($this->regExp, $path);
+        parent::__construct($selector, $innerIterator);
     }
 }
