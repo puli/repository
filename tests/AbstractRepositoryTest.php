@@ -190,6 +190,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
+        $this->assertSame(1, $file->getVersion());
     }
 
     public function testGetDirectory()
@@ -205,11 +206,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
         $this->assertSame($repo, $dir->getRepository());
+        $this->assertSame(1, $dir->getVersion());
     }
-
-    abstract public function testGetOverriddenFile();
-
-    abstract public function testGetOverriddenDirectory();
 
     public function testGetDiscardsTrailingSlash()
     {
@@ -261,6 +259,18 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $repo = $this->createRepository(new TestDirectory('/'));
 
         $repo->get('/foo/bar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\ResourceNotFoundException
+     */
+    public function testGetExpectsExistingVersion()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestFile('/webmozart'),
+        )));
+
+        $repo->get('/webmozart', 2);
     }
 
     /**

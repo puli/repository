@@ -27,8 +27,6 @@ class TestDirectory extends AbstractResource implements DirectoryResource
      */
     private $entries = array();
 
-    private $overrides;
-
     public function __construct($path = null, array $entries = array())
     {
         parent::__construct($path);
@@ -38,7 +36,7 @@ class TestDirectory extends AbstractResource implements DirectoryResource
         }
     }
 
-    public function get($name)
+    public function get($name, $version = null)
     {
         return $this->entries[$name];
     }
@@ -51,16 +49,6 @@ class TestDirectory extends AbstractResource implements DirectoryResource
     public function listEntries()
     {
         return new ArrayResourceCollection($this->entries);
-    }
-
-    public function override(Resource $resource)
-    {
-        $this->overrides = $resource;
-    }
-
-    public function getOverriddenResource()
-    {
-        return $this->overrides;
     }
 
     public function count($deep = false)

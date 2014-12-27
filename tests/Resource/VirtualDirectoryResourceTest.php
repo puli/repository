@@ -19,8 +19,8 @@ use Puli\Repository\Resource\VirtualDirectoryResource;
  */
 class VirtualDirectoryResourceTest extends AbstractDirectoryResourceTest
 {
-    protected function createResource($path = null)
+    protected function createResource($path = null, $version = 1)
     {
-        return new VirtualDirectoryResource($path);
+        return new VirtualDirectoryResource($path, $version);
     }
 }

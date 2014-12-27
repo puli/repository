@@ -25,11 +25,11 @@ class LocalFileResource extends AbstractLocalResource implements FileResource
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
+    public function __construct($localPath, $path = null, $version = 1)
     {
         Assertion::file($localPath);
 
-        parent::__construct($localPath, $path, $pathLoader);
+        parent::__construct($localPath, $path, $version);
     }
 
     /**
@@ -62,17 +62,5 @@ class LocalFileResource extends AbstractLocalResource implements FileResource
     public function getLastModifiedAt()
     {
         return filemtime($this->getLocalPath());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function override(Resource $file)
-    {
-        if (!($file instanceof FileResource && $file instanceof LocalResource)) {
-            throw new UnsupportedResourceException('Can only override other local file resources.');
-        }
-
-        parent::override($file);
     }
 }

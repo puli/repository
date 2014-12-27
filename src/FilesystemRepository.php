@@ -73,7 +73,7 @@ class FilesystemRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function get($path)
+    public function get($path, $version = null)
     {
         Assertion::path($path);
 
@@ -82,6 +82,10 @@ class FilesystemRepository implements ResourceRepository
 
         if (!file_exists($localPath)) {
             throw ResourceNotFoundException::forPath($path);
+        }
+
+        if (null !== $version && 1 !== $version) {
+            throw ResourceNotFoundException::forVersion($version, $path);
         }
 
         $resource = is_dir($localPath)

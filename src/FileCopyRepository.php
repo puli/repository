@@ -17,22 +17,26 @@ use Puli\Repository\Resource\Collection\ResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\LocalDirectoryResource;
+use Puli\Repository\Resource\LocalFileResource;
 use Puli\Repository\Resource\LocalResource;
 use Puli\Repository\Resource\Resource;
 use Puli\Repository\Selector\Selector;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\KeyValueStore\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**
  * A repository that copies all resources to a directory.
  *
  * This implementation is useful if you want to cache resources from a remote
- * repository on the local file system. However, resource overriding is not
- * supported. {@link LocalResource::getAllLocalPaths()} will always return one
- * local path only for resources returned by this repository.
+ * repository on the local file system.
  *
  * You need to pass the path of an existing directory to the constructor. The
  * repository will read and write resources from/to this directory.
+ *
+ * Additionally, you need to pass a key-value store that stores the versioning
+ * information of the resources. If you don't need versioning, pass a NullStore
+ * instead.
  *
  * Resources can be added with the method {@link add()}:
  *
@@ -89,13 +93,20 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
     private $filesystem;
 
     /**
+     * @var KeyValueStore
+     */
+    private $versionStore;
+
+    /**
      * Creates a new repository.
      *
-     * @param string             $baseDir The directory to read from and write
-     *                                    to.
-     * @param ResourceRepository $backend The backend repository.
+     * @param string             $baseDir      The directory to read from and
+     *                                         write to.
+     * @param KeyValueStore      $versionStore The store for storing the
+     *                                         resource versions.
+     * @param ResourceRepository $backend      The backend repository.
      */
-    public function __construct($baseDir, ResourceRepository $backend = null)
+    public function __construct($baseDir, KeyValueStore $versionStore, ResourceRepository $backend = null)
     {
         Assertion::directory($baseDir);
 
@@ -103,6 +114,37 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
 
         $this->backend = $backend ?: new FilesystemRepository();
         $this->filesystem = new Filesystem();
+        $this->versionStore = $versionStore;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get($path, $version = null)
+    {
+        Assertion::path($path);
+
+        $path = Path::canonicalize($path);
+        $localPath = $this->baseDir.$path;
+
+        if (!file_exists($localPath)) {
+            throw ResourceNotFoundException::forPath($path);
+        }
+
+        $versions = $this->versionStore->get($path, array(1 => $path));
+        $latestVersion = count($versions);
+
+        if (null === $version || $latestVersion === $version) {
+            return $this->createResource($localPath, $path, $latestVersion);
+        }
+
+        if (!isset($versions[$version])) {
+            throw ResourceNotFoundException::forVersion($version, $path);
+        }
+
+        $localPath = Path::makeAbsolute($versions[$version], $this->baseDir);
+
+        return $this->createResource($localPath, $path, $version);
     }
 
     /**
@@ -193,10 +235,9 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
 
     private function addResource($path, Resource $resource)
     {
-        $localPath = $this->baseDir.$path;
+        $pathInBaseDir = $this->baseDir.$path;
         $isDir = $resource instanceof DirectoryResource;
         $isFile = $resource instanceof FileResource;
-        $isLocal = $resource instanceof LocalResource;
 
         if (!$isDir && !$isFile) {
             throw new UnsupportedResourceException(sprintf(
@@ -206,24 +247,32 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
             ));
         }
 
-        if (file_exists($localPath)) {
-            $this->filesystem->remove($localPath);
+        // Remove previous versions
+        if (file_exists($pathInBaseDir)) {
+            $this->filesystem->remove($pathInBaseDir);
         }
 
-        if ($isLocal && $isDir) {
-            $this->filesystem->mirror($resource->getLocalPath(), $localPath);
+        if ($resource instanceof LocalResource) {
+            if ($isDir) {
+                $this->filesystem->mirror($resource->getLocalPath(), $pathInBaseDir);
+            } else {
+                $this->filesystem->copy($resource->getLocalPath(), $pathInBaseDir);
+            }
+
+            $versions = $this->versionStore->get($path, array());
+            $version = count($versions) + 1;
+            $versions[$version] = Path::makeRelative($resource->getLocalPath(), $this->baseDir);
+            $this->versionStore->set($path, $versions);
 
             return;
         }
 
-        if ($isLocal && $isFile) {
-            $this->filesystem->copy($resource->getLocalPath(), $localPath);
-
-            return;
-        }
+        // Versioning is not supported for non-local resources
+        // We always store one version only for such resources
+        $this->versionStore->set($path, array($path));
 
         if ($isDir) {
-            mkdir($localPath, 0777, true);
+            mkdir($pathInBaseDir, 0777, true);
 
             foreach ($resource->listEntries() as $entry) {
                 $this->addResource($path.'/'.$entry->getName(), $entry);
@@ -232,6 +281,17 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
             return;
         }
 
-        file_put_contents($localPath, $resource->getContents());
+        file_put_contents($pathInBaseDir, $resource->getContents());
+    }
+
+    private function createResource($localPath, $path, $version)
+    {
+        $resource = is_dir($localPath)
+            ? new LocalDirectoryResource($localPath)
+            : new LocalFileResource($localPath);
+
+        $resource->attachTo($this, $path, $version);
+
+        return $resource;
     }
 }

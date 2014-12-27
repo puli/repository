@@ -115,12 +115,14 @@ interface Resource extends Serializable
      * $resource->attachTo($repo, '/path/in/repo');
      * ```
      *
-     * @param ResourceRepository $repo The repository.
-     * @param string|null        $path The path of the resource in the
-     *                                 repository. If not passed, the resource
-     *                                 will be attached to it current path.
+     * @param ResourceRepository $repo    The repository.
+     * @param string|null        $path    The path of the resource in the
+     *                                    repository. If not passed, the resource
+     *                                    will be attached to it current path.
+     * @param int                $version The version of the resource in the
+     *                                    repository. Defaults to 1.
      */
-    public function attachTo(ResourceRepository $repo, $path = null);
+    public function attachTo(ResourceRepository $repo, $path = null, $version = 1);
 
     /**
      * Detaches the resource from the repository.
@@ -142,31 +144,6 @@ interface Resource extends Serializable
      * @return bool Whether the resource is attached to a repository.
      */
     public function isAttached();
-
-    /**
-     * Overrides another resource with this resource.
-     *
-     * This method is called when two different resources are added to the same
-     * path in the same repository:
-     *
-     * ```php
-     * use Puli\Repository\InMemoryRepository;
-     *
-     * $repo = new InMemoryRepository();
-     * $repo->add('/path', $resource1);
-     * $repo->add('/path', $resource2);
-     *
-     * // $resource2->override($resource1) is called
-     * ```
-     *
-     * Implementations should decide whether and how to change the state of the
-     * resource to incorporate the state of the overridden resource.
-     *
-     * @param Resource $resource The overridden resource.
-     *
-     * @throws UnsupportedResourceException If the resource cannot be overridden.
-     */
-    public function override(Resource $resource);
 
     /**
      * Creates a reference to the resource.
@@ -202,4 +179,12 @@ interface Resource extends Serializable
      * @return bool Whether the resource is a reference.
      */
     public function isReference();
+
+    /**
+     * Returns the version of the resource.
+     *
+     * @return int The resource's version. The first version is `1`, the
+     *             second `2` and so on.
+     */
+    public function getVersion();
 }

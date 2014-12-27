@@ -29,9 +29,9 @@ class LocalDirectoryResourceLocalTest extends AbstractLocalResourceTest
         $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }
 
-    protected function createLocalResource($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
+    protected function createLocalResource($localPath, $path = null, $version = 1)
     {
-        return new LocalDirectoryResource($localPath, $path, $pathLoader);
+        return new LocalDirectoryResource($localPath, $path, $version);
     }
 
     protected function getValidLocalPath()

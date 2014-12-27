@@ -25,8 +25,6 @@ class TestFile extends AbstractResource implements FileResource
 
     private $contents;
 
-    private $overrides;
-
     public function __construct($path = null, $contents = self::CONTENTS)
     {
         parent::__construct($path);
@@ -52,15 +50,5 @@ class TestFile extends AbstractResource implements FileResource
     public function getLastModifiedAt()
     {
         return 0;
-    }
-
-    public function override(Resource $resource)
-    {
-        $this->overrides = $resource;
-    }
-
-    public function getOverriddenResource()
-    {
-        return $this->overrides;
     }
 }

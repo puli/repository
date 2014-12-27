@@ -38,4 +38,23 @@ class ResourceNotFoundException extends RuntimeException
             $path
         ), $code, $previous);
     }
+
+    /**
+     * Creates a new exception for a resource path and a version.
+     *
+     * @param int       $version  The version which was not found.
+     * @param string    $path     The resource path.
+     * @param int       $code     The error code.
+     * @param Exception $previous The exception that caused this exception.
+     *
+     * @return static The created exception.
+     */
+    public static function forVersion($version, $path, $code = 0, Exception $previous = null)
+    {
+        return new static(sprintf(
+            'The version %s does not exist for resource %s.',
+            $version,
+            $path
+        ), $code, $previous);
+    }
 }

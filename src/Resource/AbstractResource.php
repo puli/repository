@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
+use Puli\Repository\Assert\Assertion;
 use Puli\Repository\ResourceRepository;
 
 /**
@@ -37,14 +38,24 @@ abstract class AbstractResource implements Resource
     private $repoPath;
 
     /**
+     * @var int
+     */
+    private $version;
+
+    /**
      * Creates a new resource.
      *
-     * @param string|null $path The path of the resource.
+     * @param string|null $path    The path of the resource.
+     * @param int         $version The resource version.
      */
-    public function __construct($path = null)
+    public function __construct($path = null, $version = 1)
     {
+        Assertion::integer($version, 'The version must be an integer. Got: %2$s');
+        Assertion::min($version, 1, 'The version must be 1 or higher. Got: "%s"');
+
         $this->path = $path;
         $this->repoPath = $path;
+        $this->version = $version;
     }
 
     /**
@@ -66,9 +77,10 @@ abstract class AbstractResource implements Resource
     /**
      * {@inheritdoc}
      */
-    public function attachTo(ResourceRepository $repo, $path = null)
+    public function attachTo(ResourceRepository $repo, $path = null, $version = 1)
     {
         $this->repo = $repo;
+        $this->version = $version;
 
         if (null !== $path) {
             $this->path = $path;
@@ -82,6 +94,7 @@ abstract class AbstractResource implements Resource
     public function detach()
     {
         $this->repo = null;
+        $this->version = 1;
     }
 
     /**
@@ -130,8 +143,9 @@ abstract class AbstractResource implements Resource
     /**
      * {@inheritdoc}
      */
-    public function override(Resource $resource)
+    public function getVersion()
     {
+        return $this->version;
     }
 
     /**
@@ -168,6 +182,7 @@ abstract class AbstractResource implements Resource
     {
         $data[] = $this->path;
         $data[] = $this->repoPath;
+        $data[] = $this->version;
     }
 
     /**
@@ -181,6 +196,7 @@ abstract class AbstractResource implements Resource
      */
     protected function postUnserialize(array $data)
     {
+        $this->version = array_pop($data);
         $this->repoPath = array_pop($data);
         $this->path = array_pop($data);
     }

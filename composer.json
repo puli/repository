@@ -12,6 +12,7 @@
     "require": {
         "php": ">=5.3.9",
         "webmozart/path-util": "~1.0",
+        "webmozart/key-value-store": "~1.0@dev",
         "beberlei/assert": "~2.3"
     },
     "require-dev": {

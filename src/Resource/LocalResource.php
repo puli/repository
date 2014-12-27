@@ -28,16 +28,4 @@ interface LocalResource extends Resource
      *                     has no associated local file.
      */
     public function getLocalPath();
-
-    /**
-     * Returns the paths of all associated files on the local file system.
-     *
-     * A resource can be associated to multiple files. The results are sorted
-     * by growing priority. The last entry is equal to the return value of
-     * {@link getLocalPath}.
-     *
-     * @return string[] The local file system paths of all associated local
-     *                  files, sorted by priority in ascending order.
-     */
-    public function getAllLocalPaths();
 }

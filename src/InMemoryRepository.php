@@ -70,6 +70,11 @@ class InMemoryRepository implements ManageableRepository
     private $resources = array();
 
     /**
+     * @var Resource[][]
+     */
+    private $versions = array();
+
+    /**
      * @var ResourceRepository
      */
     private $backend;
@@ -95,7 +100,7 @@ class InMemoryRepository implements ManageableRepository
     /**
      * {@inheritdoc}
      */
-    public function get($path)
+    public function get($path, $version = null)
     {
         Assertion::path($path);
 
@@ -105,7 +110,15 @@ class InMemoryRepository implements ManageableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->resources[$path];
+        if (null === $version) {
+            return $this->resources[$path];
+        }
+
+        if (!isset($this->versions[$path][$version])) {
+            throw ResourceNotFoundException::forVersion($version, $path);
+        }
+
+        return $this->versions[$path][$version];
     }
 
     /**
@@ -306,29 +319,27 @@ class InMemoryRepository implements ManageableRepository
             $resource = clone $resource;
         }
 
-        if (isset($this->resources[$path])) {
-            // If a resource with the same path was previously registered,
-            // override it
-            $resource->override($this->resources[$path]);
+        if (!isset($this->versions[$path])) {
+            $this->versions[$path] = array();
         }
+
+        $basePath = '/' === $path ? $path : $path.'/';
+        $version = count($this->versions[$path]) + 1;
+        $entries = $resource instanceof DirectoryResource ? $resource->listEntries() : array();
+
+        // Attach resource to locator *after* calling listEntries(), because
+        // this method usually depends on the previously attached repository
+        $resource->attachTo($this, $path, $version);
 
         // Add the resource before adding nested resources, so that the
         // array stays sorted
         $this->resources[$path] = $resource;
-
-        $basePath = '/' === $path ? $path : $path.'/';
+        $this->versions[$path][$version] = $resource;
 
         // Recursively attach directory contents
-        if ($resource instanceof DirectoryResource) {
-            foreach ($resource->listEntries() as $name => $entry) {
-                $this->addResource($basePath.$name, $entry);
-            }
+        foreach ($entries as $name => $entry) {
+            $this->addResource($basePath.$name, $entry);
         }
-
-        // Attach resource to locator *after* calling listDirectory() and
-        // override(), because these methods may depend on the previously
-        // attached repository
-        $resource->attachTo($this, $path);
     }
 
     private function removeResource(Resource $resource, &$counter)
@@ -346,6 +357,7 @@ class InMemoryRepository implements ManageableRepository
         }
 
         unset($this->resources[$resource->getPath()]);
+        unset($this->versions[$resource->getPath()]);
 
         // Detach from locator
         $resource->detach($this);

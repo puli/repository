@@ -49,6 +49,8 @@ Changelog
  * moved `FilesystemRepository` to `Puli\Repository`
  * removed `PhpCacheRepository`
  * added domain-specific `Assertion` class
+ * removed `LocalResource::getAllLocalPaths`
+ * added versioning support
 
 * 1.0.0-alpha4 (2014-12-03)
 

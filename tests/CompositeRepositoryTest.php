@@ -105,6 +105,23 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertSame($repo2, $result2->getRepository());
     }
 
+    public function testGetWithVersion()
+    {
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $resource = new TestFile('/path/to/resource');
+        $resource->attachTo($repo);
+        $this->repo->mount('/app', $repo);
+
+        $repo->expects($this->once())
+            ->method('get')
+            ->with('/path/to/resource', 3)
+            ->will($this->returnValue($resource));
+
+        $expected = $resource->createReference('/app/path/to/resource');
+
+        $this->assertEquals($expected, $this->repo->get('/app/path/to/resource', 3));
+    }
+
     public function testMountRepositoryFactory()
     {
         $repo = $this->getMock('Puli\Repository\ResourceRepository');

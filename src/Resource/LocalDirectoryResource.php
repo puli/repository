@@ -27,27 +27,32 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
+    public function __construct($localPath, $path = null, $version = 1)
     {
         Assertion::directory($localPath);
 
-        parent::__construct($localPath, $path, $pathLoader);
+        parent::__construct($localPath, $path, $version);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($name)
+    public function get($name, $version = null)
     {
         // Use attached locator if possible
         if ($this->getRepository()) {
-            return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
+            return $this->getRepository()->get($this->getRepositoryPath().'/'.$name, $version);
         }
 
         $localPath = $this->getLocalPath().'/'.$name;
 
         if (!file_exists($localPath)) {
-            throw ResourceNotFoundException::forPath($localPath);
+            throw ResourceNotFoundException::forPath($this->getPath().'/'.$name);
+        }
+
+        // When detached, we cannot get any other version but version 1
+        if (null !== $version && 1 !== $version) {
+            throw ResourceNotFoundException::forVersion($version, $this->getPath().'/'.$name);
         }
 
         return is_dir($localPath)
@@ -97,23 +102,6 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
         }
 
         return new LocalResourceCollection($entries);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function override(Resource $resource)
-    {
-        // Virtual directories may be overridden
-        if ($resource instanceof VirtualDirectoryResource) {
-            return;
-        }
-
-        if (!($resource instanceof DirectoryResource && $resource instanceof LocalResource)) {
-            throw new UnsupportedResourceException('Can only override other local directory resources.');
-        }
-
-        parent::override($resource);
     }
 
     /**

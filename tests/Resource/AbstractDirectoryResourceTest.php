@@ -109,6 +109,22 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
         $this->assertSame($entry, $reference->get('file'));
     }
 
+    public function testGetWithVersion()
+    {
+        $entry = $this->getMock('Puli\Repository\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('get')
+            ->with('/path/file', 3)
+            ->will($this->returnValue($entry));
+
+        $directory = $this->createResource('/path');
+        $directory->attachTo($repo);
+
+        $this->assertSame($entry, $directory->get('file', 3));
+    }
+
     /**
      * @expectedException \Puli\Repository\Resource\DetachedException
      */

@@ -27,28 +27,17 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
     private $localPath;
 
     /**
-     * @var string[]|null
-     */
-    private $overriddenPaths;
-
-    /**
-     * @var OverriddenPathLoader|null
-     */
-    private $pathLoader;
-
-    /**
      * Creates a new local resource.
      *
-     * @param string               $localPath  The path on the local file system.
-     * @param string|null          $path       The repository path of the resource.
-     * @param OverriddenPathLoader $pathLoader The loader for the overridden paths.
+     * @param string      $localPath The path on the local file system.
+     * @param string|null $path      The repository path of the resource.
+     * @param int         $version   The resource version.
      */
-    public function __construct($localPath, $path = null, OverriddenPathLoader $pathLoader = null)
+    public function __construct($localPath, $path = null, $version = 1)
     {
-        parent::__construct($path);
+        parent::__construct($path, $version);
 
         $this->localPath = $localPath;
-        $this->pathLoader = $pathLoader;
     }
 
     /**
@@ -59,65 +48,17 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
         return $this->localPath;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAllLocalPaths()
-    {
-        if (null === $this->overriddenPaths) {
-            $this->loadOverriddenPaths();
-        }
-
-        $paths = $this->overriddenPaths;
-        $paths[] = $this->localPath;
-
-        return $paths;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function override(Resource $resource)
-    {
-        if (!$resource instanceof LocalResource) {
-            throw new UnsupportedResourceException('Can only override other local resources.');
-        }
-
-        if (null === $this->overriddenPaths) {
-            $this->loadOverriddenPaths();
-        }
-
-        $this->overriddenPaths = array_merge(
-            $resource->getAllLocalPaths(),
-            $this->overriddenPaths
-        );
-    }
-
     protected function preSerialize(array &$data)
     {
         parent::preSerialize($data);
 
-        if (null === $this->overriddenPaths) {
-            $this->loadOverriddenPaths();
-        }
-
         $data[] = $this->localPath;
-        $data[] = $this->overriddenPaths;
     }
 
     protected function postUnserialize(array $data)
     {
-        $this->overriddenPaths = array_pop($data);
         $this->localPath = array_pop($data);
 
         parent::postUnserialize($data);
-    }
-
-    private function loadOverriddenPaths()
-    {
-        $this->overriddenPaths = $this->pathLoader
-            ? $this->pathLoader->loadOverriddenPaths($this)
-            : array();
-        $this->pathLoader = null;
     }
 }

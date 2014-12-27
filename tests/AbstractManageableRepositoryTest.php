@@ -71,11 +71,35 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
         $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
         $this->assertSame($this->repo, $dir->getRepository());
+        $this->assertSame(1, $dir->getVersion());
 
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repo, $file->getRepository());
         $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(1, $file->getVersion());
+    }
+
+    public function testAddOverridesPreviousVersion()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile(null, 'Contents 1'));
+        $this->repo->add('/webmozart/puli/file', new TestFile(null, 'Contents 2'));
+
+        $file = $this->repo->get('/webmozart/puli/file');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertSame('/webmozart/puli/file', $file->getPath());
+        $this->assertSame($this->repo, $file->getRepository());
+        $this->assertSame('Contents 2', $file->getContents());
+        $this->assertSame(2, $file->getVersion());
+
+        $file = $this->repo->get('/webmozart/puli/file', 1);
+
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertSame('/webmozart/puli/file', $file->getPath());
+        $this->assertSame($this->repo, $file->getRepository());
+        $this->assertSame('Contents 1', $file->getContents());
+        $this->assertSame(1, $file->getVersion());
     }
 
     public function testAddDot()
@@ -149,6 +173,7 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
         $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(1, $file->getVersion());
     }
 
     public function testAddSelectorFromBackendSingleMatch()
@@ -175,6 +200,7 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
         $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(1, $file->getVersion());
     }
 
     public function testAddSelectorFromBackendManyMatches()
@@ -206,11 +232,13 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/file1', $file1->getPath());
         $this->assertSame($repo, $file1->getRepository());
         $this->assertSame(TestFile::CONTENTS, $file1->getContents());
+        $this->assertSame(1, $file1->getVersion());
 
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file2);
         $this->assertSame('/webmozart/puli/file2', $file2->getPath());
         $this->assertSame($repo, $file2->getRepository());
         $this->assertSame(TestFile::CONTENTS, $file2->getContents());
+        $this->assertSame(1, $file2->getVersion());
     }
 
     public function testAddRoot()
@@ -289,6 +317,18 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
         $this->assertTrue($this->repo->contains('/webmozart/puli'));
         $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
         $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testRemoveOverriddenFileResetsVersion()
+    {
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+        $this->repo->add('/webmozart/puli/file', new TestFile());
+
+        $this->assertSame(1, $this->repo->remove('/webmozart/puli/file'));
+
+        $this->repo->add('/webmozart/puli/file', $file = new TestFile());
+
+        $this->assertSame(1, $file->getVersion());
     }
 
     public function testRemoveMany()

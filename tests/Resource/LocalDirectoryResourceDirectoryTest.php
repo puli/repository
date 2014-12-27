@@ -31,32 +31,13 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
 
     /**
      * @param string|null $path
+     * @param int         $version
      *
      * @return LocalDirectoryResource
      */
-    protected function createResource($path = null)
+    protected function createResource($path = null, $version = 1)
     {
-        return new LocalDirectoryResource($this->fixturesDir.'/dir1', $path);
-    }
-
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testOverrideFailsIfLocalResource()
-    {
-        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
-
-        $directory->override(new TestLocalResource($this->fixturesDir.'/dir1/file1'));
-    }
-
-    /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
-     */
-    public function testOverrideFailsIfLocalFileResource()
-    {
-        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
-
-        $directory->override(new LocalFileResource($this->fixturesDir.'/dir1/file1'));
+        return new LocalDirectoryResource($this->fixturesDir.'/dir1', $path, $version);
     }
 
     /**
@@ -84,6 +65,23 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
         $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
 
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $directory->get('file1'));
+    }
+
+    public function testGetWithVersionDetached()
+    {
+        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
+
+        $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $directory->get('file1', 1));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\ResourceNotFoundException
+     */
+    public function testGetWithVersionDetachedFailsIfVersionGreaterThanOne()
+    {
+        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
+
+        $directory->get('file1', 2);
     }
 
     public function testContainsDetached()

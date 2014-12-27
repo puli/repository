@@ -39,13 +39,13 @@ class VirtualDirectoryResource extends AbstractResource implements DirectoryReso
     /**
      * {@inheritdoc}
      */
-    public function get($name)
+    public function get($name, $version = null)
     {
         if (!$this->getRepository()) {
             throw new DetachedException('Cannot read files from a detached directory.');
         }
 
-        return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
+        return $this->getRepository()->get($this->getRepositoryPath().'/'.$name, $version);
     }
 
     /**
