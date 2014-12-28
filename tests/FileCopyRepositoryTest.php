@@ -56,12 +56,11 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
         return new FileCopyRepository($this->tempDir, new ArrayStore(), $backend);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testPassNonExistingBaseDirectory()
+    public function testBaseDirectoryCreatedIfNonExisting()
     {
         new FileCopyRepository($this->tempDir.'/foo', new ArrayStore());
+
+        $this->assertFileExists($this->tempDir.'/foo');
     }
 
     /**

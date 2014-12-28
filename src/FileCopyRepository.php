@@ -108,6 +108,12 @@ class FileCopyRepository extends FilesystemRepository implements ManageableRepos
      */
     public function __construct($baseDir, KeyValueStore $versionStore, ResourceRepository $backend = null)
     {
+        Assertion::string($baseDir);
+
+        if (!file_exists($baseDir)) {
+            mkdir($baseDir, 0777, true);
+        }
+
         Assertion::directory($baseDir);
 
         parent::__construct($baseDir);
