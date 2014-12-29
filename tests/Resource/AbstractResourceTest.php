@@ -28,11 +28,10 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     /**
      * @param string|null $path
-     * @param int         $version
      *
      * @return Resource
      */
-    abstract protected function createResource($path = null, $version = 1);
+    abstract protected function createResource($path = null);
 
     protected function setUp()
     {
@@ -130,7 +129,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($resource->getRepository());
         $this->assertFalse($resource->isAttached());
         $this->assertFalse($resource->isReference());
-        $this->assertSame(1, $resource->getVersion());
     }
 
     public function testDetachKeepsPath()
@@ -145,16 +143,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($resource->getRepository());
         $this->assertFalse($resource->isAttached());
         $this->assertFalse($resource->isReference());
-        $this->assertSame(1, $resource->getVersion());
-    }
-
-    public function testDetachResetsVersion()
-    {
-        $resource = $this->createResource();
-        $resource->attachTo($this->repo, '/path/to/resource', 3);
-        $resource->detach();
-
-        $this->assertSame(1, $resource->getVersion());
     }
 
     public function testCreateReferenceToDetachedResource()
@@ -169,7 +157,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($resource->getRepository());
         $this->assertFalse($resource->isAttached());
         $this->assertFalse($resource->isReference());
-        $this->assertSame(1, $resource->getVersion());
 
         $this->assertSame('/path/to/reference', $reference->getPath());
         $this->assertSame('reference', $reference->getName());
@@ -177,7 +164,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($reference->getRepository());
         $this->assertFalse($reference->isAttached());
         $this->assertTrue($reference->isReference());
-        $this->assertSame(1, $reference->getVersion());
     }
 
     public function testCreateReferenceToDetachedResourceWithPath()
@@ -192,7 +178,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($resource->getRepository());
         $this->assertFalse($resource->isAttached());
         $this->assertFalse($resource->isReference());
-        $this->assertSame(1, $resource->getVersion());
 
         $this->assertSame('/path/to/reference', $reference->getPath());
         $this->assertSame('reference', $reference->getName());
@@ -200,30 +185,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($reference->getRepository());
         $this->assertFalse($reference->isAttached());
         $this->assertTrue($reference->isReference());
-        $this->assertSame(1, $reference->getVersion());
-    }
-
-    public function testCreateReferenceToDetachedResourceWithVersion()
-    {
-        $resource = $this->createResource('/path/to/resource', 3);
-
-        $reference = $resource->createReference('/path/to/reference');
-
-        $this->assertSame('/path/to/resource', $resource->getPath());
-        $this->assertSame('resource', $resource->getName());
-        $this->assertSame('/path/to/resource', $resource->getRepositoryPath());
-        $this->assertNull($resource->getRepository());
-        $this->assertFalse($resource->isAttached());
-        $this->assertFalse($resource->isReference());
-        $this->assertSame(3, $resource->getVersion());
-
-        $this->assertSame('/path/to/reference', $reference->getPath());
-        $this->assertSame('reference', $reference->getName());
-        $this->assertSame('/path/to/resource', $reference->getRepositoryPath());
-        $this->assertNull($reference->getRepository());
-        $this->assertFalse($reference->isAttached());
-        $this->assertTrue($reference->isReference());
-        $this->assertSame(3, $reference->getVersion());
     }
 
     public function testCreateReferenceToAttachedResource()
@@ -239,7 +200,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->repo, $resource->getRepository());
         $this->assertTrue($resource->isAttached());
         $this->assertFalse($resource->isReference());
-        $this->assertSame(3, $resource->getVersion());
 
         $this->assertSame('/path/to/reference', $reference->getPath());
         $this->assertSame('reference', $reference->getName());
@@ -247,7 +207,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->repo, $reference->getRepository());
         $this->assertTrue($reference->isAttached());
         $this->assertTrue($reference->isReference());
-        $this->assertSame(3, $reference->getVersion());
     }
 
     public function testAttachDetachedReference()
@@ -265,7 +224,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->repo, $reference->getRepository());
         $this->assertTrue($reference->isAttached());
         $this->assertTrue($reference->isReference());
-        $this->assertSame(1, $reference->getVersion());
 
         $reference->detach();
 
@@ -290,16 +248,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->repo, $reference->getRepository());
         $this->assertTrue($reference->isAttached());
         $this->assertFalse($reference->isReference());
-    }
-
-    public function testAttachDetachedReferenceWithVersion()
-    {
-        $resource = $this->createResource();
-
-        $reference = $resource->createReference('/path/to/reference');
-        $reference->attachTo($this->repo, '/path/to/attached', 3);
-
-        $this->assertSame(3, $reference->getVersion());
     }
 
     public function testReattachAttachedReference()
@@ -358,7 +306,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertFalse($deserialized->isReference());
-        $this->assertSame(1, $deserialized->getVersion());
     }
 
     public function testSerializeDetachedResourceWithPath()
@@ -373,7 +320,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertFalse($deserialized->isReference());
-        $this->assertSame(3, $deserialized->getVersion());
     }
 
     public function testSerializeAttachedResourceDetachesResource()
@@ -389,7 +335,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertFalse($deserialized->isReference());
-        $this->assertSame(3, $deserialized->getVersion());
     }
 
     public function testSerializeDetachedReference()
@@ -405,7 +350,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertTrue($deserialized->isReference());
-        $this->assertSame(1, $deserialized->getVersion());
     }
 
     public function testSerializeDetachedReferenceWithPath()
@@ -421,7 +365,6 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertTrue($deserialized->isReference());
-        $this->assertSame(3, $deserialized->getVersion());
     }
 
     public function testSerializeAttachedReferenceDetachesReference()
@@ -438,6 +381,5 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertTrue($deserialized->isReference());
-        $this->assertSame(3, $deserialized->getVersion());
     }
 }

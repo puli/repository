@@ -42,11 +42,8 @@ interface ResourceRepository
     /**
      * Returns the resource at the given path.
      *
-     * @param string   $path    The path to the resource. Must start with "/".
-     *                          "." and ".." segments in the path are supported.
-     * @param int|null $version The version to retrieve. Pass `1` for the first,
-     *                          `2` for the second and `null` for the latest
-     *                          version.
+     * @param string $path The path to the resource. Must start with "/". "."
+     *                     and ".." segments in the path are supported.
      *
      * @return Resource The resource at this path.
      *
@@ -54,7 +51,7 @@ interface ResourceRepository
      * @throws InvalidArgumentException If the path is invalid. The path must be
      *                                  a non-empty string starting with "/".
      */
-    public function get($path, $version = null);
+    public function get($path);
 
     /**
      * Returns the resources matching the given selector.

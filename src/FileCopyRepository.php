@@ -39,10 +39,6 @@ use Webmozart\PathUtil\Path;
  * You need to pass the path of an existing directory to the constructor. The
  * repository will read and write resources from/to this directory.
  *
- * Additionally, you need to pass a key-value store that stores the versioning
- * information of the resources. If you don't need versioning, pass a NullStore
- * instead.
- *
  * Resources can be added with the method {@link add()}:
  *
  * ```php
@@ -98,20 +94,13 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
     private $filesystem;
 
     /**
-     * @var KeyValueStore
-     */
-    private $versionStore;
-
-    /**
      * Creates a new repository.
      *
-     * @param string             $baseDir      The directory to read from and
-     *                                         write to.
-     * @param KeyValueStore      $versionStore The store for storing the
-     *                                         resource versions.
-     * @param ResourceRepository $backend      The backend repository.
+     * @param string             $baseDir The directory to read from and write
+     *                                    to.
+     * @param ResourceRepository $backend The backend repository.
      */
-    public function __construct($baseDir, KeyValueStore $versionStore, ResourceRepository $backend = null)
+    public function __construct($baseDir, ResourceRepository $backend = null)
     {
         Assertion::string($baseDir);
 
@@ -125,13 +114,12 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
 
         $this->backend = $backend ?: new FilesystemRepository();
         $this->filesystem = new Filesystem();
-        $this->versionStore = $versionStore;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($path, $version = null)
+    public function get($path)
     {
         Assertion::path($path);
 
@@ -142,20 +130,7 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $versions = $this->versionStore->get($path, array(1 => $path));
-        $latestVersion = count($versions);
-
-        if (null === $version || $latestVersion === $version) {
-            return $this->createResource($localPath, $path, $latestVersion);
-        }
-
-        if (!isset($versions[$version])) {
-            throw ResourceNotFoundException::forVersion($version, $path);
-        }
-
-        $localPath = Path::makeAbsolute($versions[$version], $this->baseDir);
-
-        return $this->createResource($localPath, $path, $version);
+        return $this->createResource($localPath, $path);
     }
 
     /**
@@ -258,7 +233,6 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
             ));
         }
 
-        // Remove previous versions
         if (file_exists($pathInBaseDir)) {
             $this->filesystem->remove($pathInBaseDir);
         }
@@ -270,17 +244,8 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
                 $this->filesystem->copy($resource->getLocalPath(), $pathInBaseDir);
             }
 
-            $versions = $this->versionStore->get($path, array());
-            $version = count($versions) + 1;
-            $versions[$version] = Path::makeRelative($resource->getLocalPath(), $this->baseDir);
-            $this->versionStore->set($path, $versions);
-
             return;
         }
-
-        // Versioning is not supported for non-local resources
-        // We always store one version only for such resources
-        $this->versionStore->set($path, array($path));
 
         if ($isDir) {
             mkdir($pathInBaseDir, 0777, true);
@@ -295,13 +260,13 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
         file_put_contents($pathInBaseDir, $resource->getContents());
     }
 
-    private function createResource($localPath, $path, $version)
+    private function createResource($localPath, $path)
     {
         $resource = is_dir($localPath)
             ? new LocalDirectoryResource($localPath)
             : new LocalFileResource($localPath);
 
-        $resource->attachTo($this, $path, $version);
+        $resource->attachTo($this, $path);
 
         return $resource;
     }

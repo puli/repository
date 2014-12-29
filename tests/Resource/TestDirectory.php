@@ -35,7 +35,7 @@ class TestDirectory extends AbstractResource implements DirectoryResource
         }
     }
 
-    public function get($name, $version = null)
+    public function get($name)
     {
         return $this->entries[$name];
     }

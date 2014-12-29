@@ -75,11 +75,6 @@ class InMemoryRepository implements EditableRepository
     private $resources = array();
 
     /**
-     * @var Resource[][]
-     */
-    private $versions = array();
-
-    /**
      * @var ResourceRepository
      */
     private $backend;
@@ -105,7 +100,7 @@ class InMemoryRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function get($path, $version = null)
+    public function get($path)
     {
         Assertion::path($path);
 
@@ -115,15 +110,7 @@ class InMemoryRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        if (null === $version) {
-            return $this->resources[$path];
-        }
-
-        if (!isset($this->versions[$path][$version])) {
-            throw ResourceNotFoundException::forVersion($version, $path);
-        }
-
-        return $this->versions[$path][$version];
+        return $this->resources[$path];
     }
 
     /**
@@ -324,22 +311,16 @@ class InMemoryRepository implements EditableRepository
             $resource = clone $resource;
         }
 
-        if (!isset($this->versions[$path])) {
-            $this->versions[$path] = array();
-        }
-
         $basePath = '/' === $path ? $path : $path.'/';
-        $version = count($this->versions[$path]) + 1;
         $entries = $resource instanceof DirectoryResource ? $resource->listEntries() : array();
 
         // Attach resource to locator *after* calling listEntries(), because
         // this method usually depends on the previously attached repository
-        $resource->attachTo($this, $path, $version);
+        $resource->attachTo($this, $path);
 
         // Add the resource before adding nested resources, so that the
         // array stays sorted
         $this->resources[$path] = $resource;
-        $this->versions[$path][$version] = $resource;
 
         // Recursively attach directory contents
         foreach ($entries as $name => $entry) {
@@ -362,7 +343,6 @@ class InMemoryRepository implements EditableRepository
         }
 
         unset($this->resources[$resource->getPath()]);
-        unset($this->versions[$resource->getPath()]);
 
         // Detach from locator
         $resource->detach($this);

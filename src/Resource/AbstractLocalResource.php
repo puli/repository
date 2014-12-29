@@ -31,11 +31,10 @@ abstract class AbstractLocalResource extends AbstractResource implements LocalRe
      *
      * @param string      $localPath The path on the local file system.
      * @param string|null $path      The repository path of the resource.
-     * @param int         $version   The resource version.
      */
-    public function __construct($localPath, $path = null, $version = 1)
+    public function __construct($localPath, $path = null)
     {
-        parent::__construct($path, $version);
+        parent::__construct($path);
 
         $this->localPath = $localPath;
     }

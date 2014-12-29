@@ -16,9 +16,7 @@ use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\FileCopyRepository;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\Tests\Resource\TestFile;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\KeyValueStore\ArrayStore;
 
 /**
  * @since  1.0
@@ -45,7 +43,7 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createRepository(DirectoryResource $root)
     {
-        $repo = new FileCopyRepository($this->tempDir, new ArrayStore());
+        $repo = new FileCopyRepository($this->tempDir);
         $repo->add('/', $root);
 
         return $repo;
@@ -53,12 +51,12 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createEditableRepository(ResourceRepository $backend = null)
     {
-        return new FileCopyRepository($this->tempDir, new ArrayStore(), $backend);
+        return new FileCopyRepository($this->tempDir, $backend);
     }
 
     public function testBaseDirectoryCreatedIfNonExisting()
     {
-        new FileCopyRepository($this->tempDir.'/foo', new ArrayStore());
+        new FileCopyRepository($this->tempDir.'/foo');
 
         $this->assertFileExists($this->tempDir.'/foo');
     }
@@ -70,7 +68,7 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
     {
         touch($this->tempDir.'/file');
 
-        new FileCopyRepository($this->tempDir.'/file', new ArrayStore());
+        new FileCopyRepository($this->tempDir.'/file');
     }
 
     public function testGetOverriddenFile()
@@ -113,47 +111,5 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
         $file = $this->repo->get('/webmozart/file');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
-    }
-
-    public function testAddOverridesPreviousVersion()
-    {
-        $this->repo->add('/webmozart/puli/file', new LocalFileResource(__DIR__.'/Fixtures/dir1/file1'));
-        $this->repo->add('/webmozart/puli/file', new LocalFileResource(__DIR__.'/Fixtures/dir1/file2'));
-
-        $file = $this->repo->get('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($this->tempDir.'/webmozart/puli/file', $file->getLocalPath());
-        $this->assertSame($this->repo, $file->getRepository());
-        $this->assertSame(2, $file->getVersion());
-
-        $file = $this->repo->get('/webmozart/puli/file', 1);
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame(__DIR__.'/Fixtures/dir1/file1', $file->getLocalPath());
-        $this->assertSame($this->repo, $file->getRepository());
-        $this->assertSame(1, $file->getVersion());
-    }
-
-    public function testAddResetsVersionForNonLocalResource()
-    {
-        $this->repo->add('/webmozart/puli/file', new LocalFileResource(__DIR__.'/Fixtures/dir1/file1'));
-
-        // Versioning is not supported for non-local resources
-        // The version is reset to 1
-        $this->repo->add('/webmozart/puli/file', new TestFile());
-
-        $file = $this->repo->get('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($this->repo, $file->getRepository());
-        $this->assertSame(1, $file->getVersion());
-
-        $fileAtVersion1 = $this->repo->get('/webmozart/puli/file', 1);
-
-        $this->assertEquals($file, $fileAtVersion1);
     }
 }

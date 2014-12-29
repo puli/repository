@@ -31,13 +31,12 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
 
     /**
      * @param string|null $path
-     * @param int         $version
      *
      * @return LocalDirectoryResource
      */
-    protected function createResource($path = null, $version = 1)
+    protected function createResource($path = null)
     {
-        return new LocalDirectoryResource($this->fixturesDir.'/dir1', $path, $version);
+        return new LocalDirectoryResource($this->fixturesDir.'/dir1', $path);
     }
 
     /**
@@ -65,23 +64,6 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
         $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
 
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $directory->get('file1'));
-    }
-
-    public function testGetWithVersionDetached()
-    {
-        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
-
-        $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $directory->get('file1', 1));
-    }
-
-    /**
-     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
-     */
-    public function testGetWithVersionDetachedFailsIfVersionGreaterThanOne()
-    {
-        $directory = new LocalDirectoryResource($this->fixturesDir.'/dir1');
-
-        $directory->get('file1', 2);
     }
 
     public function testContainsDetached()

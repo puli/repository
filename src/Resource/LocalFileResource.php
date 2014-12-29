@@ -25,11 +25,11 @@ class LocalFileResource extends AbstractLocalResource implements FileResource
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, $version = 1)
+    public function __construct($localPath, $path = null)
     {
         Assertion::file($localPath);
 
-        parent::__construct($localPath, $path, $version);
+        parent::__construct($localPath, $path);
     }
 
     /**

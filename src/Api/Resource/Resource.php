@@ -114,14 +114,12 @@ interface Resource extends Serializable
      * $resource->attachTo($repo, '/path/in/repo');
      * ```
      *
-     * @param \Puli\Repository\Api\ResourceRepository $repo    The repository.
-     * @param string|null        $path    The path of the resource in the
-     *                                    repository. If not passed, the resource
-     *                                    will be attached to it current path.
-     * @param int                $version The version of the resource in the
-     *                                    repository. Defaults to 1.
+     * @param ResourceRepository $repo The repository.
+     * @param string|null        $path The path of the resource in the
+     *                                 repository. If not passed, the resource
+     *                                 will be attached to it current path.
      */
-    public function attachTo(ResourceRepository $repo, $path = null, $version = 1);
+    public function attachTo(ResourceRepository $repo, $path = null);
 
     /**
      * Detaches the resource from the repository.
@@ -178,12 +176,4 @@ interface Resource extends Serializable
      * @return bool Whether the resource is a reference.
      */
     public function isReference();
-
-    /**
-     * Returns the version of the resource.
-     *
-     * @return int The resource's version. The first version is `1`, the
-     *             second `2` and so on.
-     */
-    public function getVersion();
 }

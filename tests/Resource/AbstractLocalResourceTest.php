@@ -31,23 +31,21 @@ abstract class AbstractLocalResourceTest extends AbstractResourceTest
 
     /**
      * @param string|null $path
-     * @param int         $version
      *
      * @return Resource
      */
-    protected function createResource($path = null, $version = 1)
+    protected function createResource($path = null)
     {
-        return $this->createLocalResource($this->getValidLocalPath(), $path, $version);
+        return $this->createLocalResource($this->getValidLocalPath(), $path);
     }
 
     /**
      * @param string      $localPath
      * @param string|null $path
-     * @param int         $version
      *
      * @return LocalResource
      */
-    abstract protected function createLocalResource($localPath, $path = null, $version = 1);
+    abstract protected function createLocalResource($localPath, $path = null);
 
     abstract protected function getValidLocalPath();
 

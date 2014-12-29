@@ -28,16 +28,13 @@ interface DirectoryResource extends Resource, Countable
      *
      * "." and ".." are supported as names.
      *
-     * @param string   $name    The name of the resource.
-     * @param int|null $version The version to retrieve. Pass `1` for the first,
-     *                          `2` for the second and `null` for the latest
-     *                          version.
+     * @param string $name The name of the resource.
      *
      * @return Resource The resource with the given name.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
      */
-    public function get($name, $version = null);
+    public function get($name);
 
     /**
      * Returns whether the resource with the given name exists in the directory.

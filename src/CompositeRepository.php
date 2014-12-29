@@ -130,7 +130,7 @@ class CompositeRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function get($path, $version = null)
+    public function get($path)
     {
         list ($mountPoint, $subPath) = $this->splitPath($path);
 
@@ -141,7 +141,7 @@ class CompositeRepository implements ResourceRepository
             ));
         }
 
-        $resource = $this->getRepository($mountPoint)->get($subPath, $version);
+        $resource = $this->getRepository($mountPoint)->get($subPath);
 
         return '/' === $mountPoint ? $resource : $resource->createReference($path);
     }

@@ -28,32 +28,27 @@ class LocalDirectoryResource extends AbstractLocalResource implements DirectoryR
     /**
      * {@inheritdoc}
      */
-    public function __construct($localPath, $path = null, $version = 1)
+    public function __construct($localPath, $path = null)
     {
         Assertion::directory($localPath);
 
-        parent::__construct($localPath, $path, $version);
+        parent::__construct($localPath, $path);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($name, $version = null)
+    public function get($name)
     {
         // Use attached locator if possible
         if ($this->getRepository()) {
-            return $this->getRepository()->get($this->getRepositoryPath().'/'.$name, $version);
+            return $this->getRepository()->get($this->getRepositoryPath().'/'.$name);
         }
 
         $localPath = $this->getLocalPath().'/'.$name;
 
         if (!file_exists($localPath)) {
             throw ResourceNotFoundException::forPath($this->getPath().'/'.$name);
-        }
-
-        // When detached, we cannot get any other version but version 1
-        if (null !== $version && 1 !== $version) {
-            throw ResourceNotFoundException::forVersion($version, $this->getPath().'/'.$name);
         }
 
         return is_dir($localPath)
