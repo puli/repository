@@ -21,11 +21,10 @@ use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
-use Puli\Repository\Iterator\RegexFilterIterator;
-use Puli\Repository\Iterator\GlobFilterIterator;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
-use Puli\Repository\Glob\Glob;
+use Webmozart\Glob\Iterator\GlobFilterIterator;
+use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -126,10 +125,11 @@ class InMemoryRepository implements EditableRepository
         $query = Path::canonicalize($query);
         $resources = array();
 
-        if (Glob::isGlob($query)) {
+        if (false !== strpos($query, '*')) {
             $resources = iterator_to_array(new GlobFilterIterator(
                 $query,
-                new ArrayIterator($this->resources)
+                new ArrayIterator($this->resources),
+                GlobFilterIterator::FILTER_KEY
             ));
         } elseif (isset($this->resources[$query])) {
             $resources = array($this->resources[$query]);
@@ -151,10 +151,11 @@ class InMemoryRepository implements EditableRepository
 
         $query = Path::canonicalize($query);
 
-        if (Glob::isGlob($query)) {
+        if (false !== strpos($query, '*')) {
             $iterator = new GlobFilterIterator(
                 $query,
-                new ArrayIterator($this->resources)
+                new ArrayIterator($this->resources),
+                GlobFilterIterator::FILTER_KEY
             );
             $iterator->rewind();
 
@@ -190,7 +191,7 @@ class InMemoryRepository implements EditableRepository
             // deterministic results when using a glob, even if the glob
             // just matches one result.
             // See https://github.com/puli/puli/issues/17
-            if (Glob::isGlob($resource)) {
+            if (false !== strpos($resource, '*')) {
                 $resource = $this->backend->find($resource);
             } else {
                 $resource = $this->backend->get($resource);
@@ -243,10 +244,11 @@ class InMemoryRepository implements EditableRepository
         $resourcesToRemove = array();
         $removed = 0;
 
-        if (Glob::isGlob($query)) {
+        if (false !== strpos($query, '*')) {
             $resourcesToRemove = new GlobFilterIterator(
                 $query,
-                new ArrayIterator($this->resources)
+                new ArrayIterator($this->resources),
+                GlobFilterIterator::FILTER_KEY
             );
         } elseif (isset($this->resources[$query])) {
             $resourcesToRemove[] = $this->resources[$query];
@@ -278,7 +280,8 @@ class InMemoryRepository implements EditableRepository
         $resources = iterator_to_array(new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new ArrayIterator($this->resources)
+            new ArrayIterator($this->resources),
+            RegexFilterIterator::FILTER_KEY
         ));
 
         return new ArrayResourceCollection($resources);

@@ -21,13 +21,12 @@ use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
-use Puli\Repository\Iterator\GlobIterator;
-use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Glob\Glob;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Glob;
+use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -143,7 +142,7 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
         $path = Path::canonicalize($path);
 
         if (is_string($resource)) {
-            if (Glob::isGlob($resource)) {
+            if (false !== strpos($resource, '*')) {
                 $resource = $this->backend->find($resource);
             } else {
                 $resource = $this->backend->get($resource);
@@ -188,7 +187,7 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
 
         Assertion::notEq('/', $query, 'The root directory cannot be removed.');
 
-        $filesystemPaths = iterator_to_array(new GlobIterator($this->baseDir.$query));
+        $filesystemPaths = Glob::glob($this->baseDir.$query);
         $removed = 0;
 
         foreach ($filesystemPaths as $filesystemPath) {

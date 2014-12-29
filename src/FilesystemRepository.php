@@ -13,15 +13,14 @@ namespace Puli\Repository;
 
 use Iterator;
 use Puli\Repository\Api\UnsupportedLanguageException;
-use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Assert\Assertion;
-use Puli\Repository\Iterator\GlobIterator;
-use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Webmozart\Glob\Iterator\GlobIterator;
+use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
 
 /**

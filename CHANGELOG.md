@@ -54,6 +54,7 @@ Changelog
  * removed notions of "directories" and "files". All resources can have children
    and a body now.
  * renamed `Selector` to `Glob`
+ * moved `Glob` and related iterators to "webmozart/glob" package
 
 * 1.0.0-alpha4 (2014-12-03)
 

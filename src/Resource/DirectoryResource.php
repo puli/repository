@@ -13,8 +13,8 @@ namespace Puli\Repository\Resource;
 
 use Assert\Assertion;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
+use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 
 /**
  * Represents a directory on the file system.
