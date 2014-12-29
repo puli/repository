@@ -15,7 +15,7 @@ use Iterator;
 use Puli\Repository\Selector\Selector;
 
 /**
- * Filters an iterator by a selector.
+ * Filters an iterator by a glob.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -26,7 +26,7 @@ class SelectorIterator extends RegexIterator
     /**
      * Creates a new iterator.
      *
-     * @param string   $selector      The canonical selector.
+     * @param string   $selector      The canonical glob.
      * @param Iterator $innerIterator The filtered iterator.
      */
     public function __construct($selector, Iterator $innerIterator)

@@ -14,18 +14,17 @@ namespace Puli\Repository;
 use ArrayIterator;
 use InvalidArgumentException;
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\NoDirectoryException;
-use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\RegexIterator;
 use Puli\Repository\Iterator\SelectorIterator;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\VirtualDirectoryResource;
+use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Selector\Selector;
 use Webmozart\PathUtil\Path;
 
@@ -38,7 +37,7 @@ use Webmozart\PathUtil\Path;
  * use Puli\Repository\InMemoryRepository;
  *
  * $repo = new InMemoryRepository();
- * $repo->add('/css', new LocalDirectoryResource('/path/to/project/res/css'));
+ * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
  * Alternatively, another repository can be passed as "backend". The paths of
@@ -93,7 +92,7 @@ class InMemoryRepository implements EditableRepository
     public function __construct(ResourceRepository $backend = null)
     {
         $this->backend = $backend ?: new FilesystemRepository();
-        $this->resources['/'] = new VirtualDirectoryResource('/');
+        $this->resources['/'] = new GenericResource('/');
         $this->resources['/']->attachTo($this);
     }
 
@@ -116,20 +115,24 @@ class InMemoryRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function find($selector)
+    public function find($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
+        Assertion::glob($query);
+
+        $query = Path::canonicalize($query);
         $resources = array();
 
-        if (Selector::isSelector($selector)) {
+        if (Selector::isSelector($query)) {
             $resources = iterator_to_array(new SelectorIterator(
-                $selector,
+                $query,
                 new ArrayIterator($this->resources)
             ));
-        } elseif (isset($this->resources[$selector])) {
-            $resources = array($this->resources[$selector]);
+        } elseif (isset($this->resources[$query])) {
+            $resources = array($this->resources[$query]);
         }
 
         return new ArrayResourceCollection($resources);
@@ -138,15 +141,19 @@ class InMemoryRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function contains($selector)
+    public function contains($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
+        Assertion::glob($query);
 
-        if (Selector::isSelector($selector)) {
+        $query = Path::canonicalize($query);
+
+        if (Selector::isSelector($query)) {
             $iterator = new SelectorIterator(
-                $selector,
+                $query,
                 new ArrayIterator($this->resources)
             );
             $iterator->rewind();
@@ -154,7 +161,7 @@ class InMemoryRepository implements EditableRepository
             return $iterator->valid();
         }
 
-        return isset($this->resources[$selector]);
+        return isset($this->resources[$query]);
     }
 
     /**
@@ -179,8 +186,8 @@ class InMemoryRepository implements EditableRepository
         $path = Path::canonicalize($path);
 
         if (is_string($resource)) {
-            // Use find() only if the string is actually a selector. We want
-            // deterministic results when using a selector, even if the selector
+            // Use find() only if the string is actually a glob. We want
+            // deterministic results when using a glob, even if the glob
             // just matches one result.
             // See https://github.com/puli/puli/issues/17
             if (Selector::isSelector($resource)) {
@@ -192,8 +199,8 @@ class InMemoryRepository implements EditableRepository
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
-            foreach ($resource as $entry) {
-                $this->addResource($path.'/'.$entry->getName(), $entry);
+            foreach ($resource as $child) {
+                $this->addResource($path.'/'.$child->getName(), $child);
             }
 
             // Keep the resources sorted by file name
@@ -221,24 +228,28 @@ class InMemoryRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function remove($selector)
+    public function remove($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
+        Assertion::glob($query);
 
-        Assertion::notEq('/', $selector, 'The root directory cannot be removed.');
+        $query = Path::canonicalize($query);
+
+        Assertion::notEq('/', $query, 'The root directory cannot be removed.');
 
         $resourcesToRemove = array();
         $removed = 0;
 
-        if (Selector::isSelector($selector)) {
+        if (Selector::isSelector($query)) {
             $resourcesToRemove = new SelectorIterator(
-                $selector,
+                $query,
                 new ArrayIterator($this->resources)
             );
-        } elseif (isset($this->resources[$selector])) {
-            $resourcesToRemove[] = $this->resources[$selector];
+        } elseif (isset($this->resources[$query])) {
+            $resourcesToRemove[] = $this->resources[$query];
         }
 
         foreach ($resourcesToRemove as $resource) {
@@ -251,7 +262,7 @@ class InMemoryRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function listDirectory($path)
+    public function listChildren($path)
     {
         Assertion::path($path);
 
@@ -259,10 +270,6 @@ class InMemoryRepository implements EditableRepository
 
         if (!isset($this->resources[$path])) {
             throw ResourceNotFoundException::forPath($path);
-        }
-
-        if (!$this->resources[$path] instanceof DirectoryResource) {
-            throw NoDirectoryException::forPath($path);
         }
 
         $staticPrefix = rtrim($path, '/').'/';
@@ -275,6 +282,32 @@ class InMemoryRepository implements EditableRepository
         ));
 
         return new ArrayResourceCollection($resources);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChildren($path)
+    {
+        Assertion::path($path);
+
+        $path = Path::canonicalize($path);
+
+        if (!isset($this->resources[$path])) {
+            throw ResourceNotFoundException::forPath($path);
+        }
+
+        $staticPrefix = rtrim($path, '/').'/';
+        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
+
+        $iterator = new RegexIterator(
+            $regExp,
+            $staticPrefix,
+            new ArrayIterator($this->resources)
+        );
+        $iterator->rewind();
+
+        return $iterator->valid();
     }
 
     /**
@@ -293,14 +326,10 @@ class InMemoryRepository implements EditableRepository
                 $this->ensureDirectoryExists(Path::getDirectory($path));
             }
 
-            $this->resources[$path] = new VirtualDirectoryResource($path);
+            $this->resources[$path] = new GenericResource($path);
             $this->resources[$path]->attachTo($this);
 
             return;
-        }
-
-        if (!$this->resources[$path] instanceof DirectoryResource) {
-            throw NoDirectoryException::forPath($path);
         }
     }
 
@@ -312,9 +341,9 @@ class InMemoryRepository implements EditableRepository
         }
 
         $basePath = '/' === $path ? $path : $path.'/';
-        $entries = $resource instanceof DirectoryResource ? $resource->listEntries() : array();
+        $children = $resource->listChildren();
 
-        // Attach resource to locator *after* calling listEntries(), because
+        // Attach resource to locator *after* calling listChildren(), because
         // this method usually depends on the previously attached repository
         $resource->attachTo($this, $path);
 
@@ -323,8 +352,8 @@ class InMemoryRepository implements EditableRepository
         $this->resources[$path] = $resource;
 
         // Recursively attach directory contents
-        foreach ($entries as $name => $entry) {
-            $this->addResource($basePath.$name, $entry);
+        foreach ($children as $name => $child) {
+            $this->addResource($basePath.$name, $child);
         }
     }
 
@@ -336,10 +365,8 @@ class InMemoryRepository implements EditableRepository
         }
 
         // Recursively register directory contents
-        if ($resource instanceof DirectoryResource) {
-            foreach ($this->listDirectory($resource->getPath()) as $entry) {
-                $this->removeResource($entry, $counter);
-            }
+        foreach ($this->listChildren($resource->getPath()) as $child) {
+            $this->removeResource($child, $counter);
         }
 
         unset($this->resources[$resource->getPath()]);

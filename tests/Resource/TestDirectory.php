@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
@@ -19,7 +18,7 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestDirectory extends AbstractResource implements DirectoryResource
+class TestDirectory extends AbstractResource
 {
     /**
      * @var Resource[]
@@ -35,33 +34,23 @@ class TestDirectory extends AbstractResource implements DirectoryResource
         }
     }
 
-    public function get($name)
+    public function getChild($relPath)
     {
-        return $this->entries[$name];
+        return $this->entries[$relPath];
     }
 
-    public function contains($name)
+    public function hasChild($relPath)
     {
-        return isset($this->entries[$name]);
+        return isset($this->entries[$relPath]);
     }
 
-    public function listEntries()
+    public function hasChildren()
+    {
+        return count($this->entries) > 0;
+    }
+
+    public function listChildren()
     {
         return new ArrayResourceCollection($this->entries);
-    }
-
-    public function count($deep = false)
-    {
-        $count = count($this->entries);
-
-        if ($deep) {
-            foreach ($this->entries as $entry) {
-                if ($entry instanceof DirectoryResource) {
-                    $count += $entry->count(true);
-                }
-            }
-        }
-
-        return $count;
     }
 }

@@ -15,7 +15,7 @@ use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\FileResource;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -59,7 +59,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
             ->method('get')
             ->will($this->returnCallback(function ($path) use ($tempnam) {
                 if ('/webmozart/puli/file' === $path) {
-                    return new LocalFileResource($tempnam, '/webmozart/puli/file');
+                    return new FileResource($tempnam, '/webmozart/puli/file');
                 }
                 if ('/webmozart/puli/non-local' === $path) {
                     return new TestFile('/webmozart/puli/non-local');
@@ -496,16 +496,6 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
         ResourceStreamWrapper::register('puli', $this->repo);
 
         opendir('puli:///webmozart/puli/foobar');
-    }
-
-    /**
-     * @expectedException \Puli\Repository\Api\NoDirectoryException
-     */
-    public function testOpenNonDirectory()
-    {
-        ResourceStreamWrapper::register('puli', $this->repo);
-
-        opendir('puli:///webmozart/puli/file');
     }
 
     public function testRegisterCallable()

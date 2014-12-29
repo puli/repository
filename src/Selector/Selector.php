@@ -44,11 +44,11 @@ class Selector
     const E_STAR = '\\\\\\*';
 
     /**
-     * Returns whether a string is a selector.
+     * Returns whether a string is a glob.
      *
      * @param string $string The tested string.
      *
-     * @return bool Returns `true` if the string is a selector, `false`
+     * @return bool Returns `true` if the string is a glob, `false`
      *              otherwise.
      */
     public static function isSelector($string)
@@ -57,11 +57,11 @@ class Selector
     }
 
     /**
-     * Converts a selector to a regular expression.
+     * Converts a glob to a regular expression.
      *
-     * @param string $selector A path selector in canonical form.
+     * @param string $selector A path glob in canonical form.
      *
-     * @return string The regular expression for matching the selector.
+     * @return string The regular expression for matching the glob.
      */
     public static function toRegEx($selector)
     {
@@ -98,15 +98,15 @@ class Selector
     }
 
     /**
-     * Returns the static prefix of a selector.
+     * Returns the static prefix of a glob.
      *
      * The "static prefix" are all characters up to the first wildcard "*".
-     * If the selector does not contain wildcards, the full selector is
+     * If the glob does not contain wildcards, the full glob is
      * returned.
      *
-     * @param string $selector A path selector in canonical form.
+     * @param string $selector A path glob in canonical form.
      *
-     * @return string The static prefix of the selector.
+     * @return string The static prefix of the glob.
      */
     public static function getStaticPrefix($selector)
     {
@@ -118,11 +118,11 @@ class Selector
     }
 
     /**
-     * Returns the base path of a selector.
+     * Returns the base path of a glob.
      *
      * The "base path" is the longest path trailed by a "/" on the left of the
-     * first wildcard "*". If the selector does not contain wildcards, the
-     * directory name of the selector is returned.
+     * first wildcard "*". If the glob does not contain wildcards, the
+     * directory name of the glob is returned.
      *
      * ```php
      * Selector::getBasePath('/css/*.css');
@@ -138,16 +138,16 @@ class Selector
      * // => /
      * ```
      *
-     * @param string $selector A path selector in canonical form.
+     * @param string $selector A path glob in canonical form.
      *
-     * @return string The base path of the selector.
+     * @return string The base path of the glob.
      */
     public static function getBasePath($selector)
     {
         // Start searching for a "/" at the last character
         $offset = -1;
 
-        // If the selector contains a wildcard "*", start searching for the
+        // If the glob contains a wildcard "*", start searching for the
         // "/" on the left of the wildcard
         if (false !== ($pos = strpos($selector, '*'))) {
             $offset = $pos - strlen($selector);
@@ -155,7 +155,7 @@ class Selector
 
         if (false !== ($pos = strrpos($selector, '/', $offset))) {
             // Special case: Return "/" if the only slash is at the beginning
-            // of the selector
+            // of the glob
             if (0 === $pos) {
                 return '/';
             }

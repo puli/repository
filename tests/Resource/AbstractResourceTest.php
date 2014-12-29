@@ -14,6 +14,7 @@ namespace Puli\Repository\Tests\Resource;
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
  * @since  1.0
@@ -381,5 +382,191 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertNull($deserialized->getRepository());
         $this->assertFalse($deserialized->isAttached());
         $this->assertTrue($deserialized->isReference());
+    }
+
+    public function testListChildren()
+    {
+        $file1 = new TestFile('/file1');
+        $file2 = new TestFile('/file2');
+        $resources = new ArrayResourceCollection(array($file1, $file2));
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('listChildren')
+            ->with('/path')
+            ->will($this->returnValue($resources));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $entries = $resource->listChildren();
+
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
+        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
+    }
+
+    public function testListChildrenWithReference()
+    {
+        $file1 = new TestFile('/file1');
+        $file2 = new TestFile('/file2');
+        $resources = new ArrayResourceCollection(array($file1, $file2));
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('listChildren')
+            // use the repository path, not the reference path
+            ->with('/path')
+            ->will($this->returnValue($resources));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $reference = $resource->createReference('/reference');
+
+        $entries = $reference->listChildren();
+
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
+        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
+     */
+    public function testListChildrenDetached()
+    {
+        $resource = $this->createResource();
+
+        $resource->listChildren();
+    }
+
+    public function testGetChild()
+    {
+        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('get')
+            ->with('/path/file')
+            ->will($this->returnValue($entry));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $this->assertSame($entry, $resource->getChild('file'));
+    }
+
+    public function testGetChildWithReference()
+    {
+        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('get')
+            // use the repository path, not the reference path
+            ->with('/path/file')
+            ->will($this->returnValue($entry));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $reference = $resource->createReference('/reference');
+
+        $this->assertSame($entry, $reference->getChild('file'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
+     */
+    public function testGetChildDetached()
+    {
+        $resource = $this->createResource();
+
+        $resource->getChild('file');
+    }
+
+    public function testHasChild()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('contains')
+            ->with('/path/file')
+            ->will($this->returnValue('true_or_false'));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $this->assertSame('true_or_false', $resource->hasChild('file'));
+    }
+
+    public function testHasChildWithReference()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('contains')
+            // use the repository path, not the reference path
+            ->with('/path/file')
+            ->will($this->returnValue('true_or_false'));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $reference = $resource->createReference('/reference');
+
+        $this->assertSame('true_or_false', $reference->hasChild('file'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
+     */
+    public function testHasChildDetached()
+    {
+        $resource = $this->createResource();
+
+        $resource->hasChild('file');
+    }
+
+    public function testHasChildren()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('hasChildren')
+            ->with('/path')
+            ->will($this->returnValue('true_or_false'));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $this->assertSame('true_or_false', $resource->hasChildren());
+    }
+
+    public function testHasChildrenWithReference()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $repo->expects($this->once())
+            ->method('hasChildren')
+            // use the repository path, not the reference path
+            ->with('/path')
+            ->will($this->returnValue('true_or_false'));
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $reference = $resource->createReference('/reference');
+
+        $this->assertSame('true_or_false', $reference->hasChildren());
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
+     */
+    public function testHasChildrenDetached()
+    {
+        $resource = $this->createResource();
+
+        $resource->hasChildren();
     }
 }

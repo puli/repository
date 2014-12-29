@@ -11,16 +11,12 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\VirtualDirectoryResource;
+use Puli\Repository\Resource\AbstractFilesystemResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class VirtualDirectoryResourceTest extends AbstractDirectoryResourceTest
+class TestFilesystemResource extends AbstractFilesystemResource
 {
-    protected function createResource($path = null)
-    {
-        return new VirtualDirectoryResource($path);
-    }
 }

@@ -78,7 +78,7 @@ class RegexIterator extends FilterIterator
     }
 
     /**
-     * Accepts paths matching the selector.
+     * Accepts paths matching the glob.
      *
      * @return bool Whether the path is accepted.
      */

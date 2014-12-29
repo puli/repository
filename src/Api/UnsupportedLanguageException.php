@@ -15,27 +15,27 @@ use Exception;
 use RuntimeException;
 
 /**
- * Thrown when a resource was expected to be a directory, but is none.
+ * Thrown when a glob language is not supported by the repository.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class NoDirectoryException extends RuntimeException
+class UnsupportedLanguageException extends RuntimeException
 {
     /**
-     * Creates a new exception for a resource path.
+     * Creates an exception for an unsupported language string.
      *
-     * @param string    $path     The path which was supposed to be a directory.
-     * @param int       $code     The error code.
-     * @param Exception $previous The exception that caused this exception.
+     * @param string    $language The unsupported language.
+     * @param int       $code     The exception code.
+     * @param Exception $previous The previous exception.
      *
      * @return static The created exception.
      */
-    public static function forPath($path, $code = null, Exception $previous = null)
+    public static function forLanguage($language, $code = 0, Exception $previous = null)
     {
         return new static(sprintf(
-            'The resource %s is not a directory.',
-            $path
+            'The language "%s" is not supported.',
+            $language
         ), $code, $previous);
     }
 }

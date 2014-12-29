@@ -14,10 +14,9 @@ namespace Puli\Repository\StreamWrapper;
 use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorIterator;
-use Puli\Repository\Api\NoDirectoryException;
-use Puli\Repository\Api\Resource\DirectoryResource;
-use Puli\Repository\Api\Resource\FileResource;
-use Puli\Repository\Api\Resource\LocalResource;
+use Puli\Repository\NoDirectoryException;
+use Puli\Repository\Api\Resource\BodyResource;
+use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedResourceException;
@@ -40,7 +39,7 @@ use Puli\Repository\Uri\Uri;
  * ResourceStreamWrapper::register('puli', $repo);
  *
  * file_get_contents('puli:///css/style.css');
- * // => $puliRepo->get('/css/style.css')->getContents()
+ * // => $puliRepo->get('/css/style.css')->getBody()
  * ```
  *
  * The stream wrapper can only be used for reading, not writing.
@@ -147,7 +146,7 @@ class ResourceStreamWrapper implements StreamWrapper
     /**
      * @var IteratorIterator
      */
-    private $directoryIterator;
+    private $childIterator;
 
     /**
      * Registers a repository as PHP stream wrapper.
@@ -229,14 +228,10 @@ class ResourceStreamWrapper implements StreamWrapper
         $parts = Uri::parse($uri);
 
         // Provoke ResourceNotFoundException if not found
-        $directory = $this->getRepository($parts['scheme'])->get($parts['path']);
+        $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
-        if (!$directory instanceof DirectoryResource) {
-            throw NoDirectoryException::forPath($uri);
-        }
-
-        $this->directoryIterator = new ResourceCollectionIterator(
-            $directory->listEntries(),
+        $this->childIterator = new ResourceCollectionIterator(
+            $resource->listChildren(),
             ResourceCollectionIterator::CURRENT_AS_NAME
         );
 
@@ -250,7 +245,7 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function dir_closedir()
     {
-        $this->directoryIterator = null;
+        $this->childIterator = null;
 
         return false;
     }
@@ -262,13 +257,13 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function dir_readdir()
     {
-        if (!$this->directoryIterator->valid()) {
+        if (!$this->childIterator->valid()) {
             return false;
         }
 
-        $name = $this->directoryIterator->current();
+        $name = $this->childIterator->current();
 
-        $this->directoryIterator->next();
+        $this->childIterator->next();
 
         return $name;
     }
@@ -280,7 +275,7 @@ class ResourceStreamWrapper implements StreamWrapper
      */
     public function dir_rewinddir()
     {
-        $this->directoryIterator->rewind();
+        $this->childIterator->rewind();
 
         return true;
     }
@@ -335,8 +330,8 @@ class ResourceStreamWrapper implements StreamWrapper
             'The removal of directories through the stream wrapper is not '.
             'supported. Tried to remove "%s"%s.',
             $uri,
-            $resource instanceof LocalResource
-                ? sprintf(' which points to "%s"', $resource->getLocalPath())
+            $resource instanceof FilesystemResource
+                ? sprintf(' which points to "%s"', $resource->getFilesystemPath())
                 : ''
         ));
     }
@@ -460,23 +455,23 @@ class ResourceStreamWrapper implements StreamWrapper
 
         $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
-        if (!$resource instanceof FileResource) {
+        if (!$resource instanceof BodyResource) {
             throw new UnsupportedResourceException(sprintf(
                 'Can only open file resources for reading. Tried to open "%s" '.
-                'of type %s which does not implement FileResource.',
+                'of type %s which does not implement BodyResource.',
                 $uri,
                 get_class($resource)
             ));
         }
 
-        if ($resource instanceof LocalResource) {
-            $this->handle = fopen($resource->getLocalPath(), 'r', $options & STREAM_USE_PATH) ?: null;
+        if ($resource instanceof FilesystemResource) {
+            $this->handle = fopen($resource->getFilesystemPath(), 'r', $options & STREAM_USE_PATH) ?: null;
 
             return null !== $this->handle;
         }
 
         $this->handle = fopen('php://temp', 'r+', $options & STREAM_USE_PATH);
-        fputs($this->handle, $resource->getContents());
+        fputs($this->handle, $resource->getBody());
         rewind($this->handle);
 
         return true;
@@ -590,8 +585,8 @@ class ResourceStreamWrapper implements StreamWrapper
 
             $resource = $this->getRepository($parts['scheme'])->get($parts['path']);
 
-            if ($resource instanceof LocalResource) {
-                $path = $resource->getLocalPath();
+            if ($resource instanceof FilesystemResource) {
+                $path = $resource->getFilesystemPath();
 
                 if ($flags & STREAM_URL_STAT_LINK) {
                     return lstat($path);
@@ -600,18 +595,18 @@ class ResourceStreamWrapper implements StreamWrapper
                 return stat($path);
             }
 
-            if ($resource instanceof FileResource) {
-                $stat = self::$defaultStat;
-                $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $resource->getSize();
-                $stat[self::ACCESS_TIME_NUM] = $stat[self::ACCESS_TIME_ASSOC] = $resource->getLastAccessedAt();
-                $stat[self::MODIFY_TIME_NUM] = $stat[self::MODIFY_TIME_ASSOC] = $resource->getLastModifiedAt();
+            $stat = self::$defaultStat;
 
-                return $stat;
+            if ($resource instanceof BodyResource) {
+                $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $resource->getSize();
             }
 
-            // Return the default stats, otherwise file_exists() returns false
-            // for non-local, non-file resources
-            return self::$defaultStat;
+            $metadata = $resource->getMetadata();
+
+            $stat[self::ACCESS_TIME_NUM] = $stat[self::ACCESS_TIME_ASSOC] = $metadata->getAccessTime();
+            $stat[self::MODIFY_TIME_NUM] = $stat[self::MODIFY_TIME_ASSOC] = $metadata->getModificationTime();
+
+            return $stat;
         } catch (ResourceNotFoundException $e) {
             if ($flags & STREAM_URL_STAT_QUIET) {
                 // Same result as stat() returns on error

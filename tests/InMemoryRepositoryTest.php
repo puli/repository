@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
@@ -35,7 +35,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         $this->repo = new InMemoryRepository();
     }
 
-    protected function createRepository(DirectoryResource $root)
+    protected function createRepository(Resource $root)
     {
         $repo = new InMemoryRepository();
         $repo->add('/', $root);
@@ -85,5 +85,38 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         $clone->attachTo($this->repo, '/webmozart/puli/file2');
 
         $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file2'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testContainsFailsIfLanguageNotGlob()
+    {
+        $repo = new InMemoryRepository();
+
+        $repo->contains('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testFindFailsIfLanguageNotGlob()
+    {
+        $repo = new InMemoryRepository();
+
+        $repo->find('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testRemoveFailsIfLanguageNotGlob()
+    {
+        $repo = new InMemoryRepository();
+
+        $repo->remove('/*', 'foobar');
     }
 }

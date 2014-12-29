@@ -9,55 +9,74 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Resource;
+namespace Puli\Repository\Resource;
 
+use Assert\Assertion;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
+ * Represents a file on the file system.
+ *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestFile extends AbstractResource implements BodyResource
+class FileResource extends AbstractFilesystemResource implements BodyResource
 {
-    const BODY = "LINE 1\nLINE 2\n";
-
-    private $body;
-
-    public function __construct($path = null, $body = self::BODY)
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($filesystemPath, $path = null)
     {
-        parent::__construct($path);
+        Assertion::file($filesystemPath);
 
-        $this->body = $body;
+        parent::__construct($filesystemPath, $path);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getBody()
     {
-        return $this->body;
+        return file_get_contents($this->getFilesystemPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSize()
     {
-        return strlen($this->body);
+        return filesize($this->getFilesystemPath());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getChild($relPath)
     {
         throw ResourceNotFoundException::forPath($this->getPath().'/'.$relPath);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasChild($relPath)
     {
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasChildren()
     {
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function listChildren()
     {
         return new ArrayResourceCollection();

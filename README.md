@@ -22,7 +22,7 @@ $repo = new InMemoryRepository();
 $repo->add('/config', '/path/to/resources/config');
 
 // /path/to/resources/config/routing.yml
-echo $repo->get('/config/routing.yml')->getContents();
+echo $repo->get('/config/routing.yml')->getBody();
 ```
 
 This is useful when you have to hard-code paths, for example in configuration

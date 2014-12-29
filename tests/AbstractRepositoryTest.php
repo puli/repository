@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -24,11 +24,11 @@ use Puli\Repository\Tests\Resource\TestFile;
 abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @param DirectoryResource $root
+     * @param Resource $root
      *
      * @return ResourceRepository
      */
-    abstract protected function createRepository(DirectoryResource $root);
+    abstract protected function createRepository(Resource $root);
 
     protected function pass()
     {
@@ -175,7 +175,23 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $repo->contains(new \stdClass());
     }
 
-    public function testGetFile()
+    public function testGetResource()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli'),
+            )),
+        )));
+
+        $resource = $repo->get('/webmozart');
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $resource);
+        $this->assertSame('/webmozart', $resource->getPath());
+        $this->assertSame($repo, $resource->getRepository());
+        $this->assertTrue($resource->hasChildren());
+    }
+
+    public function testGetBodyResource()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart', array(
@@ -185,26 +201,12 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $file = $repo->get('/webmozart/puli/file');
+        $resource = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($repo, $file->getRepository());
-    }
-
-    public function testGetDirectory()
-    {
-        $repo = $this->createRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli'),
-            )),
-        )));
-
-        $dir = $repo->get('/webmozart/puli');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
-        $this->assertSame('/webmozart/puli', $dir->getPath());
-        $this->assertSame($repo, $dir->getRepository());
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $resource);
+        $this->assertSame('/webmozart/puli/file', $resource->getPath());
+        $this->assertSame($repo, $resource->getRepository());
+        $this->assertFalse($resource->hasChildren());
     }
 
     public function testGetDiscardsTrailingSlash()
@@ -359,7 +361,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/'), $repo->get('/..'));
     }
 
-    public function testListDirectory()
+    public function testListChildren()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart', array(
@@ -380,7 +382,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $resources = $repo->listDirectory('/webmozart/puli');
+        $resources = $repo->listChildren('/webmozart/puli');
 
         $this->assertCount(4, $resources);
         $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
@@ -391,14 +393,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[3]);
     }
 
-    public function testListRootDirectory()
+    public function testListRoot()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart'),
             new TestDirectory('/acme'),
         )));
 
-        $resources = $repo->listDirectory('/');
+        $resources = $repo->listChildren('/');
 
         $this->assertCount(2, $resources);
         $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
@@ -410,55 +412,43 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
-    public function testListDirectoryExpectsExistingResource()
+    public function testListChildrenExpectsExistingResource()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $repo->listDirectory('/foo/bar');
-    }
-
-    /**
-     * @expectedException \Puli\Repository\Api\NoDirectoryException
-     */
-    public function testListDirectoryExpectsDirectoryResource()
-    {
-        $repo = $this->createRepository(new TestDirectory('/', array(
-            new TestFile('/webmozart'),
-        )));
-
-        $repo->listDirectory('/webmozart');
+        $repo->listChildren('/foo/bar');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsAbsolutePath()
+    public function testListChildrenExpectsAbsolutePath()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart'),
         )));
 
-        $repo->listDirectory('webmozart');
+        $repo->listChildren('webmozart');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsNonEmptyPath()
+    public function testListChildrenExpectsNonEmptyPath()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $repo->listDirectory('');
+        $repo->listChildren('');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsStringPath()
+    public function testListChildrenExpectsStringPath()
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $repo->listDirectory(new \stdClass());
+        $repo->listChildren(new \stdClass());
     }
 
     public function testFind()

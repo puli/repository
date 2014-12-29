@@ -254,11 +254,11 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
 
         $repo->expects($this->at(0))
             ->method('contains')
-            ->with('/path/to/resource-1')
+            ->with('/path/to/resource-1', 'glob')
             ->will($this->returnValue(true));
         $repo->expects($this->at(1))
             ->method('contains')
-            ->with('/path/to/resource-2')
+            ->with('/path/to/resource-2', 'glob')
             ->will($this->returnValue(false));
 
         $this->assertTrue($this->repo->contains('/webmozart/path/to/resource-1'));
@@ -275,11 +275,11 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
 
         $repo1->expects($this->once())
             ->method('contains')
-            ->with('/resource-1')
+            ->with('/resource-1', 'glob')
             ->will($this->returnValue(true));
         $repo2->expects($this->once())
             ->method('contains')
-            ->with('/resource-2')
+            ->with('/resource-2', 'glob')
             ->will($this->returnValue(false));
 
         $this->assertTrue($this->repo->contains('/resource-1'));
@@ -325,7 +325,7 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
 
         $repo->expects($this->once())
             ->method('find')
-            ->with('/path/to/res*')
+            ->with('/path/to/res*', 'glob')
             ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
                 $resource2,
@@ -351,11 +351,11 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
 
         $repo1->expects($this->once())
             ->method('find')
-            ->with('/res1*')
+            ->with('/res1*', 'glob')
             ->will($this->returnValue(new ArrayResourceCollection(array($resource1))));
         $repo2->expects($this->once())
             ->method('find')
-            ->with('/res2*')
+            ->with('/res2*', 'glob')
             ->will($this->returnValue(new ArrayResourceCollection(array($resource2))));
 
         $expected1 = new ArrayResourceCollection(array($resource1));
@@ -397,7 +397,53 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
         $this->repo->find(new \stdClass());
     }
 
-    public function testListDirectory()
+    public function testHasChildren()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $this->repo->mount('/webmozart', $repo);
+
+        $repo->expects($this->once())
+            ->method('hasChildren')
+            ->with('/path/to/dir')
+            ->will($this->returnValue('true_or_false'));
+
+        $this->assertSame('true_or_false', $this->repo->hasChildren('/webmozart/path/to/dir'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testHasChildrenExpectsValidMountPoint()
+    {
+        $this->repo->hasChildren('/webmozart/path/to/dir');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsAbsolutePath()
+    {
+        $this->repo->hasChildren('webmozart');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsNonEmptyPath()
+    {
+        $this->repo->hasChildren('');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsStringPath()
+    {
+        $this->repo->hasChildren(new \stdClass());
+    }
+
+    public function testListChildren()
     {
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
         $resource1 = new TestFile('/path/to/dir/file1');
@@ -406,7 +452,7 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
         $this->repo->mount('/webmozart', $repo);
 
         $repo->expects($this->once())
-            ->method('listDirectory')
+            ->method('listChildren')
             ->with('/path/to/dir')
             ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
@@ -418,7 +464,7 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
             $resource2->createReference('/webmozart/path/to/dir/file2'),
         ));
 
-        $this->assertEquals($expected, $this->repo->listDirectory('/webmozart/path/to/dir'));
+        $this->assertEquals($expected, $this->repo->listChildren('/webmozart/path/to/dir'));
     }
 
     public function testListRootDirectory()
@@ -430,7 +476,7 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
         $this->repo->mount('/', $repo);
 
         $repo->expects($this->once())
-            ->method('listDirectory')
+            ->method('listChildren')
             ->with('/path/to/dir')
             ->will($this->returnValue(new ArrayResourceCollection(array(
                 $resource1,
@@ -442,38 +488,38 @@ class CompositeRepositoryTest extends PHPUnit_Framework_TestCase
             $resource2,
         ));
 
-        $this->assertEquals($expected, $this->repo->listDirectory('/path/to/dir'));
+        $this->assertEquals($expected, $this->repo->listChildren('/path/to/dir'));
     }
 
     /**
      * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
-    public function testListDirectoryExpectsValidMountPoint()
+    public function testListChildrenExpectsValidMountPoint()
     {
-        $this->repo->listDirectory('/webmozart/path/to/dir');
+        $this->repo->listChildren('/webmozart/path/to/dir');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsAbsolutePath()
+    public function testListChildrenExpectsAbsolutePath()
     {
-        $this->repo->listDirectory('webmozart');
+        $this->repo->listChildren('webmozart');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsNonEmptyPath()
+    public function testListChildrenExpectsNonEmptyPath()
     {
-        $this->repo->listDirectory('');
+        $this->repo->listChildren('');
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testListDirectoryExpectsStringPath()
+    public function testListChildrenExpectsStringPath()
     {
-        $this->repo->listDirectory(new \stdClass());
+        $this->repo->listChildren(new \stdClass());
     }
 }

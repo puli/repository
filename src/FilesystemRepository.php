@@ -12,19 +12,20 @@
 namespace Puli\Repository;
 
 use Iterator;
-use Puli\Repository\Api\NoDirectoryException;
+use Puli\Repository\Api\UnsupportedLanguageException;
+use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
-use Puli\Repository\Resource\Collection\LocalResourceCollection;
-use Puli\Repository\Resource\LocalDirectoryResource;
-use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Webmozart\PathUtil\Path;
 
 /**
- * A repository reading from the local file system.
+ * A repository reading from the file system.
  *
  * Resources can be read using their absolute file system paths:
  *
@@ -35,7 +36,7 @@ use Webmozart\PathUtil\Path;
  * $resource = $repo->get('/home/puli/.gitconfig');
  * ```
  *
- * The returned resources implement {@link LocalResource}.
+ * The returned resources implement {@link FilesystemResource}.
  *
  * Optionally, a root directory can be passed to the constructor. Then all paths
  * will be read relative to that directory:
@@ -62,7 +63,7 @@ class FilesystemRepository implements ResourceRepository
      * Creates a new repository.
      *
      * @param string|null $baseDir The base directory of the repository on the
-     *                             local file system.
+     *                             file system.
      */
     public function __construct($baseDir = null)
     {
@@ -81,15 +82,15 @@ class FilesystemRepository implements ResourceRepository
         Assertion::path($path);
 
         $path = Path::canonicalize($path);
-        $localPath = $this->baseDir.$path;
+        $filesystemPath = $this->baseDir.$path;
 
-        if (!file_exists($localPath)) {
+        if (!file_exists($filesystemPath)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $resource = is_dir($localPath)
-            ? new LocalDirectoryResource($localPath, $path)
-            : new LocalFileResource($localPath, $path);
+        $resource = is_dir($filesystemPath)
+            ? new DirectoryResource($filesystemPath, $path)
+            : new FileResource($filesystemPath, $path);
 
         $resource->attachTo($this);
 
@@ -99,25 +100,33 @@ class FilesystemRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function find($selector)
+    public function find($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
-        $localSelector = $this->baseDir.$selector;
+        Assertion::glob($query);
 
-        return $this->iteratorToCollection(new GlobIterator($localSelector));
+        $query = Path::canonicalize($query);
+        $glob = $this->baseDir.$query;
+
+        return $this->iteratorToCollection(new GlobIterator($glob));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function contains($selector)
+    public function contains($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
-        $iterator = new GlobIterator($this->baseDir.$selector);
+        Assertion::glob($query);
+
+        $query = Path::canonicalize($query);
+        $iterator = new GlobIterator($this->baseDir.$query);
         $iterator->rewind();
 
         return $iterator->valid();
@@ -126,45 +135,69 @@ class FilesystemRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function listDirectory($path)
+    public function hasChildren($path)
     {
         Assertion::path($path);
 
         $path = Path::canonicalize($path);
-        $localPath = $this->baseDir.$path;
+        $filesystemPath = $this->baseDir.$path;
 
-        if (!file_exists($localPath)) {
+        if (!file_exists($filesystemPath)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        if (!is_dir($localPath)) {
+        if (!is_dir($filesystemPath)) {
             throw NoDirectoryException::forPath($path);
         }
 
-        return $this->iteratorToCollection(new RecursiveDirectoryIterator($localPath));
+        $iterator = new RecursiveDirectoryIterator($filesystemPath);
+        $iterator->rewind();
+
+        return $iterator->valid();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listChildren($path)
+    {
+        Assertion::path($path);
+
+        $path = Path::canonicalize($path);
+        $filesystemPath = $this->baseDir.$path;
+
+        if (!file_exists($filesystemPath)) {
+            throw ResourceNotFoundException::forPath($path);
+        }
+
+        if (!is_dir($filesystemPath)) {
+            throw NoDirectoryException::forPath($path);
+        }
+
+        return $this->iteratorToCollection(new RecursiveDirectoryIterator($filesystemPath));
     }
 
     private function iteratorToCollection(Iterator $iterator)
     {
         $offset = strlen($this->baseDir);
-        $localPaths = iterator_to_array($iterator);
+        $filesystemPaths = iterator_to_array($iterator);
         $resources = array();
 
         // RecursiveDirectoryIterator is not guaranteed to return sorted results
-        sort($localPaths);
+        sort($filesystemPaths);
 
-        foreach ($localPaths as $localPath) {
-            $path = substr($localPath, $offset);
+        foreach ($filesystemPaths as $filesystemPath) {
+            $path = substr($filesystemPath, $offset);
 
-            $resource = is_dir($localPath)
-                ? new LocalDirectoryResource($localPath, $path)
-                : new LocalFileResource($localPath, $path);
+            $resource = is_dir($filesystemPath)
+                ? new DirectoryResource($filesystemPath, $path)
+                : new FileResource($filesystemPath, $path);
 
             $resource->attachTo($this);
 
             $resources[] = $resource;
         }
 
-        return new LocalResourceCollection($resources);
+        return new FilesystemResourceCollection($resources);
     }
 }

@@ -11,11 +11,11 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\FileCopyRepository;
-use Puli\Repository\Resource\LocalDirectoryResource;
-use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -41,7 +41,7 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
         parent::tearDown();
     }
 
-    protected function createRepository(DirectoryResource $root)
+    protected function createRepository(Resource $root)
     {
         $repo = new FileCopyRepository($this->tempDir);
         $repo->add('/', $root);
@@ -86,30 +86,54 @@ class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
     /**
      * @expectedException \Puli\Repository\Api\UnsupportedResourceException
      */
-    public function testFailIfAddedResourceNeitherFileNorDirectory()
+    public function testFailIfAddedResourceHasBodyAndChildren()
     {
-        $this->repo->add('/webmozart', $this->getMock('Puli\Repository\Api\Resource\Resource'));
+        $resource = $this->getMock('Puli\Repository\Api\Resource\BodyResource');
+
+        $resource->expects($this->any())
+            ->method('hasChildren')
+            ->will($this->returnValue(true));
+
+        $this->repo->add('/webmozart', $resource);
     }
 
-    public function testAddLocalDirectory()
+    public function testAddDirectory()
     {
-        $this->repo->add('/webmozart/dir', new LocalDirectoryResource(__DIR__.'/Fixtures/dir1'));
+        $this->repo->add('/webmozart/dir', new DirectoryResource(__DIR__.'/Fixtures/dir1'));
 
         $dir = $this->repo->get('/webmozart/dir');
         $file1 = $this->repo->get('/webmozart/dir/file1');
         $file2 = $this->repo->get('/webmozart/dir/file2');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file1);
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file2);
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file1);
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file2);
     }
 
-    public function testAddLocalFile()
+    public function testAddFile()
     {
-        $this->repo->add('/webmozart/file', new LocalFileResource(__DIR__.'/Fixtures/dir1/file2'));
+        $this->repo->add('/webmozart/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
 
         $file = $this->repo->get('/webmozart/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+    }
+
+    /**
+     * @expectedException \Puli\Repository\NoDirectoryException
+     */
+    public function testFailIfAddingFileAsChildOfFile()
+    {
+        $this->repo->add('/webmozart/puli', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $this->repo->add('/webmozart/puli/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testRemoveFailsIfLanguageNotGlob()
+    {
+        $this->repo->remove('/*', 'foobar');
     }
 }

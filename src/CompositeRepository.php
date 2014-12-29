@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Webmozart\PathUtil\Path;
@@ -149,15 +150,15 @@ class CompositeRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function find($selector)
+    public function find($query, $language = 'glob')
     {
-        list ($mountPoint, $subSelector) = $this->splitPath($selector);
+        list ($mountPoint, $glob) = $this->splitPath($query);
 
         if (null === $mountPoint) {
             return new ArrayResourceCollection();
         }
 
-        $resources = $this->getRepository($mountPoint)->find($subSelector);
+        $resources = $this->getRepository($mountPoint)->find($glob, $language);
         $this->replaceByReferences($resources, $mountPoint);
 
         return $resources;
@@ -166,21 +167,21 @@ class CompositeRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function contains($selector)
+    public function contains($query, $language = 'glob')
     {
-        list ($mountPoint, $subSelector) = $this->splitPath($selector);
+        list ($mountPoint, $glob) = $this->splitPath($query);
 
         if (null === $mountPoint) {
             return false;
         }
 
-        return $this->getRepository($mountPoint)->contains($subSelector);
+        return $this->getRepository($mountPoint)->contains($glob, $language);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function listDirectory($path)
+    public function hasChildren($path)
     {
         list ($mountPoint, $subPath) = $this->splitPath($path);
 
@@ -191,7 +192,24 @@ class CompositeRepository implements ResourceRepository
             ));
         }
 
-        $resources = $this->getRepository($mountPoint)->listDirectory($subPath);
+        return $this->getRepository($mountPoint)->hasChildren($subPath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listChildren($path)
+    {
+        list ($mountPoint, $subPath) = $this->splitPath($path);
+
+        if (null === $mountPoint) {
+            throw new ResourceNotFoundException(sprintf(
+                'Could not find a matching mount point for the path "%s".',
+                $path
+            ));
+        }
+
+        $resources = $this->getRepository($mountPoint)->listChildren($subPath);
         $this->replaceByReferences($resources, $mountPoint);
 
         return $resources;

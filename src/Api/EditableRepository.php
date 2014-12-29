@@ -38,17 +38,16 @@ interface EditableRepository extends ResourceRepository
     public function add($path, $resource);
 
     /**
-     * Removes all resources matching the given selector.
+     * Removes all resources matching the given query.
      *
-     * @param string $selector A resource path or a glob pattern. Must start
-     *                         with "/". "." and ".." segments in the path are
-     *                         supported.
+     * @param string $query    A resource query.
+     * @param string $language The language of the query. All implementations
+     *                         must support the language "glob".
      *
      * @return integer The number of resources removed from the repository.
      *
-     * @throws InvalidArgumentException If the selector is invalid. The selector
-     *                                  must be a non-empty string starting with
-     *                                  "/".
+     * @throws InvalidArgumentException If the query is invalid.
+     * @throws UnsupportedLanguageException If the language is not supported.
      */
-    public function remove($selector);
+    public function remove($query, $language = 'glob');
 }

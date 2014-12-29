@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\Api\ResourceCollection;
 
 /**
@@ -201,7 +200,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
      */
     public function hasChildren()
     {
-        return current($this->resources) instanceof DirectoryResource;
+        return current($this->resources)->hasChildren();
     }
 
     /**
@@ -212,7 +211,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
      */
     public function getChildren()
     {
-        return new static(current($this->resources)->listEntries(), $this->mode);
+        return new static(current($this->resources)->listChildren(), $this->mode);
     }
 
     /**

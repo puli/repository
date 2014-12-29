@@ -51,6 +51,8 @@ Changelog
  * added domain-specific `Assertion` class
  * removed `LocalResource::getAllLocalPaths`
  * moved API interfaces to `Api` sub-namespace
+ * removed notions of "directories" and "files". All resources can have children
+   and a body now.
 
 * 1.0.0-alpha4 (2014-12-03)
 

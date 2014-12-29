@@ -12,26 +12,21 @@
 namespace Puli\Repository\Api\Resource;
 
 /**
- * A resource that contains a file body.
+ * Contains metadata about a resource.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface FileResource extends Resource
+interface ResourceMetadata
 {
     /**
-     * Returns the contents of the resource.
+     * Returns when the resource was created.
      *
-     * @return string The resource contents.
-     */
-    public function getContents();
-
-    /**
-     * Returns the size of the contents in bytes.
+     * If this information is not available, the method returns 0.
      *
-     * @return integer The content size in bytes.
+     * @return integer A UNIX timestamp.
      */
-    public function getSize();
+    public function getCreationTime();
 
     /**
      * Returns when the resource was last accessed.
@@ -40,7 +35,7 @@ interface FileResource extends Resource
      *
      * @return integer A UNIX timestamp.
      */
-    public function getLastAccessedAt();
+    public function getAccessTime();
 
     /**
      * Returns when the resource was last modified.
@@ -49,5 +44,5 @@ interface FileResource extends Resource
      *
      * @return integer A UNIX timestamp.
      */
-    public function getLastModifiedAt();
+    public function getModificationTime();
 }

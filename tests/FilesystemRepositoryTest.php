@@ -11,12 +11,14 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\BodyResource;
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\FilesystemRepository;
+use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\LocalDirectoryResource;
-use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -43,23 +45,23 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @param \Puli\Repository\Api\DirectoryResource $root
+     * @param Resource $root
      *
-     * @return \Puli\Repository\Api\ResourceRepository
+     * @return ResourceRepository
      */
-    protected function createRepository(DirectoryResource $root)
+    protected function createRepository(Resource $root)
     {
         $filesystem = new Filesystem();
         $iterator = new RecursiveResourceIteratorIterator(
-            new ResourceCollectionIterator($root->listEntries()),
+            new ResourceCollectionIterator($root->listChildren()),
             RecursiveResourceIteratorIterator::SELF_FIRST
         );
 
         foreach ($iterator as $resource) {
-            if ($resource instanceof DirectoryResource) {
-                $filesystem->mkdir($this->baseDir.$resource->getPath());
+            if ($resource instanceof BodyResource) {
+                file_put_contents($this->baseDir.$resource->getPath(), $resource->getBody());
             } else {
-                file_put_contents($this->baseDir.$resource->getPath(), $resource->getContents());
+                $filesystem->mkdir($this->baseDir.$resource->getPath());
             }
         }
 
@@ -91,7 +93,7 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
 
         $repo = new FilesystemRepository($this->baseDir);
 
-        $expected = new LocalFileResource($this->baseDir.'/link', '/link');
+        $expected = new FileResource($this->baseDir.'/link', '/link');
         $expected->attachTo($repo);
 
         $this->assertEquals($expected, $repo->get('/link'));
@@ -104,21 +106,31 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
 
         $repo = new FilesystemRepository($this->baseDir);
 
-        $expected = new LocalDirectoryResource($this->baseDir.'/link', '/link');
+        $expected = new DirectoryResource($this->baseDir.'/link', '/link');
         $expected->attachTo($repo);
 
         $this->assertEquals($expected, $repo->get('/link'));
     }
 
-    public function testGetOverriddenFile()
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testContainsFailsIfLanguageNotGlob()
     {
-        // Not supported
-        $this->pass();
+        $repo = new FilesystemRepository($this->baseDir);
+
+        $repo->contains('/*', 'foobar');
     }
 
-    public function testGetOverriddenDirectory()
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testFindFailsIfLanguageNotGlob()
     {
-        // Not supported
-        $this->pass();
+        $repo = new FilesystemRepository($this->baseDir);
+
+        $repo->find('/*', 'foobar');
     }
 }

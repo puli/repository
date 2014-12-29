@@ -46,21 +46,12 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $root = $this->repo->get('/');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $root);
-        $this->assertCount(0, $root->listEntries());
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
+        $this->assertCount(0, $root->listChildren());
         $this->assertSame('/', $root->getPath());
     }
 
-    /**
-     * @expectedException \Puli\Repository\Api\NoDirectoryException
-     */
-    public function testFailIfAddingFileAsChildOfFile()
-    {
-        $this->repo->add('/webmozart/puli', new TestFile());
-        $this->repo->add('/webmozart/puli/file', new TestFile());
-    }
-
-    public function testAddFileAsChildOfDirectory()
+    public function testAddFile()
     {
         $this->repo->add('/webmozart/puli', new TestDirectory());
         $this->repo->add('/webmozart/puli/file', new TestFile());
@@ -68,14 +59,14 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $dir = $this->repo->get('/webmozart/puli');
         $file = $this->repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
         $this->assertSame($this->repo, $dir->getRepository());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repo, $file->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
     public function testAddDot()
@@ -84,7 +75,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
     }
 
@@ -94,7 +85,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli', $file->getPath());
     }
 
@@ -104,7 +95,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
     }
 
@@ -118,10 +109,10 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $file1 = $this->repo->get('/webmozart/puli/file1');
         $file2 = $this->repo->get('/webmozart/puli/file2');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file1);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
         $this->assertSame('/webmozart/puli/file1', $file1->getPath());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file2);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file2);
         $this->assertSame('/webmozart/puli/file2', $file2->getPath());
     }
 
@@ -145,10 +136,10 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
     public function testAddSelectorFromBackendSingleMatch()
@@ -171,10 +162,10 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
     public function testAddSelectorFromBackendManyMatches()
@@ -202,15 +193,15 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $file1 = $repo->get('/webmozart/puli/file1');
         $file2 = $repo->get('/webmozart/puli/file2');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file1);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
         $this->assertSame('/webmozart/puli/file1', $file1->getPath());
         $this->assertSame($repo, $file1->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file1->getContents());
+        $this->assertSame(TestFile::BODY, $file1->getBody());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file2);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file2);
         $this->assertSame('/webmozart/puli/file2', $file2->getPath());
         $this->assertSame($repo, $file2->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file2->getContents());
+        $this->assertSame(TestFile::BODY, $file2->getBody());
     }
 
     public function testAddRoot()
@@ -225,20 +216,20 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $dir = $this->repo->get('/webmozart');
         $file = $this->repo->get('/webmozart/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $root);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
         $this->assertSame('/', $root->getPath());
         $this->assertSame($this->repo, $root->getRepository());
-        $this->assertCount(1, $root->listEntries());
+        $this->assertCount(1, $root->listChildren());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
         $this->assertSame('/webmozart', $dir->getPath());
         $this->assertSame($this->repo, $dir->getRepository());
-        $this->assertCount(1, $dir->listEntries());
+        $this->assertCount(1, $dir->listChildren());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/file', $file->getPath());
         $this->assertSame($this->repo, $file->getRepository());
-        $this->assertSame(TestFile::CONTENTS, $file->getContents());
+        $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
     /**

@@ -11,9 +11,11 @@
 
 namespace Puli\Repository\Resource;
 
+use Puli\Repository\Api\Resource\DetachedException;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\Assert\Assertion;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\Metadata\EmptyMetadata;
 
 /**
  * Base class for resources.
@@ -63,6 +65,67 @@ abstract class AbstractResource implements Resource
     public function getName()
     {
         return $this->path ? basename($this->path) : null;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getChild($relPath)
+    {
+        if (!$this->getRepository()) {
+            throw new DetachedException('Cannot access the children of a detached resource.');
+        }
+
+        return $this->getRepository()->get($this->getRepositoryPath().'/'.$relPath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChild($relPath)
+    {
+        if (!$this->getRepository()) {
+            throw new DetachedException('Cannot access the children of a detached resource.');
+        }
+
+        return $this->getRepository()->contains($this->getRepositoryPath().'/'.$relPath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChildren()
+    {
+        if (!$this->getRepository()) {
+            throw new DetachedException('Cannot access the children of a detached resource.');
+        }
+
+        return $this->getRepository()->hasChildren($this->getRepositoryPath());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listChildren()
+    {
+        if (!$this->getRepository()) {
+            throw new DetachedException('Cannot access the children of a detached resource.');
+        }
+
+        $entries = new ArrayResourceCollection();
+
+        foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $entry) {
+            $entries[$entry->getName()] = $entry;
+        }
+
+        return $entries;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMetadata()
+    {
+        return new EmptyMetadata();
     }
 
     /**

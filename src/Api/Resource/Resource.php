@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Api\Resource;
 
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Serializable;
 
@@ -23,9 +25,7 @@ use Serializable;
  * Depending on the implementation, resources may offer additional functionality:
  *
  *  * Resources that are similar to files in that they have a body and a size
- *    should implement {@link FileResource}.
- *  * Resources that contain other resources should implement
- *    {@link DirectoryResource}.
+ *    should implement {@link BodyResource}.
  *
  * Resources can be attached to a repository by calling {@link attachTo()}. They
  * can be detached again by calling {@link detach()}. Use {@link isAttached()}
@@ -55,7 +55,7 @@ interface Resource extends Serializable
      * For references created with {@link createReference()}, the path returned
      * by this method is the reference path and not the actual repository path
      * of the referenced resource. You should use {@link getRepositoryPath()} if
-     * you want to query the repository for a resource.
+     * you want to glob the repository for a resource.
      *
      * @return string|null The path of the resource. If the resource has no
      *                     path, `null` is returned.
@@ -71,6 +71,49 @@ interface Resource extends Serializable
      *                     path, `null` is returned.
      */
     public function getName();
+
+    /**
+     * Returns the child resource with the given relative path.
+     *
+     * "." and ".." are supported as paths.
+     *
+     * @param string $relPath The relative resource path.
+     *
+     * @return Resource The resource with the given path.
+     *
+     * @throws ResourceNotFoundException If the resource cannot be found.
+     */
+    public function getChild($relPath);
+
+    /**
+     * Returns whether the child resource with the given relative path exists.
+     *
+     * @param string $relPath The relative resource path.
+     *
+     * @return boolean Whether a resource with the given path exists.
+     */
+    public function hasChild($relPath);
+
+    /**
+     * Returns whether the resource has child resources.
+     *
+     * @return bool Returns `true` if the resource has child resources.
+     */
+    public function hasChildren();
+
+    /**
+     * Lists the child resources of the resources.
+     *
+     * @return ResourceCollection The child resources indexed by their names.
+     */
+    public function listChildren();
+
+    /**
+     * Returns metadata about a resource.
+     *
+     * @return ResourceMetadata The resource metadata.
+     */
+    public function getMetadata();
 
     /**
      * Returns the repository that the resource is attached to.

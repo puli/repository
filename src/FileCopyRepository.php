@@ -12,29 +12,29 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\NoDirectoryException;
-use Puli\Repository\Api\Resource\DirectoryResource;
-use Puli\Repository\Api\Resource\FileResource;
-use Puli\Repository\Api\Resource\LocalResource;
+use Puli\Repository\Api\Resource\BodyResource;
+use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
-use Puli\Repository\Resource\LocalDirectoryResource;
-use Puli\Repository\Resource\LocalFileResource;
+use Puli\Repository\Iterator\RecursiveDirectoryIterator;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Selector\Selector;
+use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**
  * A repository that copies all resources to a directory.
  *
  * This implementation is useful if you want to cache resources from a remote
- * repository on the local file system.
+ * repository on the file system.
  *
  * You need to pass the path of an existing directory to the constructor. The
  * repository will read and write resources from/to this directory.
@@ -45,11 +45,11 @@ use Webmozart\PathUtil\Path;
  * use Puli\Repository\FileCopyRepository;
  *
  * $repo = new FileCopyRepository('/path/to/cache');
- * $repo->add('/css', new LocalDirectoryResource('/path/to/project/res/css'));
+ * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
  * Resources passed to {@link add()} need to implement either
- * {@link FileResource} or {@link DirectoryResource}. Other resources are not
+ * {@link BodyResource} or {@link DirectoryResource}. Other resources are not
  * supported.
  *
  * Alternatively, another repository can be passed as "backend". The paths of
@@ -75,7 +75,7 @@ use Webmozart\PathUtil\Path;
  * $repo->add('/css', '/res/css');
  * ```
  *
- * The repository always returns instances of {@link LocalResource},
+ * The repository always returns instances of {@link FilesystemResource},
  * regardless of the type of resource you passed to {@link add()}.
  *
  * @since  1.0
@@ -124,13 +124,13 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
         Assertion::path($path);
 
         $path = Path::canonicalize($path);
-        $localPath = $this->baseDir.$path;
+        $filesystemPath = $this->baseDir.$path;
 
-        if (!file_exists($localPath)) {
+        if (!file_exists($filesystemPath)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->createResource($localPath, $path);
+        return $this->createResource($filesystemPath, $path);
     }
 
     /**
@@ -152,8 +152,8 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
-            foreach ($resource as $entry) {
-                $this->addResource($path.'/'.$entry->getName(), $entry);
+            foreach ($resource as $child) {
+                $this->addResource($path.'/'.$child->getName(), $child);
             }
 
             return;
@@ -176,31 +176,34 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
     /**
      * {@inheritdoc}
      */
-    public function remove($selector)
+    public function remove($query, $language = 'glob')
     {
-        Assertion::selector($selector);
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        $selector = Path::canonicalize($selector);
+        Assertion::glob($query);
 
-        Assertion::notEq('/', $selector, 'The root directory cannot be removed.');
+        $query = Path::canonicalize($query);
 
-        $localPaths = iterator_to_array(new GlobIterator($this->baseDir.$selector));
+        Assertion::notEq('/', $query, 'The root directory cannot be removed.');
+
+        $filesystemPaths = iterator_to_array(new GlobIterator($this->baseDir.$query));
         $removed = 0;
 
-        foreach ($localPaths as $localPath) {
+        foreach ($filesystemPaths as $filesystemPath) {
             // Skip paths that have already been removed
-            if (!file_exists($localPath)) {
+            if (!file_exists($filesystemPath)) {
                 continue;
             }
 
             ++$removed;
 
-            if (is_dir($localPath)) {
-                $resource = new LocalDirectoryResource($localPath);
-                $removed += $resource->count(true);
+            if (is_dir($filesystemPath)) {
+                $removed += $this->countChildren($filesystemPath);
             }
 
-            $this->filesystem->remove($localPath);
+            $this->filesystem->remove($filesystemPath);
         }
 
         return $removed;
@@ -208,66 +211,80 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
 
     private function ensureDirectoryExists($path)
     {
-        $localPath = $this->baseDir.$path;
+        $filesystemPath = $this->baseDir.$path;
 
-        if (is_file($localPath)) {
+        if (is_file($filesystemPath)) {
             throw NoDirectoryException::forPath($path);
         }
 
-        if (!is_dir($localPath)) {
-            mkdir($localPath, 0777, true);
+        if (!is_dir($filesystemPath)) {
+            mkdir($filesystemPath, 0777, true);
         }
     }
 
     private function addResource($path, Resource $resource)
     {
         $pathInBaseDir = $this->baseDir.$path;
-        $isDir = $resource instanceof DirectoryResource;
-        $isFile = $resource instanceof FileResource;
+        $hasChildren = $resource->hasChildren();
+        $hasBody = $resource instanceof BodyResource;
 
-        if (!$isDir && !$isFile) {
-            throw new UnsupportedResourceException(sprintf(
-                'Added resources must implement FileResource or '.
-                'DirectoryResource. Got: %s',
-                is_object($resource) ? get_class($resource) : gettype($resource)
-            ));
+        if ($hasChildren && $hasBody) {
+            throw new UnsupportedResourceException('Instances of BodyResource with children are not supported.');
         }
 
         if (file_exists($pathInBaseDir)) {
             $this->filesystem->remove($pathInBaseDir);
         }
 
-        if ($resource instanceof LocalResource) {
-            if ($isDir) {
-                $this->filesystem->mirror($resource->getLocalPath(), $pathInBaseDir);
+        if ($resource instanceof FilesystemResource) {
+            if ($hasBody) {
+                $this->filesystem->copy($resource->getFilesystemPath(), $pathInBaseDir);
             } else {
-                $this->filesystem->copy($resource->getLocalPath(), $pathInBaseDir);
+                $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
 
             return;
         }
 
-        if ($isDir) {
-            mkdir($pathInBaseDir, 0777, true);
-
-            foreach ($resource->listEntries() as $entry) {
-                $this->addResource($path.'/'.$entry->getName(), $entry);
-            }
+        if ($hasBody) {
+            file_put_contents($pathInBaseDir, $resource->getBody());
 
             return;
         }
 
-        file_put_contents($pathInBaseDir, $resource->getContents());
+        mkdir($pathInBaseDir, 0777, true);
+
+        foreach ($resource->listChildren() as $child) {
+            $this->addResource($path.'/'.$child->getName(), $child);
+        }
     }
 
-    private function createResource($localPath, $path)
+    private function createResource($filesystemPath, $path)
     {
-        $resource = is_dir($localPath)
-            ? new LocalDirectoryResource($localPath)
-            : new LocalFileResource($localPath);
+        $resource = is_dir($filesystemPath)
+            ? new DirectoryResource($filesystemPath)
+            : new FileResource($filesystemPath);
 
         $resource->attachTo($this, $path);
 
         return $resource;
+    }
+
+    private function countChildren($filesystemPath)
+    {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($filesystemPath),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        $iterator->rewind();
+        $count = 0;
+
+        while ($iterator->valid()) {
+            $count++;
+            $iterator->next();
+        }
+
+        return $count;
     }
 }

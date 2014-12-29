@@ -11,12 +11,16 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\AbstractLocalResource;
+use Puli\Repository\Resource\GenericResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestLocalResource extends AbstractLocalResource
+class GenericResourceTest extends AbstractResourceTest
 {
+    protected function createResource($path = null)
+    {
+        return new GenericResource($path);
+    }
 }

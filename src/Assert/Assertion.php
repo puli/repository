@@ -24,11 +24,11 @@ class Assertion extends \Assert\Assertion
         Assertion::startsWith($path, '/', 'The path %s is not absolute.');
     }
 
-    public static function selector($selector)
+    public static function glob($glob)
     {
-        Assertion::string($selector, 'The selector must be a string. Got: %2$s');
-        Assertion::notEmpty($selector, 'The selector must not be empty.');
-        Assertion::startsWith($selector, '/', 'The selector %s is not absolute.');
+        Assertion::string($glob, 'The glob must be a string. Got: %2$s');
+        Assertion::notEmpty($glob, 'The glob must not be empty.');
+        Assertion::startsWith($glob, '/', 'The glob %s is not absolute.');
     }
 
     private function __construct()
