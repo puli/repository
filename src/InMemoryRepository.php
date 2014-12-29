@@ -158,26 +158,13 @@ class InMemoryRepository implements EditableRepository
      */
     public function remove($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
-
-        Assertion::glob($query);
-
-        $query = Path::canonicalize($query);
-
-        Assertion::notEq('/', $query, 'The root directory cannot be removed.');
-
-        $resourcesToRemove = array();
+        $resources = $this->find($query, $language);
         $nbOfResources = count($this->resources);
 
-        if (false !== strpos($query, '*')) {
-            $resourcesToRemove = $this->getGlobIterator($query);
-        } elseif (isset($this->resources[$query])) {
-            $resourcesToRemove[] = $this->resources[$query];
-        }
+        // Run the assertion after find(), so that we know that $query is valid
+        Assertion::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
-        foreach ($resourcesToRemove as $resource) {
+        foreach ($resources as $resource) {
             $this->removeResource($resource);
         }
 
@@ -205,15 +192,9 @@ class InMemoryRepository implements EditableRepository
      */
     public function listChildren($path)
     {
-        Assertion::path($path);
+        $iterator = $this->getChildIterator($this->get($path));
 
-        $path = Path::canonicalize($path);
-
-        if (!isset($this->resources[$path])) {
-            throw ResourceNotFoundException::forPath($path);
-        }
-
-        return new ArrayResourceCollection($this->getChildIterator($path));
+        return new ArrayResourceCollection($iterator);
     }
 
     /**
@@ -221,15 +202,7 @@ class InMemoryRepository implements EditableRepository
      */
     public function hasChildren($path)
     {
-        Assertion::path($path);
-
-        $path = Path::canonicalize($path);
-
-        if (!isset($this->resources[$path])) {
-            throw ResourceNotFoundException::forPath($path);
-        }
-
-        $iterator = $this->getChildIterator($path);
+        $iterator = $this->getChildIterator($this->get($path));
         $iterator->rewind();
 
         return $iterator->valid();
@@ -291,7 +264,7 @@ class InMemoryRepository implements EditableRepository
         }
 
         // Recursively register directory contents
-        foreach ($this->getChildIterator($path) as $child) {
+        foreach ($this->getChildIterator($resource) as $child) {
             $this->removeResource($child);
         }
 
@@ -302,15 +275,15 @@ class InMemoryRepository implements EditableRepository
     }
 
     /**
-     * Returns an iterator for the children of a path.
+     * Returns an iterator for the children of a resource.
      *
-     * @param string $path The resource path.
+     * @param Resource $resource The resource.
      *
      * @return RegexFilterIterator|Resource[] The iterator.
      */
-    private function getChildIterator($path)
+    private function getChildIterator(Resource $resource)
     {
-        $staticPrefix = rtrim($path, '/').'/';
+        $staticPrefix = rtrim($resource->getPath(), '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
 
         return new RegexFilterIterator(
