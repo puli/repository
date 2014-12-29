@@ -80,8 +80,12 @@ class FilesystemRepository implements EditableRepository
     /**
      * Creates a new repository.
      *
-     * @param string $baseDir The base directory of the repository on the file
-     *                        system.
+     * The backend repository is used to lookup the paths passed to the
+     * second argument of {@link add}.
+     *
+     * @param string             $baseDir The base directory of the repository
+     *                                    on the file system.
+     * @param ResourceRepository $backend The backend repository.
      */
     public function __construct($baseDir = '/', ResourceRepository $backend = null)
     {
