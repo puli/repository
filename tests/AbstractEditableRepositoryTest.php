@@ -420,4 +420,24 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $this->repo->remove(new \stdClass());
     }
+
+    public function testClear()
+    {
+        $this->repo->add('/webmozart/puli/file1', new TestFile());
+        $this->repo->add('/webmozart/puli/file2', new TestFile());
+
+        $this->assertTrue($this->repo->contains('/'));
+        $this->assertTrue($this->repo->contains('/webmozart'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+
+        $this->assertSame(4, $this->repo->clear());
+
+        $this->assertTrue($this->repo->contains('/'));
+        $this->assertFalse($this->repo->contains('/webmozart'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+    }
 }

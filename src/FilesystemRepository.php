@@ -269,6 +269,22 @@ class FilesystemRepository implements EditableRepository
         return $removed;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        $iterator = new RecursiveDirectoryIterator($this->baseDir);
+        $removed = 0;
+
+        foreach ($iterator as $filesystemPath) {
+            $removed += 1 + $this->countChildren($filesystemPath);
+            $this->filesystem->remove($filesystemPath);
+        }
+
+        return $removed;
+    }
+
     private function ensureDirectoryExists($path)
     {
         $filesystemPath = $this->baseDir.$path;

@@ -55,6 +55,7 @@ Changelog
    and a body now.
  * renamed `Selector` to `Glob`
  * moved `Glob` and related iterators to "webmozart/glob" package
+ * added `EditableRepository::clear()`
 
 * 1.0.0-alpha4 (2014-12-03)
 

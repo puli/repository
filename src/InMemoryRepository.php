@@ -91,8 +91,8 @@ class InMemoryRepository implements EditableRepository
     public function __construct(ResourceRepository $backend = null)
     {
         $this->backend = $backend ?: new FilesystemRepository();
-        $this->resources['/'] = new GenericResource('/');
-        $this->resources['/']->attachTo($this);
+
+        $this->clear();
     }
 
     /**
@@ -257,6 +257,23 @@ class InMemoryRepository implements EditableRepository
         foreach ($resourcesToRemove as $resource) {
             $this->removeResource($resource, $removed);
         }
+
+        return $removed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        $root = new GenericResource('/');
+
+        $root->attachTo($this);
+
+        // Subtract root
+        $removed = count($this->resources) - 1;
+
+        $this->resources = array('/' => $root);
 
         return $removed;
     }

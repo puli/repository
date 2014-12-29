@@ -50,4 +50,11 @@ interface EditableRepository extends ResourceRepository
      * @throws UnsupportedLanguageException If the language is not supported.
      */
     public function remove($query, $language = 'glob');
+
+    /**
+     * Removes all resources from the repository.
+     *
+     * @return integer The number of resources removed from the repository.
+     */
+    public function clear();
 }
