@@ -87,12 +87,12 @@ class DirectoryResourceTest extends AbstractFilesystemResourceTest
     {
         $resource = new DirectoryResource($this->fixturesDir.'/dir1');
 
-        $entries = $resource->listChildren();
+        $children = $resource->listChildren();
 
-        $this->assertCount(2, $entries);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\FilesystemResourceCollection', $entries);
-        $this->assertEquals(new FileResource($this->fixturesDir.'/dir1/file1'), $entries['file1']);
-        $this->assertEquals(new FileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
+        $this->assertCount(2, $children);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\FilesystemResourceCollection', $children);
+        $this->assertEquals(new FileResource($this->fixturesDir.'/dir1/file1'), $children['file1']);
+        $this->assertEquals(new FileResource($this->fixturesDir.'/dir1/file2'), $children['file2']);
     }
 
     public function testGetChildDetached()

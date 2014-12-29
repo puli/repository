@@ -399,10 +399,10 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $resource = $this->createResource('/path');
         $resource->attachTo($repo);
 
-        $entries = $resource->listChildren();
+        $children = $resource->listChildren();
 
-        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
-        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $children->toArray());
     }
 
     public function testListChildrenWithReference()
@@ -423,10 +423,10 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
         $reference = $resource->createReference('/reference');
 
-        $entries = $reference->listChildren();
+        $children = $reference->listChildren();
 
-        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
-        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $children->toArray());
     }
 
     /**
@@ -441,37 +441,37 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     public function testGetChild()
     {
-        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $child = $this->getMock('Puli\Repository\Api\Resource\Resource');
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
             ->with('/path/file')
-            ->will($this->returnValue($entry));
+            ->will($this->returnValue($child));
 
         $resource = $this->createResource('/path');
         $resource->attachTo($repo);
 
-        $this->assertSame($entry, $resource->getChild('file'));
+        $this->assertSame($child, $resource->getChild('file'));
     }
 
     public function testGetChildWithReference()
     {
-        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $child = $this->getMock('Puli\Repository\Api\Resource\Resource');
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
             // use the repository path, not the reference path
             ->with('/path/file')
-            ->will($this->returnValue($entry));
+            ->will($this->returnValue($child));
 
         $resource = $this->createResource('/path');
         $resource->attachTo($repo);
 
         $reference = $resource->createReference('/reference');
 
-        $this->assertSame($entry, $reference->getChild('file'));
+        $this->assertSame($child, $reference->getChild('file'));
     }
 
     /**

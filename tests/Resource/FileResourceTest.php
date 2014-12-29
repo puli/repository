@@ -88,10 +88,10 @@ class FileResourceTest extends AbstractFilesystemResourceTest
         $resource = new FileResource($this->fixturesDir.'/dir1/file1');
         $resource->attachTo($repo);
 
-        $entries = $resource->listChildren();
+        $children = $resource->listChildren();
 
-        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
-        $this->assertEquals(array(), $entries->toArray());
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array(), $children->toArray());
     }
 
     public function testListChildrenWithReference()
@@ -106,20 +106,20 @@ class FileResourceTest extends AbstractFilesystemResourceTest
 
         $reference = $resource->createReference('/reference');
 
-        $entries = $reference->listChildren();
+        $children = $reference->listChildren();
 
-        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
-        $this->assertEquals(array(), $entries->toArray());
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array(), $children->toArray());
     }
 
     public function testListChildrenDetached()
     {
         $resource = new FileResource($this->fixturesDir.'/dir1/file1');
 
-        $entries = $resource->listChildren();
+        $children = $resource->listChildren();
 
-        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
-        $this->assertEquals(array(), $entries->toArray());
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array(), $children->toArray());
     }
 
     /**

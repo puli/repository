@@ -111,13 +111,13 @@ abstract class AbstractResource implements Resource
             throw new DetachedException('Cannot access the children of a detached resource.');
         }
 
-        $entries = new ArrayResourceCollection();
+        $children = new ArrayResourceCollection();
 
-        foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $entry) {
-            $entries[$entry->getName()] = $entry;
+        foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $child) {
+            $children[$child->getName()] = $child;
         }
 
-        return $entries;
+        return $children;
     }
 
     /**

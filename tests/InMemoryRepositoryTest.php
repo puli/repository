@@ -66,7 +66,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file'));
     }
 
-    public function testAddCollectionClonesEntriesAttachedToAnotherRepository()
+    public function testAddCollectionClonesChildrenAttachedToAnotherRepository()
     {
         $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 

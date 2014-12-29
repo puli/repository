@@ -89,15 +89,15 @@ class DirectoryResource extends AbstractFilesystemResource
      */
     public function listChildren()
     {
-        $entries = new FilesystemResourceCollection();
+        $children = new FilesystemResourceCollection();
 
         // Use attached repository if possible
         if ($this->getRepository()) {
-            foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $entry) {
-                $entries[$entry->getName()] = $entry;
+            foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $child) {
+                $children[$child->getName()] = $child;
             }
 
-            return $entries;
+            return $children;
         }
 
         $iterator = new RecursiveDirectoryIterator(
@@ -108,11 +108,11 @@ class DirectoryResource extends AbstractFilesystemResource
         // We can't use glob() here, because glob() doesn't list files starting
         // with "." by default
         foreach ($iterator as $path => $name) {
-            $entries[$name] = is_dir($path)
+            $children[$name] = is_dir($path)
                 ? new DirectoryResource($path)
                 : new FileResource($path);
         }
 
-        return $entries;
+        return $children;
     }
 }

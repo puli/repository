@@ -23,34 +23,34 @@ class TestDirectory extends AbstractResource
     /**
      * @var Resource[]
      */
-    private $entries = array();
+    private $children = array();
 
-    public function __construct($path = null, array $entries = array())
+    public function __construct($path = null, array $children = array())
     {
         parent::__construct($path);
 
-        foreach ($entries as $entry) {
-            $this->entries[$entry->getName()] = $entry;
+        foreach ($children as $child) {
+            $this->children[$child->getName()] = $child;
         }
     }
 
     public function getChild($relPath)
     {
-        return $this->entries[$relPath];
+        return $this->children[$relPath];
     }
 
     public function hasChild($relPath)
     {
-        return isset($this->entries[$relPath]);
+        return isset($this->children[$relPath]);
     }
 
     public function hasChildren()
     {
-        return count($this->entries) > 0;
+        return count($this->children) > 0;
     }
 
     public function listChildren()
     {
-        return new ArrayResourceCollection($this->entries);
+        return new ArrayResourceCollection($this->children);
     }
 }
