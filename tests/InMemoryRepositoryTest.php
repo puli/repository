@@ -21,7 +21,7 @@ use Puli\Repository\Tests\Resource\TestFile;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class InMemoryRepositoryTest extends AbstractManageableRepositoryTest
+class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
 {
     /**
      * @var InMemoryRepository
@@ -43,7 +43,7 @@ class InMemoryRepositoryTest extends AbstractManageableRepositoryTest
         return $repo;
     }
 
-    protected function createManageableRepository(ResourceRepository $backend = null)
+    protected function createEditableRepository(ResourceRepository $backend = null)
     {
         return new InMemoryRepository($backend);
     }

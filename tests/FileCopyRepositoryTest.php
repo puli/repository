@@ -24,7 +24,7 @@ use Webmozart\KeyValueStore\ArrayStore;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
+class FileCopyRepositoryTest extends AbstractEditableRepositoryTest
 {
     private $tempDir;
 
@@ -51,7 +51,7 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
         return $repo;
     }
 
-    protected function createManageableRepository(ResourceRepository $backend = null)
+    protected function createEditableRepository(ResourceRepository $backend = null)
     {
         return new FileCopyRepository($this->tempDir, new ArrayStore(), $backend);
     }

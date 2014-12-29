@@ -21,7 +21,7 @@ use Puli\Repository\Tests\Resource\TestFile;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
+abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 {
     /**
      * @var EditableRepository
@@ -33,13 +33,13 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
      *
      * @return EditableRepository
      */
-    abstract protected function createManageableRepository(ResourceRepository $backend = null);
+    abstract protected function createEditableRepository(ResourceRepository $backend = null);
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->repo = $this->createManageableRepository();
+        $this->repo = $this->createEditableRepository();
     }
 
     public function testRootIsEmptyBeforeAdding()
@@ -160,7 +160,7 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
             ->with('/dir/file')
             ->will($this->returnValue($backendFile));
 
-        $repo = $this->createManageableRepository($backend);
+        $repo = $this->createEditableRepository($backend);
         $repo->add('/webmozart/puli/file', '/dir/file');
 
         // Backend resource was not modified
@@ -187,7 +187,7 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
             ->with('/dir/*')
             ->will($this->returnValue(new ArrayResourceCollection(array($backendFile))));
 
-        $repo = $this->createManageableRepository($backend);
+        $repo = $this->createEditableRepository($backend);
         $repo->add('/webmozart/puli', '/dir/*');
 
         // Backend resources were not modified
@@ -216,7 +216,7 @@ abstract class AbstractManageableRepositoryTest extends AbstractRepositoryTest
             ->with('/dir/*')
             ->will($this->returnValue(new ArrayResourceCollection(array($backendFile1, $backendFile2))));
 
-        $repo = $this->createManageableRepository($backend);
+        $repo = $this->createEditableRepository($backend);
         $repo->add('/webmozart/puli', '/dir/*');
 
         // Backend resources were not modified
