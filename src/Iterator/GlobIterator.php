@@ -13,7 +13,7 @@ namespace Puli\Repository\Iterator;
 
 use ArrayIterator;
 use EmptyIterator;
-use Puli\Repository\Selector\Selector;
+use Puli\Repository\Glob\Glob;
 use RecursiveIteratorIterator;
 
 /**
@@ -25,20 +25,20 @@ use RecursiveIteratorIterator;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GlobIterator extends SelectorIterator
+class GlobIterator extends GlobFilterIterator
 {
     /**
      * Creates a new iterator.
      *
-     * @param string $selector The glob pattern.
+     * @param string $glob The glob pattern.
      */
-    public function __construct($selector)
+    public function __construct($glob)
     {
-        $basePath = Selector::getBasePath($selector);
+        $basePath = Glob::getBasePath($glob);
 
-        if (file_exists($selector)) {
+        if (file_exists($glob)) {
             // If the glob is a file path, return that path
-            $innerIterator = new ArrayIterator(array($selector => $selector));
+            $innerIterator = new ArrayIterator(array($glob => $glob));
         } elseif (is_dir($basePath)) {
             // Otherwise scan the glob's base directory for matches
             $innerIterator = new RecursiveIteratorIterator(
@@ -50,6 +50,6 @@ class GlobIterator extends SelectorIterator
             $innerIterator = new EmptyIterator();
         }
 
-        parent::__construct($selector, $innerIterator);
+        parent::__construct($glob, $innerIterator);
     }
 }

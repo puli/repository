@@ -504,7 +504,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/webmozart'), $resources[0]);
     }
 
-    public function testFindCanonicalizesSelector()
+    public function testFindCanonicalizesGlob()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
             new TestDirectory('/webmozart', array(

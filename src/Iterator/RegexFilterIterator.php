@@ -13,16 +13,16 @@ namespace Puli\Repository\Iterator;
 
 use FilterIterator;
 use Iterator;
-use Puli\Repository\Selector\Selector;
+use Puli\Repository\Glob\Glob;
 
 /**
  * Filters an iterator by a regular expression.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
- * @see    Selector
+ * @see    Glob
  */
-class RegexIterator extends FilterIterator
+class RegexFilterIterator extends FilterIterator
 {
     /**
      * @var string

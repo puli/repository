@@ -25,7 +25,7 @@ use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Selector\Selector;
+use Puli\Repository\Glob\Glob;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
@@ -143,7 +143,7 @@ class FileCopyRepository extends FilesystemRepository implements EditableReposit
         $path = Path::canonicalize($path);
 
         if (is_string($resource)) {
-            if (Selector::isSelector($resource)) {
+            if (Glob::isGlob($resource)) {
                 $resource = $this->backend->find($resource);
             } else {
                 $resource = $this->backend->get($resource);

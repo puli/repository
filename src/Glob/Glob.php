@@ -9,17 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Selector;
+namespace Puli\Repository\Glob;
 
 /**
- * Utility methods for handling path selectors.
- *
- * "Path selectors" are repository paths which may contain "*" as wildcard.
+ * Utility methods for handling globs.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class Selector
+class Glob
 {
     /**
      * Represents a literal "\" in a regular expression.
@@ -51,7 +49,7 @@ class Selector
      * @return bool Returns `true` if the string is a glob, `false`
      *              otherwise.
      */
-    public static function isSelector($string)
+    public static function isGlob($string)
     {
         return false !== strpos($string, '*');
     }
@@ -59,11 +57,11 @@ class Selector
     /**
      * Converts a glob to a regular expression.
      *
-     * @param string $selector A path glob in canonical form.
+     * @param string $glob A path glob in canonical form.
      *
      * @return string The regular expression for matching the glob.
      */
-    public static function toRegEx($selector)
+    public static function toRegEx($glob)
     {
         // From the PHP manual: To specify a literal single quote, escape it
         // with a backslash (\). To specify a literal backslash, double it (\\).
@@ -78,7 +76,7 @@ class Selector
         // Other characters are escaped as usual for regular expressions.
 
         // Quote regex characters
-        $quoted = preg_quote($selector, '~');
+        $quoted = preg_quote($glob, '~');
 
         // Replace "*" by ".*", as long as preceded by an even number of backslashes
         $regEx = preg_replace(
@@ -104,17 +102,17 @@ class Selector
      * If the glob does not contain wildcards, the full glob is
      * returned.
      *
-     * @param string $selector A path glob in canonical form.
+     * @param string $glob A path glob in canonical form.
      *
      * @return string The static prefix of the glob.
      */
-    public static function getStaticPrefix($selector)
+    public static function getStaticPrefix($glob)
     {
-        if (false !== ($pos = strpos($selector, '*'))) {
-            return substr($selector, 0, $pos);
+        if (false !== ($pos = strpos($glob, '*'))) {
+            return substr($glob, 0, $pos);
         }
 
-        return $selector;
+        return $glob;
     }
 
     /**
@@ -125,45 +123,45 @@ class Selector
      * directory name of the glob is returned.
      *
      * ```php
-     * Selector::getBasePath('/css/*.css');
+     * Glob::getBasePath('/css/*.css');
      * // => /css
      *
-     * Selector::getBasePath('/css/style.css');
+     * Glob::getBasePath('/css/style.css');
      * // => /css
      *
-     * Selector::getBasePath('/css/st*.css');
+     * Glob::getBasePath('/css/st*.css');
      * // => /css
      *
-     * Selector::getBasePath('/*.css');
+     * Glob::getBasePath('/*.css');
      * // => /
      * ```
      *
-     * @param string $selector A path glob in canonical form.
+     * @param string $glob A path glob in canonical form.
      *
      * @return string The base path of the glob.
      */
-    public static function getBasePath($selector)
+    public static function getBasePath($glob)
     {
         // Start searching for a "/" at the last character
         $offset = -1;
 
         // If the glob contains a wildcard "*", start searching for the
         // "/" on the left of the wildcard
-        if (false !== ($pos = strpos($selector, '*'))) {
-            $offset = $pos - strlen($selector);
+        if (false !== ($pos = strpos($glob, '*'))) {
+            $offset = $pos - strlen($glob);
         }
 
-        if (false !== ($pos = strrpos($selector, '/', $offset))) {
+        if (false !== ($pos = strrpos($glob, '/', $offset))) {
             // Special case: Return "/" if the only slash is at the beginning
             // of the glob
             if (0 === $pos) {
                 return '/';
             }
 
-            return substr($selector, 0, $pos);
+            return substr($glob, 0, $pos);
         }
 
-        // Selector contains no slashes on the left of the wildcard
+        // Glob contains no slashes on the left of the wildcard
         // Return an empty string
         return '';
     }

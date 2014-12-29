@@ -142,7 +142,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
-    public function testAddSelectorFromBackendSingleMatch()
+    public function testAddGlobFromBackendSingleMatch()
     {
         $backend = $this->getMock('Puli\Repository\Api\ResourceRepository');
         $backendFile = new TestFile();
@@ -168,7 +168,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
-    public function testAddSelectorFromBackendManyMatches()
+    public function testAddGlobFromBackendManyMatches()
     {
         $backend = $this->getMock('Puli\Repository\Api\ResourceRepository');
         $backendFile1 = new TestFile();
@@ -298,7 +298,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
     }
 
-    public function provideDirectorySelector()
+    public function provideDirectoryGlob()
     {
         return array(
             array('/webmozart/puli'),
@@ -307,9 +307,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @dataProvider provideDirectorySelector
+     * @dataProvider provideDirectoryGlob
      */
-    public function testRemoveDirectory($selector)
+    public function testRemoveDirectory($glob)
     {
         $this->repo->add('/webmozart/puli/file1', new TestFile());
         $this->repo->add('/webmozart/puli/file2', new TestFile());
@@ -319,7 +319,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
         $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
 
-        $this->assertSame(3, $this->repo->remove($selector));
+        $this->assertSame(3, $this->repo->remove($glob));
 
         $this->assertTrue($this->repo->contains('/webmozart'));
         $this->assertFalse($this->repo->contains('/webmozart/puli'));

@@ -12,28 +12,28 @@
 namespace Puli\Repository\Iterator;
 
 use Iterator;
-use Puli\Repository\Selector\Selector;
+use Puli\Repository\Glob\Glob;
 
 /**
  * Filters an iterator by a glob.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
- * @see    Selector
+ * @see    Glob
  */
-class SelectorIterator extends RegexIterator
+class GlobFilterIterator extends RegexFilterIterator
 {
     /**
      * Creates a new iterator.
      *
-     * @param string   $selector      The canonical glob.
+     * @param string   $glob          The canonical glob.
      * @param Iterator $innerIterator The filtered iterator.
      */
-    public function __construct($selector, Iterator $innerIterator)
+    public function __construct($glob, Iterator $innerIterator)
     {
         parent::__construct(
-            Selector::toRegEx($selector),
-            Selector::getStaticPrefix($selector),
+            Glob::toRegEx($glob),
+            Glob::getStaticPrefix($glob),
             $innerIterator
         );
     }

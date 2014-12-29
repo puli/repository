@@ -9,23 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Selector;
+namespace Puli\Repository\Tests\Glob;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Selector\Selector;
+use Puli\Repository\Glob\Glob;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class SelectorTest extends PHPUnit_Framework_TestCase
+class GlobTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider provideMatches
      */
     public function testToRegEx($path, $isMatch)
     {
-        $regExp = Selector::toRegEx('/foo/*.js~');
+        $regExp = Glob::toRegEx('/foo/*.js~');
 
         $this->assertSame($isMatch, preg_match($regExp, $path));
     }
@@ -53,7 +53,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testEscapedWildcard()
     {
         // evaluates to "\*"
-        $regExp = Selector::toRegEx('/foo/\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\*.js~');
 
         $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
     }
@@ -61,7 +61,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testEscapedWildcard2()
     {
         // evaluates to "\*"
-        $regExp = Selector::toRegEx('/foo/\*.js~');
+        $regExp = Glob::toRegEx('/foo/\*.js~');
 
         $this->assertSame(0, preg_match($regExp, '/foo/baz.js~'));
     }
@@ -69,7 +69,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchEscapedWildcard()
     {
         // evaluates to "\*"
-        $regExp = Selector::toRegEx('/foo/\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/*.js~'));
     }
@@ -77,7 +77,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchWildcardWithLeadingBackslash()
     {
         // evaluates to "\\*"
-        $regExp = Selector::toRegEx('/foo/\\\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/\\baz.js~'));
         $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
@@ -87,7 +87,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchWildcardWithLeadingBackslash2()
     {
         // evaluates to "\\*"
-        $regExp = Selector::toRegEx('/foo/\\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/\\baz.js~'));
         $this->assertSame(1, preg_match($regExp, '/foo/\baz.js~'));
@@ -97,7 +97,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchEscapedWildcardWithLeadingBackslash()
     {
         // evaluates to "\\\*"
-        $regExp = Selector::toRegEx('/foo/\\\\\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\\\\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/\\*.js~'));
         $this->assertSame(1, preg_match($regExp, '/foo/\*.js~'));
@@ -109,7 +109,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchWildcardWithTwoLeadingBackslashes()
     {
         // evaluates to "\\\\*"
-        $regExp = Selector::toRegEx('/foo/\\\\\\\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\\\\\\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/\\\\baz.js~'));
         $this->assertSame(1, preg_match($regExp, '/foo/\\\baz.js~'));
@@ -121,7 +121,7 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     public function testMatchEscapedWildcardWithTwoLeadingBackslashes()
     {
         // evaluates to "\\\\*"
-        $regExp = Selector::toRegEx('/foo/\\\\\\\\\\*.js~');
+        $regExp = Glob::toRegEx('/foo/\\\\\\\\\\*.js~');
 
         $this->assertSame(1, preg_match($regExp, '/foo/\\\\*.js~'));
         $this->assertSame(1, preg_match($regExp, '/foo/\\\*.js~'));
@@ -135,9 +135,9 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideStaticPrefixes
      */
-    public function testGetStaticPrefix($selector, $prefix)
+    public function testGetStaticPrefix($glob, $prefix)
     {
-        $this->assertSame($prefix, Selector::getStaticPrefix($selector));
+        $this->assertSame($prefix, Glob::getStaticPrefix($glob));
     }
 
     public function provideStaticPrefixes()
@@ -152,9 +152,9 @@ class SelectorTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideBasePaths
      */
-    public function testGetBasePath($selector, $basePath)
+    public function testGetBasePath($glob, $basePath)
     {
-        $this->assertSame($basePath, Selector::getBasePath($selector));
+        $this->assertSame($basePath, Glob::getBasePath($glob));
     }
 
     public function provideBasePaths()
