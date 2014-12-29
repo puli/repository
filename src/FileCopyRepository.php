@@ -27,7 +27,7 @@ use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
 use Puli\Repository\Selector\Selector;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\KeyValueStore\KeyValueStore;
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**

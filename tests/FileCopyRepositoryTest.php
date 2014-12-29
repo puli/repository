@@ -18,7 +18,7 @@ use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
 use Puli\Repository\Tests\Resource\TestFile;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\KeyValueStore\Impl\ArrayStore;
+use Webmozart\KeyValueStore\ArrayStore;
 
 /**
  * @since  1.0
