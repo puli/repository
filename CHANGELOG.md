@@ -57,6 +57,7 @@ Changelog
  * moved `Glob` and related iterators to "webmozart/glob" package
  * added `EditableRepository::clear()`
  * merged `GenericResource` and `AbstractResource`
+ * removed backend repositories from `InMemoryRepository` and `FilesystemRepository`
 
 * 1.0.0-alpha4 (2014-12-03)
 

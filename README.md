@@ -17,9 +17,10 @@ to access these resources in your project, you can find them by their Puli path:
 
 ```php
 use Puli\Repository\InMemoryRepository;
+use Puli\Repository\Resource\DirectoryResource;
 
 $repo = new InMemoryRepository();
-$repo->add('/config', '/path/to/resources/config');
+$repo->add('/config', new DirectoryResource('/path/to/resources/config'));
 
 // /path/to/resources/config/routing.yml
 echo $repo->get('/config/routing.yml')->getBody();

@@ -43,9 +43,9 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createEditableRepository(ResourceRepository $backend = null)
+    protected function createEditableRepository()
     {
-        return new InMemoryRepository($backend);
+        return new InMemoryRepository();
     }
 
     public function testAddClonesResourcesAttachedToAnotherRepository()

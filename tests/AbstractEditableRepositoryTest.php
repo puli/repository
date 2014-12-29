@@ -29,11 +29,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     protected $repo;
 
     /**
-     * @param ResourceRepository $backend
-     *
      * @return EditableRepository
      */
-    abstract protected function createEditableRepository(ResourceRepository $backend = null);
+    abstract protected function createEditableRepository();
 
     protected function setUp()
     {
@@ -114,94 +112,6 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file2);
         $this->assertSame('/webmozart/puli/file2', $file2->getPath());
-    }
-
-    public function testAddPathFromBackend()
-    {
-        $backend = $this->getMock('Puli\Repository\Api\ResourceRepository');
-        $backendFile = new TestFile();
-        $backendFile->attachTo($backend, '/dir/file');
-
-        $backend->expects($this->once())
-            ->method('get')
-            ->with('/dir/file')
-            ->will($this->returnValue($backendFile));
-
-        $repo = $this->createEditableRepository($backend);
-        $repo->add('/webmozart/puli/file', '/dir/file');
-
-        // Backend resource was not modified
-        $this->assertSame('/dir/file', $backendFile->getPath());
-        $this->assertSame($backend, $backendFile->getRepository());
-
-        $file = $repo->get('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($repo, $file->getRepository());
-        $this->assertSame(TestFile::BODY, $file->getBody());
-    }
-
-    public function testAddGlobFromBackendSingleMatch()
-    {
-        $backend = $this->getMock('Puli\Repository\Api\ResourceRepository');
-        $backendFile = new TestFile();
-        $backendFile->attachTo($backend, '/dir/file');
-
-        $backend->expects($this->once())
-            ->method('find')
-            ->with('/dir/*')
-            ->will($this->returnValue(new ArrayResourceCollection(array($backendFile))));
-
-        $repo = $this->createEditableRepository($backend);
-        $repo->add('/webmozart/puli', '/dir/*');
-
-        // Backend resources were not modified
-        $this->assertSame('/dir/file', $backendFile->getPath());
-        $this->assertSame($backend, $backendFile->getRepository());
-
-        $file = $repo->get('/webmozart/puli/file');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
-        $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($repo, $file->getRepository());
-        $this->assertSame(TestFile::BODY, $file->getBody());
-    }
-
-    public function testAddGlobFromBackendManyMatches()
-    {
-        $backend = $this->getMock('Puli\Repository\Api\ResourceRepository');
-        $backendFile1 = new TestFile();
-        $backendFile1->attachTo($backend, '/dir/file1');
-        $backendFile2 = new TestFile();
-        $backendFile2->attachTo($backend, '/dir/file2');
-
-        $backend->expects($this->once())
-            ->method('find')
-            ->with('/dir/*')
-            ->will($this->returnValue(new ArrayResourceCollection(array($backendFile1, $backendFile2))));
-
-        $repo = $this->createEditableRepository($backend);
-        $repo->add('/webmozart/puli', '/dir/*');
-
-        // Backend resources were not modified
-        $this->assertSame('/dir/file1', $backendFile1->getPath());
-        $this->assertSame($backend, $backendFile1->getRepository());
-        $this->assertSame('/dir/file2', $backendFile2->getPath());
-        $this->assertSame($backend, $backendFile2->getRepository());
-
-        $file1 = $repo->get('/webmozart/puli/file1');
-        $file2 = $repo->get('/webmozart/puli/file2');
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
-        $this->assertSame('/webmozart/puli/file1', $file1->getPath());
-        $this->assertSame($repo, $file1->getRepository());
-        $this->assertSame(TestFile::BODY, $file1->getBody());
-
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file2);
-        $this->assertSame('/webmozart/puli/file2', $file2->getPath());
-        $this->assertSame($repo, $file2->getRepository());
-        $this->assertSame(TestFile::BODY, $file2->getBody());
     }
 
     public function testAddRoot()

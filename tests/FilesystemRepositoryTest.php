@@ -49,9 +49,9 @@ class FilesystemRepositoryTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createEditableRepository(ResourceRepository $backend = null)
+    protected function createEditableRepository()
     {
-        return new FilesystemRepository($this->tempDir, $backend);
+        return new FilesystemRepository($this->tempDir);
     }
 
     /**

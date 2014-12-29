@@ -68,11 +68,6 @@ class FilesystemRepository implements EditableRepository
     protected $baseDir;
 
     /**
-     * @var ResourceRepository
-     */
-    private $backend;
-
-    /**
      * @var Filesystem
      */
     private $filesystem;
@@ -80,19 +75,14 @@ class FilesystemRepository implements EditableRepository
     /**
      * Creates a new repository.
      *
-     * The backend repository is used to lookup the paths passed to the
-     * second argument of {@link add}.
-     *
-     * @param string             $baseDir The base directory of the repository
-     *                                    on the file system.
-     * @param ResourceRepository $backend The backend repository.
+     * @param string $baseDir The base directory of the repository on the file
+     *                        system.
      */
-    public function __construct($baseDir = '/', ResourceRepository $backend = null)
+    public function __construct($baseDir = '/')
     {
         Assertion::directory($baseDir);
 
         $this->baseDir = rtrim(Path::canonicalize($baseDir), '/');
-        $this->backend = $backend;
         $this->filesystem = new Filesystem();
     }
 
@@ -125,9 +115,8 @@ class FilesystemRepository implements EditableRepository
         Assertion::glob($query);
 
         $query = Path::canonicalize($query);
-        $glob = $this->baseDir.$query;
 
-        return $this->iteratorToCollection(new GlobIterator($glob));
+        return $this->iteratorToCollection(new GlobIterator($this->baseDir.$query));
     }
 
     /**
@@ -202,14 +191,6 @@ class FilesystemRepository implements EditableRepository
 
         $path = Path::canonicalize($path);
 
-        if (is_string($resource)) {
-            if (false !== strpos($resource, '*')) {
-                $resource = $this->backend->find($resource);
-            } else {
-                $resource = $this->backend->get($resource);
-            }
-        }
-
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
             foreach ($resource as $child) {
@@ -227,8 +208,7 @@ class FilesystemRepository implements EditableRepository
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a string, Resource or '.
-            'ResourceCollection. Got: %s',
+            'The passed resource must be a Resource or ResourceCollection. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }

@@ -12,12 +12,10 @@
 namespace Puli\Repository;
 
 use ArrayIterator;
-use InvalidArgumentException;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
@@ -39,29 +37,6 @@ use Webmozart\PathUtil\Path;
  * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
- * Alternatively, another repository can be passed as "backend". The paths of
- * this backend can be passed to the second argument of {@link add()}. By
- * default, a {@link FilesystemRepository} is used:
- *
- * ```php
- * use Puli\Repository\InMemoryRepository;
- *
- * $repo = new InMemoryRepository();
- * $repo->add('/css', '/path/to/project/res/css');
- * ```
- *
- * You can also create the backend manually and pass it to the constructor:
- *
- * ```php
- * use Puli\Repository\FilesystemRepository;
- * use Puli\Repository\InMemoryRepository;
- *
- * $backend = new FilesystemRepository('/path/to/project');
- *
- * $repo = new InMemoryRepository($backend)
- * $repo->add('/css', '/res/css');
- * ```
- *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
@@ -73,25 +48,10 @@ class InMemoryRepository implements EditableRepository
     private $resources = array();
 
     /**
-     * @var ResourceRepository
-     */
-    private $backend;
-
-    /**
      * Creates a new repository.
-     *
-     * The backend repository is used to lookup the paths passed to the
-     * second argument of {@link add}. If none is passed, a
-     * {@link FilesystemRepository} will be used.
-     *
-     * @param ResourceRepository $backend The backend repository.
-     *
-     * @see ResourceRepository
      */
-    public function __construct(ResourceRepository $backend = null)
+    public function __construct()
     {
-        $this->backend = $backend ?: new FilesystemRepository();
-
         $this->clear();
     }
 
@@ -159,36 +119,12 @@ class InMemoryRepository implements EditableRepository
 
     /**
      * {@inheritdoc}
-     *
-     * If a path is passed as second argument, the added resources are fetched
-     * from the backend passed to {@link __construct}.
-     *
-     * @param string                             $path     The path at which to
-     *                                                     add the resource.
-     * @param string|Resource|ResourceCollection $resource The resource(s) to
-     *                                                     add at that path.
-     *
-     * @throws InvalidArgumentException If the path is invalid. The path must be
-     *                                  a non-empty string starting with "/".
-     * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource)
     {
         Assertion::path($path);
 
         $path = Path::canonicalize($path);
-
-        if (is_string($resource)) {
-            // Use find() only if the string is actually a glob. We want
-            // deterministic results when using a glob, even if the glob
-            // just matches one result.
-            // See https://github.com/puli/puli/issues/17
-            if (false !== strpos($resource, '*')) {
-                $resource = $this->backend->find($resource);
-            } else {
-                $resource = $this->backend->get($resource);
-            }
-        }
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
@@ -212,8 +148,7 @@ class InMemoryRepository implements EditableRepository
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a string, Resource or '.
-            'ResourceCollection. Got: %s',
+            'The passed resource must be a Resource or ResourceCollection. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }
