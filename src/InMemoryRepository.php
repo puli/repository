@@ -242,7 +242,7 @@ class InMemoryRepository implements EditableRepository
         Assertion::notEq('/', $query, 'The root directory cannot be removed.');
 
         $resourcesToRemove = array();
-        $removed = 0;
+        $nbOfResources = count($this->resources);
 
         if (false !== strpos($query, '*')) {
             $resourcesToRemove = new GlobFilterIterator(
@@ -255,10 +255,10 @@ class InMemoryRepository implements EditableRepository
         }
 
         foreach ($resourcesToRemove as $resource) {
-            $this->removeResource($resource, $removed);
+            $this->removeResource($resource);
         }
 
-        return $removed;
+        return $nbOfResources - count($this->resources);
     }
 
     /**
@@ -267,7 +267,6 @@ class InMemoryRepository implements EditableRepository
     public function clear()
     {
         $root = new GenericResource('/');
-
         $root->attachTo($this);
 
         // Subtract root
@@ -378,7 +377,7 @@ class InMemoryRepository implements EditableRepository
         }
     }
 
-    private function removeResource(Resource $resource, &$counter)
+    private function removeResource(Resource $resource)
     {
         // Ignore non-existing resources
         if (!isset($this->resources[$resource->getPath()])) {
@@ -387,15 +386,12 @@ class InMemoryRepository implements EditableRepository
 
         // Recursively register directory contents
         foreach ($this->listChildren($resource->getPath()) as $child) {
-            $this->removeResource($child, $counter);
+            $this->removeResource($child);
         }
 
         unset($this->resources[$resource->getPath()]);
 
         // Detach from locator
         $resource->detach($this);
-
-        // Keep track of the number of removed resources
-        ++$counter;
     }
 }
