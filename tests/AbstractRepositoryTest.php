@@ -361,6 +361,70 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/'), $repo->get('/..'));
     }
 
+    public function testHasChildren()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestFile('/webmozart/puli/.dotfile'),
+                    new TestFile('/webmozart/puli/foo'),
+                    new TestFile('/webmozart/puli/bar'),
+                    new TestDirectory('/webmozart/puli/dir'),
+                )),
+            )),
+        )));
+
+        $this->assertTrue($repo->hasChildren('/'));
+        $this->assertTrue($repo->hasChildren('/webmozart'));
+        $this->assertTrue($repo->hasChildren('/webmozart/puli'));
+        $this->assertFalse($repo->hasChildren('/webmozart/puli/.dotfile'));
+        $this->assertFalse($repo->hasChildren('/webmozart/puli/foo'));
+        $this->assertFalse($repo->hasChildren('/webmozart/puli/bar'));
+        $this->assertFalse($repo->hasChildren('/webmozart/puli/dir'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testHasChildrenExpectsExistingResource()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->hasChildren('/foo/bar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsAbsolutePath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart'),
+        )));
+
+        $repo->hasChildren('webmozart');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsNonEmptyPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->hasChildren('');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHasChildrenExpectsStringPath()
+    {
+        $repo = $this->createRepository(new TestDirectory('/'));
+
+        $repo->hasChildren(new \stdClass());
+    }
+
     public function testListChildren()
     {
         $repo = $this->createRepository(new TestDirectory('/', array(
@@ -391,6 +455,22 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/webmozart/puli/bar'), $resources[1]);
         $this->assertEquals($repo->get('/webmozart/puli/dir'), $resources[2]);
         $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[3]);
+    }
+
+    public function testListChildrenReturnsEmptyCollectionForFiles()
+    {
+        $repo = $this->createRepository(new TestDirectory('/', array(
+            new TestDirectory('/webmozart', array(
+                new TestDirectory('/webmozart/puli', array(
+                    new TestFile('/webmozart/puli/foo'),
+                )),
+            )),
+        )));
+
+        $resources = $repo->listChildren('/webmozart/puli/foo');
+
+        $this->assertCount(0, $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
     }
 
     public function testListRoot()

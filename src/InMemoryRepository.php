@@ -323,7 +323,8 @@ class InMemoryRepository implements EditableRepository
         $iterator = new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new ArrayIterator($this->resources)
+            new ArrayIterator($this->resources),
+            RegexFilterIterator::FILTER_KEY
         );
         $iterator->rewind();
 

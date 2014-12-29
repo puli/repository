@@ -163,7 +163,7 @@ class FilesystemRepository implements EditableRepository
         }
 
         if (!is_dir($filesystemPath)) {
-            throw NoDirectoryException::forPath($path);
+            return false;
         }
 
         $iterator = new RecursiveDirectoryIterator($filesystemPath);
@@ -187,7 +187,7 @@ class FilesystemRepository implements EditableRepository
         }
 
         if (!is_dir($filesystemPath)) {
-            throw NoDirectoryException::forPath($path);
+            return new FilesystemResourceCollection();
         }
 
         return $this->iteratorToCollection(new RecursiveDirectoryIterator($filesystemPath));
