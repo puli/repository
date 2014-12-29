@@ -18,7 +18,6 @@ use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
@@ -27,7 +26,6 @@ use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobIterator;
 use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
@@ -108,15 +106,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function find($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
-
-        Assertion::glob($query);
-
-        $query = Path::canonicalize($query);
-
-        return $this->iteratorToCollection(new GlobIterator($this->baseDir.$query));
+        return $this->iteratorToCollection($this->getGlobIterator($query, $language));
     }
 
     /**
@@ -124,14 +114,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function contains($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
-
-        Assertion::glob($query);
-
-        $query = Path::canonicalize($query);
-        $iterator = new GlobIterator($this->baseDir.$query);
+        $iterator = $this->getGlobIterator($query, $language);
         $iterator->rewind();
 
         return $iterator->valid();
@@ -142,14 +125,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function hasChildren($path)
     {
-        Assertion::path($path);
-
-        $path = Path::canonicalize($path);
-        $filesystemPath = $this->baseDir.$path;
-
-        if (!file_exists($filesystemPath)) {
-            throw ResourceNotFoundException::forPath($path);
-        }
+        $filesystemPath = $this->getFilesystemPath($path);
 
         if (!is_dir($filesystemPath)) {
             return false;
@@ -166,14 +142,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function listChildren($path)
     {
-        Assertion::path($path);
-
-        $path = Path::canonicalize($path);
-        $filesystemPath = $this->baseDir.$path;
-
-        if (!file_exists($filesystemPath)) {
-            throw ResourceNotFoundException::forPath($path);
-        }
+        $filesystemPath = $this->getFilesystemPath($path);
 
         if (!is_dir($filesystemPath)) {
             return new FilesystemResourceCollection();
@@ -218,32 +187,14 @@ class FilesystemRepository implements EditableRepository
      */
     public function remove($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
-
-        Assertion::glob($query);
-
-        $query = Path::canonicalize($query);
-
-        Assertion::notEq('/', $query, 'The root directory cannot be removed.');
-
-        $filesystemPaths = Glob::glob($this->baseDir.$query);
+        $iterator = $this->getGlobIterator($query, $language);
         $removed = 0;
 
-        foreach ($filesystemPaths as $filesystemPath) {
-            // Skip paths that have already been removed
-            if (!file_exists($filesystemPath)) {
-                continue;
-            }
+        Assertion::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
-            ++$removed;
-
-            if (is_dir($filesystemPath)) {
-                $removed += $this->countChildren($filesystemPath);
-            }
-
-            $this->filesystem->remove($filesystemPath);
+        // There's some problem with concurrent deletions at the moment
+        foreach (iterator_to_array($iterator) as $filesystemPath) {
+            $this->removeResource($filesystemPath, $removed);
         }
 
         return $removed;
@@ -258,8 +209,7 @@ class FilesystemRepository implements EditableRepository
         $removed = 0;
 
         foreach ($iterator as $filesystemPath) {
-            $removed += 1 + $this->countChildren($filesystemPath);
-            $this->filesystem->remove($filesystemPath);
+            $this->removeResource($filesystemPath, $removed);
         }
 
         return $removed;
@@ -315,6 +265,22 @@ class FilesystemRepository implements EditableRepository
         }
     }
 
+    private function removeResource($filesystemPath, &$removed)
+    {
+        // Skip paths that have already been removed
+        if (!file_exists($filesystemPath)) {
+            return;
+        }
+
+        ++$removed;
+
+        if (is_dir($filesystemPath)) {
+            $removed += $this->countChildren($filesystemPath);
+        }
+
+        $this->filesystem->remove($filesystemPath);
+    }
+
     private function createResource($filesystemPath, $path)
     {
         $resource = is_dir($filesystemPath)
@@ -366,5 +332,32 @@ class FilesystemRepository implements EditableRepository
         }
 
         return new FilesystemResourceCollection($resources);
+    }
+
+    private function getFilesystemPath($path)
+    {
+        Assertion::path($path);
+
+        $path = Path::canonicalize($path);
+        $filesystemPath = $this->baseDir.$path;
+
+        if (!file_exists($filesystemPath)) {
+            throw ResourceNotFoundException::forPath($path);
+        }
+
+        return $filesystemPath;
+    }
+
+    private function getGlobIterator($query, $language)
+    {
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
+
+        Assertion::glob($query);
+
+        $query = Path::canonicalize($query);
+
+        return new GlobIterator($this->baseDir.$query);
     }
 }
