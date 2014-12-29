@@ -172,4 +172,50 @@ class GlobTest extends PHPUnit_Framework_TestCase
             array('*', ''),
         );
     }
+
+    /**
+     * @dataProvider provideMatches
+     */
+    public function testMatch($path, $isMatch)
+    {
+        $this->assertSame((bool) $isMatch, Glob::match($path, '/foo/*.js~'));
+    }
+
+    public function testMatchPathWithoutWildcard()
+    {
+        $this->assertTrue(Glob::match('/foo/bar.js~', '/foo/bar.js~'));
+        $this->assertFalse(Glob::match('/foo/bar.js', '/foo/bar.js~'));
+    }
+
+    public function testFilter()
+    {
+        $paths = array();
+        $filtered = array();
+
+        // The keys remain the same in the filtered array
+        $i = 0;
+
+        foreach ($this->provideMatches() as $input) {
+            $paths[$i] = $input[0];
+
+            if ($input[1]) {
+                $filtered[$i] = $input[0];
+            }
+
+            ++$i;
+        }
+
+        $this->assertSame($filtered, Glob::filter($paths, '/foo/*.js~'));
+    }
+
+    public function testFilterWithoutWildcard()
+    {
+        $paths = array(
+            '/foo',
+            '/foo/bar.js',
+        );
+
+        $this->assertSame(array('/foo/bar.js'), Glob::filter($paths, '/foo/bar.js'));
+        $this->assertSame(array(), Glob::filter($paths, '/foo/bar.js~'));
+    }
 }

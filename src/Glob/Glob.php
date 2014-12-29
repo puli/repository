@@ -166,6 +166,53 @@ class Glob
         return '';
     }
 
+    /**
+     * Matches a path against a glob.
+     *
+     * @param string $path The path.
+     * @param string $glob The glob.
+     *
+     * @return bool Returns `true` if the path is matched by the glob.
+     */
+    public static function match($path, $glob)
+    {
+        if (false === strpos($glob, '*')) {
+            return $glob === $path;
+        }
+
+        if (0 !== strpos($path, self::getStaticPrefix($glob))) {
+            return false;
+        }
+
+        if (!preg_match(self::toRegEx($glob), $path)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Filters paths matching a glob.
+     *
+     * @param string[] $paths A list of paths.
+     * @param string   $glob  The glob.
+     *
+     * @return string[] The paths matching the glob.
+     */
+    public static function filter(array $paths, $glob)
+    {
+        if (false === strpos($glob, '*')) {
+            return in_array($glob, $paths) ? array($glob) : array();
+        }
+
+        $staticPrefix = self::getStaticPrefix($glob);
+        $regExp = self::toRegEx($glob);
+
+        return array_filter($paths, function ($path) use ($staticPrefix, $regExp) {
+            return 0 === strpos($path, $staticPrefix) && preg_match($regExp, $path);
+        });
+    }
+
     private function __construct()
     {
     }
