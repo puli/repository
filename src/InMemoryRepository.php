@@ -68,7 +68,7 @@ use Webmozart\PathUtil\Path;
 class InMemoryRepository implements EditableRepository
 {
     /**
-     * @var Resource[]|\Puli\Repository\Api\\Puli\Repository\Api\Resource\DirectoryResource[]
+     * @var Resource[]
      */
     private $resources = array();
 
@@ -173,7 +173,7 @@ class InMemoryRepository implements EditableRepository
      *
      * @param string                             $path     The path at which to
      *                                                     add the resource.
-     * @param string|Resource|\Puli\Repository\Api\ResourceCollection $resource The resource(s) to
+     * @param string|Resource|ResourceCollection $resource The resource(s) to
      *                                                     add at that path.
      *
      * @throws InvalidArgumentException If the path is invalid. The path must be

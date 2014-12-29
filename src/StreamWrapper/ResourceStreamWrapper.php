@@ -133,7 +133,7 @@ class ResourceStreamWrapper implements StreamWrapper
     );
 
     /**
-     * @var \Puli\Repository\Api\ResourceRepository[]|callable[]
+     * @var ResourceRepository[]|callable[]
      */
     private static $repos;
 
@@ -166,7 +166,7 @@ class ResourceStreamWrapper implements StreamWrapper
      * and should return a valid {@link ResourceRepository} instance.
      *
      * @param string                      $scheme            The URI scheme.
-     * @param \Puli\Repository\Api\ResourceRepository|callable $repositoryFactory The repository to use.
+     * @param ResourceRepository|callable $repositoryFactory The repository to use.
      *
      * @throws StreamWrapperException If a repository was previously registered
      *                                for the same scheme. Call
@@ -622,7 +622,7 @@ class ResourceStreamWrapper implements StreamWrapper
      *
      * @param string $scheme A URI scheme.
      *
-     * @return \Puli\Repository\Api\ResourceRepository The resource repository.
+     * @return ResourceRepository The resource repository.
      *
      * @throws RepositoryFactoryException If the callable did not return an
      *                                    instance of {@link ResourceRepository}.

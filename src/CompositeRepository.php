@@ -281,7 +281,7 @@ class CompositeRepository implements ResourceRepository
      * If a resource "/resource" was loaded from a mount point "/mount", the
      * resource is replaced by a reference with the path "/mount/resource".
      *
-     * @param \Puli\Repository\Api\ResourceCollection $resources  The resources to replace.
+     * @param ResourceCollection $resources  The resources to replace.
      * @param string             $mountPoint The mount point from which the
      *                                       resources were loaded.
      */

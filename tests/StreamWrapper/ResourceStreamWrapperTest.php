@@ -14,6 +14,7 @@ namespace Puli\Repository\Tests\StreamWrapper;
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_TestCase;
 use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
 use Puli\Repository\Tests\Resource\TestDirectory;
@@ -43,7 +44,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     private $dir2;
 
     /**
-     * @var \Puli\Repository\Api\ResourceRepository
+     * @var ResourceRepository
      */
     private $repo;
 
