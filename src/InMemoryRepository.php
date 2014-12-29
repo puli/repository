@@ -126,11 +126,7 @@ class InMemoryRepository implements EditableRepository
         $resources = array();
 
         if (false !== strpos($query, '*')) {
-            $resources = iterator_to_array(new GlobFilterIterator(
-                $query,
-                new ArrayIterator($this->resources),
-                GlobFilterIterator::FILTER_KEY
-            ));
+            $resources = $this->getGlobIterator($query);
         } elseif (isset($this->resources[$query])) {
             $resources = array($this->resources[$query]);
         }
@@ -152,11 +148,7 @@ class InMemoryRepository implements EditableRepository
         $query = Path::canonicalize($query);
 
         if (false !== strpos($query, '*')) {
-            $iterator = new GlobFilterIterator(
-                $query,
-                new ArrayIterator($this->resources),
-                GlobFilterIterator::FILTER_KEY
-            );
+            $iterator = $this->getGlobIterator($query);
             $iterator->rewind();
 
             return $iterator->valid();
@@ -245,11 +237,7 @@ class InMemoryRepository implements EditableRepository
         $nbOfResources = count($this->resources);
 
         if (false !== strpos($query, '*')) {
-            $resourcesToRemove = new GlobFilterIterator(
-                $query,
-                new ArrayIterator($this->resources),
-                GlobFilterIterator::FILTER_KEY
-            );
+            $resourcesToRemove = $this->getGlobIterator($query);
         } elseif (isset($this->resources[$query])) {
             $resourcesToRemove[] = $this->resources[$query];
         }
@@ -290,17 +278,7 @@ class InMemoryRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $staticPrefix = rtrim($path, '/').'/';
-        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
-
-        $resources = iterator_to_array(new RegexFilterIterator(
-            $regExp,
-            $staticPrefix,
-            new ArrayIterator($this->resources),
-            RegexFilterIterator::FILTER_KEY
-        ));
-
-        return new ArrayResourceCollection($resources);
+        return new ArrayResourceCollection($this->getChildIterator($path));
     }
 
     /**
@@ -316,15 +294,7 @@ class InMemoryRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $staticPrefix = rtrim($path, '/').'/';
-        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
-
-        $iterator = new RegexFilterIterator(
-            $regExp,
-            $staticPrefix,
-            new ArrayIterator($this->resources),
-            RegexFilterIterator::FILTER_KEY
-        );
+        $iterator = $this->getChildIterator($path);
         $iterator->rewind();
 
         return $iterator->valid();
@@ -361,17 +331,16 @@ class InMemoryRepository implements EditableRepository
         }
 
         $basePath = '/' === $path ? $path : $path.'/';
+
+        // Read children before attaching the resource to this repository
         $children = $resource->listChildren();
 
-        // Attach resource to locator *after* calling listChildren(), because
-        // this method usually depends on the previously attached repository
         $resource->attachTo($this, $path);
 
-        // Add the resource before adding nested resources, so that the
-        // array stays sorted
+        // Add the resource before adding its children, so that the array
+        // stays sorted
         $this->resources[$path] = $resource;
 
-        // Recursively attach directory contents
         foreach ($children as $name => $child) {
             $this->addResource($basePath.$name, $child);
         }
@@ -379,19 +348,57 @@ class InMemoryRepository implements EditableRepository
 
     private function removeResource(Resource $resource)
     {
+        $path = $resource->getPath();
+
         // Ignore non-existing resources
-        if (!isset($this->resources[$resource->getPath()])) {
+        if (!isset($this->resources[$path])) {
             return;
         }
 
         // Recursively register directory contents
-        foreach ($this->listChildren($resource->getPath()) as $child) {
+        foreach ($this->getChildIterator($path) as $child) {
             $this->removeResource($child);
         }
 
-        unset($this->resources[$resource->getPath()]);
+        unset($this->resources[$path]);
 
         // Detach from locator
         $resource->detach($this);
+    }
+
+    /**
+     * Returns an iterator for the children of a path.
+     *
+     * @param string $path The resource path.
+     *
+     * @return RegexFilterIterator|Resource[] The iterator.
+     */
+    private function getChildIterator($path)
+    {
+        $staticPrefix = rtrim($path, '/').'/';
+        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
+
+        return new RegexFilterIterator(
+            $regExp,
+            $staticPrefix,
+            new ArrayIterator($this->resources),
+            RegexFilterIterator::FILTER_KEY
+        );
+    }
+
+    /**
+     * Returns an iterator for a glob.
+     *
+     * @param string $glob The glob.
+     *
+     * @return GlobFilterIterator|Resource[] The iterator.
+     */
+    protected function getGlobIterator($glob)
+    {
+        return new GlobFilterIterator(
+            $glob,
+            new ArrayIterator($this->resources),
+            GlobFilterIterator::FILTER_KEY
+        );
     }
 }
