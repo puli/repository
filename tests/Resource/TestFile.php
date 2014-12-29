@@ -13,14 +13,14 @@ namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\GenericResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestFile extends AbstractResource implements BodyResource
+class TestFile extends GenericResource implements BodyResource
 {
     const BODY = "LINE 1\nLINE 2\n";
 

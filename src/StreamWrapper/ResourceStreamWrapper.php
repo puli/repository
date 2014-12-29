@@ -14,7 +14,6 @@ namespace Puli\Repository\StreamWrapper;
 use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorIterator;
-use Puli\Repository\NoDirectoryException;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;

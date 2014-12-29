@@ -41,7 +41,7 @@ use Serializable;
  *
  * If you implement a custom resource, let your test extend
  * {@link AbstractResourceTest} to make sure your resource satisfies the
- * constraints of the interface. Extend {@link AbstractResource} if you want to
+ * constraints of the interface. Extend {@link GenericResource} if you want to
  * avoid reimplementing basic functionality.
  *
  * @since  1.0

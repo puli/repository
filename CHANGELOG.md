@@ -26,11 +26,11 @@ Changelog
    * `isReference()`
  * `ResourceInterface` now extends `\Serializable`
  * renamed `LocalResource` to `AbstractLocalResource`
- * added `AbstractResource`
+ * added `GenericResource`
  * `CompositeRepository` now sets the correct path for returned resources
  * moved `Selector` to `Puli\Repository\Selector` namespace
  * removed tagging, which is out of scope of this package
- * made `AbstractResource` properties private
+ * made `GenericResource` properties private
  * renamed:
    * `ResourceRepository` to `InMemoryRepository`
    * `ResourceCollection` to `ArrayResourceCollection`
@@ -56,6 +56,7 @@ Changelog
  * renamed `Selector` to `Glob`
  * moved `Glob` and related iterators to "webmozart/glob" package
  * added `EditableRepository::clear()`
+ * merged `GenericResource` and `AbstractResource`
 
 * 1.0.0-alpha4 (2014-12-03)
 

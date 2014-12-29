@@ -11,14 +11,14 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\GenericResource;
 
 /**
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class TestDirectory extends AbstractResource
+class TestDirectory extends GenericResource
 {
     /**
      * @var Resource[]

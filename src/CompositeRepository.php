@@ -15,7 +15,6 @@ use InvalidArgumentException;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Webmozart\PathUtil\Path;

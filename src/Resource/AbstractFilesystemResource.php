@@ -20,7 +20,7 @@ use Puli\Repository\Resource\Metadata\FilesystemMetadata;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-abstract class AbstractFilesystemResource extends AbstractResource implements FilesystemResource
+abstract class AbstractFilesystemResource extends GenericResource implements FilesystemResource
 {
     /**
      * @var string
