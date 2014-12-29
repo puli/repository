@@ -24,7 +24,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
         $resources = new ArrayResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('listDirectory')
@@ -36,7 +36,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
         $entries = $directory->listEntries();
 
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
@@ -45,7 +45,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
         $resources = new ArrayResourceCollection(array($file1, $file2));
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('listDirectory')
@@ -60,12 +60,12 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
         $entries = $reference->listEntries();
 
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $entries);
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $entries->toArray());
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\DetachedException
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
      */
     public function testListEntriesDetached()
     {
@@ -76,8 +76,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testGet()
     {
-        $entry = $this->getMock('Puli\Repository\Resource\Resource');
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
@@ -92,8 +92,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testGetWithReference()
     {
-        $entry = $this->getMock('Puli\Repository\Resource\Resource');
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
@@ -111,8 +111,8 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testGetWithVersion()
     {
-        $entry = $this->getMock('Puli\Repository\Resource\Resource');
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $entry = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('get')
@@ -126,7 +126,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\DetachedException
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
      */
     public function testGetDetached()
     {
@@ -137,7 +137,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testContains()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('contains')
@@ -152,7 +152,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
 
     public function testContainsWithReference()
     {
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('contains')
@@ -169,7 +169,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\DetachedException
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
      */
     public function testContainsDetached()
     {
@@ -185,7 +185,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
         $file2 = new TestFile('/path/file2');
         $nestedDir = $this->createResource('/path/dir');
         $entries = new ArrayResourceCollection(array($file1, $file2, $nestedDir));
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
             ->method('listDirectory')
@@ -208,7 +208,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
         $file4 = new TestFile('/path/dir/file4');
         $entries = new ArrayResourceCollection(array($file1, $file2, $nestedDir));
         $nestedEntries = new ArrayResourceCollection(array($file3, $file4));
-        $repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->at(0))
             ->method('listDirectory')
@@ -227,7 +227,7 @@ abstract class AbstractDirectoryResourceTest extends AbstractResourceTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Resource\DetachedException
+     * @expectedException \Puli\Repository\Api\Resource\DetachedException
      */
     public function testCountDetached()
     {

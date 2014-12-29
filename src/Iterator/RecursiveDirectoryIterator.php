@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Iterator;
 
-use ArrayIterator;
 use Assert\Assertion;
 use RecursiveIterator;
 use SeekableIterator;

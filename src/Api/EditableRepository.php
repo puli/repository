@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository;
+namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
-use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
  * A repository that supports the addition and removal of resources.
@@ -20,7 +19,7 @@ use Puli\Repository\Resource\Collection\ResourceCollection;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ManageableRepository extends ResourceRepository
+interface EditableRepository extends ResourceRepository
 {
     /**
      * Adds a new resource to the repository.

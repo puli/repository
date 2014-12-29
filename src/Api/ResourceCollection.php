@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource\Collection;
+namespace Puli\Repository\Api;
 
 use ArrayAccess;
 use Countable;
 use InvalidArgumentException;
 use OutOfBoundsException;
-use Puli\Repository\Resource\Resource;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Api\Resource\Resource;
 use Traversable;
 
 /**

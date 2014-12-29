@@ -12,9 +12,10 @@
 namespace Puli\Repository\Resource;
 
 use Assert\Assertion;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Resource\Collection\LocalResourceCollection;
 
 /**
  * Represents a directory on the local file system.

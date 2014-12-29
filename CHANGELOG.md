@@ -51,6 +51,7 @@ Changelog
  * added domain-specific `Assertion` class
  * removed `LocalResource::getAllLocalPaths`
  * added versioning support
+ * moved API interfaces to `Api` sub-namespace
 
 * 1.0.0-alpha4 (2014-12-03)
 

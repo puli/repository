@@ -11,10 +11,9 @@
 
 namespace Puli\Repository\Tests\Resource;
 
+use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\Resource\AbstractResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\Resource;
 
 /**
  * @since  1.0

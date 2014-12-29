@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource;
+namespace Puli\Repository\Api\Resource;
 
 use Countable;
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
 
 /**
  * A resource which acts as directory in the repository.

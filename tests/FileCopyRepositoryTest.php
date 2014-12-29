@@ -11,11 +11,11 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\FileCopyRepository;
-use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\Impl\ArrayStore;
@@ -86,11 +86,11 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
      */
     public function testFailIfAddedResourceNeitherFileNorDirectory()
     {
-        $this->repo->add('/webmozart', $this->getMock('Puli\Repository\Resource\Resource'));
+        $this->repo->add('/webmozart', $this->getMock('Puli\Repository\Api\Resource\Resource'));
     }
 
     public function testAddLocalDirectory()
@@ -101,9 +101,9 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
         $file1 = $this->repo->get('/webmozart/dir/file1');
         $file2 = $this->repo->get('/webmozart/dir/file2');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file1);
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file2);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file1);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file2);
     }
 
     public function testAddLocalFile()
@@ -112,7 +112,7 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
 
         $file = $this->repo->get('/webmozart/file');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
     }
 
     public function testAddOverridesPreviousVersion()
@@ -122,7 +122,7 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->tempDir.'/webmozart/puli/file', $file->getLocalPath());
         $this->assertSame($this->repo, $file->getRepository());
@@ -130,7 +130,7 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli/file', 1);
 
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame(__DIR__.'/Fixtures/dir1/file1', $file->getLocalPath());
         $this->assertSame($this->repo, $file->getRepository());
@@ -147,7 +147,7 @@ class FileCopyRepositoryTest extends AbstractManageableRepositoryTest
 
         $file = $this->repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->repo, $file->getRepository());
         $this->assertSame(1, $file->getVersion());

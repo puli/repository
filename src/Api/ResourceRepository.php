@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository;
+namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
-use Puli\Repository\Resource\Collection\ResourceCollection;
 
 /**
  * Stores {@link Resource} objects.

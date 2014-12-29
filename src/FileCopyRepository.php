@@ -11,15 +11,20 @@
 
 namespace Puli\Repository;
 
+use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\NoDirectoryException;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\FileResource;
+use Puli\Repository\Api\Resource\LocalResource;
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\Resource\LocalResource;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\Selector\Selector;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\KeyValueStore;
@@ -80,7 +85,7 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FileCopyRepository extends FilesystemRepository implements ManageableRepository
+class FileCopyRepository extends FilesystemRepository implements EditableRepository
 {
     /**
      * @var ResourceRepository

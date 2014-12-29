@@ -11,9 +11,8 @@
 
 namespace Puli\Repository\Tests\Resource;
 
+use Puli\Repository\Api\Resource\FileResource;
 use Puli\Repository\Resource\AbstractResource;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\Resource;
 
 /**
  * @since  1.0

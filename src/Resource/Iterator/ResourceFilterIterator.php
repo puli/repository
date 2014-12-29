@@ -13,6 +13,7 @@ namespace Puli\Repository\Resource\Iterator;
 
 use Assert\Assertion;
 use FilterIterator;
+use Puli\Repository\Api\ResourceIterator;
 
 /**
  * Iterates over a {@link ResourceIterator} and filters out individual entries.

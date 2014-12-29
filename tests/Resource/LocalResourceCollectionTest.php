@@ -12,9 +12,9 @@
 namespace Puli\Repository\Tests\Resource;
 
 use PHPUnit_Framework_TestCase;
+use Puli\Repository\Resource\Collection\LocalResourceCollection;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\Resource\LocalResourceCollection;
 
 /**
  * @since  1.0

@@ -15,9 +15,10 @@ use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\Resource;
-use Puli\Repository\UnsupportedResourceException;
 
 /**
  * A collection of {@link Resource} instances backed by an array.
@@ -119,7 +120,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function replace($resources)
     {
         Assertion::isTraversable($resources);
-        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Resource\Resource');
+        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\Resource');
 
         $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
     }
@@ -130,7 +131,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function merge($resources)
     {
         Assertion::isTraversable($resources);
-        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Resource\Resource');
+        Assertion::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\Resource');
 
         // only start merging after validating all resources
         foreach ($resources as $resource) {

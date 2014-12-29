@@ -11,6 +11,8 @@
 
 namespace Puli\Repository\Resource;
 
+use Puli\Repository\Api\Resource\DetachedException;
+use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**

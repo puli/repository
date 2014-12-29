@@ -13,10 +13,8 @@ namespace Puli\Repository\Iterator;
 
 use ArrayIterator;
 use EmptyIterator;
-use FilterIterator;
 use Puli\Repository\Selector\Selector;
 use RecursiveIteratorIterator;
-use Webmozart\PathUtil\Path;
 
 /**
  * Implements a Git-like variant of glob.

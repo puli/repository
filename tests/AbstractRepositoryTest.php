@@ -12,8 +12,8 @@
 namespace Puli\Repository\Tests;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\ResourceRepository;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
@@ -187,7 +187,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $file = $repo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FileResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($repo, $file->getRepository());
         $this->assertSame(1, $file->getVersion());
@@ -203,7 +203,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $dir = $repo->get('/webmozart/puli');
 
-        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\DirectoryResource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
         $this->assertSame($repo, $dir->getRepository());
         $this->assertSame(1, $dir->getVersion());
@@ -252,7 +252,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testGetExpectsExistingResource()
     {
@@ -262,7 +262,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testGetExpectsExistingVersion()
     {
@@ -397,7 +397,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->listDirectory('/webmozart/puli');
 
         $this->assertCount(4, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         // sorted
         $this->assertEquals($repo->get('/webmozart/puli/.dotfile'), $resources[0]);
         $this->assertEquals($repo->get('/webmozart/puli/bar'), $resources[1]);
@@ -415,14 +415,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->listDirectory('/');
 
         $this->assertCount(2, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         // sorted
         $this->assertEquals($repo->get('/acme'), $resources[0]);
         $this->assertEquals($repo->get('/webmozart'), $resources[1]);
     }
 
     /**
-     * @expectedException \Puli\Repository\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testListDirectoryExpectsExistingResource()
     {
@@ -432,7 +432,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\NoDirectoryException
+     * @expectedException \Puli\Repository\Api\NoDirectoryException
      */
     public function testListDirectoryExpectsDirectoryResource()
     {
@@ -491,7 +491,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/*foo');
 
         $this->assertCount(3, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         // sorted
         $this->assertEquals($repo->get('/webmozart/puli/.dotfoo'), $resources[0]);
         $this->assertEquals($repo->get('/webmozart/puli/dirfoo'), $resources[1]);
@@ -511,7 +511,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/file');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         $this->assertEquals($repo->get('/webmozart/puli/file'), $resources[0]);
     }
 
@@ -524,7 +524,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         $this->assertEquals($repo->get('/webmozart'), $resources[0]);
     }
 
@@ -541,7 +541,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->find('/webmozart/puli/../puli/./*');
 
         $this->assertCount(1, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
         $this->assertEquals($repo->get('/webmozart/puli/file1'), $resources[0]);
     }
 
@@ -552,7 +552,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $resources = $repo->find('/foo/*');
 
         $this->assertCount(0, $resources);
-        $this->assertInstanceOf('Puli\Repository\Resource\Collection\ResourceCollection', $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
     }
 
     /**

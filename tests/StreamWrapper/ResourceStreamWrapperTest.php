@@ -13,9 +13,9 @@ namespace Puli\Repository\Tests\StreamWrapper;
 
 use PHPUnit_Framework_Assert;
 use PHPUnit_Framework_TestCase;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepository;
 use Puli\Repository\StreamWrapper\ResourceStreamWrapper;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -44,7 +44,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     private $dir2;
 
     /**
-     * @var ResourceRepository
+     * @var \Puli\Repository\Api\ResourceRepository
      */
     private $repo;
 
@@ -53,7 +53,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
         $tempnam = tempnam(sys_get_temp_dir(), 'ResourceStreamWrapperTest');
         file_put_contents($tempnam, self::FILE_CONTENTS);
 
-        $this->repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $this->repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $this->repo->expects($this->any())
             ->method('get')
@@ -104,7 +104,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedResourceException
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
      */
     public function testOpenNonFile()
     {
@@ -489,7 +489,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testOpenNonExistingDirectory()
     {
@@ -499,7 +499,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\NoDirectoryException
+     * @expectedException \Puli\Repository\Api\NoDirectoryException
      */
     public function testOpenNonDirectory()
     {

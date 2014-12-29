@@ -14,16 +14,16 @@ namespace Puli\Repository\StreamWrapper;
 use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorIterator;
-use Puli\Repository\NoDirectoryException;
+use Puli\Repository\Api\NoDirectoryException;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\FileResource;
+use Puli\Repository\Api\Resource\LocalResource;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\RepositoryFactoryException;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\LocalResource;
-use Puli\Repository\ResourceNotFoundException;
-use Puli\Repository\ResourceRepository;
 use Puli\Repository\UnsupportedOperationException;
-use Puli\Repository\UnsupportedResourceException;
 use Puli\Repository\Uri\Uri;
 
 /**
@@ -135,7 +135,7 @@ class ResourceStreamWrapper implements StreamWrapper
     );
 
     /**
-     * @var ResourceRepository[]|callable[]
+     * @var \Puli\Repository\Api\ResourceRepository[]|callable[]
      */
     private static $repos;
 
@@ -168,7 +168,7 @@ class ResourceStreamWrapper implements StreamWrapper
      * and should return a valid {@link ResourceRepository} instance.
      *
      * @param string                      $scheme            The URI scheme.
-     * @param ResourceRepository|callable $repositoryFactory The repository to use.
+     * @param \Puli\Repository\Api\ResourceRepository|callable $repositoryFactory The repository to use.
      *
      * @throws StreamWrapperException If a repository was previously registered
      *                                for the same scheme. Call
@@ -628,7 +628,7 @@ class ResourceStreamWrapper implements StreamWrapper
      *
      * @param string $scheme A URI scheme.
      *
-     * @return ResourceRepository The resource repository.
+     * @return \Puli\Repository\Api\ResourceRepository The resource repository.
      *
      * @throws RepositoryFactoryException If the callable did not return an
      *                                    instance of {@link ResourceRepository}.

@@ -12,7 +12,7 @@
 namespace Puli\Repository\Resource;
 
 use Assert\Assertion;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Api\Resource\FileResource;
 
 /**
  * Represents a file on the local file system.

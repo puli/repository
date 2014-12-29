@@ -13,7 +13,7 @@ namespace Puli\Repository\Tests\Resource;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\ResourceRepository;
+use Puli\Repository\Api\ResourceRepository;
 
 /**
  * @since  1.0
@@ -36,7 +36,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->repo = $this->getMock('Puli\Repository\ResourceRepository');
+        $this->repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
     }
 
     public function testCreate()
@@ -104,7 +104,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     public function testReattach()
     {
-        $repo2 = $this->getMock('Puli\Repository\ResourceRepository');
+        $repo2 = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $resource = $this->createResource();
         $resource->attachTo($this->repo, '/path/to/resource');

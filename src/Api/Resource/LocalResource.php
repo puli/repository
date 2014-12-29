@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource;
+namespace Puli\Repository\Api\Resource;
 
 /**
  * A resource associated to a file on the local file system.

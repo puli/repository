@@ -11,13 +11,12 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\Resource\DirectoryResource;
 use Puli\Repository\FilesystemRepository;
-use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\Iterator\RecursiveResourceIteratorIterator;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\ResourceRepository;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -44,9 +43,9 @@ class FilesystemRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @param DirectoryResource $root
+     * @param \Puli\Repository\Api\DirectoryResource $root
      *
-     * @return ResourceRepository
+     * @return \Puli\Repository\Api\ResourceRepository
      */
     protected function createRepository(DirectoryResource $root)
     {

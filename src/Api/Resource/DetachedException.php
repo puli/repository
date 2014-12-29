@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository;
+namespace Puli\Repository\Api\Resource;
 
 use RuntimeException;
 
 /**
- * Thrown when a specific implementation of {@link Resource} is not accepted by
- * the invoked method.
+ * Thrown when an operation is requested that requires a resource to be
+ * attached to a repository.
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class UnsupportedResourceException extends RuntimeException
+class DetachedException extends RuntimeException
 {
 }

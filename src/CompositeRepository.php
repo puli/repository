@@ -12,9 +12,11 @@
 namespace Puli\Repository;
 
 use InvalidArgumentException;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\Collection\ResourceCollection;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -91,7 +93,7 @@ class CompositeRepository implements ResourceRepository
                 && !is_callable($repositoryFactory)) {
             throw new InvalidArgumentException(
                 'The repository factory should be a callable or an instance '.
-                'of "Puli\Repository\ResourceRepository".'
+                'of "Puli\Repository\Api\ResourceRepository".'
             );
         }
 
@@ -262,7 +264,7 @@ class CompositeRepository implements ResourceRepository
      * If a resource "/resource" was loaded from a mount point "/mount", the
      * resource is replaced by a reference with the path "/mount/resource".
      *
-     * @param ResourceCollection $resources  The resources to replace.
+     * @param \Puli\Repository\Api\ResourceCollection $resources  The resources to replace.
      * @param string             $mountPoint The mount point from which the
      *                                       resources were loaded.
      */

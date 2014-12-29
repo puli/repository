@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource;
+namespace Puli\Repository\Api\Resource;
 
-use Puli\Repository\ResourceRepository;
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Api\ResourceRepository;
 use Serializable;
 
 /**
@@ -115,7 +114,7 @@ interface Resource extends Serializable
      * $resource->attachTo($repo, '/path/in/repo');
      * ```
      *
-     * @param ResourceRepository $repo    The repository.
+     * @param \Puli\Repository\Api\ResourceRepository $repo    The repository.
      * @param string|null        $path    The path of the resource in the
      *                                    repository. If not passed, the resource
      *                                    will be attached to it current path.

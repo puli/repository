@@ -55,7 +55,7 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
         $entries = $directory->listEntries();
 
         $this->assertCount(2, $entries);
-        $this->assertInstanceOf('Puli\Repository\\Resource\\LocalResourceCollection', $entries);
+        $this->assertInstanceOf('Puli\Repository\Resource\Collection\LocalResourceCollection', $entries);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file1'), $entries['file1']);
         $this->assertEquals(new LocalFileResource($this->fixturesDir.'/dir1/file2'), $entries['file2']);
     }
@@ -75,7 +75,7 @@ class LocalDirectoryResourceDirectoryTest extends AbstractDirectoryResourceTest
     }
 
     /**
-     * @expectedException \Puli\Repository\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testGetWithVersionDetachedFailsIfVersionGreaterThanOne()
     {

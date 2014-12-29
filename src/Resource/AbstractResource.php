@@ -11,8 +11,9 @@
 
 namespace Puli\Repository\Resource;
 
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Assert\Assertion;
-use Puli\Repository\ResourceRepository;
 
 /**
  * Base class for resources.

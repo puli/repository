@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\ResourceCollection;
 
 /**
  * A recursive iterator for resource collections.

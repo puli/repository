@@ -12,12 +12,15 @@
 namespace Puli\Repository;
 
 use Iterator;
+use Puli\Repository\Api\NoDirectoryException;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\GlobIterator;
 use Puli\Repository\Iterator\RecursiveDirectoryIterator;
+use Puli\Repository\Resource\Collection\LocalResourceCollection;
 use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
-use Puli\Repository\Resource\LocalResourceCollection;
 use Webmozart\PathUtil\Path;
 
 /**

@@ -14,9 +14,10 @@ namespace Puli\Repository\Resource\Collection;
 use BadMethodCallException;
 use IteratorAggregate;
 use OutOfBoundsException;
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\Resource\Resource;
-use Puli\Repository\ResourceRepository;
 
 /**
  * A resource collection which loads its resources on demand.

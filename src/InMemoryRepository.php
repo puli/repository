@@ -13,13 +13,18 @@ namespace Puli\Repository;
 
 use ArrayIterator;
 use InvalidArgumentException;
+use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\NoDirectoryException;
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assertion;
 use Puli\Repository\Iterator\RegexIterator;
 use Puli\Repository\Iterator\SelectorIterator;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\Collection\ResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\Resource;
 use Puli\Repository\Resource\VirtualDirectoryResource;
 use Puli\Repository\Selector\Selector;
 use Webmozart\PathUtil\Path;
@@ -62,10 +67,10 @@ use Webmozart\PathUtil\Path;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class InMemoryRepository implements ManageableRepository
+class InMemoryRepository implements EditableRepository
 {
     /**
-     * @var Resource[]|DirectoryResource[]
+     * @var Resource[]|\Puli\Repository\Api\\Puli\Repository\Api\Resource\DirectoryResource[]
      */
     private $resources = array();
 
@@ -173,7 +178,7 @@ class InMemoryRepository implements ManageableRepository
      *
      * @param string                             $path     The path at which to
      *                                                     add the resource.
-     * @param string|Resource|ResourceCollection $resource The resource(s) to
+     * @param string|Resource|\Puli\Repository\Api\ResourceCollection $resource The resource(s) to
      *                                                     add at that path.
      *
      * @throws InvalidArgumentException If the path is invalid. The path must be

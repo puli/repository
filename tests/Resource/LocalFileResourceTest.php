@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\LocalDirectoryResource;
 use Puli\Repository\Resource\LocalFileResource;
 use Puli\Repository\Resource\OverriddenPathLoader;
 use Puli\Repository\Tests\Resource\AbstractFileResourceTest;

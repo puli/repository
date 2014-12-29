@@ -11,13 +11,9 @@
 
 namespace Puli\Repository\Iterator;
 
-use ArrayIterator;
-use EmptyIterator;
 use FilterIterator;
 use Iterator;
 use Puli\Repository\Selector\Selector;
-use RecursiveIteratorIterator;
-use Webmozart\PathUtil\Path;
 
 /**
  * Filters an iterator by a regular expression.

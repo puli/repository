@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Resource\Iterator;
+namespace Puli\Repository\Api;
 
 use Iterator;
 

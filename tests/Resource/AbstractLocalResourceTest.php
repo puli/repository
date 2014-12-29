@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests\Resource;
 
-use Puli\Repository\Resource\LocalResource;
+use Puli\Repository\Api\Resource\LocalResource;
 use Puli\Repository\Resource\OverriddenPathLoader;
 
 /**

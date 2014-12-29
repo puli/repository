@@ -23,8 +23,8 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testConstruct()
     {
         $collection = new ArrayResourceCollection(array(
-            $dir = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            $dir = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $this->assertCount(2, $collection);
@@ -54,13 +54,13 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testReplace()
     {
         $collection = new ArrayResourceCollection(array(
-            $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $this->getMock('Puli\Repository\Resource\DirectoryResource'),
+            $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
         ));
 
         $collection->replace(array(
-            2 => $dir = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            3 => $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            2 => $dir = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            3 => $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $this->assertCount(2, $collection);
@@ -94,13 +94,13 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testMerge()
     {
         $collection = new ArrayResourceCollection(array(
-            2 => $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            3 => $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
+            2 => $dir1 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            3 => $dir2 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
         ));
 
         $collection->merge(array(
-            $dir3 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            $dir3 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $this->assertCount(4, $collection);
@@ -146,14 +146,14 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testSet()
     {
         $collection = new ArrayResourceCollection(array(
-            1 => $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            2 => $file1 = $this->getMock('Puli\Repository\Resource\FileResource'),
+            1 => $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            2 => $file1 = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $this->assertCount(2, $collection);
         $this->assertSame($file1, $collection->get(2));
 
-        $collection->set(2, $file2 = $this->getMock('Puli\Repository\Resource\FileResource'));
+        $collection->set(2, $file2 = $this->getMock('Puli\Repository\Api\Resource\FileResource'));
 
         $this->assertCount(2, $collection);
         $this->assertSame($file2, $collection->get(2));
@@ -162,9 +162,9 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testRemove()
     {
         $collection = new ArrayResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            $dir1 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $dir2 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $collection->remove(1);
@@ -178,9 +178,9 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testHas()
     {
         $collection = new ArrayResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            $dir1 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $dir2 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $this->assertFalse($collection->has(-1));
@@ -193,9 +193,9 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testClear()
     {
         $collection = new ArrayResourceCollection(array(
-            $dir1 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $dir2 = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
-            $file = $this->getMock('Puli\Repository\Resource\FileResource'),
+            $dir1 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $dir2 = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
+            $file = $this->getMock('Puli\Repository\Api\Resource\FileResource'),
         ));
 
         $collection->clear();
@@ -206,10 +206,10 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testAdd()
     {
         $collection = new ArrayResourceCollection(array(
-            $dir = $this->getMock('Puli\Repository\Resource\DirectoryResource'),
+            $dir = $this->getMock('Puli\Repository\Api\Resource\DirectoryResource'),
         ));
 
-        $collection->add($file = $this->getMock('Puli\Repository\Resource\FileResource'));
+        $collection->add($file = $this->getMock('Puli\Repository\Api\Resource\FileResource'));
 
         $this->assertCount(2, $collection);
         $this->assertSame(array($dir, $file), $collection->toArray());
@@ -223,7 +223,7 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($collection->isEmpty());
 
-        $collection->add($this->getMock('Puli\Repository\Resource\FileResource'));
+        $collection->add($this->getMock('Puli\Repository\Api\Resource\FileResource'));
 
         $this->assertFalse($collection->isEmpty());
 
@@ -235,7 +235,7 @@ class ArrayResourceCollectionTest extends PHPUnit_Framework_TestCase
     public function testArrayAccess()
     {
         $collection = new ArrayResourceCollection();
-        $collection[] = $this->getMock('Puli\Repository\Resource\FileResource');
+        $collection[] = $this->getMock('Puli\Repository\Api\Resource\FileResource');
 
     }
 }

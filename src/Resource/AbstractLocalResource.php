@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\UnsupportedResourceException;
+use Puli\Repository\Api\Resource\LocalResource;
 
 /**
  * Base class for local resources.

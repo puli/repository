@@ -11,11 +11,10 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\Resource\DirectoryResource;
+use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\ResourceRepository;
-use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
@@ -51,7 +50,7 @@ class InMemoryRepositoryTest extends AbstractManageableRepositoryTest
 
     public function testAddClonesResourcesAttachedToAnotherRepository()
     {
-        $otherRepo = $this->getMock('Puli\Repository\ResourceRepository');
+        $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $file = new TestFile('/file');
         $file->attachTo($otherRepo);
@@ -69,7 +68,7 @@ class InMemoryRepositoryTest extends AbstractManageableRepositoryTest
 
     public function testAddCollectionClonesEntriesAttachedToAnotherRepository()
     {
-        $otherRepo = $this->getMock('Puli\Repository\ResourceRepository');
+        $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $file1 = new TestFile('/file1');
         $file2 = new TestFile('/file2');
