@@ -238,10 +238,6 @@ class FilesystemRepository implements EditableRepository
             throw new UnsupportedResourceException('Instances of BodyResource with children are not supported.');
         }
 
-        if (file_exists($pathInBaseDir)) {
-            $this->filesystem->remove($pathInBaseDir);
-        }
-
         if ($resource instanceof FilesystemResource) {
             if ($hasBody) {
                 $this->filesystem->copy($resource->getFilesystemPath(), $pathInBaseDir);
@@ -258,7 +254,13 @@ class FilesystemRepository implements EditableRepository
             return;
         }
 
-        mkdir($pathInBaseDir, 0777, true);
+        if (is_file($pathInBaseDir)) {
+            $this->filesystem->remove($pathInBaseDir);
+        }
+
+        if (!file_exists($pathInBaseDir)) {
+            mkdir($pathInBaseDir, 0777, true);
+        }
 
         foreach ($resource->listChildren() as $child) {
             $this->addResource($path.'/'.$child->getName(), $child);

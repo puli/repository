@@ -67,6 +67,41 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
+    public function testAddMergesResourceChildren()
+    {
+        $this->repo->add('/webmozart/puli', new TestDirectory(null, array(
+            new TestFile('/file1', 'original 1'),
+            new TestFile('/file2', 'original 2'),
+        )));
+        $this->repo->add('/webmozart/puli', new TestDirectory(null, array(
+            new TestFile('/file1', 'override 1'),
+            new TestFile('/file3', 'override 3'),
+        )));
+
+        $dir = $this->repo->get('/webmozart/puli');
+        $file1 = $this->repo->get('/webmozart/puli/file1');
+        $file2 = $this->repo->get('/webmozart/puli/file2');
+        $file3 = $this->repo->get('/webmozart/puli/file3');
+
+        $this->assertTrue($this->repo->hasChildren('/webmozart/puli'));
+        $this->assertCount(3, $this->repo->listChildren('/webmozart/puli'));
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
+        $this->assertSame('/webmozart/puli', $dir->getPath());
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
+        $this->assertSame('/webmozart/puli/file1', $file1->getPath());
+        $this->assertSame('override 1', $file1->getBody());
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file2);
+        $this->assertSame('/webmozart/puli/file2', $file2->getPath());
+        $this->assertSame('original 2', $file2->getBody());
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file3);
+        $this->assertSame('/webmozart/puli/file3', $file3->getPath());
+        $this->assertSame('override 3', $file3->getBody());
+    }
+
     public function testAddDot()
     {
         $this->repo->add('/webmozart/puli/file/.', new TestFile());
