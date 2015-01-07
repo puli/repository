@@ -58,6 +58,7 @@ Changelog
  * added `EditableRepository::clear()`
  * merged `GenericResource` and `AbstractResource`
  * removed backend repositories from `InMemoryRepository` and `FilesystemRepository`
+ * added symlink support to `FilesystemRepository`
 
 * 1.0.0-alpha4 (2014-12-03)
 

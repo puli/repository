@@ -61,9 +61,19 @@ use Webmozart\PathUtil\Path;
 class FilesystemRepository implements EditableRepository
 {
     /**
+     * @var bool|null
+     */
+    private static $symlinkSupported;
+
+    /**
      * @var string
      */
-    protected $baseDir;
+    private $baseDir;
+
+    /**
+     * @var bool
+     */
+    private $symlink;
 
     /**
      * @var Filesystem
@@ -71,16 +81,40 @@ class FilesystemRepository implements EditableRepository
     private $filesystem;
 
     /**
+     * Returns whether symlinks are supported in the local environment.
+     *
+     * @return bool Returns `true` if symlinks are supported.
+     */
+    public static function isSymlinkSupported()
+    {
+        if (null === self::$symlinkSupported) {
+            // http://php.net/manual/en/function.symlink.php
+            // Symlinks are only supported on Windows Vista, Server 2008 or
+            // greater on PHP 5.3+
+            if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+                self::$symlinkSupported = PHP_WINDOWS_VERSION_MAJOR >= 6;
+            } else {
+                self::$symlinkSupported = true;
+            }
+        }
+
+        return self::$symlinkSupported;
+    }
+
+    /**
      * Creates a new repository.
      *
      * @param string $baseDir The base directory of the repository on the file
      *                        system.
+     * @param bool   $symlink Whether to use symbolic links for added files.
      */
-    public function __construct($baseDir = '/')
+    public function __construct($baseDir = '/', $symlink = true)
     {
         Assertion::directory($baseDir);
+        Assertion::boolean($symlink);
 
         $this->baseDir = rtrim(Path::canonicalize($baseDir), '/');
+        $this->symlink = $symlink && self::isSymlinkSupported();
         $this->filesystem = new Filesystem();
     }
 
@@ -239,7 +273,9 @@ class FilesystemRepository implements EditableRepository
         }
 
         if ($resource instanceof FilesystemResource) {
-            if ($hasBody) {
+            if ($this->symlink) {
+                $this->symlinkMirror($resource->getFilesystemPath(), $pathInBaseDir);
+            } elseif ($hasBody) {
                 $this->filesystem->copy($resource->getFilesystemPath(), $pathInBaseDir);
             } else {
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
@@ -361,5 +397,32 @@ class FilesystemRepository implements EditableRepository
         $query = Path::canonicalize($query);
 
         return new GlobIterator($this->baseDir.$query);
+    }
+
+    private function symlinkMirror($origin, $target)
+    {
+        // Merge directories
+        if (is_dir($target) && is_dir($origin)) {
+            if (is_link($target)) {
+                $previousOrigin = readlink($target);
+                $this->filesystem->remove($target);
+                $this->filesystem->mkdir($target);
+                $this->symlinkMirror($previousOrigin, $target);
+            }
+
+            $iterator = new RecursiveDirectoryIterator(
+                $origin,
+                RecursiveDirectoryIterator::CURRENT_AS_FILE
+            );
+
+            foreach ($iterator as $path => $filename) {
+                $this->symlinkMirror($path, $target.'/'.$filename);
+            }
+
+            return;
+        }
+
+        // Replace otherwise
+        $this->filesystem->symlink($origin, $target);
     }
 }

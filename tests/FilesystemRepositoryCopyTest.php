@@ -22,13 +22,13 @@ use Symfony\Component\Filesystem\Filesystem;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepositoryTest extends AbstractEditableRepositoryTest
+class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
 {
     private $tempDir;
 
     protected function setUp()
     {
-        while (false === mkdir($this->tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === mkdir($this->tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryCopyTest'.rand(10000, 99999), 0777, true)) {}
 
         parent::setUp();
     }
@@ -43,7 +43,7 @@ class FilesystemRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createRepository(Resource $root)
     {
-        $repo = new FilesystemRepository($this->tempDir);
+        $repo = new FilesystemRepository($this->tempDir, false);
         $repo->add('/', $root);
 
         return $repo;
@@ -51,7 +51,7 @@ class FilesystemRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createEditableRepository()
     {
-        return new FilesystemRepository($this->tempDir);
+        return new FilesystemRepository($this->tempDir, false);
     }
 
     /**
