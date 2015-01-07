@@ -12,7 +12,6 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Tests\Resource\TestFile;

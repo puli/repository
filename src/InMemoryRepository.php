@@ -18,7 +18,7 @@ use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assertion;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -60,7 +60,7 @@ class InMemoryRepository implements EditableRepository
      */
     public function get($path)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -80,7 +80,7 @@ class InMemoryRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assertion::glob($query);
+        Assert::glob($query);
 
         $query = Path::canonicalize($query);
         $resources = array();
@@ -103,7 +103,7 @@ class InMemoryRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assertion::glob($query);
+        Assert::glob($query);
 
         $query = Path::canonicalize($query);
 
@@ -122,7 +122,7 @@ class InMemoryRepository implements EditableRepository
      */
     public function add($path, $resource)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -162,7 +162,7 @@ class InMemoryRepository implements EditableRepository
         $nbOfResources = count($this->resources);
 
         // Run the assertion after find(), so that we know that $query is valid
-        Assertion::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
         foreach ($resources as $resource) {
             $this->removeResource($resource);

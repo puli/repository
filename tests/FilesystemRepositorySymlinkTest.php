@@ -12,7 +12,6 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;

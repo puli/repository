@@ -15,7 +15,7 @@ use InvalidArgumentException;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\Assert\Assertion;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Webmozart\PathUtil\Path;
 
@@ -97,7 +97,7 @@ class CompositeRepository implements ResourceRepository
             );
         }
 
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -120,7 +120,7 @@ class CompositeRepository implements ResourceRepository
      */
     public function unmount($path)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -224,7 +224,7 @@ class CompositeRepository implements ResourceRepository
      */
     private function splitPath($path)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 

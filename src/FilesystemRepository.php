@@ -20,7 +20,7 @@ use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assertion;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -110,8 +110,8 @@ class FilesystemRepository implements EditableRepository
      */
     public function __construct($baseDir = '/', $symlink = true)
     {
-        Assertion::directory($baseDir);
-        Assertion::boolean($symlink);
+        Assert::directory($baseDir);
+        Assert::boolean($symlink);
 
         $this->baseDir = rtrim(Path::canonicalize($baseDir), '/');
         $this->symlink = $symlink && self::isSymlinkSupported();
@@ -123,7 +123,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function get($path)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
         $filesystemPath = $this->baseDir.$path;
@@ -190,7 +190,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function add($path, $resource)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
 
@@ -224,7 +224,7 @@ class FilesystemRepository implements EditableRepository
         $iterator = $this->getGlobIterator($query, $language);
         $removed = 0;
 
-        Assertion::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
         // There's some problem with concurrent deletions at the moment
         foreach (iterator_to_array($iterator) as $filesystemPath) {
@@ -374,7 +374,7 @@ class FilesystemRepository implements EditableRepository
 
     private function getFilesystemPath($path)
     {
-        Assertion::path($path);
+        Assert::path($path);
 
         $path = Path::canonicalize($path);
         $filesystemPath = $this->baseDir.$path;
@@ -392,7 +392,7 @@ class FilesystemRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assertion::glob($query);
+        Assert::glob($query);
 
         $query = Path::canonicalize($query);
 
