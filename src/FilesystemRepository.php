@@ -262,7 +262,7 @@ class FilesystemRepository implements EditableRepository
         }
     }
 
-    private function addResource($path, Resource $resource)
+    private function addResource($path, Resource $resource, $checkParentsForSymlinks = true)
     {
         $pathInBaseDir = $this->baseDir.$path;
         $hasChildren = $resource->hasChildren();
@@ -270,6 +270,10 @@ class FilesystemRepository implements EditableRepository
 
         if ($hasChildren && $hasBody) {
             throw new UnsupportedResourceException('Instances of BodyResource with children are not supported.');
+        }
+
+        if ($this->symlink && $checkParentsForSymlinks) {
+            $this->replaceParentSymlinksByCopies($path);
         }
 
         if ($resource instanceof FilesystemResource) {
@@ -299,7 +303,7 @@ class FilesystemRepository implements EditableRepository
         }
 
         foreach ($resource->listChildren() as $child) {
-            $this->addResource($path.'/'.$child->getName(), $child);
+            $this->addResource($path.'/'.$child->getName(), $child, false);
         }
     }
 
@@ -404,10 +408,7 @@ class FilesystemRepository implements EditableRepository
         // Merge directories
         if (is_dir($target) && is_dir($origin)) {
             if (is_link($target)) {
-                $previousOrigin = readlink($target);
-                $this->filesystem->remove($target);
-                $this->filesystem->mkdir($target);
-                $this->symlinkMirror($previousOrigin, $target);
+                $this->replaceLinkByCopy($target);
             }
 
             $iterator = new RecursiveDirectoryIterator(
@@ -424,5 +425,30 @@ class FilesystemRepository implements EditableRepository
 
         // Replace otherwise
         $this->filesystem->symlink($origin, $target);
+    }
+
+    private function replaceParentSymlinksByCopies($path)
+    {
+        $previousPath = null;
+
+        while ($previousPath !== ($path = Path::getDirectory($path))) {
+            $filesystemPath = $this->baseDir.$path;
+
+            if (is_link($filesystemPath)) {
+                $this->replaceLinkByCopy($filesystemPath);
+
+                return;
+            }
+
+            $previousPath = $path;
+        }
+    }
+
+    private function replaceLinkByCopy($path)
+    {
+        $target = readlink($path);
+        $this->filesystem->remove($path);
+        $this->filesystem->mkdir($path);
+        $this->symlinkMirror($target, $path);
     }
 }
