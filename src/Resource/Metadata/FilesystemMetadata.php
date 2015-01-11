@@ -34,6 +34,8 @@ class FilesystemMetadata extends ResourceMetadata
     public function getCreationTime()
     {
         if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            clearstatcache(true, $this->filesystemPath);
+
             return filectime($this->filesystemPath);
         }
 
@@ -47,6 +49,8 @@ class FilesystemMetadata extends ResourceMetadata
      */
     public function getAccessTime()
     {
+        clearstatcache(true, $this->filesystemPath);
+
         return fileatime($this->filesystemPath);
     }
 
@@ -55,6 +59,8 @@ class FilesystemMetadata extends ResourceMetadata
      */
     public function getModificationTime()
     {
+        clearstatcache(true, $this->filesystemPath);
+
         return filemtime($this->filesystemPath);
     }
 
@@ -63,6 +69,8 @@ class FilesystemMetadata extends ResourceMetadata
      */
     public function getSize()
     {
+        clearstatcache(true, $this->filesystemPath);
+
         return filesize($this->filesystemPath);
     }
 }
