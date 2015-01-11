@@ -70,14 +70,6 @@ class FileResourceTest extends AbstractFilesystemResourceTest
         $this->assertSame(file_get_contents($resource->getFilesystemPath()), $resource->getBody());
     }
 
-    public function testGetSize()
-    {
-        $resource = new FileResource($this->fixturesDir.'/dir1/file1');
-
-        $this->assertSame(filesize($this->fixturesDir.'/dir1/file1'), $resource->getSize());
-        $this->assertSame(strlen($resource->getBody()), $resource->getSize());
-    }
-
     public function testListChildren()
     {
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');

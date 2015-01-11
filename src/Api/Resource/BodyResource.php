@@ -25,11 +25,4 @@ interface BodyResource extends Resource
      * @return string The resource body.
      */
     public function getBody();
-
-    /**
-     * Returns the size of the body in bytes.
-     *
-     * @return integer The body size in bytes.
-     */
-    public function getSize();
 }

@@ -19,7 +19,7 @@ use Puli\Repository\Api\Resource\ResourceMetadata;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemMetadata implements ResourceMetadata
+class FilesystemMetadata extends ResourceMetadata
 {
     private $filesystemPath;
 
@@ -56,5 +56,13 @@ class FilesystemMetadata implements ResourceMetadata
     public function getModificationTime()
     {
         return filemtime($this->filesystemPath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSize()
+    {
+        return filesize($this->filesystemPath);
     }
 }

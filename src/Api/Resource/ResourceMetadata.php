@@ -17,7 +17,7 @@ namespace Puli\Repository\Api\Resource;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface ResourceMetadata
+class ResourceMetadata
 {
     /**
      * Returns when the resource was created.
@@ -26,7 +26,10 @@ interface ResourceMetadata
      *
      * @return integer A UNIX timestamp.
      */
-    public function getCreationTime();
+    public function getCreationTime()
+    {
+        return 0;
+    }
 
     /**
      * Returns when the resource was last accessed.
@@ -35,7 +38,10 @@ interface ResourceMetadata
      *
      * @return integer A UNIX timestamp.
      */
-    public function getAccessTime();
+    public function getAccessTime()
+    {
+        return 0;
+    }
 
     /**
      * Returns when the resource was last modified.
@@ -44,5 +50,20 @@ interface ResourceMetadata
      *
      * @return integer A UNIX timestamp.
      */
-    public function getModificationTime();
+    public function getModificationTime()
+    {
+        return 0;
+    }
+
+    /**
+     * Returns the size of the body in bytes.
+     *
+     * If this information is not available, the method returns 0.
+     *
+     * @return integer The body size in bytes.
+     */
+    public function getSize()
+    {
+        return 0;
+    }
 }

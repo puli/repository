@@ -45,14 +45,6 @@ class FileResource extends AbstractFilesystemResource implements BodyResource
     /**
      * {@inheritdoc}
      */
-    public function getSize()
-    {
-        return filesize($this->getFilesystemPath());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getChild($relPath)
     {
         throw ResourceNotFoundException::forPath($this->getPath().'/'.$relPath);

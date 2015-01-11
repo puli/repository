@@ -13,9 +13,9 @@ namespace Puli\Repository\Resource;
 
 use Puli\Repository\Api\Resource\DetachedException;
 use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\ResourceMetadata;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\Metadata\EmptyMetadata;
 
 /**
  * A generic resource.
@@ -125,7 +125,7 @@ class GenericResource implements Resource
      */
     public function getMetadata()
     {
-        return new EmptyMetadata();
+        return new ResourceMetadata();
     }
 
     /**
