@@ -299,7 +299,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideWriteModes
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testCannotOpenForWriting($mode)
     {
@@ -325,7 +325,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testLockIsProhibited($path)
     {
@@ -337,7 +337,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testTouchExistingIsProhibited($path)
     {
@@ -352,7 +352,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testTouchNewIsProhibited()
     {
@@ -368,7 +368,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testChownIsProhibited($path)
     {
@@ -384,7 +384,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testChgrpIsProhibited($path)
     {
@@ -400,7 +400,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testChmodIsProhibited($path)
     {
@@ -416,7 +416,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideFilePaths
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testUnlinkIsProhibited($path)
     {
@@ -426,7 +426,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testRenameIsProhibited()
     {
@@ -436,7 +436,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testRmdirIsProhibited()
     {
@@ -446,7 +446,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\UnsupportedOperationException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testMkdirIsProhibited()
     {

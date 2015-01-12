@@ -212,9 +212,6 @@ class InMemoryRepository implements EditableRepository
      * Recursively creates a directory for a path.
      *
      * @param string $path A directory path.
-     *
-     * @throws NoDirectoryException If a resource with that path exists, but is
-     *                              no directory.
      */
     private function ensureDirectoryExists($path)
     {

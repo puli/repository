@@ -19,6 +19,7 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
+use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
@@ -254,7 +255,11 @@ class FilesystemRepository implements EditableRepository
         $filesystemPath = $this->baseDir.$path;
 
         if (is_file($filesystemPath)) {
-            throw NoDirectoryException::forPath($path);
+            throw new UnsupportedOperationException(sprintf(
+                'Instances of BodyResource do not support child resources in '.
+                'FilesystemRepository. Tried to add a child to %s.',
+                $filesystemPath
+            ));
         }
 
         if (!is_dir($filesystemPath)) {
@@ -269,7 +274,12 @@ class FilesystemRepository implements EditableRepository
         $hasBody = $resource instanceof BodyResource;
 
         if ($hasChildren && $hasBody) {
-            throw new UnsupportedResourceException('Instances of BodyResource with children are not supported.');
+            throw new UnsupportedResourceException(sprintf(
+                'Instances of BodyResource do not support child resources in '.
+                'FilesystemRepository. Tried to add a BodyResource with '.
+                'children at %s.',
+                $path
+            ));
         }
 
         if ($this->symlink && $checkParentsForSymlinks) {

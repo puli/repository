@@ -18,10 +18,10 @@ use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\RepositoryFactoryException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
-use Puli\Repository\UnsupportedOperationException;
 use Puli\Repository\Uri\Uri;
 
 /**

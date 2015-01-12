@@ -156,7 +156,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\NoDirectoryException
+     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
      */
     public function testFailIfAddingFileAsChildOfFile()
     {
