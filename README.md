@@ -1,5 +1,5 @@
-Locating Files with Puli
-========================
+The Puli Repository Component
+=============================
 
 [![Build Status](https://travis-ci.org/puli/repository.svg?branch=master)](https://travis-ci.org/puli/repository)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/repository/?branch=master)
@@ -12,8 +12,8 @@ Latest release: [1.0.0-alpha4](https://packagist.org/packages/puli/repository#1.
 
 PHP >= 5.3.9
 
-Puli manages files and directories in a virtual repository. Whenever you need
-to access these resources in your project, you can find them by their Puli path:
+The [Puli] Repository Component provides an API for storing arbitrary resources
+in a filesystem-like repository:
 
 ```php
 use Puli\Repository\InMemoryRepository;
@@ -26,15 +26,18 @@ $repo->add('/config', new DirectoryResource('/path/to/resources/config'));
 echo $repo->get('/config/routing.yml')->getBody();
 ```
 
-This is useful when you have to hard-code paths, for example in configuration
-files:
+The following [`ResourceRepository`] implementations are currently supported:
 
-```yaml
-# config.yml
-import: /config/routing.yml
-```
+* [`InMemoryRepository`]
+* [`FilesystemRepository`]
 
-Read [Puli at a Glance] if you want to learn more about Puli.
+The following [`Resource`] implementations are currently supported:
+
+* [`GenericResource`]
+* [`FileResource`]
+* [`DirectoryResource`]
+
+Read [Puli at a Glance] to learn more about Puli.
 
 Authors
 -------
@@ -50,7 +53,7 @@ Follow the [Getting Started] guide to install Puli in your project.
 Documentation
 -------------
 
-Read the [Puli Documentation] if you want to learn more about Puli.
+Read the [Puli Documentation] to learn more about Puli.
 
 Contribute
 ----------
@@ -71,6 +74,7 @@ License
 
 All contents of this package are licensed under the [MIT license].
 
+[Puli]: http://puli.io
 [Bernhard Schussek]: http://webmozarts.com
 [The Community Contributors]: https://github.com/puli/repository/graphs/contributors
 [Getting Started]: http://docs.puli.io/en/latest/getting-started.html
@@ -80,3 +84,10 @@ All contents of this package are licensed under the [MIT license].
 [Git repository]: https://github.com/puli/repository
 [@webmozart]: https://twitter.com/webmozart
 [MIT license]: LICENSE
+[`ResourceRepository`]: http://api.puli.io/latest/class-Puli.Repository.Api.ResourceRepository.html
+[`InMemoryRepository`]: http://api.puli.io/latest/class-Puli.Repository.InMemoryRepository.html
+[`FilesystemRepository`]: http://api.puli.io/latest/class-Puli.Repository.FilesystemRepository.html
+[`Resource`]: http://api.puli.io/latest/class-Puli.Repository.Api.Resource.Resource.html
+[`GenericResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.GenericResource.html
+[`FileResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.FileResource.html
+[`DirectoryResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.DirectoryResource.html
