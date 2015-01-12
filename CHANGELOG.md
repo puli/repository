@@ -1,66 +1,67 @@
 Changelog
 =========
 
-* 1.0.0-alpha5 (@release_date@)
+* 1.0.0-beta (2015-01-12)
 
- * removed `Selector::toGlob()`
- * added `Selector::getBasePath()`
- * changed `ResourceRepositoryInterface::find()` to match directory separators
-   "/" when given a wildcard "*"
- * added `ResourceRepositoryInterface::listDirectory()`
- * implemented escaping for globs:
-   * "*" matches any character, including "/"
-   * "\*" matches "*" (must be written as '\\*' in PHP)
-   * "\\" matches "\" (must be written as '\\\\' in PHP)
- * removed `createAttached()` from `DirectoryResource`, `LocalFileResource` and
-   `LocalDirectoryResource`
+ * renamed `Selector` to `Glob` and moved it to package "webmozart/glob"
  * removed `AttachableResourceInterface`
- * added methods to `ResourceInterface`:
-   * `attachTo()`
-   * `detach()`
-   * `getRepository()`
-   * `getRepositoryPath()`
-   * `isAttached()`
-   * `override()`
-   * `createReference()`
-   * `isReference()`
- * `ResourceInterface` now extends `\Serializable`
- * renamed `LocalResource` to `AbstractLocalResource`
- * added `GenericResource`
- * `CompositeRepository` now sets the correct path for returned resources
- * moved `Selector` to `Puli\Repository\Selector` namespace
- * removed tagging, which is out of scope of this package
- * made `GenericResource` properties private
- * renamed:
-   * `ResourceRepository` to `InMemoryRepository`
-   * `ResourceCollection` to `ArrayResourceCollection`
-   * `DirectoryResource` to `VirtualDirectoryResource`
-   * `RecursiveResourceIterator` to `RecursiveResourceIteratorIterator`
- * removed `Interface` suffixes of all interfaces
+ * removed `DirectoryResourceInterface`
+ * removed `FileResourceInterface`
+ * removed `OverriddenPathLoaderInterface`
+ * removed `Interface` suffix of all interfaces
+ * `ResourceRepository::find()` now matches directory separators "/" when given
+   a wildcard "*"
+ * merged `AbstractResource` and `DirectoryResource` into `GenericResource`
+ * renamed `LocalDirectoryResource` to `DirectoryResource`
+ * renamed `LocalFileResource` to `FileResource`
+ * removed `LocalResource::getAllLocalPaths`
+ * rename `LocalResource::getLocalPath` to `LocalResource::getFilesystemPath`
+ * renamed `LocalResource` to `FilesystemResource`
+ * renamed `LocalResourceCollection` to `FilesystemResourceCollection`
+ * removed `createAttached()` from `GenericResource`, `FileResource` and
+   `DirectoryResource`
+ * removed tagging
+ * renamed`ResourceRepository` to `InMemoryRepository`
+ * renamed `ResourceCollection` to `ArrayResourceCollection`
+ * renamed `RecursiveResourceIterator` to `RecursiveResourceIteratorIterator`
+ * renamed `ManageableResourceRepository` to `EditableRepository`
  * removed `UriRepository`
  * added `$scheme` argument to `ResourceStreamWrapper::register()` and
    `ResourceStreamWrapper::unregister()`
  * added `ResourceNotFoundException::forPath()`
  * added `NoDirectoryException::forPath()`
- * added `DirectoryResource::count()`
- * added `FileCopyRepository`
  * moved contents of `Puli\Repository\Filesystem\Iterator` to `Puli\Repository\Iterator`
  * moved contents of `Puli\Repository\Filesystem\Resource` to `Puli\Repository\Resource`
  * moved `FilesystemRepository` to `Puli\Repository`
  * removed `PhpCacheRepository`
- * added domain-specific `Assertion` class
- * removed `LocalResource::getAllLocalPaths`
+ * added domain-specific `Assert` class
  * moved API interfaces to `Api` sub-namespace
  * removed notions of "directories" and "files". All resources can have children
    and a body now.
- * renamed `Selector` to `Glob`
- * moved `Glob` and related iterators to "webmozart/glob" package
+ * added `ResourceRepository::listChildren()` and `hasChildren()`
+ * added `ResourceMetadata` and `FilesystemMetadata`
+ * added methods to `Resource`:
+   * `getChild()`
+   * `hasChild()`
+   * `hasChildren()`
+   * `listChildren()`
+   * `getMetadata()`
+   * `getRepository()`
+   * `getRepositoryPath()`
+   * `attachTo()`
+   * `detach()`
+   * `isAttached()`
+   * `createReference()`
+   * `isReference()`
+ * made `Resource` extend `Serializable`
  * added `EditableRepository::clear()`
- * merged `GenericResource` and `AbstractResource`
  * removed backend repositories from `InMemoryRepository` and `FilesystemRepository`
  * added symlink support to `FilesystemRepository`
- * moved `UnsupportedOperationException` to `Api` namespace
+ * removed `FilesystemException`
+ * removed `InvalidPathException`
+ * removed `UnsupportedSchemeException`
  * replaced `NoDirectoryException` by `UnsupportedOperationException`
+ * removed `CompositeRepository` from the 1.0 branch
 
 * 1.0.0-alpha4 (2014-12-03)
 
