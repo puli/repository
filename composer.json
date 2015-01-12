@@ -1,6 +1,6 @@
 {
     "name": "puli/repository",
-    "description": "A file system-like repository for storing arbitrary resources.",
+    "description": "A filesystem-like repository for storing arbitrary resources.",
     "homepage": "http://puli.io",
     "license": "MIT",
     "authors": [
