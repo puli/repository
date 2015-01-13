@@ -11,11 +11,53 @@
 
 namespace Puli\Repository\Assert;
 
+use BadMethodCallException;
 use InvalidArgumentException;
 use Traversable;
 
 /**
  * Domain-specific assertions.
+ *
+ * @method static void nullOrString($value, $message = null)
+ * @method static void nullOrBoolean($value, $message = null)
+ * @method static void nullOrScalar($value, $message = null)
+ * @method static void nullOrIsArray($value, $message = null)
+ * @method static void nullOrIsTraversable($value, $message = null)
+ * @method static void nullOrIsInstanceOf($value, $class, $message = null)
+ * @method static void nullOrNotEmpty($value, $message = null)
+ * @method static void nullOrTrue($value, $message = null)
+ * @method static void nullOrNotEq($value, $message = null)
+ * @method static void nullOrOneOf($value, $choices, $message = null)
+ * @method static void nullOrContains($value, $part, $message = null)
+ * @method static void nullOrStartsWith($value, $prefix, $message = null)
+ * @method static void nullOrStartsWithLetter($value, $message = null)
+ * @method static void nullOrRegex($value, $pattern, $message = null)
+ * @method static void nullOrAlnum($value, $message = null)
+ * @method static void nullOrFileExists($value, $message = null)
+ * @method static void nullOrFile($value, $message = null)
+ * @method static void nullOrDirectory($value, $message = null)
+ * @method static void nullOrPath($value, $message = null)
+ * @method static void nullOrGlob($value, $message = null)
+ * @method static void allString($values, $message = null)
+ * @method static void allBoolean($values, $message = null)
+ * @method static void allScalar($values, $message = null)
+ * @method static void allIsArray($values, $message = null)
+ * @method static void allIsTraversable($values, $message = null)
+ * @method static void allIsInstanceOf($values, $class, $message = null)
+ * @method static void allNotEmpty($values, $message = null)
+ * @method static void allTrue($values, $message = null)
+ * @method static void allNotEq($values, $message = null)
+ * @method static void allOneOf($values, $choices, $message = null)
+ * @method static void allContains($values, $part, $message = null)
+ * @method static void allStartsWith($values, $prefix, $message = null)
+ * @method static void allStartsWithLetter($values, $message = null)
+ * @method static void allRegex($values, $pattern, $message = null)
+ * @method static void allAlnum($values, $message = null)
+ * @method static void allFileExists($values, $message = null)
+ * @method static void allFile($values, $message = null)
+ * @method static void allDirectory($values, $message = null)
+ * @method static void allPath($values, $message = null)
+ * @method static void allGlob($values, $message = null)
  *
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -80,15 +122,6 @@ class Assert
                 $class,
                 is_object($value) ? get_class($value) : gettype($value)
             ));
-        }
-    }
-
-    public static function allIsInstanceOf($values, $class, $message = '')
-    {
-        self::isTraversable($values);
-
-        foreach ($values as $value) {
-            self::isInstanceOf($value, $class, $message);
         }
     }
 
@@ -274,6 +307,35 @@ class Assert
         }
 
         return (string) $value;
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        if ('nullOr' === substr($name, 0, 6)) {
+            if (null !== $arguments[0]) {
+                $method = lcfirst(substr($name, 6));
+                call_user_func_array(array(__CLASS__, $method), $arguments);
+            }
+
+            return;
+        }
+
+        if ('all' === substr($name, 0, 3)) {
+            self::isTraversable($arguments[0]);
+
+            $method = lcfirst(substr($name, 3));
+            $args = $arguments;
+
+            foreach ($arguments[0] as $entry) {
+                $args[0] = $entry;
+
+                call_user_func_array(array(__CLASS__, $method), $args);
+            }
+
+            return;
+        }
+
+        throw new BadMethodCallException('No such method: '.$name);
     }
 
     private function __construct()
