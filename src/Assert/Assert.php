@@ -42,6 +42,16 @@ class Assert
         }
     }
 
+    public static function scalar($value, $message = '')
+    {
+        if (!is_scalar($value)) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a scalar. Got: %s',
+                is_object($value) ? get_class($value) : gettype($value)
+            ));
+        }
+    }
+
     public static function isArray($value, $message = '')
     {
         if (!is_array($value)) {
@@ -121,13 +131,24 @@ class Assert
         }
     }
 
+    public static function contains($value, $part, $message = '')
+    {
+        if (false === strpos($value, $part)) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value to contain %2$s. Got: %s',
+                self::toString($value),
+                self::toString($part)
+            ));
+        }
+    }
+
     public static function startsWith($value, $prefix, $message = '')
     {
         if (0 !== strpos($value, $prefix)) {
             throw new InvalidArgumentException(sprintf(
-                $message ?: 'Expected a value to start with "%2$s". Got: %s',
+                $message ?: 'Expected a value to start with %2$s. Got: %s',
                 self::toString($value),
-                $prefix
+                self::toString($prefix)
             ));
         }
     }
@@ -146,6 +167,16 @@ class Assert
         if (!$valid) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: 'Expected a value to start with a letter. Got: %s',
+                self::toString($value)
+            ));
+        }
+    }
+
+    public static function regex($value, $pattern, $message = '')
+    {
+        if (!preg_match($pattern, $value)) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'The value %s does not match the expected pattern.',
                 self::toString($value)
             ));
         }
