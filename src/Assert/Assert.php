@@ -314,7 +314,7 @@ class Assert
         if ('nullOr' === substr($name, 0, 6)) {
             if (null !== $arguments[0]) {
                 $method = lcfirst(substr($name, 6));
-                call_user_func_array(array(__CLASS__, $method), $arguments);
+                call_user_func_array(array('static', $method), $arguments);
             }
 
             return;
@@ -329,7 +329,7 @@ class Assert
             foreach ($arguments[0] as $entry) {
                 $args[0] = $entry;
 
-                call_user_func_array(array(__CLASS__, $method), $args);
+                call_user_func_array(array('static', $method), $args);
             }
 
             return;
