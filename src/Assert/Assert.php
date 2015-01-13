@@ -143,6 +143,15 @@ class Assert
         }
     }
 
+    public static function false($value, $message = '')
+    {
+        if (false !== $value) {
+            throw new InvalidArgumentException(
+                $message ?: 'Expected a value to be false.'
+            );
+        }
+    }
+
     public static function notEq($value, $value2, $message = '')
     {
         if ($value2 === $value) {
