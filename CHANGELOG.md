@@ -5,6 +5,8 @@ Changelog
 
  * added `NullRepository`
  * removed dependency to beberlei/assert
+ * symfony/filesystem is now an optional dependency that is only needed when
+   using the FilesystemRepository
 
 * 1.0.0-beta (2015-01-12)
 
