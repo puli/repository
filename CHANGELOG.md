@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
+ * added `NullRepository`
+
 * 1.0.0-beta (2015-01-12)
 
  * renamed `Selector` to `Glob` and moved it to package "webmozart/glob"
