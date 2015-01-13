@@ -11,9 +11,9 @@
 
 namespace Puli\Repository\Resource;
 
-use Assert\Assertion;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
@@ -29,7 +29,7 @@ class FileResource extends AbstractFilesystemResource implements BodyResource
      */
     public function __construct($filesystemPath, $path = null)
     {
-        Assertion::file($filesystemPath);
+        Assert::file($filesystemPath);
 
         parent::__construct($filesystemPath, $path);
     }

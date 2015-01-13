@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\StreamWrapper;
 
-use Assert\Assertion;
 use InvalidArgumentException;
 use IteratorIterator;
 use Puli\Repository\Api\Resource\BodyResource;
@@ -20,6 +19,7 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\RepositoryFactoryException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Uri\Uri;
@@ -184,8 +184,9 @@ class ResourceStreamWrapper implements StreamWrapper
             ));
         }
 
-        Assertion::string($scheme, 'The scheme must be a string. Got: %2$s');
-        Assertion::alnum($scheme, 'The scheme "%s" should consist of letters and digits only and start with a letter.');
+        Assert::string($scheme, 'The scheme must be a string. Got: %s');
+        Assert::alnum($scheme, 'The scheme %s should consist of letters and digits only.');
+        Assert::startsWithLetter($scheme, 'The scheme %s should start with a letter.');
 
         if (isset(self::$repos[$scheme])) {
             throw new StreamWrapperException(sprintf(

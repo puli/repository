@@ -13,7 +13,6 @@
         "php": ">=5.3.9",
         "webmozart/path-util": "~1.0",
         "webmozart/glob": "~1.0@dev",
-        "beberlei/assert": "~2.3",
         "symfony/filesystem": "~2.0"
     },
     "autoload": {

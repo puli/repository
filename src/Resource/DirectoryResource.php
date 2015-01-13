@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\Resource;
 
-use Assert\Assertion;
 use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 
@@ -29,7 +29,7 @@ class DirectoryResource extends AbstractFilesystemResource
      */
     public function __construct($filesystemPath, $path = null)
     {
-        Assertion::directory($filesystemPath);
+        Assert::directory($filesystemPath);
 
         parent::__construct($filesystemPath, $path);
     }
