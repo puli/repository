@@ -65,4 +65,13 @@ class NullRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->repo->hasChildren('/path'));
     }
 
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testGetAlwaysThrowsException()
+    {
+        $this->repo->add('/path', new TestFile());
+
+        $this->repo->get('/path');
+    }
 }
