@@ -152,12 +152,82 @@ class Assert
         }
     }
 
+    public static function eq($value, $value2, $message = '')
+    {
+        if ($value2 != $value) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value equal to %s.',
+                self::toString($value2)
+            ));
+        }
+    }
+
     public static function notEq($value, $value2, $message = '')
+    {
+        if ($value2 == $value) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a different value than %s.',
+                self::toString($value2)
+            ));
+        }
+    }
+
+    public static function same($value, $value2, $message = '')
+    {
+        if ($value2 !== $value) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value identical to %s.',
+                self::toString($value2)
+            ));
+        }
+    }
+
+    public static function notSame($value, $value2, $message = '')
     {
         if ($value2 === $value) {
             throw new InvalidArgumentException(sprintf(
-                $message ?: 'Expected a different value than %s.',
-                self::toString($value)
+                $message ?: 'Expected a value not identical to %s.',
+                self::toString($value2)
+            ));
+        }
+    }
+
+    public static function greaterThan($value, $limit, $message = '')
+    {
+        if ($value <= $limit) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value greater than %s.',
+                self::toString($limit)
+            ));
+        }
+    }
+
+    public static function greaterThanEq($value, $limit, $message = '')
+    {
+        if ($value < $limit) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value greater than or equal to %s.',
+                self::toString($limit)
+            ));
+        }
+    }
+
+    public static function lessThan($value, $limit, $message = '')
+    {
+        if ($value >= $limit) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value less than %s.',
+                self::toString($limit)
+            ));
+        }
+    }
+
+    public static function lessThanEq($value, $limit, $message = '')
+    {
+        if ($value > $limit) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a value less than or equal to %s.',
+                self::toString($limit)
             ));
         }
     }
