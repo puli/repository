@@ -19,6 +19,8 @@ use Traversable;
  * Domain-specific assertions.
  *
  * @method static void nullOrString($value, $message = null)
+ * @method static void nullOrInteger($value, $message = null)
+ * @method static void nullOrFloat($value, $message = null)
  * @method static void nullOrBoolean($value, $message = null)
  * @method static void nullOrScalar($value, $message = null)
  * @method static void nullOrIsArray($value, $message = null)
@@ -39,6 +41,8 @@ use Traversable;
  * @method static void nullOrPath($value, $message = null)
  * @method static void nullOrGlob($value, $message = null)
  * @method static void allString($values, $message = null)
+ * @method static void allInteger($values, $message = null)
+ * @method static void allFloat($values, $message = null)
  * @method static void allBoolean($values, $message = null)
  * @method static void allScalar($values, $message = null)
  * @method static void allIsArray($values, $message = null)
@@ -69,6 +73,26 @@ class Assert
         if (!is_string($value)) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: 'Expected a string. Got: %s',
+                is_object($value) ? get_class($value) : gettype($value)
+            ));
+        }
+    }
+
+    public static function integer($value, $message = '')
+    {
+        if (!is_int($value)) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected an integer. Got: %s',
+                is_object($value) ? get_class($value) : gettype($value)
+            ));
+        }
+    }
+
+    public static function float($value, $message = '')
+    {
+        if (!is_float($value)) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: 'Expected a float. Got: %s',
                 is_object($value) ? get_class($value) : gettype($value)
             ));
         }
