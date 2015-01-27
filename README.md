@@ -1,14 +1,14 @@
 The Puli Repository Component
 =============================
 
-[![Build Status](https://travis-ci.org/puli/repository.svg?branch=master)](https://travis-ci.org/puli/repository)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/puli/repository/?branch=master)
+[![Build Status](https://travis-ci.org/puli/repository.svg?branch=1.0.0-beta2)](https://travis-ci.org/puli/repository)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=1.0.0-beta2)](https://scrutinizer-ci.com/g/puli/repository/?branch=1.0.0-beta2)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47/mini.png)](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47)
 [![Latest Stable Version](https://poser.pugx.org/puli/repository/v/stable.svg)](https://packagist.org/packages/puli/repository)
 [![Total Downloads](https://poser.pugx.org/puli/repository/downloads.svg)](https://packagist.org/packages/puli/repository)
 [![Dependency Status](https://www.versioneye.com/php/puli:repository/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:repository/1.0.0)
 
-Latest release: [1.0.0-beta](https://packagist.org/packages/puli/repository#1.0.0-beta)
+Latest release: [1.0.0-beta2](https://packagist.org/packages/puli/repository#1.0.0-beta2)
 
 PHP >= 5.3.9
 

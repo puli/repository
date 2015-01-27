@@ -12,7 +12,7 @@
     "require": {
         "php": ">=5.3.9",
         "webmozart/path-util": "~1.0",
-        "webmozart/glob": "~1.0@dev"
+        "webmozart/glob": "~1.0@beta"
     },
     "require-dev": {
         "symfony/filesystem": "~2.0"
