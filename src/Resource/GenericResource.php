@@ -131,6 +131,14 @@ class GenericResource implements Resource
     /**
      * {@inheritdoc}
      */
+    public function getPayload()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function attachTo(ResourceRepository $repo, $path = null)
     {
         $this->repo = $repo;

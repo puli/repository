@@ -116,6 +116,13 @@ interface Resource extends Serializable
     public function getMetadata();
 
     /**
+     * Returns additional, implementation-specific data attached to the resource.
+     *
+     * @return mixed The payload of the resource.
+     */
+    public function getPayload();
+
+    /**
      * Returns the repository that the resource is attached to.
      *
      * Use {@link attachTo()} to attach a resource to a repository. The method
