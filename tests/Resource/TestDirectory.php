@@ -25,6 +25,8 @@ class TestDirectory extends GenericResource
      */
     private $children = array();
 
+    private $metadata;
+
     public function __construct($path = null, array $children = array())
     {
         parent::__construct($path);
@@ -32,6 +34,8 @@ class TestDirectory extends GenericResource
         foreach ($children as $child) {
             $this->children[$child->getName()] = $child;
         }
+
+        $this->metadata = new TestMetadata();
     }
 
     public function getChild($relPath)
@@ -52,5 +56,10 @@ class TestDirectory extends GenericResource
     public function listChildren()
     {
         return new ArrayResourceCollection($this->children);
+    }
+
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 }

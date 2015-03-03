@@ -26,11 +26,14 @@ class TestFile extends GenericResource implements BodyResource
 
     private $body;
 
+    private $metadata;
+
     public function __construct($path = null, $body = self::BODY)
     {
         parent::__construct($path);
 
         $this->body = $body;
+        $this->metadata = new TestMetadata();
     }
 
     public function getBody()
@@ -61,5 +64,10 @@ class TestFile extends GenericResource implements BodyResource
     public function listChildren()
     {
         return new ArrayResourceCollection();
+    }
+
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 }
