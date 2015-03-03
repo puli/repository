@@ -429,14 +429,14 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('file1' => $file1, 'file2' => $file2), $children->toArray());
     }
 
-    /**
-     * @expectedException \Puli\Repository\Api\Resource\DetachedException
-     */
     public function testListChildrenDetached()
     {
         $resource = $this->createResource();
 
-        $resource->listChildren();
+        $children = $resource->listChildren();
+
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $children);
+        $this->assertEquals(array(), $children->toArray());
     }
 
     public function testGetChild()
@@ -475,7 +475,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Puli\Repository\Api\Resource\DetachedException
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
      */
     public function testGetChildDetached()
     {
@@ -517,14 +517,11 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame('true_or_false', $reference->hasChild('file'));
     }
 
-    /**
-     * @expectedException \Puli\Repository\Api\Resource\DetachedException
-     */
     public function testHasChildDetached()
     {
         $resource = $this->createResource();
 
-        $resource->hasChild('file');
+        $this->assertFalse($resource->hasChild('file'));
     }
 
     public function testHasChildren()
@@ -560,13 +557,10 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $this->assertSame('true_or_false', $reference->hasChildren());
     }
 
-    /**
-     * @expectedException \Puli\Repository\Api\Resource\DetachedException
-     */
     public function testHasChildrenDetached()
     {
         $resource = $this->createResource();
 
-        $resource->hasChildren();
+        $this->assertFalse($resource->hasChildren());
     }
 }

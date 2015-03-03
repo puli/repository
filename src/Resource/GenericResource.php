@@ -11,9 +11,9 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\Api\Resource\DetachedException;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\Resource\ResourceMetadata;
+use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
@@ -72,7 +72,7 @@ class GenericResource implements Resource
     public function getChild($relPath)
     {
         if (!$this->getRepository()) {
-            throw new DetachedException('Cannot access the children of a detached resource.');
+            throw ResourceNotFoundException::forPath($this->getRepositoryPath().'/'.$relPath);
         }
 
         return $this->getRepository()->get($this->getRepositoryPath().'/'.$relPath);
@@ -84,7 +84,7 @@ class GenericResource implements Resource
     public function hasChild($relPath)
     {
         if (!$this->getRepository()) {
-            throw new DetachedException('Cannot access the children of a detached resource.');
+            return false;
         }
 
         return $this->getRepository()->contains($this->getRepositoryPath().'/'.$relPath);
@@ -96,7 +96,7 @@ class GenericResource implements Resource
     public function hasChildren()
     {
         if (!$this->getRepository()) {
-            throw new DetachedException('Cannot access the children of a detached resource.');
+            return false;
         }
 
         return $this->getRepository()->hasChildren($this->getRepositoryPath());
@@ -107,11 +107,11 @@ class GenericResource implements Resource
      */
     public function listChildren()
     {
-        if (!$this->getRepository()) {
-            throw new DetachedException('Cannot access the children of a detached resource.');
-        }
-
         $children = new ArrayResourceCollection();
+
+        if (!$this->getRepository()) {
+            return $children;
+        }
 
         foreach ($this->getRepository()->listChildren($this->getRepositoryPath()) as $child) {
             $children[$child->getName()] = $child;

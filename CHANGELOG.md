@@ -4,6 +4,7 @@ Changelog
 * 1.0.0-next (@release_date@)
 
  * added `Resource::getPayload()`
+ * removed `DetachedException`
 
 * 1.0.0-beta2 (2015-01-27)
 
