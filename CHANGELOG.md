@@ -5,6 +5,7 @@ Changelog
 
  * added `Resource::getPayload()`
  * removed `DetachedException`
+ * replaced `Assert` by webmozart/assert
 
 * 1.0.0-beta2 (2015-01-27)
 

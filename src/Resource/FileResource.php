@@ -13,8 +13,8 @@ namespace Puli\Repository\Resource;
 
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Webmozart\Assert\Assert;
 
 /**
  * Represents a file on the file system.

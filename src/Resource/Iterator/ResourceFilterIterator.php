@@ -13,7 +13,7 @@ namespace Puli\Repository\Resource\Iterator;
 
 use FilterIterator;
 use Puli\Repository\Api\ResourceIterator;
-use Puli\Repository\Assert\Assert;
+use Webmozart\Assert\Assert;
 
 /**
  * Iterates over a {@link ResourceIterator} and filters out individual entries.
@@ -108,8 +108,7 @@ class ResourceFilterIterator extends FilterIterator implements ResourceIterator
      */
     public function __construct(ResourceIterator $iterator, $pattern, $mode = null)
     {
-        Assert::string($pattern, 'The pattern must be a string. Got: %s');
-        Assert::notEmpty($pattern, 'The pattern must not be empty');
+        Assert::stringNotEmpty($pattern, 'The pattern must be a non-empty string. Got: %s');
 
         parent::__construct($iterator);
 

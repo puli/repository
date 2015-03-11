@@ -21,12 +21,12 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Assert\Assert;
 use Webmozart\Glob\Iterator\GlobIterator;
 use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
@@ -124,7 +124,8 @@ class FilesystemRepository implements EditableRepository
      */
     public function get($path)
     {
-        Assert::path($path);
+        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
+        Assert::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
         $filesystemPath = $this->baseDir.$path;
@@ -191,7 +192,8 @@ class FilesystemRepository implements EditableRepository
      */
     public function add($path, $resource)
     {
-        Assert::path($path);
+        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
+        Assert::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -388,7 +390,8 @@ class FilesystemRepository implements EditableRepository
 
     private function getFilesystemPath($path)
     {
-        Assert::path($path);
+        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
+        Assert::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
         $filesystemPath = $this->baseDir.$path;
@@ -406,7 +409,8 @@ class FilesystemRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assert::glob($query);
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
 
         $query = Path::canonicalize($query);
 

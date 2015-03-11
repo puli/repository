@@ -17,8 +17,8 @@ use OutOfBoundsException;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Webmozart\Assert\Assert;
 
 /**
  * A collection of {@link Resource} instances backed by an array.

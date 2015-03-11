@@ -19,10 +19,10 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assert;
 use Puli\Repository\RepositoryFactoryException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Puli\Repository\Uri\Uri;
+use Webmozart\Assert\Assert;
 
 /**
  * Registers a PHP stream wrapper for a {@link ResourceRepository}.

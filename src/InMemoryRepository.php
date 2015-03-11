@@ -18,9 +18,9 @@ use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Assert\Assert;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
+use Webmozart\Assert\Assert;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
@@ -60,7 +60,8 @@ class InMemoryRepository implements EditableRepository
      */
     public function get($path)
     {
-        Assert::path($path);
+        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
+        Assert::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
@@ -80,7 +81,8 @@ class InMemoryRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assert::glob($query);
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
 
         $query = Path::canonicalize($query);
         $resources = array();
@@ -103,7 +105,8 @@ class InMemoryRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assert::glob($query);
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
 
         $query = Path::canonicalize($query);
 
@@ -122,7 +125,8 @@ class InMemoryRepository implements EditableRepository
      */
     public function add($path, $resource)
     {
-        Assert::path($path);
+        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
+        Assert::startsWith($path, '/', 'The path %s is not absolute.');
 
         $path = Path::canonicalize($path);
 
