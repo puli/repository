@@ -24,6 +24,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepositoryTest
 {
+    private $tempBaseDir;
+
     private $tempDir;
 
     /**
@@ -40,12 +42,12 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
             return;
         }
 
-        while (false === mkdir($tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === @mkdir($this->tempBaseDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {}
 
         // Create both directories in the same directory, so that relative links
         // work from one to the other
-        $this->tempDir = $tempDir.'/workspace';
-        $this->tempFixtures = $tempDir.'/fixtures';
+        $this->tempDir = $this->tempBaseDir.'/workspace';
+        $this->tempFixtures = $this->tempBaseDir.'/fixtures';
 
         mkdir($this->tempDir);
         mkdir($this->tempFixtures);
@@ -61,8 +63,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         parent::tearDown();
 
         $filesystem = new Filesystem();
-        $filesystem->remove($this->tempDir);
-        $filesystem->remove($this->tempFixtures);
+        $filesystem->remove($this->tempBaseDir);
     }
 
     protected function createRepository(Resource $root)
