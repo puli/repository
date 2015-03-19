@@ -22,7 +22,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepositorySymlinkTest extends AbstractEditableRepositoryTest
+class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepositoryTest
 {
     private $tempDir;
 
@@ -40,8 +40,15 @@ class FilesystemRepositorySymlinkTest extends AbstractEditableRepositoryTest
             return;
         }
 
-        while (false === mkdir($this->tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositorySymlinkTest'.rand(10000, 99999), 0777, true)) {}
-        while (false === mkdir($this->tempFixtures = sys_get_temp_dir().'/puli-repository/FilesystemRepositorySymlinkTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === mkdir($tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {}
+
+        // Create both directories in the same directory, so that relative links
+        // work from one to the other
+        $this->tempDir = $tempDir.'/workspace';
+        $this->tempFixtures = $tempDir.'/fixtures';
+
+        mkdir($this->tempDir);
+        mkdir($this->tempFixtures);
 
         $filesystem = new Filesystem();
         $filesystem->mirror(__DIR__.'/Fixtures', $this->tempFixtures);
@@ -60,7 +67,7 @@ class FilesystemRepositorySymlinkTest extends AbstractEditableRepositoryTest
 
     protected function createRepository(Resource $root)
     {
-        $repo = new FilesystemRepository($this->tempDir, true);
+        $repo = new FilesystemRepository($this->tempDir, true, false);
         $repo->add('/', $root);
 
         return $repo;
@@ -68,7 +75,7 @@ class FilesystemRepositorySymlinkTest extends AbstractEditableRepositoryTest
 
     protected function createEditableRepository()
     {
-        return new FilesystemRepository($this->tempDir, true);
+        return new FilesystemRepository($this->tempDir, true, false);
     }
 
     public function testAddDirectoryCreatesSymlink()

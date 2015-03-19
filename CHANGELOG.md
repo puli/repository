@@ -6,6 +6,8 @@ Changelog
  * added `Resource::getPayload()`
  * removed `DetachedException`
  * replaced `Assert` by webmozart/assert
+ * added support for relative symlinks to `FilesystemRepository`
+ * `FilesystemRepository` now falls back to copies if symlinks are not supported
 
 * 1.0.0-beta2 (2015-01-27)
 
