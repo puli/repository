@@ -1,6 +1,10 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
+ * removed `Resource::getPayload()`
+
 * 1.0.0-beta3 (2015-03-19)
 
  * added `Resource::getPayload()`
