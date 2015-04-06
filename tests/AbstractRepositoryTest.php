@@ -104,9 +104,9 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     {
         $repo = $this->createRepository(new TestDirectory('/'));
 
-        $this->assertFalse($repo->contains('/webmozart/**'));
-        $this->assertFalse($repo->contains('/webmozart/file**'));
-        $this->assertFalse($repo->contains('/webmozart/puli/file**'));
+        $this->assertFalse($repo->contains('/webmozart/**/*'));
+        $this->assertFalse($repo->contains('/webmozart/file*'));
+        $this->assertFalse($repo->contains('/webmozart/puli/file*'));
         $this->assertFalse($repo->contains('/webmozart/**/file*'));
 
         $repo = $this->createRepository(new TestDirectory('/', array(
@@ -118,13 +118,12 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $this->assertTrue($repo->contains('/**'));
-        $this->assertTrue($repo->contains('/webmozart/**'));
-        $this->assertFalse($repo->contains('/webmozart/file**'));
-        $this->assertTrue($repo->contains('/webmozart/puli/file**'));
-        $this->assertTrue($repo->contains('/**file**'));
-        $this->assertTrue($repo->contains('/webmozart/**file**'));
-        $this->assertTrue($repo->contains('/webmozart/**/file**'));
+        $this->assertTrue($repo->contains('/**/*'));
+        $this->assertTrue($repo->contains('/webmozart/**/*'));
+        $this->assertFalse($repo->contains('/webmozart/file*'));
+        $this->assertTrue($repo->contains('/webmozart/puli/file*'));
+        $this->assertTrue($repo->contains('/**/file*'));
+        $this->assertTrue($repo->contains('/webmozart/**/file*'));
     }
 
     public function testContainsDiscardsTrailingSlash()
@@ -544,7 +543,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         )));
 
-        $resources = $repo->find('/webmozart/**foo');
+        $resources = $repo->find('/webmozart/**/*foo');
 
         $this->assertCount(3, $resources);
         $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
