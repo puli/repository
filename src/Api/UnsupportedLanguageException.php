@@ -26,16 +26,15 @@ class UnsupportedLanguageException extends RuntimeException
      * Creates an exception for an unsupported language string.
      *
      * @param string    $language The unsupported language.
-     * @param int       $code     The exception code.
-     * @param Exception $previous The previous exception.
+     * @param Exception $cause    The exception that caused this exception.
      *
      * @return static The created exception.
      */
-    public static function forLanguage($language, $code = 0, Exception $previous = null)
+    public static function forLanguage($language, Exception $cause = null)
     {
         return new static(sprintf(
             'The language "%s" is not supported.',
             $language
-        ), $code, $previous);
+        ), 0, $cause);
     }
 }

@@ -4,6 +4,7 @@ Changelog
 * 1.0.0-next (@release_date@)
 
  * removed `Resource::getPayload()`
+ * removed `$code` arguments from static exception factory methods
 
 * 1.0.0-beta3 (2015-03-19)
 
