@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
@@ -34,7 +35,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         $this->repo = new InMemoryRepository();
     }
 
-    protected function createRepository(Resource $root)
+    protected function createPrefilledRepository(Resource $root)
     {
         $repo = new InMemoryRepository();
         $repo->add('/', $root);
@@ -42,9 +43,14 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createEditableRepository()
+    protected function createWriteRepository()
     {
         return new InMemoryRepository();
+    }
+
+    protected function createReadRepository(EditableRepository $writeRepo)
+    {
+        return $writeRepo;
     }
 
     public function testAddClonesResourcesAttachedToAnotherRepository()
@@ -92,9 +98,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
      */
     public function testContainsFailsIfLanguageNotGlob()
     {
-        $repo = new InMemoryRepository();
-
-        $repo->contains('/*', 'foobar');
+        $this->readRepo->contains('/*', 'foobar');
     }
 
     /**
@@ -103,9 +107,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
      */
     public function testFindFailsIfLanguageNotGlob()
     {
-        $repo = new InMemoryRepository();
-
-        $repo->find('/*', 'foobar');
+        $this->readRepo->find('/*', 'foobar');
     }
 
     /**
@@ -114,8 +116,6 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
      */
     public function testRemoveFailsIfLanguageNotGlob()
     {
-        $repo = new InMemoryRepository();
-
-        $repo->remove('/*', 'foobar');
+        $this->writeRepo->remove('/*', 'foobar');
     }
 }

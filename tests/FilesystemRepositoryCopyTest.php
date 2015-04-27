@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
@@ -40,7 +41,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         $filesystem->remove($this->tempDir);
     }
 
-    protected function createRepository(Resource $root)
+    protected function createPrefilledRepository(Resource $root)
     {
         $repo = new FilesystemRepository($this->tempDir, false);
         $repo->add('/', $root);
@@ -48,9 +49,14 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createEditableRepository()
+    protected function createWriteRepository()
     {
         return new FilesystemRepository($this->tempDir, false);
+    }
+
+    protected function createReadRepository(EditableRepository $writeRepo)
+    {
+        return new FilesystemRepository($this->tempDir, true, false);
     }
 
     /**
@@ -76,12 +82,10 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         touch($this->tempDir.'/file');
         symlink($this->tempDir.'/file', $this->tempDir.'/link');
 
-        $repo = new FilesystemRepository($this->tempDir);
-
         $expected = new FileResource($this->tempDir.'/link', '/link');
-        $expected->attachTo($repo);
+        $expected->attachTo($this->writeRepo);
 
-        $this->assertEquals($expected, $repo->get('/link'));
+        $this->assertEquals($expected, $this->writeRepo->get('/link'));
     }
 
     public function testGetDirectoryLink()
@@ -89,12 +93,10 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         mkdir($this->tempDir.'/dir');
         symlink($this->tempDir.'/dir', $this->tempDir.'/link');
 
-        $repo = new FilesystemRepository($this->tempDir);
-
         $expected = new DirectoryResource($this->tempDir.'/link', '/link');
-        $expected->attachTo($repo);
+        $expected->attachTo($this->writeRepo);
 
-        $this->assertEquals($expected, $repo->get('/link'));
+        $this->assertEquals($expected, $this->writeRepo->get('/link'));
     }
 
     /**
@@ -103,9 +105,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
      */
     public function testContainsFailsIfLanguageNotGlob()
     {
-        $repo = new FilesystemRepository($this->tempDir);
-
-        $repo->contains('/*', 'foobar');
+        $this->readRepo->contains('/*', 'foobar');
     }
 
     /**
@@ -114,9 +114,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
      */
     public function testFindFailsIfLanguageNotGlob()
     {
-        $repo = new FilesystemRepository($this->tempDir);
-
-        $repo->find('/*', 'foobar');
+        $this->readRepo->find('/*', 'foobar');
     }
 
     /**
@@ -130,16 +128,16 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
             ->method('hasChildren')
             ->will($this->returnValue(true));
 
-        $this->repo->add('/webmozart', $resource);
+        $this->writeRepo->add('/webmozart', $resource);
     }
 
     public function testAddDirectory()
     {
-        $this->repo->add('/webmozart/dir', new DirectoryResource(__DIR__.'/Fixtures/dir1'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource(__DIR__.'/Fixtures/dir1'));
 
-        $dir = $this->repo->get('/webmozart/dir');
-        $file1 = $this->repo->get('/webmozart/dir/file1');
-        $file2 = $this->repo->get('/webmozart/dir/file2');
+        $dir = $this->readRepo->get('/webmozart/dir');
+        $file1 = $this->readRepo->get('/webmozart/dir/file1');
+        $file2 = $this->readRepo->get('/webmozart/dir/file2');
 
         $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $dir);
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file1);
@@ -148,9 +146,9 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
 
     public function testAddFile()
     {
-        $this->repo->add('/webmozart/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
+        $this->writeRepo->add('/webmozart/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
 
-        $file = $this->repo->get('/webmozart/file');
+        $file = $this->readRepo->get('/webmozart/file');
 
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $file);
     }
@@ -160,8 +158,8 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
      */
     public function testFailIfAddingFileAsChildOfFile()
     {
-        $this->repo->add('/webmozart/puli', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
-        $this->repo->add('/webmozart/puli/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
+        $this->writeRepo->add('/webmozart/puli', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $this->writeRepo->add('/webmozart/puli/file', new FileResource(__DIR__.'/Fixtures/dir1/file2'));
     }
 
     /**
@@ -170,6 +168,6 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
      */
     public function testRemoveFailsIfLanguageNotGlob()
     {
-        $this->repo->remove('/*', 'foobar');
+        $this->writeRepo->remove('/*', 'foobar');
     }
 }

@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
@@ -66,7 +67,7 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
         $filesystem->remove($this->tempBaseDir);
     }
 
-    protected function createRepository(Resource $root)
+    protected function createPrefilledRepository(Resource $root)
     {
         $repo = new FilesystemRepository($this->tempDir, true, true);
         $repo->add('/', $root);
@@ -74,14 +75,19 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
         return $repo;
     }
 
-    protected function createEditableRepository()
+    protected function createWriteRepository()
     {
         return new FilesystemRepository($this->tempDir, true, true);
     }
 
+    protected function createReadRepository(EditableRepository $writeRepo)
+    {
+        return new FilesystemRepository($this->tempDir, true, false);
+    }
+
     public function testAddDirectoryCreatesSymlink()
     {
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir'));
         $this->assertSame('../../fixtures/dir1', readlink($this->tempDir.'/webmozart/dir'));
@@ -89,8 +95,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testOverwriteDirectoryWithDirectoryTurnsSymlinkIntoDirectory()
     {
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir2'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir2'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart/dir'));
@@ -106,8 +112,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testOverwriteDirectoryWithDirectoryMergesSubdirectories()
     {
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir3'));
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir4'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir3'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir4'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart/dir'));
@@ -124,8 +130,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testOverwriteDirectoryWithFileReplacesSymlink()
     {
-        $this->repo->add('/webmozart/path', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->repo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
+        $this->writeRepo->add('/webmozart/path', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
         $this->assertSame('../../fixtures/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
@@ -133,7 +139,7 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testAddFileCreatesSymlink()
     {
-        $this->repo->add('/webmozart/file', new FileResource($this->tempFixtures.'/dir1/file2'));
+        $this->writeRepo->add('/webmozart/file', new FileResource($this->tempFixtures.'/dir1/file2'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file'));
         $this->assertSame('../../fixtures/dir1/file2', readlink($this->tempDir.'/webmozart/file'));
@@ -141,8 +147,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testOverwriteFileWithDirectoryReplacesSymlink()
     {
-        $this->repo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file2'));
-        $this->repo->add('/webmozart/path', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file2'));
+        $this->writeRepo->add('/webmozart/path', new DirectoryResource($this->tempFixtures.'/dir1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
         $this->assertSame('../../fixtures/dir1', readlink($this->tempDir.'/webmozart/path'));
@@ -150,8 +156,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testOverwriteFileWithFileReplacesSymlink()
     {
-        $this->repo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file2'));
-        $this->repo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
+        $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file2'));
+        $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
         $this->assertSame('../../fixtures/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
@@ -159,8 +165,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testAddSubDirectoryTurnsParentSymlinkIntoDirectory()
     {
-        $this->repo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->repo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir2'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir2'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart'));
@@ -176,8 +182,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testAddSubFileTurnsParentSymlinkIntoDirectory()
     {
-        $this->repo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->repo->add('/webmozart/file3', new FileResource($this->tempFixtures.'/dir2/file3'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/file3', new FileResource($this->tempFixtures.'/dir2/file3'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart'));
@@ -193,8 +199,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     public function testAddSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
     {
-        $this->repo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->repo->add('/webmozart/file3', new TestFile(null, 'some body'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
+        $this->writeRepo->add('/webmozart/file3', new TestFile(null, 'some body'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart'));

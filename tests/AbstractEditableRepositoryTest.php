@@ -23,25 +23,45 @@ use Puli\Repository\Tests\Resource\TestFile;
 abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 {
     /**
+     * The instance used to change the contents of the repository.
+     *
      * @var EditableRepository
      */
-    protected $repo;
+    protected $writeRepo;
+
+    /**
+     * The instance used to check the changed contents of the repository.
+     *
+     * This is either the same instance as {@link $writeRepo} or a different
+     * instance that uses the same data source.
+     *
+     * @var EditableRepository
+     */
+    protected $readRepo;
 
     /**
      * @return EditableRepository
      */
-    abstract protected function createEditableRepository();
+    abstract protected function createWriteRepository();
+
+    /**
+     * @param EditableRepository $writeRepo
+     *
+     * @return EditableRepository
+     */
+    abstract protected function createReadRepository(EditableRepository $writeRepo);
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->repo = $this->createEditableRepository();
+        $this->writeRepo = $this->createWriteRepository();
+        $this->readRepo = $this->createReadRepository($this->writeRepo);
     }
 
     public function testRootIsEmptyBeforeAdding()
     {
-        $root = $this->repo->get('/');
+        $root = $this->readRepo->get('/');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
         $this->assertCount(0, $root->listChildren());
@@ -50,40 +70,40 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddFile()
     {
-        $this->repo->add('/webmozart/puli', new TestDirectory());
-        $this->repo->add('/webmozart/puli/file', new TestFile());
+        $this->writeRepo->add('/webmozart/puli', new TestDirectory());
+        $this->writeRepo->add('/webmozart/puli/file', new TestFile());
 
-        $dir = $this->repo->get('/webmozart/puli');
-        $file = $this->repo->get('/webmozart/puli/file');
+        $dir = $this->readRepo->get('/webmozart/puli');
+        $file = $this->readRepo->get('/webmozart/puli/file');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
-        $this->assertSame($this->repo, $dir->getRepository());
+        $this->assertSame($this->readRepo, $dir->getRepository());
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
-        $this->assertSame($this->repo, $file->getRepository());
+        $this->assertSame($this->readRepo, $file->getRepository());
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
     public function testAddMergesResourceChildren()
     {
-        $this->repo->add('/webmozart/puli', new TestDirectory(null, array(
+        $this->writeRepo->add('/webmozart/puli', new TestDirectory(null, array(
             new TestFile('/file1', 'original 1'),
             new TestFile('/file2', 'original 2'),
         )));
-        $this->repo->add('/webmozart/puli', new TestDirectory(null, array(
+        $this->writeRepo->add('/webmozart/puli', new TestDirectory(null, array(
             new TestFile('/file1', 'override 1'),
             new TestFile('/file3', 'override 3'),
         )));
 
-        $dir = $this->repo->get('/webmozart/puli');
-        $file1 = $this->repo->get('/webmozart/puli/file1');
-        $file2 = $this->repo->get('/webmozart/puli/file2');
-        $file3 = $this->repo->get('/webmozart/puli/file3');
+        $dir = $this->readRepo->get('/webmozart/puli');
+        $file1 = $this->readRepo->get('/webmozart/puli/file1');
+        $file2 = $this->readRepo->get('/webmozart/puli/file2');
+        $file3 = $this->readRepo->get('/webmozart/puli/file3');
 
-        $this->assertTrue($this->repo->hasChildren('/webmozart/puli'));
-        $this->assertCount(3, $this->repo->listChildren('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->hasChildren('/webmozart/puli'));
+        $this->assertCount(3, $this->readRepo->listChildren('/webmozart/puli'));
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
@@ -103,9 +123,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddDot()
     {
-        $this->repo->add('/webmozart/puli/file/.', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file/.', new TestFile());
 
-        $file = $this->repo->get('/webmozart/puli/file');
+        $file = $this->readRepo->get('/webmozart/puli/file');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
@@ -113,9 +133,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddDotDot()
     {
-        $this->repo->add('/webmozart/puli/file/..', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file/..', new TestFile());
 
-        $file = $this->repo->get('/webmozart/puli');
+        $file = $this->readRepo->get('/webmozart/puli');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli', $file->getPath());
@@ -123,9 +143,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddTrimsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli/file/', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file/', new TestFile());
 
-        $file = $this->repo->get('/webmozart/puli/file');
+        $file = $this->readRepo->get('/webmozart/puli/file');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/puli/file', $file->getPath());
@@ -133,13 +153,13 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddCollection()
     {
-        $this->repo->add('/webmozart/puli', new ArrayResourceCollection(array(
+        $this->writeRepo->add('/webmozart/puli', new ArrayResourceCollection(array(
             new TestFile('/file1'),
             new TestFile('/file2'),
         )));
 
-        $file1 = $this->repo->get('/webmozart/puli/file1');
-        $file2 = $this->repo->get('/webmozart/puli/file2');
+        $file1 = $this->readRepo->get('/webmozart/puli/file1');
+        $file2 = $this->readRepo->get('/webmozart/puli/file2');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
         $this->assertSame('/webmozart/puli/file1', $file1->getPath());
@@ -150,29 +170,29 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddRoot()
     {
-        $this->repo->add('/', new TestDirectory('/', array(
+        $this->writeRepo->add('/', new TestDirectory('/', array(
             new TestDirectory('/webmozart', array(
                 new TestFile('/webmozart/file'),
             )),
         )));
 
-        $root = $this->repo->get('/');
-        $dir = $this->repo->get('/webmozart');
-        $file = $this->repo->get('/webmozart/file');
+        $root = $this->readRepo->get('/');
+        $dir = $this->readRepo->get('/webmozart');
+        $file = $this->readRepo->get('/webmozart/file');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
         $this->assertSame('/', $root->getPath());
-        $this->assertSame($this->repo, $root->getRepository());
+        $this->assertSame($this->readRepo, $root->getRepository());
         $this->assertCount(1, $root->listChildren());
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
         $this->assertSame('/webmozart', $dir->getPath());
-        $this->assertSame($this->repo, $dir->getRepository());
+        $this->assertSame($this->readRepo, $dir->getRepository());
         $this->assertCount(1, $dir->listChildren());
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file);
         $this->assertSame('/webmozart/file', $file->getPath());
-        $this->assertSame($this->repo, $file->getRepository());
+        $this->assertSame($this->readRepo, $file->getRepository());
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
@@ -181,7 +201,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsAbsolutePath()
     {
-        $this->repo->add('webmozart', new TestDirectory());
+        $this->writeRepo->add('webmozart', new TestDirectory());
     }
 
     /**
@@ -189,7 +209,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsNonEmptyPath()
     {
-        $this->repo->add('', new TestDirectory());
+        $this->writeRepo->add('', new TestDirectory());
     }
 
     /**
@@ -197,7 +217,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsStringPath()
     {
-        $this->repo->add(new \stdClass(), new TestDirectory());
+        $this->writeRepo->add(new \stdClass(), new TestDirectory());
     }
 
     /**
@@ -205,41 +225,41 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsResource()
     {
-        $this->repo->add('/webmozart', new \stdClass());
+        $this->writeRepo->add('/webmozart', new \stdClass());
     }
 
     public function testRemoveFile()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->assertSame(1, $this->repo->remove('/webmozart/puli/file1'));
+        $this->assertSame(1, $this->writeRepo->remove('/webmozart/puli/file1'));
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     public function testRemoveMany()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->assertSame(2, $this->repo->remove('/webmozart/puli/file*'));
+        $this->assertSame(2, $this->writeRepo->remove('/webmozart/puli/file*'));
 
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     public function provideDirectoryGlob()
@@ -255,74 +275,74 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveDirectory($glob)
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->assertSame(3, $this->repo->remove($glob));
+        $this->assertSame(3, $this->writeRepo->remove($glob));
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     public function testRemoveDot()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->repo->remove('/webmozart/puli/.');
+        $this->writeRepo->remove('/webmozart/puli/.');
 
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     public function testRemoveDotDot()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/'));
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->repo->remove('/webmozart/puli/..');
+        $this->writeRepo->remove('/webmozart/puli/..');
 
-        $this->assertTrue($this->repo->contains('/'));
-        $this->assertFalse($this->repo->contains('/webmozart'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/'));
+        $this->assertFalse($this->readRepo->contains('/webmozart'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     public function testRemoveDiscardsTrailingSlash()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->repo->remove('/webmozart/puli/');
+        $this->writeRepo->remove('/webmozart/puli/');
 
-        $this->assertFalse($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 
     /**
@@ -330,7 +350,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testCannotRemoveRoot()
     {
-        $this->repo->remove('/');
+        $this->writeRepo->remove('/');
     }
 
     /**
@@ -338,7 +358,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveInterpretsConsecutiveSlashesAsRoot()
     {
-        $this->repo->remove('///');
+        $this->writeRepo->remove('///');
     }
 
     /**
@@ -346,7 +366,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveExpectsAbsolutePath()
     {
-        $this->repo->remove('webmozart');
+        $this->writeRepo->remove('webmozart');
     }
 
     /**
@@ -354,7 +374,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveExpectsNonEmptyPath()
     {
-        $this->repo->remove('');
+        $this->writeRepo->remove('');
     }
 
     /**
@@ -362,26 +382,26 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveExpectsStringPath()
     {
-        $this->repo->remove(new \stdClass());
+        $this->writeRepo->remove(new \stdClass());
     }
 
     public function testClear()
     {
-        $this->repo->add('/webmozart/puli/file1', new TestFile());
-        $this->repo->add('/webmozart/puli/file2', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file1', new TestFile());
+        $this->writeRepo->add('/webmozart/puli/file2', new TestFile());
 
-        $this->assertTrue($this->repo->contains('/'));
-        $this->assertTrue($this->repo->contains('/webmozart'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/'));
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
 
-        $this->assertSame(4, $this->repo->clear());
+        $this->assertSame(4, $this->writeRepo->clear());
 
-        $this->assertTrue($this->repo->contains('/'));
-        $this->assertFalse($this->repo->contains('/webmozart'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->repo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->readRepo->contains('/'));
+        $this->assertFalse($this->readRepo->contains('/webmozart'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
+        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
     }
 }
