@@ -1,11 +1,15 @@
 Changelog
 =========
 
+* 1.0.0-next (@release_date@)
+
+ * upgraded to webmozart/path-util 2.0
+
 * 1.0.0-beta4 (2015-04-13)
 
  * removed `Resource::getPayload()`
  * removed `$code` arguments from static exception factory methods
- * updated to webmozart/glob 2.0
+ * upgraded to webmozart/glob 2.0
 
 * 1.0.0-beta3 (2015-03-19)
 
