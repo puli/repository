@@ -213,4 +213,55 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
         $this->assertFalse(is_link($this->tempDir.'/webmozart/file3'));
         $this->assertSame('some body', file_get_contents($this->tempDir.'/webmozart/file3'));
     }
+
+    public function testAddSubSubDirectoryTurnsParentSymlinkIntoDirectory()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir3'));
+        $this->writeRepo->add('/webmozart/sub/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
+
+        // Symlink is turned into a copy
+        $this->assertFalse(is_link($this->tempDir.'/webmozart'));
+
+        // Directories are merged
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertSame('../../../fixtures/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertSame('../../../fixtures/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/dir'));
+        $this->assertSame('../../../fixtures/dir1', readlink($this->tempDir.'/webmozart/sub/dir'));
+    }
+
+    public function testAddSubSubFileTurnsParentSymlinkIntoDirectory()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir3'));
+        $this->writeRepo->add('/webmozart/sub/file3', new FileResource($this->tempFixtures.'/dir2/file3'));
+
+        // Symlink is turned into a copy
+        $this->assertFalse(is_link($this->tempDir.'/webmozart'));
+
+        // Directories are merged
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertSame('../../../fixtures/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertSame('../../../fixtures/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file3'));
+        $this->assertSame('../../../fixtures/dir2/file3', readlink($this->tempDir.'/webmozart/sub/file3'));
+    }
+
+    public function testAddSubSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir3'));
+        $this->writeRepo->add('/webmozart/sub/file3', new TestFile(null, 'some body'));
+
+        // Symlink is turned into a copy
+        $this->assertFalse(is_link($this->tempDir.'/webmozart'));
+
+        // Directories are merged
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertSame('../../../fixtures/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertSame('../../../fixtures/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertFalse(is_link($this->tempDir.'/webmozart/sub/file3'));
+        $this->assertSame('some body', file_get_contents($this->tempDir.'/webmozart/sub/file3'));
+    }
 }

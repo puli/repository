@@ -431,12 +431,15 @@ class FilesystemRepository implements EditableRepository
         return new GlobIterator($this->baseDir.$query);
     }
 
-    private function symlinkMirror($origin, $target)
+    private function symlinkMirror($origin, $target, array $dirsToKeep = array())
     {
+        $targetIsDir = is_dir($target);
+        $forceDir = in_array($target, $dirsToKeep, true);
+
         // Merge directories
-        if (is_dir($target) && is_dir($origin)) {
+        if (is_dir($origin) && ($targetIsDir || $forceDir)) {
             if (is_link($target)) {
-                $this->replaceLinkByCopy($target);
+                $this->replaceLinkByCopy($target, $dirsToKeep);
             }
 
             $iterator = new RecursiveDirectoryIterator(
@@ -445,7 +448,7 @@ class FilesystemRepository implements EditableRepository
             );
 
             foreach ($iterator as $path => $filename) {
-                $this->symlinkMirror($path, $target.'/'.$filename);
+                $this->symlinkMirror($path, $target.'/'.$filename, $dirsToKeep);
             }
 
             return;
@@ -475,11 +478,30 @@ class FilesystemRepository implements EditableRepository
     {
         $previousPath = null;
 
+        // Collect all paths that MUST NOT be symlinks after doing the
+        // replace operation.
+        //
+        // Example:
+        //
+        // $dirsToKeep = ['/path/to/webmozart', '/path/to/webmozart/views']
+        //
+        // Before:
+        //   /webmozart -> target
+        //
+        // After:
+        //   /webmozart
+        //     /config -> target/config
+        //     /views
+        //       /index.html.twig -> target/views/index.html.twig
+
+        $dirsToKeep = array();
+
         while ($previousPath !== ($path = Path::getDirectory($path))) {
             $filesystemPath = $this->baseDir.$path;
+            $dirsToKeep[] = $filesystemPath;
 
             if (is_link($filesystemPath)) {
-                $this->replaceLinkByCopy($filesystemPath);
+                $this->replaceLinkByCopy($filesystemPath, $dirsToKeep);
 
                 return;
             }
@@ -488,12 +510,12 @@ class FilesystemRepository implements EditableRepository
         }
     }
 
-    private function replaceLinkByCopy($path)
+    private function replaceLinkByCopy($path, array $dirsToKeep = array())
     {
         $target = Path::makeAbsolute(readlink($path), Path::getDirectory($path));
         $this->filesystem->remove($path);
         $this->filesystem->mkdir($path);
-        $this->symlinkMirror($target, $path);
+        $this->symlinkMirror($target, $path, $dirsToKeep);
     }
 
     private function trySymlink($origin, $target)

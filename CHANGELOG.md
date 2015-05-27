@@ -4,6 +4,7 @@ Changelog
 * 1.0.0-next (@release_date@)
 
  * upgraded to webmozart/path-util 2.0
+ * fixed overriding of files in deep directories
 
 * 1.0.0-beta4 (2015-04-13)
 
