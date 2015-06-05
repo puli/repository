@@ -11,7 +11,13 @@ matrix:
     allow_failures:
         - php: hhvm
 
-before_script: composer install -n
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+install: composer install -n
 
 script: vendor/bin/phpunit -v --coverage-clover=coverage.clover
 
