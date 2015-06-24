@@ -109,7 +109,11 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function clear()
     {
-        // TODO
+        $removed = count($this->store->keys());
+
+        $this->store->clear();
+
+        return $removed;
     }
 
     /**
