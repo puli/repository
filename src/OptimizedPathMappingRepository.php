@@ -14,18 +14,33 @@ namespace Puli\Repository;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Webmozart\Assert\Assert;
+use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**
- * Optimized path mapping repository
- * When a resource is added, all its children are fully resolved in order to
- * improve performances on usage
+ * An optimized path mapping resource repository.
+ * When a resource is added, all its children are resolved
+ * and getting them is much faster.
  *
+ * Resources can be added with the method {@link add()}:
+ *
+ * ```php
+ * use Puli\Repository\OptimizedPathMappingRepository;
+ *
+ * $repo = new OptimizedPathMappingRepository();
+ * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
+ * ```
+ *
+ * This repository only supports instances of FilesystemResource.
+ *
+ * @since  1.0
+ * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
 class OptimizedPathMappingRepository implements EditableRepository
@@ -37,6 +52,8 @@ class OptimizedPathMappingRepository implements EditableRepository
 
     /**
      * Creates a new repository.
+     *
+     * @param KeyValueStore $store The store of all the paths.
      */
     public function __construct(KeyValueStore $store)
     {
@@ -65,7 +82,23 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function find($query, $language = 'glob')
     {
-        // TODO
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
+
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
+
+        $query = Path::canonicalize($query);
+        $resources = array();
+
+        if (false !== strpos($query, '*')) {
+            $resources = $this->iteratorToCollection($this->getGlobIterator($query));
+        } elseif ($this->store->exists($query)) {
+            $resources = array($this->store->get($query));
+        }
+
+        return new FilesystemResourceCollection($resources);
     }
 
     /**
@@ -73,7 +106,23 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function contains($query, $language = 'glob')
     {
-        // TODO
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
+
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
+
+        $query = Path::canonicalize($query);
+
+        if (false !== strpos($query, '*')) {
+            $iterator = $this->getGlobIterator($query);
+            $iterator->rewind();
+
+            return $iterator->valid();
+        }
+
+        return $this->store->exists($query);
     }
 
     /**
@@ -134,7 +183,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     public function listChildren($path)
     {
         $iterator = $this->getChildIterator($this->get($path));
-        $children = $this->store->getMultiple(iterator_to_array($iterator));
+        $children = $this->iteratorToCollection($iterator);
 
         return new FilesystemResourceCollection($children);
     }
@@ -203,7 +252,11 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * {@inheritdoc}
+     * Returns an iterator for the children of a resource.
+     *
+     * @param FilesystemResource $resource The resource.
+     *
+     * @return RegexFilterIterator|Resource[] The iterator.
      */
     private function getChildIterator(FilesystemResource $resource)
     {
@@ -215,5 +268,34 @@ class OptimizedPathMappingRepository implements EditableRepository
             $staticPrefix,
             new \ArrayIterator($this->store->keys())
         );
+    }
+
+    /**
+     * Returns an iterator for a glob.
+     *
+     * @param string $glob The glob.
+     *
+     * @return GlobFilterIterator|Resource[] The iterator.
+     */
+    private function getGlobIterator($glob)
+    {
+        return new GlobFilterIterator(
+            $glob,
+            new \ArrayIterator($this->store->keys())
+        );
+    }
+
+    /**
+     * Transform an iterator of paths into a collection of resources
+     *
+     * @param \Iterator $iterator
+     * @return FilesystemResourceCollection
+     */
+    private function iteratorToCollection(\Iterator $iterator)
+    {
+        $paths = iterator_to_array($iterator);
+        $resources = $this->store->getMultiple($paths);
+
+        return new FilesystemResourceCollection($resources);
     }
 }
