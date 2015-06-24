@@ -17,6 +17,7 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
@@ -58,6 +59,8 @@ class OptimizedPathMappingRepository implements EditableRepository
     public function __construct(KeyValueStore $store)
     {
         $this->store = $store;
+
+        $this->clear();
     }
 
     /**
@@ -170,9 +173,14 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function clear()
     {
-        $removed = count($this->store->keys());
+        $root = new DirectoryResource('/');
+        $root->attachTo($this);
+
+        // Subtract root
+        $removed = count($this->store->keys()) - 1;
 
         $this->store->clear();
+        $this->store->set('/', $root);
 
         return $removed;
     }
