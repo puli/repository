@@ -30,6 +30,28 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     abstract protected function createPrefilledRepository(Resource $root);
 
+    /**
+     * @param string $path
+     * @param string $body
+     *
+     * @return TestFile
+     */
+    protected function createFile($path = null, $body = TestFile::BODY)
+    {
+        return new TestFile($path, $body);
+    }
+
+    /**
+     * @param string $path
+     * @param array $children
+     *
+     * @return TestDirectory
+     */
+    protected function createDirectory($path = null, array $children = array())
+    {
+        return new TestDirectory($path, $children);
+    }
+
     protected function pass()
     {
         $this->assertTrue(true);
@@ -37,7 +59,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testContainsPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertTrue($repo->contains('/'));
         $this->assertTrue($repo->contains('/.'));
@@ -65,11 +87,11 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($repo->contains('/webmozart/puli/file2/.'));
         $this->assertFalse($repo->contains('/webmozart/puli/file2/..'));
 
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file1'),
-                    new TestFile('/webmozart/puli/file2'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file1'),
+                    $this->createFile('/webmozart/puli/file2'),
                 )),
             )),
         )));
@@ -102,18 +124,18 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testContainsPattern()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertFalse($repo->contains('/webmozart/**/*'));
         $this->assertFalse($repo->contains('/webmozart/file*'));
         $this->assertFalse($repo->contains('/webmozart/puli/file*'));
         $this->assertFalse($repo->contains('/webmozart/**/file*'));
 
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file1'),
-                    new TestFile('/webmozart/puli/file2'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file1'),
+                    $this->createFile('/webmozart/puli/file2'),
                 )),
             )),
         )));
@@ -128,8 +150,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testContainsDiscardsTrailingSlash()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $this->assertTrue($repo->contains('/webmozart/'));
@@ -137,7 +159,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testContainsInterpretsConsecutiveSlashesAsRoot()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertTrue($repo->contains('///'));
     }
@@ -147,8 +169,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testContainsExpectsAbsolutePath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $repo->contains('webmozart');
@@ -159,7 +181,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testContainsExpectsNonEmptyPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->contains('');
     }
@@ -169,16 +191,16 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testContainsExpectsStringPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->contains(new \stdClass());
     }
 
     public function testGetResource()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli'),
             )),
         )));
 
@@ -192,10 +214,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetBodyResource()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file'),
                 )),
             )),
         )));
@@ -210,8 +232,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetDiscardsTrailingSlash()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $this->assertEquals($repo->get('/webmozart'), $repo->get('/webmozart/'));
@@ -219,17 +241,17 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetInterpretsConsecutiveSlashesAsRoot()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertEquals($repo->get('/'), $repo->get('///'));
     }
 
     public function testGetCanonicalizesFilePaths()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file'),
                 )),
             )),
         )));
@@ -239,10 +261,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetCanonicalizesDirectoryPaths()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestDirectory('/webmozart/puli/dir'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createDirectory('/webmozart/puli/dir'),
                 )),
             )),
         )));
@@ -255,7 +277,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testGetExpectsExistingResource()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->get('/foo/bar');
     }
@@ -265,8 +287,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testGetExpectsAbsolutePath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $repo->get('webmozart');
@@ -277,7 +299,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testGetExpectsNonEmptyPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->get('');
     }
@@ -287,15 +309,15 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testGetExpectsStringPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->get(new \stdClass());
     }
 
     public function testGetDotInDirectory()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $this->assertEquals($repo->get('/webmozart'), $repo->get('/webmozart/.'));
@@ -303,10 +325,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetDotInFile()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file1'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file1'),
                 )),
             )),
         )));
@@ -320,16 +342,16 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetDotInRoot()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertEquals($repo->get('/'), $repo->get('/.'));
     }
 
     public function testGetDotDotInDirectory()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli'),
             )),
         )));
 
@@ -338,10 +360,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetDotDotInFile()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file'),
                 )),
             )),
         )));
@@ -355,20 +377,20 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testGetDotDotInRoot()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $this->assertEquals($repo->get('/'), $repo->get('/..'));
     }
 
     public function testHasChildren()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/.dotfile'),
-                    new TestFile('/webmozart/puli/foo'),
-                    new TestFile('/webmozart/puli/bar'),
-                    new TestDirectory('/webmozart/puli/dir'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/.dotfile'),
+                    $this->createFile('/webmozart/puli/foo'),
+                    $this->createFile('/webmozart/puli/bar'),
+                    $this->createDirectory('/webmozart/puli/dir'),
                 )),
             )),
         )));
@@ -387,7 +409,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testHasChildrenExpectsExistingResource()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->hasChildren('/foo/bar');
     }
@@ -397,8 +419,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testHasChildrenExpectsAbsolutePath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $repo->hasChildren('webmozart');
@@ -409,7 +431,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testHasChildrenExpectsNonEmptyPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->hasChildren('');
     }
@@ -419,25 +441,25 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testHasChildrenExpectsStringPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->hasChildren(new \stdClass());
     }
 
     public function testListChildren()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/.dotfile'),
-                    new TestFile('/webmozart/puli/foo'),
-                    new TestFile('/webmozart/puli/bar'),
-                    new TestDirectory('/webmozart/puli/dir', array(
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/.dotfile'),
+                    $this->createFile('/webmozart/puli/foo'),
+                    $this->createFile('/webmozart/puli/bar'),
+                    $this->createDirectory('/webmozart/puli/dir', array(
                         // Nest another directory which matches the regex
                         // /webmozart/puli/[^/]+$
-                        new TestDirectory('/webmozart/puli/dir/webmozart', array(
-                            new TestDirectory('/webmozart/puli/dir/webmozart/puli', array(
-                                new TestFile('/webmozart/puli/dir/webmozart/puli/file'),
+                        $this->createDirectory('/webmozart/puli/dir/webmozart', array(
+                            $this->createDirectory('/webmozart/puli/dir/webmozart/puli', array(
+                                $this->createFile('/webmozart/puli/dir/webmozart/puli/file'),
                             ))
                         )),
                     )),
@@ -458,10 +480,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testListChildrenReturnsEmptyCollectionForFiles()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/foo'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/foo'),
                 )),
             )),
         )));
@@ -474,9 +496,9 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testListRoot()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
-            new TestDirectory('/acme'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
+            $this->createDirectory('/acme'),
         )));
 
         $resources = $repo->listChildren('/');
@@ -493,7 +515,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testListChildrenExpectsExistingResource()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->listChildren('/foo/bar');
     }
@@ -503,8 +525,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testListChildrenExpectsAbsolutePath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $repo->listChildren('webmozart');
@@ -515,7 +537,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testListChildrenExpectsNonEmptyPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->listChildren('');
     }
@@ -525,20 +547,20 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testListChildrenExpectsStringPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->listChildren(new \stdClass());
     }
 
     public function testFind()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/.dotfoo'),
-                    new TestFile('/webmozart/puli/foo'),
-                    new TestFile('/webmozart/puli/bar'),
-                    new TestDirectory('/webmozart/puli/dirfoo'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/.dotfoo'),
+                    $this->createFile('/webmozart/puli/foo'),
+                    $this->createFile('/webmozart/puli/bar'),
+                    $this->createDirectory('/webmozart/puli/dirfoo'),
                 )),
             )),
         )));
@@ -555,10 +577,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testFindFile()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file'),
                 )),
             )),
         )));
@@ -572,8 +594,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testFindDirectory()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart'),
         )));
 
         $resources = $repo->find('/webmozart');
@@ -585,10 +607,10 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testFindCanonicalizesGlob()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/', array(
-            new TestDirectory('/webmozart', array(
-                new TestDirectory('/webmozart/puli', array(
-                    new TestFile('/webmozart/puli/file1'),
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/file1'),
                 )),
             )),
         )));
@@ -602,7 +624,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     public function testFindNoMatches()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $resources = $repo->find('/foo/**');
 
@@ -615,7 +637,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testFindExpectsAbsolutePath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->find('*');
     }
@@ -625,7 +647,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testFindExpectsNonEmptyPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->find('');
     }
@@ -635,7 +657,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
      */
     public function testFindExpectsStringPath()
     {
-        $repo = $this->createPrefilledRepository(new TestDirectory('/'));
+        $repo = $this->createPrefilledRepository($this->createDirectory('/'));
 
         $repo->find(new \stdClass());
     }

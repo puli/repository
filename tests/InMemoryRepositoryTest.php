@@ -57,7 +57,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
     {
         $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
-        $file = new TestFile('/file');
+        $file = $this->createFile('/file');
         $file->attachTo($otherRepo);
 
         $this->repo->add('/webmozart/puli/file', $file);
@@ -75,8 +75,8 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
     {
         $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
-        $file1 = new TestFile('/file1');
-        $file2 = new TestFile('/file2');
+        $file1 = $this->createFile('/file1');
+        $file2 = $this->createFile('/file2');
 
         $file2->attachTo($otherRepo);
 

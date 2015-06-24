@@ -51,28 +51,6 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     abstract protected function createReadRepository(EditableRepository $writeRepo);
 
-    /**
-     * @param string $path
-     * @param string $body
-     *
-     * @return TestFile
-     */
-    protected function createFile($path = null, $body = TestFile::BODY)
-    {
-        return new TestFile($path, $body);
-    }
-
-    /**
-     * @param string $path
-     * @param array $children
-     *
-     * @return TestDirectory
-     */
-    protected function createDirectory($path = null, array $children = array())
-    {
-        return new TestDirectory($path, $children);
-    }
-
     protected function setUp()
     {
         parent::setUp();
