@@ -31,7 +31,7 @@ class TestFilesystemFile extends AbstractFilesystemResource implements BodyResou
 
     public function __construct($path = null, $body = self::BODY)
     {
-        parent::__construct($path);
+        parent::__construct(null, $path);
 
         $this->body = $body;
         $this->metadata = new TestMetadata();

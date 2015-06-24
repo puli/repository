@@ -30,7 +30,7 @@ class TestFilesystemDirectory extends AbstractFilesystemResource
 
     public function __construct($path = null, array $children = array())
     {
-        parent::__construct($path);
+        parent::__construct(null, $path);
 
         foreach ($children as $child) {
             $this->children[$child->getName()] = $child;

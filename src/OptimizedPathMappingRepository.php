@@ -13,10 +13,11 @@ namespace Puli\Repository;
 
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -138,6 +139,14 @@ class OptimizedPathMappingRepository implements EditableRepository
 
         $path = Path::canonicalize($path);
 
+        if ($resource instanceof ResourceCollection) {
+            foreach ($resource as $child) {
+                $this->addResource($path.'/'.$child->getName(), $child);
+            }
+
+            return;
+        }
+
         if ($resource instanceof FilesystemResource) {
             $this->addResource($path, $resource);
 
@@ -145,7 +154,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a FilesystemResource. Got: %s',
+            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }
@@ -174,7 +183,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     public function clear()
     {
         $root = new DirectoryResource('/');
-        $root->attachTo($this);
+        $root->attachTo($this, '/');
 
         // Subtract root
         $removed = count($this->store->keys()) - 1;
@@ -302,7 +311,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     private function iteratorToCollection(\Iterator $iterator)
     {
         $paths = iterator_to_array($iterator);
-        $resources = $this->store->getMultiple($paths);
+        $resources = array_values($this->store->getMultiple($paths));
 
         return new FilesystemResourceCollection($resources);
     }
