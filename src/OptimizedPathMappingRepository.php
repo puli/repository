@@ -11,6 +11,8 @@
 
 namespace Puli\Repository;
 
+use Countable;
+use ArrayIterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceCollection;
@@ -20,7 +22,6 @@ use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\GenericFilesystemResource;
-use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -174,7 +175,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     public function remove($query, $language = 'glob')
     {
         $resources = $this->find($query, $language);
-        $nbOfResources = count($this->store->keys());
+        $nbOfResources = $this->countStore();
 
         // Run the assertion after find(), so that we know that $query is valid
         Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
@@ -183,7 +184,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             $this->removeResource($resource);
         }
 
-        return $nbOfResources - count($this->store->keys());
+        return $nbOfResources - $this->countStore();
     }
 
     /**
@@ -195,7 +196,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $root->attachTo($this, '/');
 
         // Subtract root
-        $removed = count($this->store->keys()) - 1;
+        $removed = $this->countStore() - 1;
 
         $this->store->clear();
         $this->store->set('/', $root);
@@ -292,7 +293,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         return new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new \ArrayIterator($this->store->keys())
+            new ArrayIterator($this->store->keys())
         );
     }
 
@@ -307,7 +308,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     {
         return new GlobFilterIterator(
             $glob,
-            new \ArrayIterator($this->store->keys())
+            new ArrayIterator($this->store->keys())
         );
     }
 
@@ -346,6 +347,18 @@ class OptimizedPathMappingRepository implements EditableRepository
         $resources = array_values($this->store->getMultiple($paths));
 
         return new FilesystemResourceCollection($resources);
+    }
+
+    /**
+     * Count the number of elements in the store
+     */
+    private function countStore()
+    {
+        if ($this->store instanceof Countable) {
+            return count($this->store);
+        }
+
+        return count($this->store->keys());
     }
 
     /**
