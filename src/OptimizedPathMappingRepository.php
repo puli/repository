@@ -82,7 +82,10 @@ class OptimizedPathMappingRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->store->get($path);
+        $resource = $this->store->get($path);
+        $resource->attachTo($this, $path);
+
+        return $resource;
     }
 
     /**
