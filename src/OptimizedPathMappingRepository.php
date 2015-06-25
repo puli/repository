@@ -19,6 +19,8 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\GenericFilesystemResource;
+use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
@@ -140,15 +142,21 @@ class OptimizedPathMappingRepository implements EditableRepository
         $path = Path::canonicalize($path);
 
         if ($resource instanceof ResourceCollection) {
+            $this->ensureDirectoryExists($path);
+
             foreach ($resource as $child) {
                 $this->addResource($path.'/'.$child->getName(), $child);
             }
+
+            $this->sortStore();
 
             return;
         }
 
         if ($resource instanceof FilesystemResource) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
             $this->addResource($path, $resource);
+            $this->sortStore();
 
             return;
         }
@@ -182,7 +190,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function clear()
     {
-        $root = new DirectoryResource('/');
+        $root = new GenericFilesystemResource('/');
         $root->attachTo($this, '/');
 
         // Subtract root
@@ -258,7 +266,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         }
 
         // Recursively register directory contents
-        foreach ($this->getChildIterator($resource) as $child) {
+        foreach ($this->iteratorToCollection($this->getChildIterator($resource)) as $child) {
             $this->removeResource($child);
         }
 
@@ -303,6 +311,29 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
+     * Recursively creates a directory for a path.
+     *
+     * @param string $path A directory path.
+     * @return DirectoryResource The created resource
+     */
+    private function ensureDirectoryExists($path)
+    {
+        if (! $this->store->exists($path)) {
+            // Recursively initialize parent directories
+            if ($path !== '/') {
+                $this->ensureDirectoryExists(Path::getDirectory($path));
+            }
+
+            $resource = new GenericFilesystemResource($path);
+            $resource->attachTo($this, $path);
+
+            $this->store->set($path, $resource);
+
+            return;
+        }
+    }
+
+    /**
      * Transform an iterator of paths into a collection of resources
      *
      * @param \Iterator $iterator
@@ -314,5 +345,21 @@ class OptimizedPathMappingRepository implements EditableRepository
         $resources = array_values($this->store->getMultiple($paths));
 
         return new FilesystemResourceCollection($resources);
+    }
+
+    /**
+     * Sort the store by keys
+     */
+    private function sortStore()
+    {
+        $resources = $this->store->getMultiple($this->store->keys());
+
+        ksort($resources);
+
+        $this->store->clear();
+
+        foreach ($resources as $path => $resource) {
+            $this->store->set($path, $resource);
+        }
     }
 }
