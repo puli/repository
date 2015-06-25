@@ -16,7 +16,6 @@
         "webmozart/assert": "~1.0"
     },
     "require-dev": {
-        "webmozart/key-value-store": "~1.0@dev",
         "symfony/filesystem": "~2.0",
         "phpunit/phpunit": "^4.6"
     },
