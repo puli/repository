@@ -22,6 +22,7 @@ use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\GenericFilesystemResource;
 use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
+use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
@@ -98,7 +99,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $query = Path::canonicalize($query);
         $resources = array();
 
-        if (false !== strpos($query, '*')) {
+        if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
             $resources = array($this->store->get($query));
@@ -121,7 +122,7 @@ class OptimizedPathMappingRepository implements EditableRepository
 
         $query = Path::canonicalize($query);
 
-        if (false !== strpos($query, '*')) {
+        if (Glob::isDynamic($query)) {
             $iterator = $this->getGlobIterator($query);
             $iterator->rewind();
 
