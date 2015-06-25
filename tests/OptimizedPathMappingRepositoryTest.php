@@ -14,6 +14,8 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Webmozart\KeyValueStore\ArrayStore;
@@ -61,25 +63,91 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
         return $writeRepo;
     }
 
-    /**
-     * @param string $path
-     * @param string $body
-     *
-     * @return TestFilesystemFile
-     */
     protected function createFile($path = null, $body = TestFilesystemFile::BODY)
     {
         return new TestFilesystemFile($path, $body);
     }
 
-    /**
-     * @param string $path
-     * @param array $children
-     *
-     * @return TestFilesystemDirectory
-     */
     protected function createDirectory($path = null, array $children = array())
     {
         return new TestFilesystemDirectory($path, $children);
+    }
+
+    public function testAddDirectoryCompletelyResolveChildren()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__ . '/Fixtures/dir5'));
+
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/file1'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/file2'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/sub'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/sub/file3'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/sub/file4'));
+    }
+
+    public function testAddClonesResourcesAttachedToAnotherRepository()
+    {
+        $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $file = $this->createFile('/file');
+        $file->attachTo($otherRepo);
+
+        $this->repo->add('/webmozart/puli/file', $file);
+
+        $this->assertNotSame($file, $this->repo->get('/webmozart/puli/file'));
+        $this->assertSame('/file', $file->getPath());
+
+        $clone = clone $file;
+        $clone->attachTo($this->repo, '/webmozart/puli/file');
+
+        $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file'));
+    }
+
+    public function testAddCollectionClonesChildrenAttachedToAnotherRepository()
+    {
+        $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $file1 = $this->createFile('/file1');
+        $file2 = $this->createFile('/file2');
+
+        $file2->attachTo($otherRepo);
+
+        $this->repo->add('/webmozart/puli', new ArrayResourceCollection(array($file1, $file2)));
+
+        $this->assertSame($file1, $this->repo->get('/webmozart/puli/file1'));
+        $this->assertNotSame($file2, $this->repo->get('/webmozart/puli/file2'));
+        $this->assertSame('/file2', $file2->getPath());
+
+        $clone = clone $file2;
+        $clone->attachTo($this->repo, '/webmozart/puli/file2');
+
+        $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file2'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testContainsFailsIfLanguageNotGlob()
+    {
+        $this->readRepo->contains('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testFindFailsIfLanguageNotGlob()
+    {
+        $this->readRepo->find('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testRemoveFailsIfLanguageNotGlob()
+    {
+        $this->writeRepo->remove('/*', 'foobar');
     }
 }
