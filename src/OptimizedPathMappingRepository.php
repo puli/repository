@@ -78,7 +78,7 @@ class OptimizedPathMappingRepository implements EditableRepository
 
         $path = Path::canonicalize($path);
 
-        if (! $this->store->exists($path)) {
+        if (!$this->store->exists($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
@@ -263,7 +263,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $path = $resource->getPath();
 
         // Ignore non-existing resources
-        if (! $this->store->exists($path)) {
+        if (!$this->store->exists($path)) {
             return;
         }
 
@@ -320,7 +320,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     private function ensureDirectoryExists($path)
     {
-        if (! $this->store->exists($path)) {
+        if (!$this->store->exists($path)) {
             // Recursively initialize parent directories
             if ($path !== '/') {
                 $this->ensureDirectoryExists(Path::getDirectory($path));
