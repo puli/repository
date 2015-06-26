@@ -101,15 +101,15 @@ class OptimizedPathMappingRepository implements EditableRepository
         Assert::startsWith($query, '/', 'The glob %s is not absolute.');
 
         $query = Path::canonicalize($query);
-        $resources = array();
+        $resources = new FilesystemResourceCollection();
 
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
-            $resources = array($this->store->get($query));
+            $resources = new FilesystemResourceCollection(array($this->store->get($query)));
         }
 
-        return new FilesystemResourceCollection($resources);
+        return $resources;
     }
 
     /**
