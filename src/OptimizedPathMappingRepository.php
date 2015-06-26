@@ -65,7 +65,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     {
         $this->store = $store;
 
-        $this->clear();
+        $this->createRoot();
     }
 
     /**
@@ -195,14 +195,11 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function clear()
     {
-        $root = new GenericFilesystemResource('/');
-        $root->attachTo($this, '/');
-
         // Subtract root
         $removed = $this->countStore() - 1;
 
         $this->store->clear();
-        $this->store->set('/', $root);
+        $this->createRoot();
 
         return $removed;
     }
@@ -350,6 +347,21 @@ class OptimizedPathMappingRepository implements EditableRepository
         $resources = array_values($this->store->getMultiple($paths));
 
         return new FilesystemResourceCollection($resources);
+    }
+
+    /**
+     * Count the number of elements in the store
+     */
+    private function createRoot()
+    {
+        if ($this->store->exists('/')) {
+            return;
+        }
+
+        $root = new GenericFilesystemResource();
+        $root->attachTo($this, '/');
+
+        $this->store->set('/', $root);
     }
 
     /**

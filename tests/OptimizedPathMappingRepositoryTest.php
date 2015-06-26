@@ -16,6 +16,7 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Webmozart\KeyValueStore\ArrayStore;
@@ -71,6 +72,18 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     protected function createDirectory($path = null, array $children = array())
     {
         return new TestFilesystemDirectory($path, $children);
+    }
+
+    public function testCreateWithFilledStore()
+    {
+        $store = new ArrayStore();
+        $store->set('/webmozart', new DirectoryResource(__DIR__ . '/Fixtures/dir5'));
+        $store->set('/webmozart/file1', new FileResource(__DIR__ . '/Fixtures/dir5/file1'));
+
+        $repo = new OptimizedPathMappingRepository($store);
+
+        $this->assertTrue($repo->contains('/webmozart'));
+        $this->assertTrue($repo->contains('/webmozart/file1'));
     }
 
     public function testAddDirectoryCompletelyResolveChildren()
