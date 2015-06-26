@@ -575,6 +575,52 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[2]);
     }
 
+    public function testFindBrackets()
+    {
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/.dotfoo'),
+                    $this->createFile('/webmozart/puli/foo'),
+                    $this->createFile('/webmozart/puli/bar'),
+                    $this->createDirectory('/webmozart/puli/dirfoo'),
+                )),
+            )),
+        )));
+
+        $resources = $repo->find('/webmozart/puli/{foo,bar}');
+
+        $this->assertCount(2, $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
+        // sorted
+        $this->assertEquals($repo->get('/webmozart/puli/bar'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[1]);
+    }
+
+    public function testFindFull()
+    {
+        $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/webmozart/puli', array(
+                    $this->createFile('/webmozart/puli/.dotfoo'),
+                    $this->createFile('/webmozart/puli/foo'),
+                    $this->createFile('/webmozart/puli/bar'),
+                    $this->createDirectory('/webmozart/puli/dirfoo'),
+                )),
+            )),
+        )));
+
+        $resources = $repo->find('/webmozart/**/*{foo,bar}');
+
+        $this->assertCount(4, $resources);
+        $this->assertInstanceOf('Puli\Repository\Api\ResourceCollection', $resources);
+        // sorted
+        $this->assertEquals($repo->get('/webmozart/puli/.dotfoo'), $resources[0]);
+        $this->assertEquals($repo->get('/webmozart/puli/bar'), $resources[1]);
+        $this->assertEquals($repo->get('/webmozart/puli/dirfoo'), $resources[2]);
+        $this->assertEquals($repo->get('/webmozart/puli/foo'), $resources[3]);
+    }
+
     public function testFindFile()
     {
         $repo = $this->createPrefilledRepository($this->createDirectory('/', array(
