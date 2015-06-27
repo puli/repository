@@ -38,6 +38,14 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
      */
     protected $repo;
 
+    /**
+     * Counter to avoid collisions during tests on files
+     *
+     * @var int
+     */
+    protected static $createdFiles = 0;
+
+
     protected function setUp()
     {
         parent::setUp();
@@ -45,6 +53,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->store = new ArrayStore();
         $this->repo = new OptimizedPathMappingRepository($this->store);
     }
+
 
     protected function createPrefilledRepository(Resource $root)
     {
@@ -66,7 +75,12 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createFile($path = null, $body = TestFilesystemFile::BODY)
     {
-        return new TestFilesystemFile($path, $body);
+        $filesystemPath = __DIR__ . '/Fixtures/path_mapping/file' . self::$createdFiles;
+
+        file_put_contents($filesystemPath, $body);
+        self::$createdFiles++;
+
+        return new FileResource($filesystemPath, $path);
     }
 
     protected function createDirectory($path = null, array $children = array())
@@ -114,27 +128,6 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $clone->attachTo($this->repo, '/webmozart/puli/file');
 
         $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file'));
-    }
-
-    public function testAddCollectionClonesChildrenAttachedToAnotherRepository()
-    {
-        $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
-
-        $file1 = $this->createFile('/file1');
-        $file2 = $this->createFile('/file2');
-
-        $file2->attachTo($otherRepo);
-
-        $this->repo->add('/webmozart/puli', new ArrayResourceCollection(array($file1, $file2)));
-
-        $this->assertSame($file1, $this->repo->get('/webmozart/puli/file1'));
-        $this->assertNotSame($file2, $this->repo->get('/webmozart/puli/file2'));
-        $this->assertSame('/file2', $file2->getPath());
-
-        $clone = clone $file2;
-        $clone->attachTo($this->repo, '/webmozart/puli/file2');
-
-        $this->assertEquals($clone, $this->repo->get('/webmozart/puli/file2'));
     }
 
     /**

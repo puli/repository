@@ -21,6 +21,7 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericFilesystemResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
@@ -82,7 +83,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $resource = $this->store->get($path);
+        $resource = $this->unserialize($this->store->get($path));
         $resource->attachTo($this, $path);
 
         return $resource;
@@ -106,7 +107,10 @@ class OptimizedPathMappingRepository implements EditableRepository
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
-            $resources = new FilesystemResourceCollection(array($this->store->get($query)));
+            $resource = $this->unserialize($this->store->get($query));
+            $resource->attachTo($this, $query);
+
+            $resources = new FilesystemResourceCollection(array($resource));
         }
 
         return $resources;
@@ -243,9 +247,8 @@ class OptimizedPathMappingRepository implements EditableRepository
 
         $resource->attachTo($this, $path);
 
-        // Add the resource before adding its children, so that the array
-        // stays sorted
-        $this->store->set($path, $resource);
+        // Add the resource before adding its children, so that the array stays sorted
+        $this->store->set($path, $this->serialize($resource));
 
         $basePath = '/' === $path ? $path : $path.'/';
 
@@ -267,7 +270,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             return;
         }
 
-        // Recursively register directory contents
+        // Recursively remove children
         foreach ($this->iteratorToCollection($this->getChildIterator($resource)) as $child) {
             $this->removeResource($child);
         }
@@ -279,11 +282,11 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Returns an iterator for the children of a resource.
+     * Returns an iterator for the children paths of a resource.
      *
      * @param FilesystemResource $resource The resource.
      *
-     * @return RegexFilterIterator|Resource[] The iterator.
+     * @return RegexFilterIterator|string[] The iterator of paths.
      */
     private function getChildIterator(FilesystemResource $resource)
     {
@@ -302,7 +305,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      *
      * @param string $glob The glob.
      *
-     * @return GlobFilterIterator|Resource[] The iterator.
+     * @return GlobFilterIterator|string[] The iterator of paths.
      */
     private function getGlobIterator($glob)
     {
@@ -326,10 +329,7 @@ class OptimizedPathMappingRepository implements EditableRepository
                 $this->ensureDirectoryExists(Path::getDirectory($path));
             }
 
-            $resource = new GenericFilesystemResource($path);
-            $resource->attachTo($this, $path);
-
-            $this->store->set($path, $resource);
+            $this->store->set($path, null);
 
             return;
         }
@@ -343,8 +343,15 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     private function iteratorToCollection(\Iterator $iterator)
     {
-        $paths = iterator_to_array($iterator);
-        $resources = array_values($this->store->getMultiple($paths));
+        $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
+        $resources = array();
+
+        foreach ($filesystemPaths as $path => $filesystemPath) {
+            $resource = $this->unserialize($filesystemPath);
+            $resource->attachTo($this, $path);
+
+            $resources[] = $resource;
+        }
 
         return new FilesystemResourceCollection($resources);
     }
@@ -358,10 +365,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             return;
         }
 
-        $root = new GenericFilesystemResource();
-        $root->attachTo($this, '/');
-
-        $this->store->set('/', $root);
+        $this->store->set('/', null);
     }
 
     /**
@@ -390,5 +394,37 @@ class OptimizedPathMappingRepository implements EditableRepository
         foreach ($resources as $path => $resource) {
             $this->store->set($path, $resource);
         }
+    }
+
+    /**
+     * Create a string representing a given resource for the store
+     *
+     * @param FilesystemResource $resource
+     * @return string
+     */
+    private function serialize(FilesystemResource $resource)
+    {
+        return $resource->getFilesystemPath();
+    }
+
+    /**
+     * Create a resource from a given string of the store
+     *
+     * @param string $serializedResource
+     * @return FilesystemResource
+     */
+    private function unserialize($serializedResource)
+    {
+        if ($serializedResource === null) {
+            return new GenericFilesystemResource();
+        }
+
+        if (is_dir($serializedResource)) {
+            return new DirectoryResource($serializedResource);
+        } elseif (is_file($serializedResource)) {
+            return new FileResource($serializedResource);
+        }
+
+        return new GenericFilesystemResource();
     }
 }
