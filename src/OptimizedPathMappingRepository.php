@@ -181,14 +181,32 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function remove($query, $language = 'glob')
     {
-        $resources = $this->find($query, $language);
-        $nbOfResources = $this->countStore();
+        if ('glob' !== $language) {
+            throw UnsupportedLanguageException::forLanguage($language);
+        }
 
-        // Run the assertion after find(), so that we know that $query is valid
+        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
+        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
+
+        $query = Path::canonicalize($query);
+
         Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
-        foreach ($resources as $resource) {
-            $this->removeResource($resource);
+        // Find resources to remove
+        // (more efficient that find() as we do not need to unserialize them)
+        $paths = array();
+
+        if (Glob::isDynamic($query)) {
+            $paths = $this->getGlobIterator($query);
+        } elseif ($this->store->exists($query)) {
+            $paths = array($query);
+        }
+
+        // Remove the resources found
+        $nbOfResources = $this->countStore();
+
+        foreach ($paths as $path) {
+            $this->removePath($path);
         }
 
         return $nbOfResources - $this->countStore();
@@ -259,26 +277,23 @@ class OptimizedPathMappingRepository implements EditableRepository
 
 
     /**
-     * @param FilesystemResource $resource
+     * @param string $path
      */
-    private function removeResource(FilesystemResource $resource)
+    private function removePath($path)
     {
-        $path = $resource->getPath();
-
-        // Ignore non-existing resources
         if (!$this->store->exists($path)) {
             return;
         }
 
-        // Recursively remove children
-        foreach ($this->iteratorToCollection($this->getChildIterator($resource)) as $child) {
-            $this->removeResource($child);
+        // Remove children first
+        $children = $this->getRecursivePathChildIterator($path);
+
+        foreach ($children as $child) {
+            $this->store->remove($child);
         }
 
+        // Remove the resource
         $this->store->remove($path);
-
-        // Detach from locator
-        $resource->detach($this);
     }
 
     /**
@@ -292,6 +307,25 @@ class OptimizedPathMappingRepository implements EditableRepository
     {
         $staticPrefix = rtrim($resource->getPath(), '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
+
+        return new RegexFilterIterator(
+            $regExp,
+            $staticPrefix,
+            new ArrayIterator($this->store->keys())
+        );
+    }
+
+    /**
+     * Returns a recursive iterator for the children paths under a given path.
+     *
+     * @param string $path The path.
+     *
+     * @return RegexFilterIterator|string[] The iterator of paths.
+     */
+    private function getRecursivePathChildIterator($path)
+    {
+        $staticPrefix = rtrim($path, '/').'/';
+        $regExp = '~^'.preg_quote($staticPrefix, '~').'.+$~';
 
         return new RegexFilterIterator(
             $regExp,
