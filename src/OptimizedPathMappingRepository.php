@@ -86,7 +86,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $resource = $this->unserialize($this->store->get($path));
+        $resource = $this->createResource($this->store->get($path));
         $resource->attachTo($this, $path);
 
         return $resource;
@@ -110,7 +110,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
-            $resource = $this->unserialize($this->store->get($query));
+            $resource = $this->createResource($this->store->get($query));
             $resource->attachTo($this, $query);
 
             $resources = new FilesystemResourceCollection(array($resource));
@@ -269,7 +269,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $resource->attachTo($this, $path);
 
         // Add the resource before adding its children, so that the array stays sorted
-        $this->store->set($path, $this->serialize($resource));
+        $this->store->set($path, $resource->getFilesystemPath());
 
         $basePath = '/' === $path ? $path : $path.'/';
 
@@ -384,7 +384,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $resources = array();
 
         foreach ($filesystemPaths as $path => $filesystemPath) {
-            $resource = $this->unserialize($filesystemPath);
+            $resource = $this->createResource($filesystemPath);
             $resource->attachTo($this, $path);
 
             $resources[] = $resource;
@@ -434,32 +434,21 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Create a string representing a given resource for the store
+     * Create a resource using its filesystem path
      *
-     * @param FilesystemResource $resource
-     * @return string
-     */
-    private function serialize(FilesystemResource $resource)
-    {
-        return $resource->getFilesystemPath();
-    }
-
-    /**
-     * Create a resource from a given string of the store
-     *
-     * @param string $serializedResource
+     * @param string $filesystemPath
      * @return FilesystemResource
      */
-    private function unserialize($serializedResource)
+    private function createResource($filesystemPath)
     {
-        if ($serializedResource === null) {
+        if ($filesystemPath === null) {
             return new GenericFilesystemResource();
         }
 
-        if (is_dir($serializedResource)) {
-            return new DirectoryResource($serializedResource);
-        } elseif (is_file($serializedResource)) {
-            return new FileResource($serializedResource);
+        if (is_dir($filesystemPath)) {
+            return new DirectoryResource($filesystemPath);
+        } elseif (is_file($filesystemPath)) {
+            return new FileResource($filesystemPath);
         }
 
         return new GenericFilesystemResource();
