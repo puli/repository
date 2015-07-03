@@ -13,6 +13,8 @@ namespace Puli\Repository;
 
 use Countable;
 use ArrayIterator;
+use Iterator;
+
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceCollection;
@@ -23,6 +25,7 @@ use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericFilesystemResource;
+
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -372,10 +375,10 @@ class OptimizedPathMappingRepository implements EditableRepository
     /**
      * Transform an iterator of paths into a collection of resources
      *
-     * @param \Iterator $iterator
+     * @param Iterator $iterator
      * @return FilesystemResourceCollection
      */
-    private function iteratorToCollection(\Iterator $iterator)
+    private function iteratorToCollection(Iterator $iterator)
     {
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
         $resources = array();
