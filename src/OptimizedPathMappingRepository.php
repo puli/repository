@@ -17,14 +17,16 @@ use Iterator;
 
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
-use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\GenericFilesystemResource;
+use Puli\Repository\Resource\GenericResource;
 
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
@@ -105,7 +107,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         Assert::startsWith($query, '/', 'The glob %s is not absolute.');
 
         $query = Path::canonicalize($query);
-        $resources = new FilesystemResourceCollection();
+        $resources = new ArrayResourceCollection();
 
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
@@ -113,7 +115,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             $resource = $this->createResource($this->store->get($query));
             $resource->attachTo($this, $query);
 
-            $resources = new FilesystemResourceCollection(array($resource));
+            $resources = new ArrayResourceCollection(array($resource));
         }
 
         return $resources;
@@ -237,7 +239,7 @@ class OptimizedPathMappingRepository implements EditableRepository
         $iterator = $this->getChildIterator($this->get($path));
         $children = $this->iteratorToCollection($iterator);
 
-        return new FilesystemResourceCollection($children);
+        return new ArrayResourceCollection($children);
     }
 
     /**
@@ -302,11 +304,11 @@ class OptimizedPathMappingRepository implements EditableRepository
     /**
      * Returns an iterator for the children paths of a resource.
      *
-     * @param FilesystemResource $resource The resource.
+     * @param Resource $resource The resource.
      *
      * @return RegexFilterIterator|string[] The iterator of paths.
      */
-    private function getChildIterator(FilesystemResource $resource)
+    private function getChildIterator(Resource $resource)
     {
         $staticPrefix = rtrim($resource->getPath(), '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
@@ -376,7 +378,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      * Transform an iterator of paths into a collection of resources
      *
      * @param Iterator $iterator
-     * @return FilesystemResourceCollection
+     * @return ArrayResourceCollection
      */
     private function iteratorToCollection(Iterator $iterator)
     {
@@ -390,7 +392,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             $resources[] = $resource;
         }
 
-        return new FilesystemResourceCollection($resources);
+        return new ArrayResourceCollection($resources);
     }
 
     /**
@@ -442,7 +444,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     private function createResource($filesystemPath)
     {
         if ($filesystemPath === null) {
-            return new GenericFilesystemResource();
+            return new GenericResource();
         }
 
         if (is_dir($filesystemPath)) {
@@ -451,6 +453,6 @@ class OptimizedPathMappingRepository implements EditableRepository
             return new FileResource($filesystemPath);
         }
 
-        return new GenericFilesystemResource();
+        return new GenericResource();
     }
 }
