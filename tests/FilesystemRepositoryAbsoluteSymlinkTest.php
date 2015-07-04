@@ -23,7 +23,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepositoryTest
+class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemRepositoryTest
 {
     private $tempBaseDir;
 
@@ -90,7 +90,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         $this->writeRepo->add('/webmozart/dir', new DirectoryResource($this->tempFixtures.'/dir1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir'));
-        $this->assertSame($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/dir'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/dir'));
     }
 
     public function testOverwriteDirectoryWithDirectoryTurnsSymlinkIntoDirectory()
@@ -103,11 +103,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/file1'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/dir/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/dir/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/file2'));
-        $this->assertSame($this->tempFixtures.'/dir2/file2', readlink($this->tempDir.'/webmozart/dir/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir2/file2', readlink($this->tempDir.'/webmozart/dir/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/file3'));
-        $this->assertSame($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/dir/file3'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/dir/file3'));
     }
 
     public function testOverwriteDirectoryWithDirectoryMergesSubdirectories()
@@ -121,11 +121,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         // Subdirectories are merged
         $this->assertTrue(is_dir($this->tempDir.'/webmozart/dir/sub'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/sub/file1'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/dir/sub/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/dir/sub/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/sub/file2'));
-        $this->assertSame($this->tempFixtures.'/dir4/sub/file2', readlink($this->tempDir.'/webmozart/dir/sub/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir4/sub/file2', readlink($this->tempDir.'/webmozart/dir/sub/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir/sub/file3'));
-        $this->assertSame($this->tempFixtures.'/dir4/sub/file3', readlink($this->tempDir.'/webmozart/dir/sub/file3'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir4/sub/file3', readlink($this->tempDir.'/webmozart/dir/sub/file3'));
     }
 
     public function testOverwriteDirectoryWithFileReplacesSymlink()
@@ -134,7 +134,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
     }
 
     public function testAddFileCreatesSymlink()
@@ -142,7 +142,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         $this->writeRepo->add('/webmozart/file', new FileResource($this->tempFixtures.'/dir1/file2'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file'));
-        $this->assertSame($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file'));
     }
 
     public function testOverwriteFileWithDirectoryReplacesSymlink()
@@ -151,7 +151,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         $this->writeRepo->add('/webmozart/path', new DirectoryResource($this->tempFixtures.'/dir1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
-        $this->assertSame($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/path'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/path'));
     }
 
     public function testOverwriteFileWithFileReplacesSymlink()
@@ -160,7 +160,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
         $this->writeRepo->add('/webmozart/path', new FileResource($this->tempFixtures.'/dir1/file1'));
 
         $this->assertTrue(is_link($this->tempDir.'/webmozart/path'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/path'));
     }
 
     public function testAddSubDirectoryTurnsParentSymlinkIntoDirectory()
@@ -173,11 +173,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file1'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file2'));
-        $this->assertSame($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/dir'));
-        $this->assertSame($this->tempFixtures.'/dir2', readlink($this->tempDir.'/webmozart/dir'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir2', readlink($this->tempDir.'/webmozart/dir'));
     }
 
     public function testAddSubFileTurnsParentSymlinkIntoDirectory()
@@ -190,11 +190,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file1'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file2'));
-        $this->assertSame($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file3'));
-        $this->assertSame($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/file3'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/file3'));
     }
 
     public function testAddSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
@@ -207,11 +207,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file1'));
-        $this->assertSame($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file1', readlink($this->tempDir.'/webmozart/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/file2'));
-        $this->assertSame($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1/file2', readlink($this->tempDir.'/webmozart/file2'));
         $this->assertFalse(is_link($this->tempDir.'/webmozart/file3'));
-        $this->assertSame('some body', file_get_contents($this->tempDir.'/webmozart/file3'));
+        $this->assertPathsAreEqual('some body', file_get_contents($this->tempDir.'/webmozart/file3'));
     }
 
     public function testAddSubSubDirectoryTurnsParentSymlinkIntoDirectory()
@@ -224,11 +224,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/dir'));
-        $this->assertSame($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/sub/dir'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir1', readlink($this->tempDir.'/webmozart/sub/dir'));
     }
 
     public function testAddSubSubFileTurnsParentSymlinkIntoDirectory()
@@ -241,11 +241,11 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file3'));
-        $this->assertSame($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/sub/file3'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir2/file3', readlink($this->tempDir.'/webmozart/sub/file3'));
     }
 
     public function testAddSubSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
@@ -258,9 +258,9 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractEditableRepository
 
         // Directories are merged
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file1'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file1', readlink($this->tempDir.'/webmozart/sub/file1'));
         $this->assertTrue(is_link($this->tempDir.'/webmozart/sub/file2'));
-        $this->assertSame($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
+        $this->assertPathsAreEqual($this->tempFixtures.'/dir3/sub/file2', readlink($this->tempDir.'/webmozart/sub/file2'));
         $this->assertFalse(is_link($this->tempDir.'/webmozart/sub/file3'));
         $this->assertSame('some body', file_get_contents($this->tempDir.'/webmozart/sub/file3'));
     }

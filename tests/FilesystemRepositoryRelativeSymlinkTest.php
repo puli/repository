@@ -43,6 +43,10 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
             return;
         }
 
+        if ('\\' === DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('Relative symlinks are not supported');
+        }
+
         while (false === @mkdir($this->tempBaseDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryRelativeSymlinkTest'.rand(10000, 99999), 0777, true)) {}
 
         // Create both directories in the same directory, so that relative links
