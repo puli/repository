@@ -14,11 +14,11 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
+use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**
@@ -39,6 +39,13 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     protected $repo;
 
     /**
+     * Temporary directory for test filess
+     *
+     * @var string
+     */
+    protected $tempDir;
+
+    /**
      * Counter to avoid collisions during tests on files
      *
      * @var int
@@ -46,12 +53,24 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     protected static $createdFiles = 0;
 
 
+
     protected function setUp()
     {
         parent::setUp();
 
+        $this->tempDir = sys_get_temp_dir() . '/puli-repository/OptimizedPathMappingRepositoryTest' . md5(uniqid(time(), true));
+        mkdir($this->tempDir, 0777, true);
+
         $this->store = new ArrayStore();
         $this->repo = new OptimizedPathMappingRepository($this->store);
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        $filesystem = new Filesystem();
+        $filesystem->remove($this->tempDir);
     }
 
 
@@ -75,7 +94,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createFile($path = null, $body = TestFilesystemFile::BODY)
     {
-        $filesystemPath = __DIR__ . '/Fixtures/path_mapping/file' . self::$createdFiles;
+        $filesystemPath = $this->tempDir . '/file' . self::$createdFiles;
 
         file_put_contents($filesystemPath, $body);
         self::$createdFiles++;
