@@ -361,16 +361,16 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     private function ensureDirectoryExists($path)
     {
-        if (!$this->store->exists($path)) {
-            // Recursively initialize parent directories
-            if ($path !== '/') {
-                $this->ensureDirectoryExists(Path::getDirectory($path));
-            }
-
-            $this->store->set($path, null);
-
+        if ($this->store->exists($path)) {
             return;
         }
+
+        // Recursively initialize parent directories
+        if ('/' !== $path) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
+        }
+
+        $this->store->set($path, null);
     }
 
     /**
