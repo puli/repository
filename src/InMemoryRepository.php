@@ -21,6 +21,7 @@ use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
+use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
@@ -87,7 +88,7 @@ class InMemoryRepository implements EditableRepository
         $query = Path::canonicalize($query);
         $resources = array();
 
-        if (false !== strpos($query, '*')) {
+        if (Glob::isDynamic($query)) {
             $resources = $this->getGlobIterator($query);
         } elseif (isset($this->resources[$query])) {
             $resources = array($this->resources[$query]);
@@ -110,7 +111,7 @@ class InMemoryRepository implements EditableRepository
 
         $query = Path::canonicalize($query);
 
-        if (false !== strpos($query, '*')) {
+        if (Glob::isDynamic($query)) {
             $iterator = $this->getGlobIterator($query);
             $iterator->rewind();
 

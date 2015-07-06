@@ -204,7 +204,7 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
     public function testAddSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
     {
         $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir1'));
-        $this->writeRepo->add('/webmozart/file3', new TestFile(null, 'some body'));
+        $this->writeRepo->add('/webmozart/file3', $this->createFile(null, 'some body'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart'));
@@ -255,7 +255,7 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
     public function testAddSubSubResourceWithBodyTurnsParentSymlinkIntoDirectory()
     {
         $this->writeRepo->add('/webmozart', new DirectoryResource($this->tempFixtures.'/dir3'));
-        $this->writeRepo->add('/webmozart/sub/file3', new TestFile(null, 'some body'));
+        $this->writeRepo->add('/webmozart/sub/file3', $this->createFile(null, 'some body'));
 
         // Symlink is turned into a copy
         $this->assertFalse(is_link($this->tempDir.'/webmozart'));
