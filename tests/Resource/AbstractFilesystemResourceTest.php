@@ -68,7 +68,7 @@ abstract class AbstractFilesystemResourceTest extends AbstractResourceTest
         $filesystemPath = $this->getValidFilesystemPath();
         $resource = $this->createFilesystemResource($filesystemPath);
 
-        $this->assertSame($filesystemPath, $resource->getFilesystemPath());
+        $this->assertPathsAreEqual($filesystemPath, $resource->getFilesystemPath());
     }
 
     public function testAttachDoesNotChangeFilesystemPath()
@@ -77,7 +77,7 @@ abstract class AbstractFilesystemResourceTest extends AbstractResourceTest
         $resource = $this->createFilesystemResource($filesystemPath);
         $resource->attachTo($this->repo);
 
-        $this->assertSame($filesystemPath, $resource->getFilesystemPath());
+        $this->assertPathsAreEqual($filesystemPath, $resource->getFilesystemPath());
     }
 
     public function testDetachDoesNotChangeFilesystemPath()
@@ -87,7 +87,7 @@ abstract class AbstractFilesystemResourceTest extends AbstractResourceTest
         $resource->attachTo($this->repo);
         $resource->detach($this->repo);
 
-        $this->assertSame($filesystemPath, $resource->getFilesystemPath());
+        $this->assertPathsAreEqual($filesystemPath, $resource->getFilesystemPath());
     }
 
     public function testSerializeKeepsFilesystemPath()
@@ -97,6 +97,15 @@ abstract class AbstractFilesystemResourceTest extends AbstractResourceTest
 
         $deserialized = unserialize(serialize($resource));
 
-        $this->assertSame($filesystemPath, $deserialized->getFilesystemPath());
+        $this->assertPathsAreEqual($filesystemPath, $deserialized->getFilesystemPath());
+    }
+
+    protected function assertPathsAreEqual($expected, $actual)
+    {
+        $normalize = function ($path) {
+            return str_replace(DIRECTORY_SEPARATOR, '/', $path);
+        };
+
+        $this->assertEquals($normalize($expected), $normalize($actual));
     }
 }

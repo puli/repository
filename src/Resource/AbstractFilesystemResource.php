@@ -37,7 +37,7 @@ abstract class AbstractFilesystemResource extends GenericResource implements Fil
     {
         parent::__construct($path);
 
-        $this->filesystemPath = $filesystemPath;
+        $this->filesystemPath = str_replace(DIRECTORY_SEPARATOR, '/', $filesystemPath);
     }
 
     /**
