@@ -68,8 +68,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddFile()
     {
-        $this->writeRepo->add('/webmozart/puli', $this->createDirectory());
-        $this->writeRepo->add('/webmozart/puli/file', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory()));
+        $this->writeRepo->add('/webmozart/puli/file', $this->buildStructure($this->createFile()));
 
         $dir = $this->readRepo->get('/webmozart/puli');
         $file = $this->readRepo->get('/webmozart/puli/file');
@@ -86,14 +86,15 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddMergesResourceChildren()
     {
-        $this->writeRepo->add('/webmozart/puli', $this->createDirectory(null, array(
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/merge', array(
             $this->createFile('/file1', 'original 1'),
             $this->createFile('/file2', 'original 2'),
-        )));
-        $this->writeRepo->add('/webmozart/puli', $this->createDirectory(null, array(
+        ))));
+
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/merge', array(
             $this->createFile('/file1', 'override 1'),
             $this->createFile('/file3', 'override 3'),
-        )));
+        ))));
 
         $dir = $this->readRepo->get('/webmozart/puli');
         $file1 = $this->readRepo->get('/webmozart/puli/file1');
@@ -121,7 +122,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddDot()
     {
-        $this->writeRepo->add('/webmozart/puli/file/.', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file/.', $this->buildStructure($this->createFile()));
 
         $file = $this->readRepo->get('/webmozart/puli/file');
 
@@ -131,7 +132,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddDotDot()
     {
-        $this->writeRepo->add('/webmozart/puli/file/..', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file/..', $this->buildStructure($this->createFile()));
 
         $file = $this->readRepo->get('/webmozart/puli');
 
@@ -141,7 +142,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddTrimsTrailingSlash()
     {
-        $this->writeRepo->add('/webmozart/puli/file/', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file/', $this->buildStructure($this->createFile()));
 
         $file = $this->readRepo->get('/webmozart/puli/file');
 
@@ -152,8 +153,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     public function testAddCollection()
     {
         $this->writeRepo->add('/webmozart/puli', new ArrayResourceCollection(array(
-            $this->createFile('/file1'),
-            $this->createFile('/file2'),
+            $this->buildStructure($this->createFile('/file1')),
+            $this->buildStructure($this->createFile('/file2')),
         )));
 
         $file1 = $this->readRepo->get('/webmozart/puli/file1');
@@ -168,11 +169,11 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddRoot()
     {
-        $this->writeRepo->add('/', $this->createDirectory('/', array(
+        $this->writeRepo->add('/', $this->buildStructure($this->createDirectory('/', array(
             $this->createDirectory('/webmozart', array(
-                $this->createFile('/webmozart/file'),
+                $this->createFile('/file'),
             )),
-        )));
+        ))));
 
         $root = $this->readRepo->get('/');
         $dir = $this->readRepo->get('/webmozart');
@@ -199,7 +200,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsAbsolutePath()
     {
-        $this->writeRepo->add('webmozart', $this->createDirectory());
+        $this->writeRepo->add('webmozart', $this->buildStructure($this->createDirectory()));
     }
 
     /**
@@ -207,7 +208,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsNonEmptyPath()
     {
-        $this->writeRepo->add('', $this->createDirectory());
+        $this->writeRepo->add('', $this->buildStructure($this->createDirectory()));
     }
 
     /**
@@ -215,7 +216,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testAddExpectsStringPath()
     {
-        $this->writeRepo->add(new \stdClass(), $this->createDirectory());
+        $this->writeRepo->add(new \stdClass(), $this->buildStructure($this->createDirectory()));
     }
 
     /**
@@ -228,8 +229,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testRemoveFile()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/webmozart'));
         $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
@@ -246,8 +247,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testRemoveMany()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
         $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
@@ -273,8 +274,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     public function testRemoveDirectory($glob)
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/webmozart'));
         $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
@@ -291,8 +292,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testRemoveDot()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/webmozart'));
         $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
@@ -309,8 +310,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testRemoveDotDot()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/'));
         $this->assertTrue($this->readRepo->contains('/webmozart'));
@@ -329,8 +330,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testRemoveDiscardsTrailingSlash()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
         $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
@@ -385,8 +386,8 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testClear()
     {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->createFile());
-        $this->writeRepo->add('/webmozart/puli/file2', $this->createFile());
+        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
+        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
 
         $this->assertTrue($this->readRepo->contains('/'));
         $this->assertTrue($this->readRepo->contains('/webmozart'));
