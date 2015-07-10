@@ -60,6 +60,7 @@ class PathMappingRepository implements EditableRepository
      */
     private $store;
 
+
     /**
      * Creates a new repository.
      *
@@ -175,7 +176,7 @@ class PathMappingRepository implements EditableRepository
      */
     public function remove($query, $language = 'glob')
     {
-        throw new BadMethodCallException(sprintf('%s() is not supported in %s', __METHOD__, __CLASS__));
+        throw new BadMethodCallException(sprintf('%s\(\) is not supported in %s', __METHOD__, __CLASS__));
     }
 
     /**
@@ -208,14 +209,19 @@ class PathMappingRepository implements EditableRepository
         return $this->getChildren($this->get($path))->count() !== 0;
     }
 
+
     /**
-     * Find a resource on fetch time ("resolve the resource").
+     * Find a resource by its path.
      *
-     * @param string $path The path to resolve
-     * @return \Puli\Repository\Api\Resource\Resource|null The resource or null if the resource is not found
+     * @param string $path The path to resolve.
+     *
+     * @return Resource|null  The resource or null if the resource is not found.
      */
     private function resolveResource($path)
     {
+        /*
+         * If the path exists in the store, return it directly
+         */
         if ($this->store->exists($path)) {
             $resolved = $this->createResource($this->store->get($path));
             $resolved->attachTo($this, $path);
@@ -223,36 +229,35 @@ class PathMappingRepository implements EditableRepository
             return $resolved;
         }
 
-        $storePaths = $this->store->keys();
+        /*
+         * Otherwise, we need to "resolve" it in two steps:
+         *      1.  find the resources from the store that are potential parent
+         *          of the path (we find them using regular expressions)
+         *      2.  for each of these potential parent, we try to find a real
+         *          file or directory on the filesystem and if we do find one,
+         *          we stop
+         */
+        $basePaths = array_reverse($this->store->keys());
 
-        // Paths are sorted by length:
-        // we need to reverse the order to be more efficient
-        $storePaths = array_reverse($storePaths);
-
-        // Create regex
-        $regExpressions = array();
-
-        foreach ($storePaths as $storePath) {
-            $prefix = rtrim($storePath, '/').'/';
-            $regExpressions[] = '~^'.preg_quote($prefix, '~').'~';
-        }
-
-        // Resolve the resource using paths and children
         $resolved = null;
 
-        foreach ($regExpressions as $key => $regExpression) {
-            if (preg_match($regExpression, $path)) {
-                // The path match, try to find if the file exists here
-                $filesystemRoot = rtrim($this->store->get($storePaths[$key]), '/') . '/';
-                $filesystemPath = preg_replace($regExpression, $filesystemRoot, $path);
+        foreach ($basePaths as $key => $basePath) {
+            if (!Path::isBasePath($basePath, $path)) {
+                continue;
+            }
 
-                $resource = $this->createResource($filesystemPath);
+            // The current resource is a potential parent, let's check if it's
+            // a real one by checking the filesystem
+            $filesystemBasePath = rtrim($this->store->get($basePath), '/').'/';
+            $filesystemPath = substr_replace($path, $filesystemBasePath, 0, strlen($basePath));
 
-                if ($resource instanceof FilesystemResource) {
-                    $resolved = $resource;
-                    $resolved->attachTo($this, $path);
-                    break;
-                }
+            $resource = $this->createResource($filesystemPath);
+
+            // The resource is resolved
+            if ($resource instanceof FilesystemResource) {
+                $resolved = $resource;
+                $resolved->attachTo($this, $path);
+                break;
             }
         }
 
@@ -260,38 +265,52 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Resolve a given glob on the repository.
+     * Search for resources by querying their path.
      *
-     * @param string $query The glob query.
-     * @param bool $singleResult Should this method stop after finding a first result
-     * @return ArrayResourceCollection The results of search.
+     * @param string $query             The glob query.
+     * @param bool $singleResult        Should this method stop after finding a
+     *                                  first result, for performances.
+     *
+     * @return ArrayResourceCollection  The results of search.
      */
     private function search($query, $singleResult = false)
     {
         $resources = new ArrayResourceCollection();
 
-        if (Glob::isDynamic($query)) {
-            $basePath = Glob::getBasePath($query);
-            $baseResource = $this->resolveResource($basePath);
-
-            if ($baseResource !== null) {
-                $children = $this->getChildrenRecursive($baseResource);
-
-                foreach ($children as $child) {
-                    if (Glob::match($child->getRepositoryPath(), $query)) {
-                        $resources->add($child);
-
-                        if ($singleResult) {
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
+        /*
+         * If the query is not a glob, return it directly
+         */
+        if (!Glob::isDynamic($query)) {
             $resource = $this->resolveResource($query);
 
             if ($resource instanceof Resource) {
                 $resources->add($resource);
+            }
+
+            return $resources;
+        }
+
+        /*
+         * Otherwise, we need to search for paths matching the glob:
+         *      1.  find the root resource of all search results by
+         *          resolving the glob base path
+         *      2.  find all the children of this root resource and
+         *          try to match their path to the query
+         */
+        $basePath = Glob::getBasePath($query);
+        $baseResource = $this->resolveResource($basePath);
+
+        if ($baseResource !== null) {
+            $children = $this->getChildrenRecursive($baseResource);
+
+            foreach ($children as $child) {
+                if (Glob::match($child->getRepositoryPath(), $query)) {
+                    $resources->add($child);
+
+                    if ($singleResult) {
+                        break;
+                    }
+                }
             }
         }
 
@@ -302,7 +321,8 @@ class PathMappingRepository implements EditableRepository
      * Recursively creates a directory for a path.
      *
      * @param string $path A directory path.
-     * @return DirectoryResource The created resource
+     *
+     * @return DirectoryResource The created resource.
      */
     private function ensureDirectoryExists($path)
     {
@@ -337,10 +357,11 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Return the children of a given resource (explore recursively).
+     * Recursively find all the children of a given resource.
      *
-     * @param \Puli\Repository\Api\Resource\Resource $resource The resource.
-     * @return ArrayResourceCollection|\Puli\Repository\Api\Resource\Resource[]
+     * @param Resource $resource The resource.
+     *
+     * @return ArrayResourceCollection|Resource[] The children.
      */
     private function getChildrenRecursive(Resource $resource)
     {
@@ -356,10 +377,11 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Return the children of a given resource.
+     * Find the direct children of a given resource.
      *
-     * @param \Puli\Repository\Api\Resource\Resource $resource The resource.
-     * @return ArrayResourceCollection
+     * @param Resource $resource The resource.
+     *
+     * @return ArrayResourceCollection|Resource[] The children.
      */
     private function getChildren(Resource $resource)
     {
@@ -373,19 +395,20 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Return the children of a given filesystem resource.
+     * Find the direct children of a given filesystem resource.
      *
-     * @param FilesystemResource $root
-     * @return \Puli\Repository\Api\Resource\Resource[]
+     * @param FilesystemResource $resource The resource.
+     *
+     * @return Resource[] The children.
      */
-    private function getFilesystemResourceChildren(FilesystemResource $root)
+    private function getFilesystemResourceChildren(FilesystemResource $resource)
     {
-        if (!is_dir($root->getFilesystemPath())) {
+        if (!is_dir($resource->getFilesystemPath())) {
             return array();
         }
 
         $iterator = new \RecursiveDirectoryIterator(
-            $root->getFilesystemPath(),
+            $resource->getFilesystemPath(),
             \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS
         );
 
@@ -397,27 +420,28 @@ class PathMappingRepository implements EditableRepository
         $resources = array();
 
         foreach ($filesystemPaths as $filesystemPath) {
-            $resource = $this->createResource($filesystemPath);
+            $child = $this->createResource($filesystemPath);
 
             $path = preg_replace(
-                '~^'.preg_quote(rtrim($root->getFilesystemPath(), '/').'/', '~').'~',
-                rtrim($root->getRepositoryPath(), '/') . '/',
+                '~^'.preg_quote(rtrim($resource->getFilesystemPath(), '/').'/', '~').'~',
+                rtrim($resource->getRepositoryPath(), '/').'/',
                 $filesystemPath
             );
 
-            $resource->attachTo($this, $path);
+            $child->attachTo($this, $path);
 
-            $resources[] = $resource;
+            $resources[] = $child;
         }
 
         return $resources;
     }
 
     /**
-     * Return the children of a given virtual resource.
+     * Find the direct children of a given virtual resource.
      *
-     * @param \Puli\Repository\Api\Resource\Resource $resource The resource.
-     * @return \Puli\Repository\Api\Resource\Resource[]
+     * @param Resource $resource The resource.
+     *
+     * @return Resource[] The children.
      */
     private function getVirtualResourceChildren(Resource $resource)
     {
@@ -436,17 +460,17 @@ class PathMappingRepository implements EditableRepository
         $resources = array();
 
         foreach ($filesystemPaths as $path => $filesystemPath) {
-            $resource = $this->createResource($filesystemPath);
-            $resource->attachTo($this, $path);
+            $child = $this->createResource($filesystemPath);
+            $child->attachTo($this, $path);
 
-            $resources[] = $resource;
+            $resources[] = $child;
         }
 
         return $resources;
     }
 
     /**
-     * Create the repository root
+     * Create the repository root;
      */
     private function createRoot()
     {
@@ -458,7 +482,7 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Count the number of elements in the store
+     * Count the number of elements in the store.
      *
      * @return int
      */
@@ -472,7 +496,7 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Sort the store by keys
+     * Sort the store by keys.
      */
     private function sortStore()
     {
@@ -488,10 +512,15 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Create a resource using its filesystem path
+     * Create a resource using its filesystem path.
      *
-     * @param string $filesystemPath
-     * @return FilesystemResource
+     * If the filesystem path is a directory, a DirectoryResource will be created.
+     * If the filesystem path is a file, a FileResource will be created.
+     * If the filesystem does not exists, a GenericResource will be created.
+     *
+     * @param string $filesystemPath The filesystem path.
+     *
+     * @return GenericResource|DirectoryResource|FileResource The created resource.
      */
     private function createResource($filesystemPath)
     {

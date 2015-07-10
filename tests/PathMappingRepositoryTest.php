@@ -159,7 +159,21 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         }
     }
 
+    public function testResolveMultipleBasePath()
+    {
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('', array(
+            $this->createFile('/file1', 'original 1'),
+        ))));
 
+        $this->writeRepo->add('/webmozart', $this->buildStructure($this->createDirectory('/puli', array(
+            $this->createFile('/file2', 'original 2'),
+        ))));
+
+        $this->assertTrue($this->writeRepo->contains('/webmozart'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/puli'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/puli/file1'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/puli/file2'));
+    }
 
     public function testCreateWithFilledStore()
     {
