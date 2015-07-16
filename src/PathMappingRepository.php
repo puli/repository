@@ -11,10 +11,9 @@
 
 namespace Puli\Repository;
 
-use Countable;
 use ArrayIterator;
 use BadMethodCallException;
-
+use Countable;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
@@ -26,7 +25,6 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
-
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
@@ -50,6 +48,7 @@ use Webmozart\PathUtil\Path;
  * This repository only supports instances of FilesystemResource.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
@@ -59,7 +58,6 @@ class PathMappingRepository implements EditableRepository
      * @var KeyValueStore
      */
     private $store;
-
 
     /**
      * Creates a new repository.
@@ -170,7 +168,7 @@ class PathMappingRepository implements EditableRepository
      * @param string $language The language of the query. All implementations
      *                         must support the language "glob".
      *
-     * @return integer The number of resources removed from the repository.
+     * @return int The number of resources removed from the repository.
      *
      * @throws BadMethodCallException
      */
@@ -209,13 +207,12 @@ class PathMappingRepository implements EditableRepository
         return $this->getChildren($this->get($path))->count() !== 0;
     }
 
-
     /**
      * Find a resource by its path.
      *
      * @param string $path The path to resolve.
      *
-     * @return Resource|null  The resource or null if the resource is not found.
+     * @return Resource|null The resource or null if the resource is not found.
      */
     private function resolveResource($path)
     {
@@ -239,39 +236,34 @@ class PathMappingRepository implements EditableRepository
          */
         $basePaths = array_reverse($this->store->keys());
 
-        $resolved = null;
-
         foreach ($basePaths as $key => $basePath) {
             if (!Path::isBasePath($basePath, $path)) {
                 continue;
             }
 
-            // The current resource is a potential parent, let's check if it's
-            // a real one by checking the filesystem
             $filesystemBasePath = rtrim($this->store->get($basePath), '/').'/';
             $filesystemPath = substr_replace($path, $filesystemBasePath, 0, strlen($basePath));
 
             $resource = $this->createResource($filesystemPath);
 
-            // The resource is resolved
             if ($resource instanceof FilesystemResource) {
-                $resolved = $resource;
-                $resolved->attachTo($this, $path);
-                break;
+                $resource->attachTo($this, $path);
+
+                return $resource;
             }
         }
 
-        return $resolved;
+        return null;
     }
 
     /**
      * Search for resources by querying their path.
      *
-     * @param string $query             The glob query.
-     * @param bool $singleResult        Should this method stop after finding a
-     *                                  first result, for performances.
+     * @param string $query        The glob query.
+     * @param bool   $singleResult Should this method stop after finding a
+     *                             first result, for performances.
      *
-     * @return ArrayResourceCollection  The results of search.
+     * @return ArrayResourceCollection The results of search.
      */
     private function search($query, $singleResult = false)
     {
@@ -341,7 +333,7 @@ class PathMappingRepository implements EditableRepository
     /**
      * Add a given resource to the repository.
      *
-     * @param string $path
+     * @param string             $path
      * @param FilesystemResource $resource
      */
     private function addResource($path, FilesystemResource $resource)
@@ -470,7 +462,7 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Create the repository root;
+     * Create the repository root.
      */
     private function createRoot()
     {

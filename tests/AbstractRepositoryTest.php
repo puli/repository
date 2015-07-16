@@ -52,7 +52,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Build the real backend structure
+     * Build the real backend structure.
      *
      * @param Resource $root
      *
@@ -471,7 +471,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
                         $this->createDirectory('/webmozart', array(
                             $this->createDirectory('/puli', array(
                                 $this->createFile('/file'),
-                            ))
+                            )),
                         )),
                     )),
                 )),

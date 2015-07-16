@@ -23,6 +23,7 @@ use Webmozart\KeyValueStore\ArrayStore;
 
 /**
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
@@ -39,34 +40,38 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
     protected $repo;
 
     /**
-     * Temporary directory for test filess
+     * Temporary directory for test files.
      *
      * @var string
      */
     protected $tempDir;
 
     /**
-     * Counter to avoid collisions during tests on directories
+     * Counter to avoid collisions during tests on directories.
      *
      * @var int
      */
     protected static $createdDirectories = 0;
 
     /**
-     * Counter to avoid collisions during tests on files
+     * Counter to avoid collisions during tests on files.
      *
      * @var int
      */
     protected static $createdFiles = 0;
 
-
-
     protected function setUp()
     {
         parent::setUp();
 
-        $this->tempDir = sys_get_temp_dir() . '/puli-repository/PathMappingRepositoryTest' . md5(uniqid(time(), true));
-        $this->tempDir = __DIR__ . '/../../fixtures/tests';
+        $this->tempDir = sys_get_temp_dir().'/puli-repository/PathMappingRepositoryTest'.md5(uniqid(time(), true));
+        $this->tempDir = __DIR__.'/../../fixtures/tests';
+
+        if (is_dir($this->tempDir)) {
+            $filesystem = new Filesystem();
+            $filesystem->remove($this->tempDir);
+        }
+
         mkdir($this->tempDir, 0777, true);
 
         $this->store = new ArrayStore();
@@ -80,7 +85,6 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $filesystem = new Filesystem();
         $filesystem->remove($this->tempDir);
     }
-
 
     protected function createPrefilledRepository(Resource $root)
     {
@@ -117,69 +121,75 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     /**
      * @param TestFilesystemFile|TestFilesystemDirectory $resource
-     * @param string $parentPath
+     * @param string                                     $parentPath
+     *
      * @return DirectoryResource|FileResource
      */
     protected function buildRecursive($resource, $parentPath = '')
     {
         if ($resource instanceof TestFilesystemDirectory) {
             if ($resource->getPath() !== null) {
-                $dirname = rtrim($parentPath . $resource->getPath(), '/');
+                $dirname = rtrim($parentPath.$resource->getPath(), '/');
             } else {
-                $dirname = $parentPath . '/dir' . self::$createdDirectories;
-                self::$createdDirectories++;
+                $dirname = $parentPath.'/dir'.self::$createdDirectories;
+                ++self::$createdDirectories;
             }
 
-            if (! is_dir($this->tempDir . $dirname)) {
-                mkdir($this->tempDir . $dirname, 0777, true);
+            if (!is_dir($this->tempDir.$dirname)) {
+                mkdir($this->tempDir.$dirname, 0777, true);
             }
 
             foreach ($resource->listChildren() as $child) {
                 $this->buildRecursive($child, $dirname);
             }
 
-            return new DirectoryResource($this->tempDir . $dirname, $resource->getPath());
+            return new DirectoryResource($this->tempDir.$dirname, $resource->getPath());
         } else {
             if ($resource->getPath() !== null) {
-                $filename = rtrim($parentPath . $resource->getPath(), '/');
+                $filename = rtrim($parentPath.$resource->getPath(), '/');
             } else {
-                $filename = $parentPath . '/file' . self::$createdFiles;
-                self::$createdFiles++;
+                $filename = $parentPath.'/file'.self::$createdFiles;
+                ++self::$createdFiles;
             }
 
-            $dirname = dirname($this->tempDir . $filename);
+            $dirname = dirname($this->tempDir.$filename);
 
-            if (! is_dir($dirname)) {
+            if (!is_dir($dirname)) {
                 mkdir($dirname, 0777, true);
             }
 
-            file_put_contents($this->tempDir . $filename, $resource->getBody());
+            file_put_contents($this->tempDir.$filename, $resource->getBody());
 
-            return new FileResource($this->tempDir . $filename, $resource->getPath());
+            return new FileResource($this->tempDir.$filename, $resource->getPath());
         }
     }
 
     public function testResolveMultipleBasePath()
     {
-        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('', array(
-            $this->createFile('/file1', 'original 1'),
-        ))));
+        $root = $this->buildStructure($this->createDirectory('', array(
+            $this->createDirectory('/sub1', array(
+                $this->createFile('/file1', 'original 1'),
+            )),
+            $this->createDirectory('/sub2', array(
+                $this->createFile('/file2', 'original 2'),
+            )),
+        )));
 
-        $this->writeRepo->add('/webmozart', $this->buildStructure($this->createDirectory('/puli', array(
-            $this->createFile('/file2', 'original 2'),
-        ))));
+        $this->writeRepo->add('/webmozart/sub1', new DirectoryResource($root->getFilesystemPath().'/sub2'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource($root->getFilesystemPath()));
 
         $this->assertTrue($this->writeRepo->contains('/webmozart'));
-        $this->assertTrue($this->writeRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->writeRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->writeRepo->contains('/webmozart/puli/file2'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/sub1/file1'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/sub1/file2'));
+        $this->assertTrue($this->writeRepo->contains('/webmozart/sub2/file2'));
+        $this->assertFalse($this->writeRepo->contains('/webmozart/sub2/file1'));
     }
 
     public function testCreateWithFilledStore()
     {
         $store = new ArrayStore();
-        $store->set('/webmozart', __DIR__ . '/Fixtures/dir5');
-        $store->set('/webmozart/file1', __DIR__ . '/Fixtures/dir5/file1');
+        $store->set('/webmozart', __DIR__.'/Fixtures/dir5');
+        $store->set('/webmozart/file1', __DIR__.'/Fixtures/dir5/file1');
 
         $repo = new PathMappingRepository($store);
 
@@ -189,7 +199,7 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     public function testAddDirectoryCompletelyResolveChildren()
     {
-        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__ . '/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
 
         $this->assertTrue($this->readRepo->contains('/webmozart'));
         $this->assertTrue($this->readRepo->contains('/webmozart/file1'));
@@ -399,5 +409,4 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
     {
         $this->writeRepo->remove(new \stdClass());
     }
-
 }
