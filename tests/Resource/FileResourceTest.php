@@ -12,6 +12,7 @@
 namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\FileResource;
+
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
