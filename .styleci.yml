@@ -1,8 +1,5 @@
 preset: symfony
 
-finder:
-    path: [src, tests]
-
 enabled:
     - ordered_use
     - strict
