@@ -26,6 +26,7 @@ use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
  * for the first time.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class LazyResourceCollection implements IteratorAggregate, ResourceCollection
@@ -41,7 +42,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     private $repo;
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $loaded = false;
 
@@ -76,7 +77,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param integer  $key      The collection key.
+     * @param int      $key      The collection key.
      * @param Resource $resource The resource to add.
      *
      * @throws BadMethodCallException The collection is read-only.
@@ -157,7 +158,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
      * Not supported.
      *
      * @param Resource[] $resources The resources to replace the
-     *                                       collection contents with.
+     *                              collection contents with.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
@@ -172,7 +173,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
      * Not supported.
      *
      * @param Resource[] $resources The resources to merge into the
-     *                                       collection.
+     *                              collection.
      *
      * @throws BadMethodCallException The collection is read-only.
      */

@@ -22,7 +22,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
@@ -39,26 +38,24 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     protected $repo;
 
     /**
-     * Temporary directory for test filess
+     * Temporary directory for test filess.
      *
      * @var string
      */
     protected $tempDir;
 
     /**
-     * Counter to avoid collisions during tests on files
+     * Counter to avoid collisions during tests on files.
      *
      * @var int
      */
     protected static $createdFiles = 0;
 
-
-
     protected function setUp()
     {
         parent::setUp();
 
-        $this->tempDir = sys_get_temp_dir() . '/puli-repository/OptimizedPathMappingRepositoryTest' . md5(uniqid(time(), true));
+        $this->tempDir = sys_get_temp_dir().'/puli-repository/OptimizedPathMappingRepositoryTest'.md5(uniqid(time(), true));
         mkdir($this->tempDir, 0777, true);
 
         $this->store = new ArrayStore();
@@ -72,7 +69,6 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $filesystem = new Filesystem();
         $filesystem->remove($this->tempDir);
     }
-
 
     protected function createPrefilledRepository(Resource $root)
     {
@@ -94,10 +90,10 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createFile($path = null, $body = TestFilesystemFile::BODY)
     {
-        $filesystemPath = $this->tempDir . '/file' . self::$createdFiles;
+        $filesystemPath = $this->tempDir.'/file'.self::$createdFiles;
 
         file_put_contents($filesystemPath, $body);
-        self::$createdFiles++;
+        ++self::$createdFiles;
 
         return new FileResource($filesystemPath, $path);
     }
@@ -110,8 +106,8 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     public function testCreateWithFilledStore()
     {
         $store = new ArrayStore();
-        $store->set('/webmozart', new DirectoryResource(__DIR__ . '/Fixtures/dir5'));
-        $store->set('/webmozart/file1', new FileResource(__DIR__ . '/Fixtures/dir5/file1'));
+        $store->set('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+        $store->set('/webmozart/file1', new FileResource(__DIR__.'/Fixtures/dir5/file1'));
 
         $repo = new OptimizedPathMappingRepository($store);
 
@@ -121,7 +117,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     public function testAddDirectoryCompletelyResolveChildren()
     {
-        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__ . '/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
 
         $this->assertTrue($this->readRepo->contains('/webmozart'));
         $this->assertTrue($this->readRepo->contains('/webmozart/file1'));

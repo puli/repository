@@ -18,6 +18,7 @@ use RuntimeException;
  * Thrown when a glob language is not supported by the repository.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class UnsupportedLanguageException extends RuntimeException

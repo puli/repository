@@ -15,6 +15,7 @@ namespace Puli\Repository\Api\Resource;
  * Contains metadata about a resource.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceMetadata
@@ -24,7 +25,7 @@ class ResourceMetadata
      *
      * If this information is not available, the method returns 0.
      *
-     * @return integer A UNIX timestamp.
+     * @return int A UNIX timestamp.
      */
     public function getCreationTime()
     {
@@ -36,7 +37,7 @@ class ResourceMetadata
      *
      * If this information is not available, the method returns 0.
      *
-     * @return integer A UNIX timestamp.
+     * @return int A UNIX timestamp.
      */
     public function getAccessTime()
     {
@@ -48,7 +49,7 @@ class ResourceMetadata
      *
      * If this information is not available, the method returns 0.
      *
-     * @return integer A UNIX timestamp.
+     * @return int A UNIX timestamp.
      */
     public function getModificationTime()
     {
@@ -60,7 +61,7 @@ class ResourceMetadata
      *
      * If this information is not available, the method returns 0.
      *
-     * @return integer The body size in bytes.
+     * @return int The body size in bytes.
      */
     public function getSize()
     {

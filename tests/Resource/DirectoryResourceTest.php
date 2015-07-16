@@ -16,7 +16,6 @@ use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class DirectoryResourceTest extends AbstractFilesystemResourceTest
@@ -29,7 +28,8 @@ class DirectoryResourceTest extends AbstractFilesystemResourceTest
     {
         parent::setUp();
 
-        while (false === mkdir($this->tempEmptyDir = sys_get_temp_dir().'/puli-repository/DirectoryResourceTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === mkdir($this->tempEmptyDir = sys_get_temp_dir().'/puli-repository/DirectoryResourceTest'.rand(10000, 99999), 0777, true)) {
+        }
 
         $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }

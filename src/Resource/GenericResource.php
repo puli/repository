@@ -21,6 +21,7 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
  * A generic resource.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class GenericResource implements Resource

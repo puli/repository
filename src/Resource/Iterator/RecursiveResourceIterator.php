@@ -20,6 +20,7 @@ use RecursiveIterator;
  * Use {@link RecursiveResourceIteratorIterator} to iterate over the iterator.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface RecursiveResourceIterator extends ResourceIterator, RecursiveIterator

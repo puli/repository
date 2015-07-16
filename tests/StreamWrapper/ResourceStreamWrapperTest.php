@@ -21,7 +21,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
@@ -343,6 +342,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     {
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Only supported in PHP 5.4+.');
+
             return;
         }
 
@@ -358,6 +358,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     {
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Only supported in PHP 5.4+.');
+
             return;
         }
 
@@ -374,6 +375,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     {
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Only supported in PHP 5.4+.');
+
             return;
         }
 
@@ -390,6 +392,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     {
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Only supported in PHP 5.4+.');
+
             return;
         }
 
@@ -406,6 +409,7 @@ class ResourceStreamWrapperTest extends PHPUnit_Framework_TestCase
     {
         if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $this->markTestSkipped('Only supported in PHP 5.4+.');
+
             return;
         }
 

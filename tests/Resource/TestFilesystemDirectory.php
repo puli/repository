@@ -15,7 +15,6 @@ use Puli\Repository\Resource\AbstractFilesystemResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */

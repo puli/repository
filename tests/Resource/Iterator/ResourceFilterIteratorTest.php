@@ -20,7 +20,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceFilterIteratorTest extends PHPUnit_Framework_TestCase
@@ -47,7 +46,7 @@ class ResourceFilterIteratorTest extends PHPUnit_Framework_TestCase
                         new TestFile('/webmozart/puli/css/style.css'),
                     )),
                     new TestFile('/webmozart/puli/installer.json'),
-                ))
+                )),
             )),
         ));
     }

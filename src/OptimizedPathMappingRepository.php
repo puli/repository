@@ -11,10 +11,9 @@
 
 namespace Puli\Repository;
 
-use Countable;
 use ArrayIterator;
+use Countable;
 use Iterator;
-
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
@@ -26,7 +25,6 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
-
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -51,6 +49,7 @@ use Webmozart\PathUtil\Path;
  * This repository only supports instances of FilesystemResource.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
@@ -252,9 +251,8 @@ class OptimizedPathMappingRepository implements EditableRepository
         return $iterator->valid();
     }
 
-
     /**
-     * @param string $path
+     * @param string             $path
      * @param FilesystemResource $resource
      */
     private function addResource($path, FilesystemResource $resource)
@@ -278,7 +276,6 @@ class OptimizedPathMappingRepository implements EditableRepository
             $this->addResource($basePath.$name, $child);
         }
     }
-
 
     /**
      * @param string $path
@@ -357,6 +354,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      * Recursively creates a directory for a path.
      *
      * @param string $path A directory path.
+     *
      * @return DirectoryResource The created resource
      */
     private function ensureDirectoryExists($path)
@@ -374,9 +372,10 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Transform an iterator of paths into a collection of resources
+     * Transform an iterator of paths into a collection of resources.
      *
      * @param Iterator $iterator
+     *
      * @return ArrayResourceCollection
      */
     private function iteratorToCollection(Iterator $iterator)
@@ -395,7 +394,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Count the number of elements in the store
+     * Count the number of elements in the store.
      */
     private function createRoot()
     {
@@ -407,7 +406,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Count the number of elements in the store
+     * Count the number of elements in the store.
      */
     private function countStore()
     {
@@ -419,7 +418,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Sort the store by keys
+     * Sort the store by keys.
      */
     private function sortStore()
     {
@@ -435,9 +434,10 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Create a resource using its filesystem path
+     * Create a resource using its filesystem path.
      *
      * @param string $filesystemPath
+     *
      * @return FilesystemResource
      */
     private function createResource($filesystemPath)

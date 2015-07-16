@@ -20,6 +20,7 @@ use Webmozart\Assert\Assert;
  * Represents a file on the file system.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FileResource extends AbstractFilesystemResource implements BodyResource

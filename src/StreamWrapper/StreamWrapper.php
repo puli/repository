@@ -15,7 +15,9 @@ namespace Puli\Repository\StreamWrapper;
  * API of stream wrappers as supported by PHP.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
+ *
  * @see    http://php.net/manual/en/class.streamwrapper.php
  */
 interface StreamWrapper

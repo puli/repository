@@ -58,6 +58,7 @@ use Webmozart\PathUtil\Path;
  * cannot be read. Any leading ".." segments will simply be stripped off.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemRepository implements EditableRepository
@@ -371,7 +372,7 @@ class FilesystemRepository implements EditableRepository
         $count = 0;
 
         while ($iterator->valid()) {
-            $count++;
+            ++$count;
             $iterator->next();
         }
 

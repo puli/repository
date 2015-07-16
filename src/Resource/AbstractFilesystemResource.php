@@ -18,6 +18,7 @@ use Puli\Repository\Resource\Metadata\FilesystemMetadata;
  * Base class for filesystem resources.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractFilesystemResource extends GenericResource implements FilesystemResource

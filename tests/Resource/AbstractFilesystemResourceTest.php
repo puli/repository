@@ -14,7 +14,6 @@ namespace Puli\Repository\Tests\Resource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractFilesystemResourceTest extends AbstractResourceTest

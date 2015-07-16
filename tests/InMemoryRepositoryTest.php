@@ -15,10 +15,8 @@ use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class InMemoryRepositoryTest extends AbstractEditableRepositoryTest

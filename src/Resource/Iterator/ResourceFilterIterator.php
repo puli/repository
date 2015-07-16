@@ -37,6 +37,7 @@ use Webmozart\Assert\Assert;
  * See {@link __construct} for more information on the filter options.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceFilterIterator extends FilterIterator implements ResourceIterator

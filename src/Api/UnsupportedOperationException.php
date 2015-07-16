@@ -17,6 +17,7 @@ use RuntimeException;
  * Thrown when the requested operation is not supported by the repository.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class UnsupportedOperationException extends RuntimeException

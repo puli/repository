@@ -22,6 +22,7 @@ use Puli\Repository\Api\Resource\Resource;
  * contained resources.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemResourceCollection extends ArrayResourceCollection

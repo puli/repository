@@ -48,6 +48,7 @@ use Puli\Repository\Api\ResourceCollection;
  * ```
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceCollectionIterator implements RecursiveResourceIterator
@@ -157,9 +158,9 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
     /**
      * Returns the current key of the iterator.
      *
-     * @return integer|string|null The current key as configured in
-     *                             {@link __construct) or `null` if the cursor
-     *                             is behind the last element.
+     * @return int|string|null The current key as configured in
+     *                         {@link __construct) or `null` if the cursor
+     *                         is behind the last element.
      */
     public function key()
     {

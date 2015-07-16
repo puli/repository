@@ -12,11 +12,7 @@
 namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\OverriddenPathLoader;
-use Puli\Repository\Tests\Resource\AbstractFileResourceTest;
-
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FileResourceTest extends AbstractFilesystemResourceTest

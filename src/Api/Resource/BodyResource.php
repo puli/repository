@@ -15,6 +15,7 @@ namespace Puli\Repository\Api\Resource;
  * A resource that contains a body.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface BodyResource extends Resource

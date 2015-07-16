@@ -17,6 +17,7 @@ use Iterator;
  * An iterator over {@link Resource} objects.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceIterator extends Iterator

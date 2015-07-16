@@ -17,6 +17,7 @@ namespace Puli\Repository\Api\Resource;
  * The path of the file can be accessed with {@link getFilesystemPath}.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface FilesystemResource extends Resource

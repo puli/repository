@@ -16,11 +16,9 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Tests\Resource\TestFile;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemRepositoryTest
@@ -43,7 +41,8 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemReposito
             return;
         }
 
-        while (false === @mkdir($this->tempBaseDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {}
+        while (false === @mkdir($this->tempBaseDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {
+        }
 
         // Create both directories in the same directory, so that relative links
         // work from one to the other

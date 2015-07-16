@@ -20,6 +20,7 @@ use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
  * Represents a directory on the file system.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class DirectoryResource extends AbstractFilesystemResource
@@ -51,7 +52,7 @@ class DirectoryResource extends AbstractFilesystemResource
         }
 
         return is_dir($filesystemPath)
-            ? new DirectoryResource($filesystemPath)
+            ? new self($filesystemPath)
             : new FileResource($filesystemPath);
     }
 
@@ -109,7 +110,7 @@ class DirectoryResource extends AbstractFilesystemResource
         // with "." by default
         foreach ($iterator as $path => $name) {
             $children[$name] = is_dir($path)
-                ? new DirectoryResource($path)
+                ? new self($path)
                 : new FileResource($path);
         }
 

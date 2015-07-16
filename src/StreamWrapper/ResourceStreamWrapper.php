@@ -44,6 +44,7 @@ use Webmozart\Assert\Assert;
  * The stream wrapper can only be used for reading, not writing.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceStreamWrapper implements StreamWrapper
@@ -627,7 +628,7 @@ class ResourceStreamWrapper implements StreamWrapper
      *
      * @throws RepositoryFactoryException If the callable did not return an
      *                                    instance of {@link ResourceRepository}.
-     * @throws StreamWrapperException If the scheme is not supported.
+     * @throws StreamWrapperException     If the scheme is not supported.
      */
     private function getRepository($scheme)
     {

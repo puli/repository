@@ -17,6 +17,7 @@ use InvalidArgumentException;
  * A repository that supports the addition and removal of resources.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface EditableRepository extends ResourceRepository
@@ -31,8 +32,9 @@ interface EditableRepository extends ResourceRepository
      * @param Resource|ResourceCollection $resource The resource(s) to add at
      *                                              that path.
      *
-     * @throws InvalidArgumentException If the path is invalid. The path must be
-     *                                  a non-empty string starting with "/".
+     * @throws InvalidArgumentException     If the path is invalid. The path
+     *                                      must be  a non-empty string starting
+     *                                      with "/".
      * @throws UnsupportedResourceException If the resource is invalid.
      */
     public function add($path, $resource);
@@ -44,9 +46,9 @@ interface EditableRepository extends ResourceRepository
      * @param string $language The language of the query. All implementations
      *                         must support the language "glob".
      *
-     * @return integer The number of resources removed from the repository.
+     * @return int The number of resources removed from the repository.
      *
-     * @throws InvalidArgumentException If the query is invalid.
+     * @throws InvalidArgumentException     If the query is invalid.
      * @throws UnsupportedLanguageException If the language is not supported.
      */
     public function remove($query, $language = 'glob');
@@ -54,7 +56,7 @@ interface EditableRepository extends ResourceRepository
     /**
      * Removes all resources from the repository.
      *
-     * @return integer The number of resources removed from the repository.
+     * @return int The number of resources removed from the repository.
      */
     public function clear();
 }

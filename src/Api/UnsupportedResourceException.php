@@ -18,6 +18,7 @@ use RuntimeException;
  * the invoked method.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class UnsupportedResourceException extends RuntimeException

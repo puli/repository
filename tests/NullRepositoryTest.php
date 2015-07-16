@@ -17,7 +17,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class NullRepositoryTest extends PHPUnit_Framework_TestCase

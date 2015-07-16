@@ -24,6 +24,7 @@ use Webmozart\Assert\Assert;
  * A collection of {@link Resource} instances backed by an array.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
@@ -41,8 +42,8 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      *
      * @param Resource[] $resources The resources to store in the collection.
      *
-     * @throws InvalidArgumentException If the resources are not an array and
-     *                                  not a traversable object.
+     * @throws InvalidArgumentException     If the resources are not an array
+     *                                      and not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */

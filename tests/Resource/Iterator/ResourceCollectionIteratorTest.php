@@ -19,7 +19,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class ResourceCollectionIteratorTest extends PHPUnit_Framework_TestCase
@@ -37,7 +36,7 @@ class ResourceCollectionIteratorTest extends PHPUnit_Framework_TestCase
                         $file1121 = new TestFile('/webmozart/puli/css/style.css'),
                     )),
                     $file113 = new TestFile('/webmozart/puli/installer.json'),
-                ))
+                )),
             )),
         ));
 
@@ -73,7 +72,7 @@ class ResourceCollectionIteratorTest extends PHPUnit_Framework_TestCase
                         $file1121 = new TestFile('/webmozart/puli/css/style.css'),
                     )),
                     $file113 = new TestFile('/webmozart/puli/installer.json'),
-                ))
+                )),
             )),
         ));
 
@@ -112,7 +111,7 @@ class ResourceCollectionIteratorTest extends PHPUnit_Framework_TestCase
                         new TestFile('/webmozart/puli/css/style.css'),
                     )),
                     new TestFile('/webmozart/puli/installer.json'),
-                ))
+                )),
             )),
         ));
 
@@ -151,7 +150,7 @@ class ResourceCollectionIteratorTest extends PHPUnit_Framework_TestCase
                         new TestFile('/webmozart/puli/css/style.css'),
                     )),
                     new TestFile('/webmozart/puli/installer.json'),
-                ))
+                )),
             )),
         ));
 

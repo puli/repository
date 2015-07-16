@@ -18,7 +18,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
@@ -43,7 +42,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @param string $path
-     * @param array $children
+     * @param array  $children
      *
      * @return TestDirectory
      */
@@ -460,7 +459,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
                         $this->createDirectory('/webmozart/puli/dir/webmozart', array(
                             $this->createDirectory('/webmozart/puli/dir/webmozart/puli', array(
                                 $this->createFile('/webmozart/puli/dir/webmozart/puli/file'),
-                            ))
+                            )),
                         )),
                     )),
                 )),

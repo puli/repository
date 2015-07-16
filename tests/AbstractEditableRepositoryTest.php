@@ -16,7 +16,6 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest

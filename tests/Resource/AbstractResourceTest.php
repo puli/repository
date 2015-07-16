@@ -17,7 +17,6 @@ use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase

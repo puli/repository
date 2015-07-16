@@ -17,6 +17,7 @@ use RuntimeException;
  * Thrown when a URI is invalid.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class InvalidUriException extends RuntimeException

@@ -14,7 +14,6 @@ namespace Puli\Repository\Tests\Resource;
 use Puli\Repository\Api\Resource\ResourceMetadata;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class TestMetadata extends ResourceMetadata

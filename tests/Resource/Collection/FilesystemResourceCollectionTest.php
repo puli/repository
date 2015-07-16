@@ -19,7 +19,6 @@ use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
- * @since  1.0
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemResourceCollectionTest extends PHPUnit_Framework_TestCase
@@ -126,7 +125,7 @@ class FilesystemResourceCollectionTest extends PHPUnit_Framework_TestCase
         $collection = new FilesystemResourceCollection(array(
             $dir = new DirectoryResource($this->fixturesDir.'/dir1'),
             $file = new FileResource($this->fixturesDir.'/file3'),
-            $this->getMock('Puli\Repository\Api\Resource\FilesystemResource')
+            $this->getMock('Puli\Repository\Api\Resource\FilesystemResource'),
         ));
 
         $this->assertSame(array(

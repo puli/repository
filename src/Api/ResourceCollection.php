@@ -22,6 +22,7 @@ use Traversable;
  * A collection of {@link Resource} instances.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceCollection extends Traversable, ArrayAccess, Countable
@@ -36,7 +37,7 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Sets a resource at a collection key.
      *
-     * @param integer  $key      The collection key.
+     * @param int      $key      The collection key.
      * @param Resource $resource The resource to set.
      */
     public function set($key, Resource $resource);
@@ -44,7 +45,7 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Returns the resource for a collection key.
      *
-     * @param integer $key The collection key.
+     * @param int $key The collection key.
      *
      * @return Resource The resource at the key.
      *
@@ -55,14 +56,14 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Removes a collection key from the collection.
      *
-     * @param integer $key The collection key.
+     * @param int $key The collection key.
      */
     public function remove($key);
 
     /**
      * Returns whether a collection key exists.
      *
-     * @param integer $key The collection key.
+     * @param int $key The collection key.
      *
      * @return bool Whether the collection key exists.
      */
@@ -84,10 +85,10 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
      * Replaces the collection contents with the given resources.
      *
      * @param Resource[] $resources The resources to write into the
-     *                                       collection.
+     *                              collection.
      *
-     * @throws InvalidArgumentException If the resources are not an array and
-     *                                  not a traversable object.
+     * @throws InvalidArgumentException     If the resources are not an array and
+     *                                      not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */
@@ -97,10 +98,10 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
      * Merges the given resources into the collection.
      *
      * @param Resource[] $resources The resources to merge into the
-     *                                       collection.
+     *                              collection.
      *
-     * @throws InvalidArgumentException If the resources are not an array and
-     *                                  not a traversable object.
+     * @throws InvalidArgumentException     If the resources are not an array
+     *                                      and not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
      *                                      {@link Resource}.
      */

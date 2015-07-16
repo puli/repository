@@ -35,6 +35,7 @@ use InvalidArgumentException;
  * ```
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ResourceRepository
@@ -48,8 +49,8 @@ interface ResourceRepository
      * @return Resource The resource at this path.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
-     * @throws InvalidArgumentException If the path is invalid. The path must be
-     *                                  a non-empty string starting with "/".
+     * @throws InvalidArgumentException  If the path is invalid. The path must
+     *                                   be a non-empty string starting with "/".
      */
     public function get($path);
 
@@ -62,7 +63,7 @@ interface ResourceRepository
      *
      * @return ResourceCollection The resources matching the query.
      *
-     * @throws InvalidArgumentException If the query is invalid.
+     * @throws InvalidArgumentException     If the query is invalid.
      * @throws UnsupportedLanguageException If the language is not supported.
      */
     public function find($query, $language = 'glob');
@@ -76,7 +77,7 @@ interface ResourceRepository
      *
      * @return bool Returns `true` if any resources exist that match the query.
      *
-     * @throws InvalidArgumentException If the query is invalid.
+     * @throws InvalidArgumentException     If the query is invalid.
      * @throws UnsupportedLanguageException If the language is not supported.
      */
     public function contains($query, $language = 'glob');
@@ -90,8 +91,8 @@ interface ResourceRepository
      * @return bool Returns `true` if the resource has child resources.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
-     * @throws InvalidArgumentException If the path is invalid. The path must be
-     *                                  a non-empty string starting with "/".
+     * @throws InvalidArgumentException  If the path is invalid. The path must
+     *                                   be a non-empty string starting with "/".
      */
     public function hasChildren($path);
 
@@ -104,8 +105,8 @@ interface ResourceRepository
      * @return ResourceCollection The child resources of the resource.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
-     * @throws InvalidArgumentException If the path is invalid. The path must be
-     *                                  a non-empty string starting with "/".
+     * @throws InvalidArgumentException  If the path is invalid. The path must
+     *                                   be a non-empty string starting with "/".
      */
     public function listChildren($path);
 }

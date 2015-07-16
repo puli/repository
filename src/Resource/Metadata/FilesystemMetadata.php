@@ -17,6 +17,7 @@ use Puli\Repository\Api\Resource\ResourceMetadata;
  * Metadata about a file on the filesystem.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemMetadata extends ResourceMetadata

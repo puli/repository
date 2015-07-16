@@ -45,6 +45,7 @@ use Serializable;
  * avoid reimplementing basic functionality.
  *
  * @since  1.0
+ *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface Resource extends Serializable
@@ -90,7 +91,7 @@ interface Resource extends Serializable
      *
      * @param string $relPath The relative resource path.
      *
-     * @return boolean Whether a resource with the given path exists.
+     * @return bool Whether a resource with the given path exists.
      */
     public function hasChild($relPath);
 
