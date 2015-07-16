@@ -12,9 +12,7 @@
 namespace Puli\Repository;
 
 use ArrayIterator;
-use Countable;
 use Iterator;
-use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
@@ -22,14 +20,10 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -53,25 +47,8 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepository implements EditableRepository
+class OptimizedPathMappingRepository extends AbstractPathMappingRepository
 {
-    /**
-     * @var KeyValueStore
-     */
-    private $store;
-
-    /**
-     * Creates a new repository.
-     *
-     * @param KeyValueStore $store The store of all the paths.
-     */
-    public function __construct(KeyValueStore $store)
-    {
-        $this->store = $store;
-
-        $this->createRoot();
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -218,20 +195,6 @@ class OptimizedPathMappingRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function clear()
-    {
-        // Subtract root
-        $removed = $this->countStore() - 1;
-
-        $this->store->clear();
-        $this->createRoot();
-
-        return $removed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function listChildren($path)
     {
         $iterator = $this->getChildIterator($this->get($path));
@@ -351,27 +314,6 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Recursively creates a directory for a path.
-     *
-     * @param string $path A directory path.
-     *
-     * @return DirectoryResource The created resource
-     */
-    private function ensureDirectoryExists($path)
-    {
-        if ($this->store->exists($path)) {
-            return;
-        }
-
-        // Recursively initialize parent directories
-        if ('/' !== $path) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-        }
-
-        $this->store->set($path, null);
-    }
-
-    /**
      * Transform an iterator of paths into a collection of resources.
      *
      * @param Iterator $iterator
@@ -381,77 +323,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     private function iteratorToCollection(Iterator $iterator)
     {
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
-        $resources = array();
 
-        foreach ($filesystemPaths as $path => $filesystemPath) {
-            $resource = $this->createResource($filesystemPath);
-            $resource->attachTo($this, $path);
-
-            $resources[] = $resource;
-        }
-
-        return new ArrayResourceCollection($resources);
-    }
-
-    /**
-     * Count the number of elements in the store.
-     */
-    private function createRoot()
-    {
-        if ($this->store->exists('/')) {
-            return;
-        }
-
-        $this->store->set('/', null);
-    }
-
-    /**
-     * Count the number of elements in the store.
-     */
-    private function countStore()
-    {
-        if ($this->store instanceof Countable) {
-            return count($this->store);
-        }
-
-        return count($this->store->keys());
-    }
-
-    /**
-     * Sort the store by keys.
-     */
-    private function sortStore()
-    {
-        $resources = $this->store->getMultiple($this->store->keys());
-
-        ksort($resources);
-
-        $this->store->clear();
-
-        foreach ($resources as $path => $resource) {
-            $this->store->set($path, $resource);
-        }
-    }
-
-    /**
-     * Create a resource using its filesystem path.
-     *
-     * @param string $filesystemPath
-     *
-     * @return FilesystemResource
-     */
-    private function createResource($filesystemPath)
-    {
-        if ($filesystemPath === null) {
-            return new GenericResource();
-        }
-
-        if (is_dir($filesystemPath)) {
-            return new DirectoryResource($filesystemPath);
-        } elseif (is_file($filesystemPath)) {
-            return new FileResource($filesystemPath);
-        }
-
-        return new GenericResource();
+        return new ArrayResourceCollection($this->createResources($filesystemPaths));
     }
 }

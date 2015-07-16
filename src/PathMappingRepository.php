@@ -13,8 +13,6 @@ namespace Puli\Repository;
 
 use ArrayIterator;
 use BadMethodCallException;
-use Countable;
-use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
@@ -22,13 +20,9 @@ use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -52,25 +46,8 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class PathMappingRepository implements EditableRepository
+class PathMappingRepository extends AbstractPathMappingRepository
 {
-    /**
-     * @var KeyValueStore
-     */
-    private $store;
-
-    /**
-     * Creates a new repository.
-     *
-     * @param KeyValueStore $store The store of all the paths.
-     */
-    public function __construct(KeyValueStore $store)
-    {
-        $this->store = $store;
-
-        $this->createRoot();
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -180,23 +157,9 @@ class PathMappingRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function clear()
-    {
-        // Subtract root
-        $removed = $this->countStore() - 1;
-
-        $this->store->clear();
-        $this->createRoot();
-
-        return $removed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function listChildren($path)
     {
-        return new ArrayResourceCollection($this->getChildren($this->get($path)));
+        return $this->getChildren($this->get($path));
     }
 
     /**
@@ -212,7 +175,7 @@ class PathMappingRepository implements EditableRepository
      *
      * @param string $path The path to resolve.
      *
-     * @return Resource|null The resource or null if the resource is not found.
+     * @return FilesystemResource|null The resource or null if the resource is not found.
      */
     private function resolveResource($path)
     {
@@ -310,27 +273,6 @@ class PathMappingRepository implements EditableRepository
     }
 
     /**
-     * Recursively creates a directory for a path.
-     *
-     * @param string $path A directory path.
-     *
-     * @return DirectoryResource The created resource.
-     */
-    private function ensureDirectoryExists($path)
-    {
-        if ($this->store->exists($path)) {
-            return;
-        }
-
-        // Recursively initialize parent directories
-        if ('/' !== $path) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-        }
-
-        $this->store->set($path, null);
-    }
-
-    /**
      * Add a given resource to the repository.
      *
      * @param string             $path
@@ -353,14 +295,14 @@ class PathMappingRepository implements EditableRepository
      *
      * @param Resource $resource The resource.
      *
-     * @return ArrayResourceCollection|Resource[] The children.
+     * @return ArrayResourceCollection The children.
      */
     private function getChildrenRecursive(Resource $resource)
     {
         $resources = new ArrayResourceCollection();
 
         foreach ($this->getChildren($resource) as $child) {
-            $resources->merge($this->getChildrenRecursive($child));
+            $resources->merge($this->getChildrenRecursive($child)->toArray());
         }
 
         $resources->add($resource);
@@ -373,7 +315,7 @@ class PathMappingRepository implements EditableRepository
      *
      * @param Resource $resource The resource.
      *
-     * @return ArrayResourceCollection|Resource[] The children.
+     * @return ArrayResourceCollection The children.
      */
     private function getChildren(Resource $resource)
     {
@@ -449,83 +391,6 @@ class PathMappingRepository implements EditableRepository
         // Sorted on adding
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
 
-        $resources = array();
-
-        foreach ($filesystemPaths as $path => $filesystemPath) {
-            $child = $this->createResource($filesystemPath);
-            $child->attachTo($this, $path);
-
-            $resources[] = $child;
-        }
-
-        return $resources;
-    }
-
-    /**
-     * Create the repository root.
-     */
-    private function createRoot()
-    {
-        if ($this->store->exists('/')) {
-            return;
-        }
-
-        $this->store->set('/', null);
-    }
-
-    /**
-     * Count the number of elements in the store.
-     *
-     * @return int
-     */
-    private function countStore()
-    {
-        if ($this->store instanceof Countable) {
-            return count($this->store);
-        }
-
-        return count($this->store->keys());
-    }
-
-    /**
-     * Sort the store by keys.
-     */
-    private function sortStore()
-    {
-        $resources = $this->store->getMultiple($this->store->keys());
-
-        ksort($resources);
-
-        $this->store->clear();
-
-        foreach ($resources as $path => $resource) {
-            $this->store->set($path, $resource);
-        }
-    }
-
-    /**
-     * Create a resource using its filesystem path.
-     *
-     * If the filesystem path is a directory, a DirectoryResource will be created.
-     * If the filesystem path is a file, a FileResource will be created.
-     * If the filesystem does not exists, a GenericResource will be created.
-     *
-     * @param string $filesystemPath The filesystem path.
-     *
-     * @return GenericResource|DirectoryResource|FileResource The created resource.
-     */
-    private function createResource($filesystemPath)
-    {
-        if ($filesystemPath === null) {
-            return new GenericResource();
-        }
-
-        if (is_dir($filesystemPath)) {
-            return new DirectoryResource($filesystemPath);
-        } elseif (is_file($filesystemPath)) {
-            return new FileResource($filesystemPath);
-        }
-
-        return new GenericResource();
+        return $this->createResources($filesystemPaths);
     }
 }

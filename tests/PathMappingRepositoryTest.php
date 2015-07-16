@@ -65,13 +65,6 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         parent::setUp();
 
         $this->tempDir = sys_get_temp_dir().'/puli-repository/PathMappingRepositoryTest'.md5(uniqid(time(), true));
-        $this->tempDir = __DIR__.'/../../fixtures/tests';
-
-        if (is_dir($this->tempDir)) {
-            $filesystem = new Filesystem();
-            $filesystem->remove($this->tempDir);
-        }
-
         mkdir($this->tempDir, 0777, true);
 
         $this->store = new ArrayStore();
