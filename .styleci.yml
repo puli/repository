@@ -1,8 +1,7 @@
 preset: symfony
 
 finder:
-    - path: src
-    - path: tests
+    path: [src, tests]
 
 enabled:
     - ordered_use
