@@ -13,14 +13,16 @@ namespace Puli\Repository;
 
 use ArrayIterator;
 use BadMethodCallException;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Webmozart\Assert\Assert;
+use Puli\Repository\Resource\GenericResource;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
@@ -46,17 +48,14 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class PathMappingRepository extends AbstractPathMappingRepository
+class PathMappingRepository extends AbstractPathMappingRepository implements EditableRepository
 {
     /**
      * {@inheritdoc}
      */
     public function get($path)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
         $resource = $this->resolveResource($path);
 
         if (!$resource) {
@@ -71,16 +70,9 @@ class PathMappingRepository extends AbstractPathMappingRepository
      */
     public function find($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
-
-        return $this->search($query, false);
+        return $this->search($this->sanitizePath($query), false);
     }
 
     /**
@@ -88,16 +80,9 @@ class PathMappingRepository extends AbstractPathMappingRepository
      */
     public function contains($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
-
-        return $this->search($query, true)->count() > 0;
+        return $this->search($this->sanitizePath($query), true)->count() > 0;
     }
 
     /**
@@ -105,10 +90,7 @@ class PathMappingRepository extends AbstractPathMappingRepository
      */
     public function add($path, $resource)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
@@ -175,7 +157,7 @@ class PathMappingRepository extends AbstractPathMappingRepository
      *
      * @param string $path The path to resolve.
      *
-     * @return FilesystemResource|null The resource or null if the resource is not found.
+     * @return GenericResource|null The resource or null if the resource is not found.
      */
     private function resolveResource($path)
     {
@@ -255,18 +237,26 @@ class PathMappingRepository extends AbstractPathMappingRepository
         $basePath = Glob::getBasePath($query);
         $baseResource = $this->resolveResource($basePath);
 
-        if ($baseResource !== null) {
-            $children = $this->getChildrenRecursive($baseResource);
+        if (null === $baseResource) {
+            return $resources;
+        }
 
-            foreach ($children as $child) {
-                if (Glob::match($child->getRepositoryPath(), $query)) {
-                    $resources->add($child);
+        $children = $this->getChildrenRecursive($baseResource);
 
-                    if ($singleResult) {
-                        break;
-                    }
-                }
+        $i = 0;
+        $found = false;
+
+        while ($i < $children->count() && !($found && $singleResult)) {
+            /** @var Resource $child */
+            $child = $children->get($i);
+
+            $found = Glob::match($child->getRepositoryPath(), $query);
+
+            if ($found) {
+                $resources->add($child);
             }
+
+            ++$i;
         }
 
         return $resources;
@@ -341,9 +331,9 @@ class PathMappingRepository extends AbstractPathMappingRepository
             return array();
         }
 
-        $iterator = new \RecursiveDirectoryIterator(
+        $iterator = new RecursiveDirectoryIterator(
             $resource->getFilesystemPath(),
-            \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS
+            FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS
         );
 
         $filesystemPaths = iterator_to_array($iterator);

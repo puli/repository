@@ -13,6 +13,7 @@ namespace Puli\Repository;
 
 use ArrayIterator;
 use Iterator;
+use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
@@ -47,17 +48,14 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepository extends AbstractPathMappingRepository
+class OptimizedPathMappingRepository extends AbstractPathMappingRepository implements EditableRepository
 {
     /**
      * {@inheritdoc}
      */
     public function get($path)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
 
         if (!$this->store->exists($path)) {
             throw ResourceNotFoundException::forPath($path);
@@ -74,14 +72,9 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository
      */
     public function find($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
         $resources = new ArrayResourceCollection();
 
         if (Glob::isDynamic($query)) {
@@ -105,10 +98,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
 
         if (Glob::isDynamic($query)) {
             $iterator = $this->getGlobIterator($query);
@@ -125,10 +115,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository
      */
     public function add($path, $resource)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
@@ -161,14 +148,9 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository
      */
     public function remove($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
 
         Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 

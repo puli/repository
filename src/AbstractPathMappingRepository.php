@@ -12,7 +12,6 @@
 namespace Puli\Repository;
 
 use Countable;
-use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -27,7 +26,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-abstract class AbstractPathMappingRepository implements EditableRepository
+abstract class AbstractPathMappingRepository extends AbstractRepository
 {
     /**
      * @var KeyValueStore

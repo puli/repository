@@ -16,6 +16,7 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\PathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
@@ -176,6 +177,36 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertTrue($this->writeRepo->contains('/webmozart/sub1/file2'));
         $this->assertTrue($this->writeRepo->contains('/webmozart/sub2/file2'));
         $this->assertFalse($this->writeRepo->contains('/webmozart/sub2/file1'));
+    }
+
+    public function testResolveVirtualResource()
+    {
+        $this->writeRepo->add('/webmozart/foo/bar', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+
+        $this->assertTrue($this->readRepo->contains('/webmozart'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/foo'));
+        $this->assertTrue($this->readRepo->contains('/webmozart/foo/bar'));
+
+        /** @var GenericResource $webmozart */
+        $webmozart = $this->readRepo->get('/webmozart');
+
+        /** @var GenericResource $foo */
+        $foo = $this->readRepo->get('/webmozart/foo');
+
+        /** @var DirectoryResource $bar */
+        $bar = $this->readRepo->get('/webmozart/foo/bar');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\GenericResource', $webmozart);
+        $this->assertInstanceOf('Puli\Repository\Resource\GenericResource', $foo);
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $bar);
+
+        $this->assertEquals('/webmozart/foo', $webmozart->getChild('/foo')->getRepositoryPath());
+        $this->assertEquals('/webmozart/foo/bar', $webmozart->getChild('/foo')->getChild('/bar')->getRepositoryPath());
+        $this->assertEquals('/webmozart/foo/bar', $foo->getChild('/bar')->getRepositoryPath());
+
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $bar->getChild('/sub'));
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $bar->getChild('/file1'));
+        $this->assertCount(2, $bar->getChild('/sub')->listChildren()->toArray());
     }
 
     public function testCreateWithFilledStore()
