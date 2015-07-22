@@ -16,16 +16,13 @@ use Iterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
-use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
-use Webmozart\PathUtil\Path;
 
 /**
  * An optimized path mapping resource repository.
@@ -61,10 +58,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $resource = $this->createResource($this->store->get($path));
-        $resource->attachTo($this, $path);
-
-        return $resource;
+        return $this->createAndAttachResource($this->store->get($path), $path);
     }
 
     /**
@@ -80,10 +74,9 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
-            $resource = $this->createResource($this->store->get($query));
-            $resource->attachTo($this, $query);
-
-            $resources = new ArrayResourceCollection(array($resource));
+            $resources = new ArrayResourceCollection(array(
+                $this->createAndAttachResource($this->store->get($query), $query),
+            ));
         }
 
         return $resources;
@@ -108,39 +101,6 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
         }
 
         return $this->store->exists($query);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function add($path, $resource)
-    {
-        $path = $this->sanitizePath($path);
-
-        if ($resource instanceof ResourceCollection) {
-            $this->ensureDirectoryExists($path);
-
-            foreach ($resource as $child) {
-                $this->addResource($path.'/'.$child->getName(), $child);
-            }
-
-            $this->sortStore();
-
-            return;
-        }
-
-        if ($resource instanceof FilesystemResource) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-            $this->addResource($path, $resource);
-            $this->sortStore();
-
-            return;
-        }
-
-        throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
-            is_object($resource) ? get_class($resource) : gettype($resource)
-        ));
     }
 
     /**
@@ -200,7 +160,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      * @param string             $path
      * @param FilesystemResource $resource
      */
-    private function addResource($path, FilesystemResource $resource)
+    protected function addResource($path, FilesystemResource $resource)
     {
         // Don't modify resources attached to other repositories
         if ($resource->isAttached()) {

@@ -14,15 +14,14 @@ namespace Puli\Repository;
 use ArrayIterator;
 use BadMethodCallException;
 use FilesystemIterator;
-use RecursiveDirectoryIterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
@@ -86,39 +85,6 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function add($path, $resource)
-    {
-        $path = $this->sanitizePath($path);
-
-        if ($resource instanceof ResourceCollection) {
-            $this->ensureDirectoryExists($path);
-
-            foreach ($resource as $child) {
-                $this->addResource($path.'/'.$child->getName(), $child);
-            }
-
-            $this->sortStore();
-
-            return;
-        }
-
-        if ($resource instanceof FilesystemResource) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-            $this->addResource($path, $resource);
-            $this->sortStore();
-
-            return;
-        }
-
-        throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
-            is_object($resource) ? get_class($resource) : gettype($resource)
-        ));
-    }
-
-    /**
      * Removes all resources matching the given query.
      *
      * This method is not supported by this repository.
@@ -133,7 +99,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function remove($query, $language = 'glob')
     {
-        throw new BadMethodCallException(sprintf('%s\(\) is not supported in %s', __METHOD__, __CLASS__));
+        throw new BadMethodCallException(sprintf('remove\(\) is not supported in %s', __CLASS__));
     }
 
     /**
@@ -141,7 +107,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function listChildren($path)
     {
-        return $this->getChildren($this->get($path));
+        return $this->getChildren($this->get($path), false);
     }
 
     /**
@@ -149,7 +115,25 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function hasChildren($path)
     {
-        return $this->getChildren($this->get($path))->count() !== 0;
+        return $this->getChildren($this->get($path), false)->count() !== 0;
+    }
+
+    /**
+     * Add a given resource to the repository.
+     *
+     * @param string             $path
+     * @param FilesystemResource $resource
+     */
+    protected function addResource($path, FilesystemResource $resource)
+    {
+        // Don't modify resources attached to other repositories
+        if ($resource->isAttached()) {
+            $resource = clone $resource;
+        }
+
+        $resource->attachTo($this, $path);
+
+        $this->store->set($path, $resource->getFilesystemPath());
     }
 
     /**
@@ -165,10 +149,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
          * If the path exists in the store, return it directly
          */
         if ($this->store->exists($path)) {
-            $resolved = $this->createResource($this->store->get($path));
-            $resolved->attachTo($this, $path);
-
-            return $resolved;
+            return $this->createAndAttachResource($this->store->get($path), $path);
         }
 
         /*
@@ -189,12 +170,8 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             $filesystemBasePath = rtrim($this->store->get($basePath), '/').'/';
             $filesystemPath = substr_replace($path, $filesystemBasePath, 0, strlen($basePath));
 
-            $resource = $this->createResource($filesystemPath);
-
-            if ($resource instanceof FilesystemResource) {
-                $resource->attachTo($this, $path);
-
-                return $resource;
+            if (file_exists($filesystemPath)) {
+                return $this->createAndAttachResource($filesystemPath, $path);
             }
         }
 
@@ -241,121 +218,46 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             return $resources;
         }
 
-        $children = $this->getChildrenRecursive($baseResource);
+        $children = $this->getChildren($baseResource, true);
 
-        $i = 0;
-        $found = false;
-
-        while ($i < $children->count() && !($found && $singleResult)) {
-            /** @var Resource $child */
-            $child = $children->get($i);
-
-            $found = Glob::match($child->getRepositoryPath(), $query);
-
-            if ($found) {
+        foreach ($children as $child) {
+            if (Glob::match($child->getRepositoryPath(), $query)) {
                 $resources->add($child);
-            }
 
-            ++$i;
+                if ($singleResult) {
+                    return $resources;
+                }
+            }
         }
 
         return $resources;
     }
 
     /**
-     * Add a given resource to the repository.
+     * Find the children of a given resource.
      *
-     * @param string             $path
-     * @param FilesystemResource $resource
-     */
-    private function addResource($path, FilesystemResource $resource)
-    {
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
-        $resource->attachTo($this, $path);
-
-        $this->store->set($path, $resource->getFilesystemPath());
-    }
-
-    /**
-     * Recursively find all the children of a given resource.
-     *
-     * @param Resource $resource The resource.
+     * @param Resource $resource  The resource.
+     * @param bool     $recursive Should the method do a recusrive listing?
      *
      * @return ArrayResourceCollection The children.
      */
-    private function getChildrenRecursive(Resource $resource)
+    private function getChildren(Resource $resource, $recursive = false)
     {
+        if ($resource instanceof FilesystemResource) {
+            return $this->getFilesystemResourceChildren($resource, $recursive);
+        }
+
+        if (!$recursive) {
+            return $this->getVirtualResourceChildren($resource);
+        }
+
         $resources = new ArrayResourceCollection();
 
-        foreach ($this->getChildren($resource) as $child) {
-            $resources->merge($this->getChildrenRecursive($child)->toArray());
+        foreach ($this->getChildren($resource, false) as $child) {
+            $resources->merge($this->getChildren($child, true)->toArray());
         }
 
         $resources->add($resource);
-
-        return $resources;
-    }
-
-    /**
-     * Find the direct children of a given resource.
-     *
-     * @param Resource $resource The resource.
-     *
-     * @return ArrayResourceCollection The children.
-     */
-    private function getChildren(Resource $resource)
-    {
-        if ($resource instanceof FilesystemResource) {
-            $children = $this->getFilesystemResourceChildren($resource);
-        } else {
-            $children = $this->getVirtualResourceChildren($resource);
-        }
-
-        return new ArrayResourceCollection($children);
-    }
-
-    /**
-     * Find the direct children of a given filesystem resource.
-     *
-     * @param FilesystemResource $resource The resource.
-     *
-     * @return Resource[] The children.
-     */
-    private function getFilesystemResourceChildren(FilesystemResource $resource)
-    {
-        if (!is_dir($resource->getFilesystemPath())) {
-            return array();
-        }
-
-        $iterator = new RecursiveDirectoryIterator(
-            $resource->getFilesystemPath(),
-            FilesystemIterator::CURRENT_AS_PATHNAME | FilesystemIterator::SKIP_DOTS
-        );
-
-        $filesystemPaths = iterator_to_array($iterator);
-
-        // RecursiveDirectoryIterator is not guaranteed to return sorted results
-        sort($filesystemPaths);
-
-        $resources = array();
-
-        foreach ($filesystemPaths as $filesystemPath) {
-            $child = $this->createResource($filesystemPath);
-
-            $path = preg_replace(
-                '~^'.preg_quote(rtrim($resource->getFilesystemPath(), '/').'/', '~').'~',
-                rtrim($resource->getRepositoryPath(), '/').'/',
-                $filesystemPath
-            );
-
-            $child->attachTo($this, $path);
-
-            $resources[] = $child;
-        }
 
         return $resources;
     }
@@ -365,7 +267,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      *
      * @param Resource $resource The resource.
      *
-     * @return Resource[] The children.
+     * @return ArrayResourceCollection The children.
      */
     private function getVirtualResourceChildren(Resource $resource)
     {
@@ -381,6 +283,59 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         // Sorted on adding
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
 
-        return $this->createResources($filesystemPaths);
+        return new ArrayResourceCollection($this->createResources($filesystemPaths));
+    }
+
+    /**
+     * Find the children of a given filesystem resource.
+     *
+     * @param FilesystemResource $resource  The resource.
+     * @param bool               $recursive Should the method do a recusrive listing?
+     *
+     * @return Resource[] The children.
+     */
+    private function getFilesystemResourceChildren(FilesystemResource $resource, $recursive = false)
+    {
+        if (!is_dir($resource->getFilesystemPath())) {
+            return new ArrayResourceCollection();
+        }
+
+        if ($recursive) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator(
+                    $resource->getFilesystemPath(),
+                    FilesystemIterator::KEY_AS_PATHNAME
+                    | FilesystemIterator::CURRENT_AS_FILEINFO
+                    | FilesystemIterator::SKIP_DOTS
+                ),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+        } else {
+            $iterator = new RecursiveDirectoryIterator(
+                $resource->getFilesystemPath(),
+                FilesystemIterator::KEY_AS_PATHNAME
+                | FilesystemIterator::CURRENT_AS_FILEINFO
+                | FilesystemIterator::SKIP_DOTS
+            );
+        }
+
+        $filesystemPaths = array_keys(iterator_to_array($iterator));
+
+        // RecursiveDirectoryIterator is not guaranteed to return sorted results
+        sort($filesystemPaths);
+
+        $resources = new ArrayResourceCollection();
+
+        foreach ($filesystemPaths as $filesystemPath) {
+            $path = preg_replace(
+                '~^'.preg_quote(rtrim($resource->getFilesystemPath(), '/').'/', '~').'~',
+                rtrim($resource->getRepositoryPath(), '/').'/',
+                $filesystemPath
+            );
+
+            $resources->add($this->createAndAttachResource($filesystemPath, $path));
+        }
+
+        return $resources;
     }
 }

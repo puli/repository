@@ -12,9 +12,13 @@
 namespace Puli\Repository;
 
 use Countable;
+use Puli\Repository\Api\Resource\FilesystemResource;
+use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
+use RuntimeException;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\PathUtil\Path;
 
@@ -43,6 +47,47 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
         $this->store = $store;
 
         $this->createRoot();
+    }
+
+    /**
+     * Add the resource (internal method after checks of add()).
+     *
+     * @param string             $path
+     * @param FilesystemResource $resource
+     */
+    abstract protected function addResource($path, FilesystemResource $resource);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add($path, $resource)
+    {
+        $path = $this->sanitizePath($path);
+
+        if ($resource instanceof ResourceCollection) {
+            $this->ensureDirectoryExists($path);
+
+            foreach ($resource as $child) {
+                $this->addResource($path.'/'.$child->getName(), $child);
+            }
+
+            $this->sortStore();
+
+            return;
+        }
+
+        if ($resource instanceof FilesystemResource) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
+            $this->addResource($path, $resource);
+            $this->sortStore();
+
+            return;
+        }
+
+        throw new UnsupportedResourceException(sprintf(
+            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
+            is_object($resource) ? get_class($resource) : gettype($resource)
+        ));
     }
 
     /**
@@ -121,37 +166,29 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     }
 
     /**
-     * Create a resource using its filesystem path.
+     * Create a filesystem or generic resource.
      *
-     * If the filesystem path is a directory, a DirectoryResource will be created.
-     * If the filesystem path is a file, a FileResource will be created.
-     * If the filesystem does not exists, a GenericResource will be created.
+     * @param string $filesystemPath
      *
-     * @param string $filesystemPath The filesystem path.
-     *
-     * @return GenericResource|DirectoryResource|FileResource The created resource.
+     * @return DirectoryResource|FileResource|GenericResource
      */
     protected function createResource($filesystemPath)
     {
-        if ($filesystemPath === null) {
-            return new GenericResource();
-        }
-
-        if (is_dir($filesystemPath)) {
-            return new DirectoryResource($filesystemPath);
-        } elseif (is_file($filesystemPath)) {
-            return new FileResource($filesystemPath);
+        if (file_exists($filesystemPath)) {
+            return $this->createFilesystemResource($filesystemPath);
         }
 
         return new GenericResource();
     }
 
     /**
-     * Create a collection of resources using a list of filesystem paths.
+     * Create a list of resources using their filesystem paths.
      *
-     * @param array $filesystemPaths
+     * @param array $filesystemPaths The filesystem paths.
      *
-     * @return array
+     * @return DirectoryResource[]|FileResource[]|GenericResource[] The created resources.
+     *
+     * @throws RuntimeException If one of the files / directories does not exist.
      */
     protected function createResources($filesystemPaths)
     {
@@ -165,5 +202,49 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
         }
 
         return $resources;
+    }
+
+    /**
+     * Create a resource using its filesystem path.
+     *
+     * If the filesystem path is a directory, a DirectoryResource will be created.
+     * If the filesystem path is a file, a FileResource will be created.
+     * If the filesystem does not exists, a GenericResource will be created.
+     *
+     * @param string $filesystemPath The filesystem path.
+     *
+     * @return DirectoryResource|FileResource The created resource.
+     *
+     * @throws RuntimeException If the file / directory does not exist.
+     */
+    protected function createFilesystemResource($filesystemPath)
+    {
+        if (is_dir($filesystemPath)) {
+            return new DirectoryResource($filesystemPath);
+        } elseif (is_file($filesystemPath)) {
+            return new FileResource($filesystemPath);
+        }
+
+        throw new RuntimeException(sprintf(
+            'Trying to create a FilesystemResource on a non-existing file or directory "%s"',
+            $filesystemPath
+        ));
+    }
+
+    /**
+     * Create a filesystem or generic resource and
+     * attach it to the given repository path.
+     *
+     * @param string $filesystemPath
+     * @param string $repositoryPath
+     *
+     * @return DirectoryResource|FileResource|GenericResource
+     */
+    protected function createAndAttachResource($filesystemPath, $repositoryPath)
+    {
+        $resource = $this->createResource($filesystemPath);
+        $resource->attachTo($this, $repositoryPath);
+
+        return $resource;
     }
 }
