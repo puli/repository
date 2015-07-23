@@ -26,8 +26,8 @@ class ResourceNotFoundException extends RuntimeException
     /**
      * Creates a new exception for a resource path.
      *
-     * @param string    $path  The path which was not found.
-     * @param Exception $cause The exception that caused this exception.
+     * @param string         $path  The path which was not found.
+     * @param Exception|null $cause The exception that caused this exception.
      *
      * @return static The created exception.
      */

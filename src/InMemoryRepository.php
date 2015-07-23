@@ -257,7 +257,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         unset($this->resources[$path]);
 
         // Detach from locator
-        $resource->detach($this);
+        $resource->detach();
     }
 
     /**

@@ -401,7 +401,7 @@ class ResourceStreamWrapper implements StreamWrapper
      *
      * @internal
      */
-    public function stream_metadata($uri, $option, $value)
+    public function stream_metadata($uri, $option)
     {
         switch ($option) {
             case STREAM_META_TOUCH:

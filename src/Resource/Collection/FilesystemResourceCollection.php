@@ -38,8 +38,8 @@ class FilesystemResourceCollection extends ArrayResourceCollection
     public function getFilesystemPaths()
     {
         return array_map(
-            function (FilesystemResource $r) {
-                return $r->getFilesystemPath();
+            function (FilesystemResource $resource) {
+                return $resource->getFilesystemPath();
             },
             array_filter(
                 $this->toArray(),

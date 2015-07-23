@@ -188,7 +188,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function getPaths()
     {
         return array_map(
-            function (Resource $r) { return $r->getPath(); },
+            function (Resource $resource) { return $resource->getPath(); },
             $this->resources
         );
     }
@@ -199,7 +199,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function getNames()
     {
         return array_map(
-            function (Resource $r) { return $r->getName(); },
+            function (Resource $resource) { return $resource->getName(); },
             $this->resources
         );
     }

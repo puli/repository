@@ -18,7 +18,7 @@ namespace Puli\Repository\Uri;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class Uri
+final class Uri
 {
     /**
      * Parses a URI.
