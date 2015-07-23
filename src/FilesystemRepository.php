@@ -182,7 +182,7 @@ class FilesystemRepository implements EditableRepository
             return false;
         }
 
-        $iterator = new RecursiveDirectoryIterator($filesystemPath);
+        $iterator = $this->getDirectoryIterator($filesystemPath);
         $iterator->rewind();
 
         return $iterator->valid();
@@ -199,7 +199,7 @@ class FilesystemRepository implements EditableRepository
             return new FilesystemResourceCollection();
         }
 
-        return $this->iteratorToCollection(new RecursiveDirectoryIterator($filesystemPath));
+        return $this->iteratorToCollection($this->getDirectoryIterator($filesystemPath));
     }
 
     /**
@@ -257,7 +257,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function clear()
     {
-        $iterator = new RecursiveDirectoryIterator($this->baseDir);
+        $iterator = $this->getDirectoryIterator($this->baseDir);
         $removed = 0;
 
         foreach ($iterator as $filesystemPath) {
@@ -364,7 +364,7 @@ class FilesystemRepository implements EditableRepository
     private function countChildren($filesystemPath)
     {
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($filesystemPath),
+            $this->getDirectoryIterator($filesystemPath),
             RecursiveIteratorIterator::SELF_FIRST
         );
 
@@ -432,6 +432,14 @@ class FilesystemRepository implements EditableRepository
         return new GlobIterator($this->baseDir.$query);
     }
 
+    private function getDirectoryIterator($filesystemPath)
+    {
+        return new RecursiveDirectoryIterator(
+            $filesystemPath,
+            RecursiveDirectoryIterator::CURRENT_AS_PATHNAME | RecursiveDirectoryIterator::SKIP_DOTS
+        );
+    }
+
     private function symlinkMirror($origin, $target, array $dirsToKeep = array())
     {
         $targetIsDir = is_dir($target);
@@ -443,13 +451,10 @@ class FilesystemRepository implements EditableRepository
                 $this->replaceLinkByCopy($target, $dirsToKeep);
             }
 
-            $iterator = new RecursiveDirectoryIterator(
-                $origin,
-                RecursiveDirectoryIterator::CURRENT_AS_FILE
-            );
+            $iterator = $this->getDirectoryIterator($origin);
 
-            foreach ($iterator as $path => $filename) {
-                $this->symlinkMirror($path, $target.'/'.$filename, $dirsToKeep);
+            foreach ($iterator as $path) {
+                $this->symlinkMirror($path, $target.'/'.basename($path), $dirsToKeep);
             }
 
             return;
