@@ -19,9 +19,11 @@ use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
 use RuntimeException;
+use Webmozart\KeyValueStore\Api\CountableStore;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\Api\SortableStore;
 use Webmozart\KeyValueStore\SortableDecorator;
+use Webmozart\KeyValueStore\CountableDecorator;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -144,11 +146,11 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      */
     protected function countStore()
     {
-        if ($this->store instanceof Countable) {
-            return count($this->store);
+        if (!$this->store instanceof CountableStore) {
+            $this->store = new CountableDecorator($this->store);
         }
 
-        return count($this->store->keys());
+        return $this->store->count();
     }
 
     /**
