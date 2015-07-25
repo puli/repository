@@ -31,6 +31,8 @@ The following [`ResourceRepository`] implementations are currently supported:
 * [`InMemoryRepository`]
 * [`FilesystemRepository`]
 * [`NullRepository`]
+* [`PathMappingRepository`]
+* [`OptimizedPathMappingRepository`]
 
 The following [`Resource`] implementations are currently supported:
 
@@ -89,6 +91,8 @@ All contents of this package are licensed under the [MIT license].
 [`InMemoryRepository`]: http://api.puli.io/latest/class-Puli.Repository.InMemoryRepository.html
 [`FilesystemRepository`]: http://api.puli.io/latest/class-Puli.Repository.FilesystemRepository.html
 [`NullRepository`]: http://api.puli.io/latest/class-Puli.Repository.NullRepository.html
+[`PathMappingRepository`]: http://api.puli.io/latest/class-Puli.Repository.PathMappingRepository.html
+[`OptimizedPathMappingRepository`]: http://api.puli.io/latest/class-Puli.Repository.OptimizedPathMappingRepository.html
 [`Resource`]: http://api.puli.io/latest/class-Puli.Repository.Api.Resource.Resource.html
 [`GenericResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.GenericResource.html
 [`FileResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.FileResource.html
