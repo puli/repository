@@ -159,7 +159,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
      * Returns the current key of the iterator.
      *
      * @return int|string|null The current key as configured in
-     *                         {@link __construct) or `null` if the cursor
+     *                         {@link __construct} or `null` if the cursor
      *                         is behind the last element.
      */
     public function key()
