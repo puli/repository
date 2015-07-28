@@ -20,6 +20,8 @@ use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
 use RuntimeException;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
+use Webmozart\KeyValueStore\Api\SortableStore;
+use Webmozart\KeyValueStore\SortableDecorator;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -154,15 +156,11 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      */
     protected function sortStore()
     {
-        $resources = $this->store->getMultiple($this->store->keys());
-
-        ksort($resources);
-
-        $this->store->clear();
-
-        foreach ($resources as $path => $resource) {
-            $this->store->set($path, $resource);
+        if (!$this->store instanceof SortableStore) {
+            $this->store = new SortableDecorator($this->store);
         }
+
+        $this->store->sort();
     }
 
     /**
