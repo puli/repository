@@ -472,7 +472,7 @@ class ResourceStreamWrapper implements StreamWrapper
         }
 
         $this->handle = fopen('php://temp', 'r+', $options & STREAM_USE_PATH);
-        fputs($this->handle, $resource->getBody());
+        fwrite($this->handle, $resource->getBody());
         rewind($this->handle);
 
         return true;
