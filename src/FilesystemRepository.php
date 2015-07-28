@@ -18,7 +18,6 @@ use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
@@ -61,7 +60,7 @@ use Webmozart\PathUtil\Path;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepository implements EditableRepository
+class FilesystemRepository extends AbstractRepository implements EditableRepository
 {
     /**
      * @var bool|null
@@ -139,10 +138,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function get($path)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
         $filesystemPath = $this->baseDir.$path;
 
         if (!file_exists($filesystemPath)) {
@@ -207,10 +203,7 @@ class FilesystemRepository implements EditableRepository
      */
     public function add($path, $resource)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
 
         if ($resource instanceof ResourceCollection) {
             $this->ensureDirectoryExists($path);
@@ -405,10 +398,7 @@ class FilesystemRepository implements EditableRepository
 
     private function getFilesystemPath($path)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
         $filesystemPath = $this->baseDir.$path;
 
         if (!file_exists($filesystemPath)) {
@@ -420,9 +410,7 @@ class FilesystemRepository implements EditableRepository
 
     private function getGlobIterator($query, $language)
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
         Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
         Assert::startsWith($query, '/', 'The glob %s is not absolute.');

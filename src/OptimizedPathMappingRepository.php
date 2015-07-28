@@ -12,25 +12,17 @@
 namespace Puli\Repository;
 
 use ArrayIterator;
-use Countable;
 use Iterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
-use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\DirectoryResource;
-use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
-use Webmozart\PathUtil\Path;
 
 /**
  * An optimized path mapping resource repository.
@@ -53,43 +45,20 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepository implements EditableRepository
+class OptimizedPathMappingRepository extends AbstractPathMappingRepository implements EditableRepository
 {
-    /**
-     * @var KeyValueStore
-     */
-    private $store;
-
-    /**
-     * Creates a new repository.
-     *
-     * @param KeyValueStore $store The store of all the paths.
-     */
-    public function __construct(KeyValueStore $store)
-    {
-        $this->store = $store;
-
-        $this->createRoot();
-    }
-
     /**
      * {@inheritdoc}
      */
     public function get($path)
     {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
+        $path = $this->sanitizePath($path);
 
         if (!$this->store->exists($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        $resource = $this->createResource($this->store->get($path));
-        $resource->attachTo($this, $path);
-
-        return $resource;
+        return $this->createAndAttachResource($this->store->get($path), $path);
     }
 
     /**
@@ -97,23 +66,17 @@ class OptimizedPathMappingRepository implements EditableRepository
      */
     public function find($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
         $resources = new ArrayResourceCollection();
 
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
-            $resource = $this->createResource($this->store->get($query));
-            $resource->attachTo($this, $query);
-
-            $resources = new ArrayResourceCollection(array($resource));
+            $resources = new ArrayResourceCollection(array(
+                $this->createAndAttachResource($this->store->get($query), $query),
+            ));
         }
 
         return $resources;
@@ -128,10 +91,7 @@ class OptimizedPathMappingRepository implements EditableRepository
             throw UnsupportedLanguageException::forLanguage($language);
         }
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
 
         if (Glob::isDynamic($query)) {
             $iterator = $this->getGlobIterator($query);
@@ -146,52 +106,11 @@ class OptimizedPathMappingRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function add($path, $resource)
-    {
-        Assert::stringNotEmpty($path, 'The path must be a non-empty string. Got: %s');
-        Assert::startsWith($path, '/', 'The path %s is not absolute.');
-
-        $path = Path::canonicalize($path);
-
-        if ($resource instanceof ResourceCollection) {
-            $this->ensureDirectoryExists($path);
-
-            foreach ($resource as $child) {
-                $this->addResource($path.'/'.$child->getName(), $child);
-            }
-
-            $this->sortStore();
-
-            return;
-        }
-
-        if ($resource instanceof FilesystemResource) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-            $this->addResource($path, $resource);
-            $this->sortStore();
-
-            return;
-        }
-
-        throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
-            is_object($resource) ? get_class($resource) : gettype($resource)
-        ));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function remove($query, $language = 'glob')
     {
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
+        $this->validateSearchLanguage($language);
 
-        Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
-        Assert::startsWith($query, '/', 'The glob %s is not absolute.');
-
-        $query = Path::canonicalize($query);
+        $query = $this->sanitizePath($query);
 
         Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
 
@@ -213,20 +132,6 @@ class OptimizedPathMappingRepository implements EditableRepository
         }
 
         return $nbOfResources - $this->countStore();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function clear()
-    {
-        // Subtract root
-        $removed = $this->countStore() - 1;
-
-        $this->store->clear();
-        $this->createRoot();
-
-        return $removed;
     }
 
     /**
@@ -255,7 +160,7 @@ class OptimizedPathMappingRepository implements EditableRepository
      * @param string             $path
      * @param FilesystemResource $resource
      */
-    private function addResource($path, FilesystemResource $resource)
+    protected function addResource($path, FilesystemResource $resource)
     {
         // Don't modify resources attached to other repositories
         if ($resource->isAttached()) {
@@ -351,27 +256,6 @@ class OptimizedPathMappingRepository implements EditableRepository
     }
 
     /**
-     * Recursively creates a directory for a path.
-     *
-     * @param string $path A directory path.
-     *
-     * @return DirectoryResource The created resource
-     */
-    private function ensureDirectoryExists($path)
-    {
-        if ($this->store->exists($path)) {
-            return;
-        }
-
-        // Recursively initialize parent directories
-        if ('/' !== $path) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-        }
-
-        $this->store->set($path, null);
-    }
-
-    /**
      * Transform an iterator of paths into a collection of resources.
      *
      * @param Iterator $iterator
@@ -381,77 +265,7 @@ class OptimizedPathMappingRepository implements EditableRepository
     private function iteratorToCollection(Iterator $iterator)
     {
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
-        $resources = array();
 
-        foreach ($filesystemPaths as $path => $filesystemPath) {
-            $resource = $this->createResource($filesystemPath);
-            $resource->attachTo($this, $path);
-
-            $resources[] = $resource;
-        }
-
-        return new ArrayResourceCollection($resources);
-    }
-
-    /**
-     * Count the number of elements in the store.
-     */
-    private function createRoot()
-    {
-        if ($this->store->exists('/')) {
-            return;
-        }
-
-        $this->store->set('/', null);
-    }
-
-    /**
-     * Count the number of elements in the store.
-     */
-    private function countStore()
-    {
-        if ($this->store instanceof Countable) {
-            return count($this->store);
-        }
-
-        return count($this->store->keys());
-    }
-
-    /**
-     * Sort the store by keys.
-     */
-    private function sortStore()
-    {
-        $resources = $this->store->getMultiple($this->store->keys());
-
-        ksort($resources);
-
-        $this->store->clear();
-
-        foreach ($resources as $path => $resource) {
-            $this->store->set($path, $resource);
-        }
-    }
-
-    /**
-     * Create a resource using its filesystem path.
-     *
-     * @param string $filesystemPath
-     *
-     * @return FilesystemResource
-     */
-    private function createResource($filesystemPath)
-    {
-        if ($filesystemPath === null) {
-            return new GenericResource();
-        }
-
-        if (is_dir($filesystemPath)) {
-            return new DirectoryResource($filesystemPath);
-        } elseif (is_file($filesystemPath)) {
-            return new FileResource($filesystemPath);
-        }
-
-        return new GenericResource();
+        return new ArrayResourceCollection($this->createResources($filesystemPaths));
     }
 }
