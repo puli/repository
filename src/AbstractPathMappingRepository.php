@@ -11,7 +11,6 @@
 
 namespace Puli\Repository;
 
-use Countable;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
@@ -22,8 +21,8 @@ use RuntimeException;
 use Webmozart\KeyValueStore\Api\CountableStore;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\Api\SortableStore;
-use Webmozart\KeyValueStore\SortableDecorator;
 use Webmozart\KeyValueStore\CountableDecorator;
+use Webmozart\KeyValueStore\SortableDecorator;
 use Webmozart\PathUtil\Path;
 
 /**
