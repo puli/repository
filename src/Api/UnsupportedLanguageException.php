@@ -26,8 +26,8 @@ class UnsupportedLanguageException extends RuntimeException
     /**
      * Creates an exception for an unsupported language string.
      *
-     * @param string    $language The unsupported language.
-     * @param Exception $cause    The exception that caused this exception.
+     * @param string         $language The unsupported language.
+     * @param Exception|null $cause    The exception that caused this exception.
      *
      * @return static The created exception.
      */

@@ -207,7 +207,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      *
      * @param Resource $resource The resource.
      *
-     * @return RegexFilterIterator|string[] The iterator of paths.
+     * @return RegexFilterIterator The iterator of paths.
      */
     private function getChildIterator(Resource $resource)
     {
@@ -226,7 +226,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      *
      * @param string $path The path.
      *
-     * @return RegexFilterIterator|string[] The iterator of paths.
+     * @return RegexFilterIterator] The iterator of paths.
      */
     private function getRecursivePathChildIterator($path)
     {
@@ -245,7 +245,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      *
      * @param string $glob The glob.
      *
-     * @return GlobFilterIterator|string[] The iterator of paths.
+     * @return GlobFilterIterator The iterator of paths.
      */
     private function getGlobIterator($glob)
     {

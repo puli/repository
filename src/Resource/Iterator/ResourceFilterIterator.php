@@ -129,7 +129,7 @@ class ResourceFilterIterator extends FilterIterator implements ResourceIterator
     /**
      * Returns whether the current element should be accepted.
      *
-     * @return bool Returns `false` if the current element should be filtered out.
+     * @return bool|int Returns `false` if the current element should be filtered out.
      */
     public function accept()
     {

@@ -12,6 +12,7 @@
 namespace Puli\Repository\Api;
 
 use Iterator;
+use Puli\Repository\Api\Resource\Resource;
 
 /**
  * An iterator over {@link Resource} objects.
