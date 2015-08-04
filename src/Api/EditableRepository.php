@@ -12,6 +12,7 @@
 namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
+use Puli\Repository\Api\Resource\Resource;
 
 /**
  * A repository that supports the addition and removal of resources.
