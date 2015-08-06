@@ -17,7 +17,6 @@ use Puli\Repository\Api\Resource\ResourceMetadata;
  * Metadata about a file on the filesystem.
  *
  * @since  1.0
- * 
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class FilesystemMetadata extends ResourceMetadata
@@ -27,23 +26,6 @@ class FilesystemMetadata extends ResourceMetadata
     public function __construct($filesystemPath)
     {
         $this->filesystemPath = $filesystemPath;
-    }
-
-    /**
-     * On Windows, fileXtime functions see only changes
-     * on the symlink file and not the original one.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
-    private function fixWindowsPath($path)
-    {
-        if (is_link($path) && defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $path = readlink($path);
-        }
-
-        return $path;
     }
 
     /**
@@ -94,5 +76,22 @@ class FilesystemMetadata extends ResourceMetadata
         clearstatcache(true, $path);
 
         return filesize($path);
+    }
+
+    /**
+     * On Windows, fileXtime functions see only changes
+     * on the symlink file and not the original one.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    private function fixWindowsPath($path)
+    {
+        if (is_link($path) && defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            $path = readlink($path);
+        }
+
+        return $path;
     }
 }
