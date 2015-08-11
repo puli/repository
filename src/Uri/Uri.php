@@ -40,7 +40,7 @@ final class Uri
      *
      * @param string $uri A URI string.
      *
-     * @return array The parts of the URI.
+     * @return string[] The parts of the URI.
      *
      * @throws InvalidUriException If the URI is invalid.
      */
