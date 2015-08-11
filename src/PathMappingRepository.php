@@ -85,17 +85,9 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
-     * Removes all resources matching the given query.
+     * Not supported.
      *
-     * This method is not supported by this repository.
-     *
-     * @param string $query    A resource query.
-     * @param string $language The language of the query. All implementations
-     *                         must support the language "glob".
-     *
-     * @return int The number of resources removed from the repository.
-     *
-     * @throws BadMethodCallException
+     * {@inheritdoc}
      */
     public function remove($query, $language = 'glob')
     {
@@ -292,7 +284,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      * @param FilesystemResource $resource  The resource.
      * @param bool               $recursive Should the method do a recusrive listing?
      *
-     * @return Resource[] The children.
+     * @return ArrayResourceCollection The children.
      */
     private function getFilesystemResourceChildren(FilesystemResource $resource, $recursive = false)
     {

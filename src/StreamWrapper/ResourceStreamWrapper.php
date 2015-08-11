@@ -12,7 +12,6 @@
 namespace Puli\Repository\StreamWrapper;
 
 use InvalidArgumentException;
-use IteratorIterator;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;
@@ -144,7 +143,7 @@ class ResourceStreamWrapper implements StreamWrapper
     private $handle;
 
     /**
-     * @var IteratorIterator
+     * @var ResourceCollectionIterator
      */
     private $childIterator;
 
@@ -598,12 +597,9 @@ class ResourceStreamWrapper implements StreamWrapper
 
             $stat = self::$defaultStat;
 
-            if ($resource instanceof BodyResource) {
-                $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $resource->getSize();
-            }
-
             $metadata = $resource->getMetadata();
 
+            $stat[self::SIZE_NUM] = $stat[self::SIZE_ASSOC] = $metadata->getSize();
             $stat[self::ACCESS_TIME_NUM] = $stat[self::ACCESS_TIME_ASSOC] = $metadata->getAccessTime();
             $stat[self::MODIFY_TIME_NUM] = $stat[self::MODIFY_TIME_ASSOC] = $metadata->getModificationTime();
 

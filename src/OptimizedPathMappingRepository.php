@@ -140,9 +140,8 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
     public function listChildren($path)
     {
         $iterator = $this->getChildIterator($this->get($path));
-        $children = $this->iteratorToCollection($iterator);
 
-        return new ArrayResourceCollection($children);
+        return $this->iteratorToCollection($iterator);
     }
 
     /**
@@ -226,7 +225,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      *
      * @param string $path The path.
      *
-     * @return RegexFilterIterator] The iterator of paths.
+     * @return RegexFilterIterator The iterator of paths.
      */
     private function getRecursivePathChildIterator($path)
     {

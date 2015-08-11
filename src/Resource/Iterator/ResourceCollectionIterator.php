@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
+use Puli\Repository\Api\Resource;
 use Puli\Repository\Api\ResourceCollection;
 
 /**

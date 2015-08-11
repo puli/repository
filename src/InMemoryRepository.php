@@ -265,7 +265,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
      *
      * @param Resource $resource The resource.
      *
-     * @return RegexFilterIterator|Resource[] The iterator.
+     * @return RegexFilterIterator The iterator.
      */
     private function getChildIterator(Resource $resource)
     {
@@ -285,7 +285,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
      *
      * @param string $glob The glob.
      *
-     * @return GlobFilterIterator|Resource[] The iterator.
+     * @return GlobFilterIterator The iterator.
      */
     protected function getGlobIterator($glob)
     {
