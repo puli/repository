@@ -12,16 +12,16 @@
     "require": {
         "php": ">=5.3.9",
         "webmozart/path-util": "~2.0",
-        "webmozart/glob": "~3.0@dev",
+        "webmozart/glob": "~3.0",
         "webmozart/assert": "~1.0"
     },
     "require-dev": {
-        "webmozart/key-value-store": "~1.0@dev",
+        "webmozart/key-value-store": "~1.0@beta",
         "symfony/filesystem": "~2.0",
         "phpunit/phpunit": "^4.6"
     },
     "suggest": {
-        "webmozart/key-value-store": "~1.0@dev",
+        "webmozart/key-value-store": "~1.0@beta",
         "symfony/filesystem": "to use the FilesystemRepository"
     },
     "autoload": {
