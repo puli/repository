@@ -1,6 +1,15 @@
 Changelog
 =========
 
+* 1.0.0-beta6 (2015-08-12)
+
+ * added `PathMappingRepository`
+ * added `OptimizedPathMappingRepository`
+ * fixed repository building on Windows
+ * upgraded to webmozart/glob 3.0 for enhanced performance of file iteration
+ * added `AbstractRepository` and `AbstractPathMappingRepository`
+ * fixed reading of file modification time for symlinks
+
 * 1.0.0-beta5 (2015-05-29)
 
  * upgraded to webmozart/path-util 2.0
