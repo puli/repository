@@ -41,8 +41,7 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemReposito
             return;
         }
 
-        while (false === @mkdir($this->tempBaseDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryAbsoluteSymlinkTest'.rand(10000, 99999), 0777, true)) {
-        }
+        $this->tempBaseDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
 
         // Create both directories in the same directory, so that relative links
         // work from one to the other

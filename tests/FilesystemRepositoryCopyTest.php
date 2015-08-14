@@ -27,8 +27,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
 
     protected function setUp()
     {
-        while (false === mkdir($this->tempDir = sys_get_temp_dir().'/puli-repository/FilesystemRepositoryCopyTest'.rand(10000, 99999), 0777, true)) {
-        }
+        $this->tempDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
 
         parent::setUp();
     }

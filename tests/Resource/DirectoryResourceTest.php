@@ -13,6 +13,7 @@ namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Tests\TestUtil;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -28,9 +29,7 @@ class DirectoryResourceTest extends AbstractFilesystemResourceTest
     {
         parent::setUp();
 
-        while (false === mkdir($this->tempEmptyDir = sys_get_temp_dir().'/puli-repository/DirectoryResourceTest'.rand(10000, 99999), 0777, true)) {
-        }
-
+        $this->tempEmptyDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
         $this->fixturesDir = realpath(__DIR__.'/Fixtures');
     }
 
