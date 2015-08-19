@@ -21,8 +21,8 @@ use RuntimeException;
 use Webmozart\KeyValueStore\Api\CountableStore;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\Api\SortableStore;
-use Webmozart\KeyValueStore\CountableDecorator;
-use Webmozart\KeyValueStore\SortableDecorator;
+use Webmozart\KeyValueStore\Decorator\CountableDecorator;
+use Webmozart\KeyValueStore\Decorator\SortableDecorator;
 use Webmozart\PathUtil\Path;
 
 /**
