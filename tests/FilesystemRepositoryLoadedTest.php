@@ -15,6 +15,7 @@ use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>

@@ -13,8 +13,8 @@ namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Tests\TestUtil;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>

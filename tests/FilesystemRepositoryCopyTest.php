@@ -17,6 +17,7 @@ use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
