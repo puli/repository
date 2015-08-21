@@ -17,6 +17,7 @@ use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -35,14 +36,8 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
 
     protected function setUp()
     {
-        if (!FilesystemRepository::isSymlinkSupported()) {
-            $this->markTestSkipped('Symlinks are not supported');
-
-            return;
-        }
-
-        if ('\\' === DIRECTORY_SEPARATOR) {
-            $this->markTestSkipped('Relative symlinks are not supported');
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            $this->markTestSkipped('Symbolic links are not supported on some Windows enviroments.');
         }
 
         $this->tempBaseDir = TestUtil::makeTempDir('puli-repository', __CLASS__);

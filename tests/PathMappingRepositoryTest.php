@@ -20,6 +20,7 @@ use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\Glob\Test\TestUtil;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**

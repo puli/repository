@@ -448,6 +448,11 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
             return;
         }
 
+        // Replace target
+        if (file_exists($target)) {
+            $this->filesystem->remove($target);
+        }
+
         // Try creating a relative link
         if ($this->relative && $this->trySymlink(Path::makeRelative($origin, Path::getDirectory($target)), $target)) {
             return;
