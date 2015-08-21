@@ -15,6 +15,7 @@ use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
+use Webmozart\PathUtil\Path;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -30,7 +31,7 @@ class DirectoryResourceTest extends AbstractFilesystemResourceTest
         parent::setUp();
 
         $this->tempEmptyDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
-        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
+        $this->fixturesDir = Path::normalize(realpath(__DIR__.'/Fixtures'));
     }
 
     protected function tearDown()
@@ -64,7 +65,7 @@ class DirectoryResourceTest extends AbstractFilesystemResourceTest
     public function getInvalidFilesystemPaths()
     {
         // setUp() has not yet been called in the data provider
-        $fixturesDir = realpath(__DIR__.'/Fixtures');
+        $fixturesDir = Path::normalize(realpath(__DIR__.'/Fixtures'));
 
         return array(
             // No directory

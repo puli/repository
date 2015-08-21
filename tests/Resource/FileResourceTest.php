@@ -12,6 +12,7 @@
 namespace Puli\Repository\Tests\Resource;
 
 use Puli\Repository\Resource\FileResource;
+use Webmozart\PathUtil\Path;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -24,7 +25,7 @@ class FileResourceTest extends AbstractFilesystemResourceTest
     {
         parent::setUp();
 
-        $this->fixturesDir = realpath(__DIR__.'/Fixtures');
+        $this->fixturesDir = Path::normalize(realpath(__DIR__.'/Fixtures'));
     }
 
     protected function createFilesystemResource($resourcesystemPath, $path = null)
@@ -50,7 +51,7 @@ class FileResourceTest extends AbstractFilesystemResourceTest
     public function getInvalidFilesystemPaths()
     {
         // setUp() has not yet been called in the data provider
-        $fixturesDir = realpath(__DIR__.'/Fixtures');
+        $fixturesDir = Path::normalize(realpath(__DIR__.'/Fixtures'));
 
         return array(
             // Not a file
