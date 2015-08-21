@@ -36,10 +36,8 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemReposito
 
     protected function setUp()
     {
-        if (!FilesystemRepository::isSymlinkSupported()) {
-            $this->markTestSkipped('Symlinks are not supported');
-
-            return;
+        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            $this->markTestSkipped('Symbolic links are not supported on some Windows enviroments.');
         }
 
         $this->tempBaseDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
