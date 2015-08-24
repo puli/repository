@@ -93,7 +93,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     {
         $query = $this->sanitizePath($query);
 
-        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
 
         $results = $this->find($query, $language);
         $invalid = array();
