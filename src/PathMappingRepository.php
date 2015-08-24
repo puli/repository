@@ -263,10 +263,8 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         $children = array();
 
         /*
-         * Children of a given path either come from
-         * other path mappings (in store) or are real
-         * children of mapped resources for the given
-         * path.
+         * Children of a given path either come from real filesystem children
+         * or from other mappings (virtual resources).
          *
          * First we check for the real children.
          */
@@ -285,7 +283,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         }
 
         /*
-         * Then we add the other path mappings.
+         * Then we add the children of other path mappings.
          * These other path mappings should override possible precedent real children.
          */
         $virtualChildren = $this->createResources($this->getVirtualPathChildren($path, false));
@@ -295,7 +293,9 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 return new ArrayResourceCollection(array($child));
             }
 
-            $children[$child->getPath()] = $child;
+            if ($child->getPath() !== $path) {
+                $children[$child->getPath()] = $child;
+            }
         }
 
         return new ArrayResourceCollection(array_values($children));
@@ -313,8 +313,24 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         $children = array();
 
         /*
-         * Find all the path mappings under the path and
-         * find real children in each on of them.
+         * Children of a given path either come from real filesystem children
+         * or from other mappings (virtual resources).
+         *
+         * First we check for the real children.
+         */
+        $filesystemPaths = $this->resolveFilesystemPaths($path, false);
+
+        foreach ($filesystemPaths as $filesystemPath) {
+            $filesystemChildren = $this->getFilesystemPathChildren($path, $filesystemPath, true);
+
+            foreach ($filesystemChildren as $filesystemChild) {
+                $children[$filesystemChild['path']] = $filesystemChild['filesystemPath'];
+            }
+        }
+
+        /*
+         * Then we add the children of other path mappings.
+         * These other path mappings should override possible precedent real children.
          */
         $virtualChildren = $this->getVirtualPathChildren($path, true);
 
@@ -363,23 +379,23 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             $iterator = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
         }
 
-        $paths = array_keys(iterator_to_array($iterator));
+        $childrenFilesystemPaths = array_keys(iterator_to_array($iterator));
 
         // RecursiveDirectoryIterator is not guaranteed to return sorted results
-        sort($paths);
+        sort($childrenFilesystemPaths);
 
         $children = array();
 
-        foreach ($paths as $path) {
-            $path = preg_replace(
+        foreach ($childrenFilesystemPaths as $childFilesystemPath) {
+            $childRepositoryPath = preg_replace(
                 '~^'.preg_quote(rtrim($filesystemPath, '/').'/', '~').'~',
                 rtrim($repositoryPath, '/').'/',
-                $path
+                $childFilesystemPath
             );
 
             $children[] = [
-                'path' => $path,
-                'filesystemPath' => $filesystemPath,
+                'path' => $childRepositoryPath,
+                'filesystemPath' => $childFilesystemPath,
             ];
         }
 
