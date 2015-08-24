@@ -151,7 +151,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         $nbOfResources = count($this->resources);
 
         // Run the assertion after find(), so that we know that $query is valid
-        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
 
         foreach ($resources as $resource) {
             $this->removeResource($resource);

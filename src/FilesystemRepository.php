@@ -235,7 +235,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         $iterator = $this->getGlobIterator($query, $language);
         $removed = 0;
 
-        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
 
         // There's some problem with concurrent deletions at the moment
         foreach (iterator_to_array($iterator) as $filesystemPath) {
