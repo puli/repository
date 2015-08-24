@@ -208,6 +208,39 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertCount(2, $bar->getChild('/sub')->listChildren()->toArray());
     }
 
+    public function testListVirtualResourceChildren()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart/foo', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+
+        $dirlist = $this->writeRepo->listChildren('/webmozart');
+
+        $this->assertCount(4, $dirlist);
+        $this->assertEquals('/webmozart/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/file2', $dirlist->get(1)->getPath());
+        $this->assertEquals('/webmozart/sub', $dirlist->get(2)->getPath());
+        $this->assertEquals('/webmozart/foo', $dirlist->get(3)->getPath());
+
+        $dirlist = $this->writeRepo->listChildren('/webmozart/foo');
+
+        $this->assertCount(3, $dirlist);
+        $this->assertEquals('/webmozart/foo/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/foo/file2', $dirlist->get(1)->getPath());
+        $this->assertEquals('/webmozart/foo/sub', $dirlist->get(2)->getPath());
+    }
+
+    public function testFindVirtualResourceChildren()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart/foo', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+
+        $dirlist = $this->writeRepo->find('/**/file1');
+
+        $this->assertCount(2, $dirlist);
+        $this->assertEquals('/webmozart/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/foo/file1', $dirlist->get(1)->getPath());
+    }
+
     public function testCreateWithFilledStore()
     {
         $store = new ArrayStore();
@@ -266,170 +299,5 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
     public function testFindFailsIfLanguageNotGlob()
     {
         $this->readRepo->find('/*', 'foobar');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveFile()
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->assertSame(1, $this->writeRepo->remove('/webmozart/puli/file1'));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveMany()
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->assertSame(2, $this->writeRepo->remove('/webmozart/puli/file*'));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @dataProvider provideDirectoryGlob
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveDirectory($glob)
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->assertSame(3, $this->writeRepo->remove('/*'));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveDot()
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->writeRepo->remove('/webmozart/puli/.');
-
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveDotDot()
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/'));
-        $this->assertTrue($this->readRepo->contains('/webmozart'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->writeRepo->remove('/webmozart/puli/..');
-
-        $this->assertTrue($this->readRepo->contains('/'));
-        $this->assertFalse($this->readRepo->contains('/webmozart'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveDiscardsTrailingSlash()
-    {
-        $this->writeRepo->add('/webmozart/puli/file1', $this->buildStructure($this->createFile()));
-        $this->writeRepo->add('/webmozart/puli/file2', $this->buildStructure($this->createFile()));
-
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertTrue($this->readRepo->contains('/webmozart/puli/file2'));
-
-        $this->writeRepo->remove('/webmozart/puli/');
-
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
-        $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testCannotRemoveRoot()
-    {
-        $this->writeRepo->remove('/');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveInterpretsConsecutiveSlashesAsRoot()
-    {
-        $this->writeRepo->remove('///');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveExpectsAbsolutePath()
-    {
-        $this->writeRepo->remove('webmozart');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveExpectsNonEmptyPath()
-    {
-        $this->writeRepo->remove('');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testRemoveExpectsStringPath()
-    {
-        $this->writeRepo->remove(new \stdClass());
     }
 }
