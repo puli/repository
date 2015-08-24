@@ -416,6 +416,8 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         $children = array();
 
         foreach ($childrenFilesystemPaths as $childFilesystemPath) {
+            $childFilesystemPath = Path::canonicalize($childFilesystemPath);
+
             $childRepositoryPath = preg_replace(
                 '~^'.preg_quote(rtrim($filesystemPath, '/').'/', '~').'~',
                 rtrim($repositoryPath, '/').'/',
