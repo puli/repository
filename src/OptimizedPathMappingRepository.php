@@ -112,7 +112,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
 
         $query = $this->sanitizePath($query);
 
-        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
 
         // Find resources to remove
         // (more efficient that find() as we do not need to unserialize them)
