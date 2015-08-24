@@ -25,6 +25,7 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
@@ -95,7 +96,44 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function remove($query, $language = 'glob')
     {
-        throw new BadMethodCallException(sprintf('remove\(\) is not supported in %s', __CLASS__));
+        $query = $this->sanitizePath($query);
+
+        Assert::notEq('', trim($query, '/'), 'The root directory cannot be removed.');
+
+        $results = $this->find($query, $language);
+        $invalid = array();
+
+        foreach ($results as $result) {
+            if (!$this->store->exists($result->getPath())) {
+                $invalid[] = $result->getFilesystemPath();
+            }
+        }
+
+        if (count($invalid) === 1) {
+            throw new BadMethodCallException(sprintf(
+                'The remove query "%s" matched a resource that is not a path mapping', $query
+            ));
+        } elseif (count($invalid) > 1) {
+            throw new BadMethodCallException(sprintf(
+                'The remove query "%s" matched %s resources that are not path mappings', $query, count($invalid)
+            ));
+        }
+
+        $removed = 0;
+
+        foreach ($results as $result) {
+            foreach ($this->getVirtualPathChildren($result->getPath(), true) as $virtualChild) {
+                if ($this->store->remove($virtualChild['path'])) {
+                    $removed++;
+                }
+            }
+
+            if ($this->store->remove($result->getPath())) {
+                $removed++;
+            }
+        }
+
+        return $removed;
     }
 
     /**
