@@ -1,6 +1,14 @@
 Changelog
 =========
 
+* 1.0.0-beta7 (2015-08-24)
+
+ * improved Windows compatibility
+ * fixed minimum package versions in composer.json
+ * switched to webmozart/glob 3.1 to fix Windows issues
+ * fixed resource overriding in the `PathMappingRepository`
+ * supported removal of path mappings in `PathMappingRepository`
+
 * 1.0.0-beta6 (2015-08-12)
 
  * added `PathMappingRepository`
