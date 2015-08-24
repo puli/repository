@@ -13,9 +13,7 @@ matrix:
     - php: 5.5
     - php: 5.6
     - php: 5.6
-      env: deps=low
-    - php: 5.6
-      env: deps=high
+      env: COMPOSER_FLAGS='--prefer-lowest --prefer-stable'
     - php: hhvm
     - php: nightly
   allow_failures:
@@ -23,11 +21,7 @@ matrix:
     - php: nightly
   fast_finish: true
 
-install:
-  - composer self-update -q
-  - if [ -z "$deps" ]; then composer install -n; fi;
-  - if [ "$deps" = "low" ]; then composer update --prefer-lowest --prefer-stable --prefer-source -n; fi;
-  - if [ "$deps" = "high" ]; then composer update --prefer-source -n; fi;
+install: composer update $COMPOSER_FLAGS -n
 
 script: vendor/bin/phpunit -v --coverage-clover=coverage.clover
 
