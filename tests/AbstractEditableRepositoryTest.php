@@ -86,12 +86,12 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testAddMergesResourceChildren()
     {
-        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/merge', array(
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/foo', array(
             $this->createFile('/file1', 'original 1'),
             $this->createFile('/file2', 'original 2'),
         ))));
 
-        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/merge', array(
+        $this->writeRepo->add('/webmozart/puli', $this->buildStructure($this->createDirectory('/bar', array(
             $this->createFile('/file1', 'override 1'),
             $this->createFile('/file3', 'override 3'),
         ))));

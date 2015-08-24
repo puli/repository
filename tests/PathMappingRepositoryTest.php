@@ -208,6 +208,39 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertCount(2, $bar->getChild('/sub')->listChildren()->toArray());
     }
 
+    public function testListVirtualResourceChildren()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart/foo', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+
+        $dirlist = $this->writeRepo->listChildren('/webmozart');
+
+        $this->assertCount(4, $dirlist);
+        $this->assertEquals('/webmozart/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/file2', $dirlist->get(1)->getPath());
+        $this->assertEquals('/webmozart/sub', $dirlist->get(2)->getPath());
+        $this->assertEquals('/webmozart/foo', $dirlist->get(3)->getPath());
+
+        $dirlist = $this->writeRepo->listChildren('/webmozart/foo');
+
+        $this->assertCount(3, $dirlist);
+        $this->assertEquals('/webmozart/foo/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/foo/file2', $dirlist->get(1)->getPath());
+        $this->assertEquals('/webmozart/foo/sub', $dirlist->get(2)->getPath());
+    }
+
+    public function testFindVirtualResourceChildren()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+        $this->writeRepo->add('/webmozart/foo', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
+
+        $dirlist = $this->writeRepo->find('/**/file1');
+
+        $this->assertCount(2, $dirlist);
+        $this->assertEquals('/webmozart/file1', $dirlist->get(0)->getPath());
+        $this->assertEquals('/webmozart/foo/file1', $dirlist->get(1)->getPath());
+    }
+
     public function testCreateWithFilledStore()
     {
         $store = new ArrayStore();
