@@ -58,7 +58,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->createAndAttachResource($this->store->get($path), $path);
+        return $this->createResource($this->store->get($path), $path);
     }
 
     /**
@@ -75,7 +75,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
         } elseif ($this->store->exists($query)) {
             $resources = new ArrayResourceCollection(array(
-                $this->createAndAttachResource($this->store->get($query), $query),
+                $this->createResource($this->store->get($query), $query),
             ));
         }
 
@@ -264,7 +264,12 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
     private function iteratorToCollection(Iterator $iterator)
     {
         $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
+        $collection = new ArrayResourceCollection();
 
-        return new ArrayResourceCollection($this->createResources($filesystemPaths));
+        foreach ($filesystemPaths as $path => $filesystemPath) {
+            $collection->add($this->createResource($filesystemPath, $path));
+        }
+
+        return $collection;
     }
 }

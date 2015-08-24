@@ -14,6 +14,7 @@ namespace Puli\Repository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -171,36 +172,13 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      *
      * @return DirectoryResource|FileResource|GenericResource
      */
-    protected function createResource($filesystemPath)
+    protected function createResource($filesystemPath, $path = null)
     {
-        if (file_exists($filesystemPath)) {
-            return $this->createFilesystemResource($filesystemPath);
+        if ($filesystemPath && file_exists($filesystemPath)) {
+            return $this->createFilesystemResource($filesystemPath, $path);
         }
 
-        return new GenericResource();
-    }
-
-    /**
-     * Create a list of resources using their filesystem paths.
-     *
-     * @param array $filesystemPaths The filesystem paths.
-     *
-     * @return DirectoryResource[]|FileResource[]|GenericResource[] The created resources.
-     *
-     * @throws RuntimeException If one of the files / directories does not exist.
-     */
-    protected function createResources($filesystemPaths)
-    {
-        $resources = array();
-
-        foreach ($filesystemPaths as $path => $filesystemPath) {
-            $child = $this->createResource($filesystemPath);
-            $child->attachTo($this, $path);
-
-            $resources[] = $child;
-        }
-
-        return $resources;
+        return $this->createVirtualResource($path);
     }
 
     /**
@@ -211,17 +189,26 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      * If the filesystem does not exists, a GenericResource will be created.
      *
      * @param string $filesystemPath The filesystem path.
+     * @param string $path The repository path.
      *
      * @return DirectoryResource|FileResource The created resource.
      *
      * @throws RuntimeException If the file / directory does not exist.
      */
-    protected function createFilesystemResource($filesystemPath)
+    protected function createFilesystemResource($filesystemPath, $path = null)
     {
+        $resource = null;
+
         if (is_dir($filesystemPath)) {
-            return new DirectoryResource($filesystemPath);
+            $resource = new DirectoryResource($filesystemPath);
         } elseif (is_file($filesystemPath)) {
-            return new FileResource($filesystemPath);
+            $resource = new FileResource($filesystemPath);
+        }
+
+        if ($resource) {
+            $resource->attachTo($this, $path);
+
+            return $resource;
         }
 
         throw new RuntimeException(sprintf(
@@ -231,18 +218,13 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     }
 
     /**
-     * Create a filesystem or generic resource and
-     * attach it to the given repository path.
-     *
-     * @param string $filesystemPath
-     * @param string $repositoryPath
-     *
-     * @return DirectoryResource|FileResource|GenericResource
+     * @param string|null $path
+     * @return GenericResource
      */
-    protected function createAndAttachResource($filesystemPath, $repositoryPath)
+    protected function createVirtualResource($path = null)
     {
-        $resource = $this->createResource($filesystemPath);
-        $resource->attachTo($this, $repositoryPath);
+        $resource = new GenericResource();
+        $resource->attachTo($this, $path);
 
         return $resource;
     }
