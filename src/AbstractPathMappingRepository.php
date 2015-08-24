@@ -14,7 +14,6 @@ namespace Puli\Repository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -189,7 +188,7 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      * If the filesystem does not exists, a GenericResource will be created.
      *
      * @param string $filesystemPath The filesystem path.
-     * @param string $path The repository path.
+     * @param string $path           The repository path.
      *
      * @return DirectoryResource|FileResource The created resource.
      *
@@ -219,6 +218,7 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
 
     /**
      * @param string|null $path
+     *
      * @return GenericResource
      */
     protected function createVirtualResource($path = null)

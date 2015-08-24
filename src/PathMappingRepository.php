@@ -14,15 +14,11 @@ namespace Puli\Repository;
 use ArrayIterator;
 use BadMethodCallException;
 use FilesystemIterator;
-use InvalidArgumentException;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
-use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\GenericResource;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Webmozart\Assert\Assert;
@@ -124,12 +120,12 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         foreach ($results as $result) {
             foreach ($this->getVirtualPathChildren($result->getPath(), true) as $virtualChild) {
                 if ($this->store->remove($virtualChild['path'])) {
-                    $removed++;
+                    ++$removed;
                 }
             }
 
             if ($this->store->remove($result->getPath())) {
-                $removed++;
+                ++$removed;
             }
         }
 
@@ -233,8 +229,8 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      * Return the filesystem path associated to the given repository path
      * or null if no filesystem path is found.
      *
-     * @param string $path       The repository path.
-     * @param boolean $onlyFirst Should the method stop on the first path found?
+     * @param string $path      The repository path.
+     * @param bool   $onlyFirst Should the method stop on the first path found?
      *
      * @return array
      */
@@ -490,9 +486,10 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
-     * Create an array of resources using an internal array of children
+     * Create an array of resources using an internal array of children.
      *
      * @param array $children
+     *
      * @return array
      */
     private function createResources($children)
