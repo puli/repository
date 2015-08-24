@@ -427,10 +427,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 $childFilesystemPath
             );
 
-            $children[] = [
-                'path' => $childRepositoryPath,
-                'filesystemPath' => $childFilesystemPath,
-            ];
+            $children[] = array('path' => $childRepositoryPath, 'filesystemPath' => $childFilesystemPath);
         }
 
         return $children;
@@ -467,18 +464,12 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             $filesystemPaths = $this->store->get($path);
 
             if (!is_array($filesystemPaths)) {
-                $children[] = [
-                    'path' => $path,
-                    'filesystemPath' => null,
-                ];
+                $children[] = array('path' => $path, 'filesystemPath' => null);
                 continue;
             }
 
             foreach ($filesystemPaths as $filesystemPath) {
-                $children[] = [
-                    'path' => $path,
-                    'filesystemPath' => $filesystemPath,
-                ];
+                $children[] = array('path' => $path, 'filesystemPath' => $filesystemPath);
             }
         }
 
