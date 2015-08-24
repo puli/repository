@@ -55,7 +55,6 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     public function get($path)
     {
         $path = $this->sanitizePath($path);
-
         $filesystemPaths = $this->resolveFilesystemPaths($path);
 
         if (0 === count($filesystemPaths)) {
@@ -137,13 +136,11 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function listChildren($path)
     {
-        $path = $this->sanitizePath($path);
-
-        if (0 === count($this->resolveFilesystemPaths($path))) {
+        if (!$this->isPathResolvable($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->getDirectChildren($path);
+        return $this->getDirectChildren($this->sanitizePath($path));
     }
 
     /**
@@ -151,13 +148,11 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      */
     public function hasChildren($path)
     {
-        $path = $this->sanitizePath($path);
-
-        if (0 === count($this->resolveFilesystemPaths($path))) {
+        if (!$this->isPathResolvable($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return !$this->getDirectChildren($path, true)->isEmpty();
+        return !$this->getDirectChildren($this->sanitizePath($path), true)->isEmpty();
     }
 
     /**
@@ -183,46 +178,6 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         }
 
         $this->store->set($path, $filesystemPaths);
-    }
-
-    /**
-     * Search for resources by querying their path.
-     *
-     * @param string $query        The glob query.
-     * @param bool   $singleResult Should this method stop after finding a
-     *                             first result, for performances.
-     *
-     * @return ArrayResourceCollection The results of search.
-     */
-    private function search($query, $singleResult = false)
-    {
-        $resources = new ArrayResourceCollection();
-
-        // If the query is not a glob, return it directly
-        if (!Glob::isDynamic($query)) {
-            $filesystemPaths = $this->resolveFilesystemPaths($query);
-
-            if (count($filesystemPaths) > 0) {
-                $resources->add($this->createResource(reset($filesystemPaths), $query));
-            }
-
-            return $resources;
-        }
-
-        // If the glob is dynamic, we search
-        $children = $this->getRecursiveChildren(Glob::getBasePath($query));
-
-        foreach ($children as $path => $filesystemPath) {
-            if (Glob::match($path, $query)) {
-                $resources->add($this->createResource($filesystemPath, $path));
-
-                if ($singleResult) {
-                    return $resources;
-                }
-            }
-        }
-
-        return $resources;
     }
 
     /**
@@ -284,6 +239,98 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
+     * Search for resources by querying their path.
+     *
+     * @param string $query        The glob query.
+     * @param bool   $singleResult Should this method stop after finding a
+     *                             first result, for performances.
+     *
+     * @return ArrayResourceCollection The results of search.
+     */
+    private function search($query, $singleResult = false)
+    {
+        $resources = new ArrayResourceCollection();
+
+        // If the query is not a glob, return it directly
+        if (!Glob::isDynamic($query)) {
+            $filesystemPaths = $this->resolveFilesystemPaths($query);
+
+            if (count($filesystemPaths) > 0) {
+                $resources->add($this->createResource(reset($filesystemPaths), $query));
+            }
+
+            return $resources;
+        }
+
+        // If the glob is dynamic, we search
+        $children = $this->getRecursiveChildren(Glob::getBasePath($query));
+
+        foreach ($children as $path => $filesystemPath) {
+            if (Glob::match($path, $query)) {
+                $resources->add($this->createResource($filesystemPath, $path));
+
+                if ($singleResult) {
+                    return $resources;
+                }
+            }
+        }
+
+        return $resources;
+    }
+
+    /**
+     * Get all the tree of children under given repository path.
+     *
+     * @param string $path The repository path.
+     *
+     * @return array
+     */
+    private function getRecursiveChildren($path)
+    {
+        $children = array();
+
+        /*
+         * Children of a given path either come from real filesystem children
+         * or from other mappings (virtual resources).
+         *
+         * First we check for the real children.
+         */
+        $filesystemPaths = $this->resolveFilesystemPaths($path, false);
+
+        foreach ($filesystemPaths as $filesystemPath) {
+            $filesystemChildren = $this->getFilesystemPathChildren($path, $filesystemPath, true);
+
+            foreach ($filesystemChildren as $filesystemChild) {
+                $children[$filesystemChild['path']] = $filesystemChild['filesystemPath'];
+            }
+        }
+
+        /*
+         * Then we add the children of other path mappings.
+         * These other path mappings should override possible precedent real children.
+         */
+        $virtualChildren = $this->getVirtualPathChildren($path, true);
+
+        foreach ($virtualChildren as $virtualChild) {
+            $children[$virtualChild['path']] = $virtualChild['filesystemPath'];
+
+            if ($virtualChild['filesystemPath'] && file_exists($virtualChild['filesystemPath'])) {
+                $filesystemChildren = $this->getFilesystemPathChildren(
+                    $virtualChild['path'],
+                    $virtualChild['filesystemPath'],
+                    true
+                );
+
+                foreach ($filesystemChildren as $filesystemChild) {
+                    $children[$filesystemChild['path']] = $filesystemChild['filesystemPath'];
+                }
+            }
+        }
+
+        return $children;
+    }
+
+    /**
      * Get the direct children of the given repository path.
      *
      * @param string $path         The repository path.
@@ -336,58 +383,6 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
-     * Get all the tree of children under given repository path.
-     *
-     * @param string $path The repository path.
-     *
-     * @return ArrayResourceCollection
-     */
-    private function getRecursiveChildren($path)
-    {
-        $children = array();
-
-        /*
-         * Children of a given path either come from real filesystem children
-         * or from other mappings (virtual resources).
-         *
-         * First we check for the real children.
-         */
-        $filesystemPaths = $this->resolveFilesystemPaths($path, false);
-
-        foreach ($filesystemPaths as $filesystemPath) {
-            $filesystemChildren = $this->getFilesystemPathChildren($path, $filesystemPath, true);
-
-            foreach ($filesystemChildren as $filesystemChild) {
-                $children[$filesystemChild['path']] = $filesystemChild['filesystemPath'];
-            }
-        }
-
-        /*
-         * Then we add the children of other path mappings.
-         * These other path mappings should override possible precedent real children.
-         */
-        $virtualChildren = $this->getVirtualPathChildren($path, true);
-
-        foreach ($virtualChildren as $virtualChild) {
-            $children[$virtualChild['path']] = $virtualChild['filesystemPath'];
-
-            if ($virtualChild['filesystemPath'] && file_exists($virtualChild['filesystemPath'])) {
-                $filesystemChildren = $this->getFilesystemPathChildren(
-                    $virtualChild['path'],
-                    $virtualChild['filesystemPath'],
-                    true
-                );
-
-                foreach ($filesystemChildren as $filesystemChild) {
-                    $children[$filesystemChild['path']] = $filesystemChild['filesystemPath'];
-                }
-            }
-        }
-
-        return $children;
-    }
-
-    /**
      * Find the children paths of a given filesystem path.
      *
      * @param string $repositoryPath The repository path
@@ -399,7 +394,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     private function getFilesystemPathChildren($repositoryPath, $filesystemPath, $recursive = false)
     {
         if (!is_dir($filesystemPath)) {
-            return new ArrayResourceCollection();
+            return array();
         }
 
         $iterator = new RecursiveDirectoryIterator(
@@ -492,5 +487,19 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         }
 
         return $resources;
+    }
+
+    /**
+     * Check a given path is resolvable.
+     *
+     * @param string $path
+     *
+     * @return bool
+     *
+     * @throws ResourceNotFoundException
+     */
+    private function isPathResolvable($path)
+    {
+        return count($this->resolveFilesystemPaths($this->sanitizePath($path))) > 0;
     }
 }
