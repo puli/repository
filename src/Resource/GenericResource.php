@@ -67,6 +67,7 @@ class GenericResource implements Resource
     {
         return $this->path ? basename($this->path) : null;
     }
+
     /**
      * {@inheritdoc}
      */
