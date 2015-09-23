@@ -14,6 +14,7 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
+use Puli\Repository\Resource\LinkResource;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
 
@@ -55,5 +56,21 @@ class FilesystemRepositoryLoadedTest extends AbstractEditableRepositoryTest
     protected function createReadRepository(EditableRepository $writeRepo)
     {
         return $writeRepo;
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
+     */
+    public function testFileLink()
+    {
+        $this->writeRepo->add('/webmozart/link', new LinkResource('/webmozart/puli/file'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
+     */
+    public function testDirectoryLink()
+    {
+        $this->writeRepo->add('/webmozart/link', new LinkResource('/webmozart/puli/file'));
     }
 }

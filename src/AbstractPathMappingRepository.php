@@ -12,11 +12,13 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Api\Resource\FilesystemResource;
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
+use Puli\Repository\Resource\LinkResource;
 use RuntimeException;
 use Webmozart\KeyValueStore\Api\CountableStore;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
@@ -53,14 +55,6 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     }
 
     /**
-     * Add the resource (internal method after checks of add()).
-     *
-     * @param string             $path
-     * @param FilesystemResource $resource
-     */
-    abstract protected function addResource($path, FilesystemResource $resource);
-
-    /**
      * {@inheritdoc}
      */
     public function add($path, $resource)
@@ -79,19 +73,53 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
             return;
         }
 
-        if ($resource instanceof FilesystemResource) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-            $this->addResource($path, $resource);
-            $this->sortStore();
+        $this->ensureDirectoryExists(Path::getDirectory($path));
+        $this->addResource($path, $resource);
+        $this->sortStore();
+    }
 
-            return;
+    /**
+     * Add the resource (internal method after checks of add()).
+     *
+     * @param string   $path
+     * @param Resource $resource
+     */
+    private function addResource($path, $resource)
+    {
+        if (!($resource instanceof FilesystemResource || $resource instanceof LinkResource)) {
+            throw new UnsupportedResourceException(sprintf(
+                'PathMapping repositories only supports FilesystemResource and LinkedResource. Got: %s',
+                is_object($resource) ? get_class($resource) : gettype($resource)
+            ));
         }
 
-        throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a FilesystemResource or a ResourceCollection. Got: %s',
-            is_object($resource) ? get_class($resource) : gettype($resource)
-        ));
+        // Don't modify resources attached to other repositories
+        if ($resource->isAttached()) {
+            $resource = clone $resource;
+        }
+
+        if ($resource instanceof LinkResource) {
+            $this->addLinkResource($path, $resource);
+        } else {
+            $this->addFilesystemResource($path, $resource);
+        }
     }
+
+    /**
+     * Add the filesystem resource.
+     *
+     * @param string             $path
+     * @param FilesystemResource $resource
+     */
+    abstract protected function addFilesystemResource($path, FilesystemResource $resource);
+
+    /**
+     * Add the link resource.
+     *
+     * @param string       $path
+     * @param LinkResource $resource
+     */
+    abstract protected function addLinkResource($path, LinkResource $resource);
 
     /**
      * {@inheritdoc}
@@ -173,11 +201,33 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      */
     protected function createResource($filesystemPath, $path = null)
     {
+        if (0 === strpos($filesystemPath, 'l:')) {
+            return $this->createLinkResource(substr($filesystemPath, 2), $path);
+        }
+
         if ($filesystemPath && file_exists($filesystemPath)) {
             return $this->createFilesystemResource($filesystemPath, $path);
         }
 
         return $this->createVirtualResource($path);
+    }
+
+    /**
+     * Create a link resource to another resource of the repository.
+     *
+     * @param string $targetPath The target path.
+     * @param string $path       The repository path.
+     *
+     * @return LinkResource The link resource.
+     *
+     * @throws RuntimeException If the targeted resource does not exist.
+     */
+    protected function createLinkResource($targetPath, $path = null)
+    {
+        $resource = new LinkResource($targetPath);
+        $resource->attachTo($this, $path);
+
+        return $resource;
     }
 
     /**

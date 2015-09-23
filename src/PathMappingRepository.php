@@ -19,6 +19,7 @@ use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\LinkResource;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Webmozart\Assert\Assert;
@@ -158,23 +159,37 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     /**
      * {@inheritdoc}
      */
-    protected function addResource($path, FilesystemResource $resource)
+    protected function addFilesystemResource($path, FilesystemResource $resource)
     {
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
         $resource->attachTo($this, $path);
+        $this->storeUnshift($path, $resource->getFilesystemPath());
+    }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function addLinkResource($path, LinkResource $resource)
+    {
+        $resource->attachTo($this, $path);
+        $this->storeUnshift($path, 'l:'.$resource->getTargetPath());
+    }
+
+    /**
+     * Add a filesystemPath to the beginning of the stack in the store at a path.
+     *
+     * @param string $path
+     * @param string $filesystemPath
+     */
+    private function storeUnshift($path, $filesystemPath)
+    {
         $filesystemPaths = array();
 
         if ($this->store->exists($path)) {
             $filesystemPaths = (array) $this->store->get($path);
         }
 
-        if (!in_array($resource->getFilesystemPath(), $filesystemPaths, true)) {
-            array_unshift($filesystemPaths, $resource->getFilesystemPath());
+        if (!in_array($filesystemPath, $filesystemPaths, true)) {
+            array_unshift($filesystemPaths, $filesystemPath);
         }
 
         $this->store->set($path, $filesystemPaths);
@@ -227,6 +242,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 $filesystemBasePath = rtrim($filesystemBasePath, '/').'/';
                 $filesystemPath = substr_replace($path, $filesystemBasePath, 0, $basePathLength);
 
+                // File
                 if (file_exists($filesystemPath)) {
                     $filesystemPaths[] = $filesystemPath;
 

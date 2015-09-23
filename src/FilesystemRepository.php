@@ -23,6 +23,7 @@ use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\LinkResource;
 use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -308,6 +309,20 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
             return;
         }
 
+        if ($resource instanceof LinkResource) {
+            if (!$this->symlink) {
+                throw new UnsupportedResourceException(sprintf(
+                    'LinkResource requires support of symbolic links in FilesystemRepository. '.
+                    'Tried to add a LinkResource at %s.',
+                    $path
+                ));
+            }
+
+            $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
+
+            return;
+        }
+
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
 
@@ -345,9 +360,25 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
 
     private function createResource($filesystemPath, $path)
     {
-        $resource = is_dir($filesystemPath)
-            ? new DirectoryResource($filesystemPath)
-            : new FileResource($filesystemPath);
+        $resource = null;
+
+        if (is_link($filesystemPath)) {
+            $baseDir = rtrim($this->baseDir, '/');
+            $targetFilesystemPath = readlink($filesystemPath);
+
+            if (Path::isBasePath($baseDir, $targetFilesystemPath)) {
+                $targetPath = '/'.Path::makeRelative($targetFilesystemPath, $baseDir);
+                $resource = new LinkResource($targetPath);
+            }
+        }
+
+        if (!$resource && is_dir($filesystemPath)) {
+            $resource = new DirectoryResource($filesystemPath);
+        }
+
+        if (!$resource) {
+            $resource = new FileResource($filesystemPath);
+        }
 
         $resource->attachTo($this, $path);
 
