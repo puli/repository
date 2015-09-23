@@ -221,9 +221,11 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             }
 
             $filesystemBasePaths = (array) $this->store->get($basePath);
+            $basePathLength = strlen(rtrim($basePath, '/').'/');
 
             foreach ($filesystemBasePaths as $filesystemBasePath) {
-                $filesystemPath = substr_replace($path, rtrim($filesystemBasePath, '/').'/', 0, strlen($basePath));
+                $filesystemBasePath = rtrim($filesystemBasePath, '/').'/';
+                $filesystemPath = substr_replace($path, $filesystemBasePath, 0, $basePathLength);
 
                 if (file_exists($filesystemPath)) {
                     $filesystemPaths[] = $filesystemPath;
