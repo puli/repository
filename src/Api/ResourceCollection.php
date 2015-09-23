@@ -77,7 +77,7 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Returns the keys of the collection.
      *
-     * @return integer[] The collection keys.
+     * @return int[] The collection keys.
      */
     public function keys();
 

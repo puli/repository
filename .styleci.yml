@@ -11,3 +11,6 @@ disabled:
     # Unusable at the moment
     # https://github.com/StyleCI/StyleCI/issues/471
     - psr0
+
+    # To avoid Resource / resource confusion
+    - phpdoc_types
