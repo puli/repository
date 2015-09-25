@@ -208,6 +208,28 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertCount(2, $bar->getChild('/sub')->listChildren()->toArray());
     }
 
+    public function testResolveFilesystemResource()
+    {
+        $store = new ArrayStore();
+        $store->set('/', null);
+        $store->set('/webmozart', null);
+        $store->set('/webmozart/foo', array(__DIR__.'/Fixtures/dir5'));
+
+        $repository = new PathMappingRepository($store);
+
+        // Get
+        $resource = $repository->get('/webmozart/foo/sub');
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
+        $this->assertEquals(__DIR__.'/Fixtures/dir5/sub', $resource->getFilesystemPath());
+
+        // Find
+        $resource = $repository->find('/**/sub')->get(0);
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
+        $this->assertEquals(__DIR__.'/Fixtures/dir5/sub', $resource->getFilesystemPath());
+    }
+
     public function testListVirtualResourceChildren()
     {
         $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
