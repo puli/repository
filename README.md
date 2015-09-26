@@ -39,6 +39,7 @@ The following [`Resource`] implementations are currently supported:
 * [`GenericResource`]
 * [`FileResource`]
 * [`DirectoryResource`]
+* [`LinkResource`]
 
 Read [Puli at a Glance] to learn more about Puli.
 
@@ -97,3 +98,4 @@ All contents of this package are licensed under the [MIT license].
 [`GenericResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.GenericResource.html
 [`FileResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.FileResource.html
 [`DirectoryResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.DirectoryResource.html
+[`LinkResource`]: http://api.puli.io/latest/class-Puli.Repository.Resource.LinkResource.html

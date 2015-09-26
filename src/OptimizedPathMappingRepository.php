@@ -19,6 +19,7 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\LinkResource;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
@@ -159,13 +160,8 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
      * @param string             $path
      * @param FilesystemResource $resource
      */
-    protected function addResource($path, FilesystemResource $resource)
+    protected function addFilesystemResource($path, FilesystemResource $resource)
     {
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
         // Read children before attaching the resource to this repository
         $children = $resource->listChildren();
 
@@ -177,8 +173,17 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
         $basePath = '/' === $path ? $path : $path.'/';
 
         foreach ($children as $name => $child) {
-            $this->addResource($basePath.$name, $child);
+            $this->addFilesystemResource($basePath.$name, $child);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function addLinkResource($path, LinkResource $resource)
+    {
+        $resource->attachTo($this, $path);
+        $this->store->set($path, 'l:'.$resource->getTargetPath());
     }
 
     /**

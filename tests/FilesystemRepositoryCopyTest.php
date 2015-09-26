@@ -16,6 +16,7 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\LinkResource;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
 
@@ -84,7 +85,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         touch($this->tempDir.'/file');
         symlink($this->tempDir.'/file', $this->tempDir.'/link');
 
-        $expected = new FileResource($this->tempDir.'/link', '/link');
+        $expected = new LinkResource('/file', '/link');
         $expected->attachTo($this->writeRepo);
 
         $this->assertEquals($expected, $this->writeRepo->get('/link'));
@@ -97,7 +98,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
         mkdir($this->tempDir.'/dir');
         symlink($this->tempDir.'/dir', $this->tempDir.'/link');
 
-        $expected = new DirectoryResource($this->tempDir.'/link', '/link');
+        $expected = new LinkResource('/dir', '/link');
         $expected->attachTo($this->writeRepo);
 
         $this->assertEquals($expected, $this->writeRepo->get('/link'));
@@ -173,5 +174,21 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
     public function testRemoveFailsIfLanguageNotGlob()
     {
         $this->writeRepo->remove('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
+     */
+    public function testFileLink()
+    {
+        $this->writeRepo->add('/webmozart/link', new LinkResource('/webmozart/puli/file'));
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
+     */
+    public function testDirectoryLink()
+    {
+        $this->writeRepo->add('/webmozart/link', new LinkResource('/webmozart/puli/file'));
     }
 }

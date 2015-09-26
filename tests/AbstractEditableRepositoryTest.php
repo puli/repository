@@ -13,6 +13,10 @@ namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
+use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Resource\LinkResource;
+use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
 
 /**
@@ -429,5 +433,44 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertFalse($this->readRepo->contains('/webmozart/puli'));
         $this->assertFalse($this->readRepo->contains('/webmozart/puli/file1'));
         $this->assertFalse($this->readRepo->contains('/webmozart/puli/file2'));
+    }
+
+    public function testFileLink()
+    {
+        $this->writeRepo->add('/webmozart/file', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $this->writeRepo->add('/webmozart/link', new LinkResource('/webmozart/file'));
+
+        $link = $this->readRepo->get('/webmozart/link');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\LinkResource', $link);
+        $this->assertSame('/webmozart/link', $link->getPath());
+        $this->assertSame('/webmozart/file', $link->getTargetPath());
+        $this->assertSame($this->readRepo, $link->getRepository());
+
+        $target = $this->readRepo->get($link->getTargetPath());
+
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $target);
+        $this->assertSame('/webmozart/file', $target->getPath());
+        $this->assertSame($this->readRepo, $target->getRepository());
+    }
+
+    public function testDirectoryLink()
+    {
+        $this->writeRepo->add('/webmozart/link/foo', new DirectoryResource(__DIR__.'/Fixtures/dir1'));
+        $this->writeRepo->add('/webmozart/link/bar', new LinkResource('/webmozart/link/foo'));
+
+        $link = $this->readRepo->get('/webmozart/link/bar');
+
+        $this->assertInstanceOf('Puli\Repository\Resource\LinkResource', $link);
+        $this->assertSame('/webmozart/link/bar', $link->getPath());
+        $this->assertSame('/webmozart/link/foo', $link->getTargetPath());
+        $this->assertSame($this->readRepo, $link->getRepository());
+
+        $target = $this->readRepo->get($link->getTargetPath());
+
+        $this->assertTrue($target instanceof TestDirectory || $target instanceof DirectoryResource);
+        $this->assertSame('/webmozart/link/foo', $target->getPath());
+        $this->assertSame($this->readRepo, $target->getRepository());
+        $this->assertCount(2, $target->listChildren());
     }
 }
