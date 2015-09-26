@@ -37,6 +37,22 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
      */
     protected $readRepo;
 
+    private static $symlinkOnWindows = null;
+
+    public static function setUpBeforeClass()
+    {
+        // Detect whether symlinks are supported on Windows (it requires enough priviledges
+        // This logic is copied from the Symfony Filesystem component testsuite
+        if ('\\' === DIRECTORY_SEPARATOR && null === self::$symlinkOnWindows) {
+            $target = tempnam(sys_get_temp_dir(), 'sl');
+            $link = sys_get_temp_dir().'/sl'.microtime(true).mt_rand();
+            if (self::$symlinkOnWindows = @symlink($target, $link)) {
+                unlink($link);
+            }
+            unlink($target);
+        }
+    }
+
     /**
      * @return EditableRepository
      */
@@ -55,6 +71,17 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $this->writeRepo = $this->createWriteRepository();
         $this->readRepo = $this->createReadRepository($this->writeRepo);
+    }
+
+    protected function markAsSkippedIfSymlinkIsMissing()
+    {
+        if (!function_exists('symlink')) {
+            $this->markTestSkipped('symlink is not supported');
+        }
+
+        if ('\\' === DIRECTORY_SEPARATOR && false === self::$symlinkOnWindows) {
+            $this->markTestSkipped('symlink requires "Create symbolic links" privilege on windows');
+        }
     }
 
     public function testRootIsEmptyBeforeAdding()

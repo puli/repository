@@ -37,7 +37,7 @@ class FilesystemRepositoryRelativeSymlinkTest extends AbstractEditableRepository
     protected function setUp()
     {
         if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $this->markTestSkipped('Symbolic links are not supported on some Windows enviroments.');
+            $this->markTestSkipped('Relative symbolic links are not supported on Windows.');
         }
 
         $this->tempBaseDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
