@@ -79,9 +79,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
 
     public function testGetFileLink()
     {
-        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $this->markTestSkipped('Symbolic links are not supported on some Windows enviroments.');
-        }
+        $this->markAsSkippedIfSymlinkIsMissing();
 
         touch($this->tempDir.'/file');
         symlink($this->tempDir.'/file', $this->tempDir.'/link');
@@ -94,9 +92,7 @@ class FilesystemRepositoryCopyTest extends AbstractEditableRepositoryTest
 
     public function testGetDirectoryLink()
     {
-        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            $this->markTestSkipped('Symbolic links are not supported on some Windows enviroments.');
-        }
+        $this->markAsSkippedIfSymlinkIsMissing();
 
         mkdir($this->tempDir.'/dir');
         symlink($this->tempDir.'/dir', $this->tempDir.'/link');
