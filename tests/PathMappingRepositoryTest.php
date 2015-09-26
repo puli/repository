@@ -224,7 +224,11 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $this->assertEquals(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__).'/Fixtures/dir5/sub', $resource->getFilesystemPath());
 
         // Find
-        $resource = $repository->find('/**/sub')->get(0);
+        $resources = $repository->find('/**/sub');
+
+        $this->assertCount(1, $resources);
+
+        $resource = $resources->get(0);
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
         $this->assertEquals(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__).'/Fixtures/dir5/sub', $resource->getFilesystemPath());
