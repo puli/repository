@@ -221,13 +221,13 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
         $resource = $repository->get('/webmozart/foo/sub');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
-        $this->assertEquals(str_replace(__DIR__, DIRECTORY_SEPARATOR, '/').'/Fixtures/dir5/sub', $resource->getFilesystemPath());
+        $this->assertEquals(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__).'/Fixtures/dir5/sub', $resource->getFilesystemPath());
 
         // Find
         $resource = $repository->find('/**/sub')->get(0);
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
-        $this->assertEquals(str_replace(__DIR__, DIRECTORY_SEPARATOR, '/').'/Fixtures/dir5/sub', $resource->getFilesystemPath());
+        $this->assertEquals(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__).'/Fixtures/dir5/sub', $resource->getFilesystemPath());
     }
 
     public function testListVirtualResourceChildren()
