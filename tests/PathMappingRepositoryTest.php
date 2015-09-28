@@ -21,33 +21,15 @@ use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**
- * @since  1.0
- *
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
+class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
 {
-    /**
-     * @var ArrayStore
-     */
-    protected $store;
-
-    /**
-     * @var PathMappingRepository
-     */
-    protected $repo;
-
-    /**
-     * Temporary directory for test files.
-     *
-     * @var string
-     */
-    protected $tempDir;
-
     /**
      * Counter to avoid collisions during tests on directories.
      *
@@ -55,28 +37,9 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
      */
     protected static $createdDirectories = 0;
 
-    /**
-     * Counter to avoid collisions during tests on files.
-     *
-     * @var int
-     */
-    protected static $createdFiles = 0;
-
-    protected function setUp()
+    protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory)
     {
-        parent::setUp();
-
-        $this->tempDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
-        $this->store = new ArrayStore();
-        $this->repo = new PathMappingRepository($this->store);
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $filesystem = new Filesystem();
-        $filesystem->remove($this->tempDir);
+        return new PathMappingRepository($store, $baseDirectory);
     }
 
     protected function createPrefilledRepository(Resource $root)
@@ -210,21 +173,18 @@ class PathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     public function testResolveFilesystemResource()
     {
-        $store = new ArrayStore();
-        $store->set('/', null);
-        $store->set('/webmozart', null);
-        $store->set('/webmozart/foo', array(__DIR__.'/Fixtures/dir5'));
-
-        $repository = new PathMappingRepository($store);
+        $this->store->set('/', null);
+        $this->store->set('/webmozart', null);
+        $this->store->set('/webmozart/foo', array(__DIR__.'/Fixtures/dir5'));
 
         // Get
-        $resource = $repository->get('/webmozart/foo/sub');
+        $resource = $this->repo->get('/webmozart/foo/sub');
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\FilesystemResource', $resource);
         $this->assertEquals(str_replace(DIRECTORY_SEPARATOR, '/', __DIR__).'/Fixtures/dir5/sub', $resource->getFilesystemPath());
 
         // Find
-        $resources = $repository->find('/**/sub');
+        $resources = $this->repo->find('/**/sub');
 
         $this->assertCount(1, $resources);
 

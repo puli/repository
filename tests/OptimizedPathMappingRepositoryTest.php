@@ -20,53 +20,18 @@ use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
+class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
 {
-    /**
-     * @var ArrayStore
-     */
-    protected $store;
-
-    /**
-     * @var OptimizedPathMappingRepository
-     */
-    protected $repo;
-
-    /**
-     * Temporary directory for test filess.
-     *
-     * @var string
-     */
-    protected $tempDir;
-
-    /**
-     * Counter to avoid collisions during tests on files.
-     *
-     * @var int
-     */
-    protected static $createdFiles = 0;
-
-    protected function setUp()
+    protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory)
     {
-        parent::setUp();
-
-        $this->tempDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
-        $this->store = new ArrayStore();
-        $this->repo = new OptimizedPathMappingRepository($this->store);
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $filesystem = new Filesystem();
-        $filesystem->remove($this->tempDir);
+        return new OptimizedPathMappingRepository($store, $baseDirectory);
     }
 
     protected function createPrefilledRepository(Resource $root)
