@@ -45,7 +45,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public static function setUpBeforeClass()
     {
-        // Detect whether symlinks are supported on Windows (it requires enough priviledges
+        // Detect whether symlinks are supported on Windows (it requires enough privileges)
         // This logic is copied from the Symfony Filesystem component testsuite
         if ('\\' === DIRECTORY_SEPARATOR && null === self::$symlinkOnWindows) {
             $target = tempnam(sys_get_temp_dir(), 'sl');
