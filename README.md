@@ -2,8 +2,8 @@ The Puli Repository Component
 =============================
 
 [![Build Status](https://travis-ci.org/puli/repository.svg?branch=1.0)](https://travis-ci.org/puli/repository)
+[![Build status](https://ci.appveyor.com/api/projects/status/a0g5jdtj78wv53c0/branch/1.0?svg=true)](https://ci.appveyor.com/project/webmozart/repository/branch/1.0)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/puli/repository/badges/quality-score.png?b=1.0)](https://scrutinizer-ci.com/g/puli/repository/?branch=1.0)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47/mini.png)](https://insight.sensiolabs.com/projects/65d650d5-04a3-41e7-bca0-bb83cae90e47)
 [![Latest Stable Version](https://poser.pugx.org/puli/repository/v/stable.svg)](https://packagist.org/packages/puli/repository)
 [![Total Downloads](https://poser.pugx.org/puli/repository/downloads.svg)](https://packagist.org/packages/puli/repository)
 [![Dependency Status](https://www.versioneye.com/php/puli:repository/1.0.0/badge.svg)](https://www.versioneye.com/php/puli:repository/1.0.0)
