@@ -3,6 +3,9 @@ shallow_clone: true
 platform: x86
 clone_folder: c:\projects\puli\repository
 
+cache:
+  - '%LOCALAPPDATA%\Composer\files'
+
 init:
   - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
 
