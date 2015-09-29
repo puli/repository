@@ -13,6 +13,7 @@ namespace Puli\Repository\Tests;
 
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\PathMappingRepository;
+use Puli\Repository\Resource\FileResource;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
@@ -70,9 +71,18 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
 
     /**
      * @param KeyValueStore $store
-     * @param string $baseDirectory
+     * @param string        $baseDirectory
      *
      * @return PathMappingRepository|OptimizedPathMappingRepository
      */
     abstract protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory);
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
+     */
+    public function testBaseDirectoryException()
+    {
+        $repository = $this->createBaseDirectoryRepository($this->store, __DIR__.'/Fixtures/dir1');
+        $repository->add('/webmozart/foo/bar', new FileResource(__DIR__.'/Fixtures/dir2/file2'));
+    }
 }

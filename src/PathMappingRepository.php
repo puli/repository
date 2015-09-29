@@ -162,7 +162,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     protected function addFilesystemResource($path, FilesystemResource $resource)
     {
         $resource->attachTo($this, $path);
-        $this->storeUnshift($path, $resource->getFilesystemPath());
+        $this->storeUnshift($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
     }
 
     /**
@@ -175,24 +175,24 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
     }
 
     /**
-     * Add a filesystemPath to the beginning of the stack in the store at a path.
+     * Add a target path (link or filesystem path) to the beginning of the stack in the store at a path.
      *
      * @param string $path
-     * @param string $filesystemPath
+     * @param string $targetPath
      */
-    private function storeUnshift($path, $filesystemPath)
+    private function storeUnshift($path, $targetPath)
     {
-        $filesystemPaths = array();
+        $previousPaths = array();
 
         if ($this->store->exists($path)) {
-            $filesystemPaths = (array) $this->store->get($path);
+            $previousPaths = (array) $this->store->get($path);
         }
 
-        if (!in_array($filesystemPath, $filesystemPaths, true)) {
-            array_unshift($filesystemPaths, $filesystemPath);
+        if (!in_array($targetPath, $previousPaths, true)) {
+            array_unshift($previousPaths, $targetPath);
         }
 
-        $this->store->set($path, $filesystemPaths);
+        $this->store->set($path, $previousPaths);
     }
 
     /**
@@ -212,11 +212,15 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         if ($this->store->exists($path)) {
             $filesystemPaths = $this->store->get($path);
 
-            if ($onlyFirst) {
-                return is_array($filesystemPaths) ? array(reset($filesystemPaths)) : array(null);
+            if (is_array($filesystemPaths) && count($filesystemPaths) > 0) {
+                if ($onlyFirst) {
+                    return $this->makePathsAbsolute(array(reset($filesystemPaths)));
+                }
+
+                return $this->makePathsAbsolute($filesystemPaths);
             }
 
-            return is_array($filesystemPaths) ? $filesystemPaths : array(null);
+            return array(null);
         }
 
         /*
@@ -235,7 +239,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 continue;
             }
 
-            $filesystemBasePaths = (array) $this->store->get($basePath);
+            $filesystemBasePaths = $this->makePathsAbsolute((array) $this->store->get($basePath));
             $basePathLength = strlen(rtrim($basePath, '/').'/');
 
             foreach ($filesystemBasePaths as $filesystemBasePath) {
@@ -247,13 +251,13 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                     $filesystemPaths[] = $filesystemPath;
 
                     if ($onlyFirst) {
-                        return $filesystemPaths;
+                        return $this->makePathsAbsolute($filesystemPaths);
                     }
                 }
             }
         }
 
-        return $filesystemPaths;
+        return $this->makePathsAbsolute($filesystemPaths);
     }
 
     /**
@@ -484,7 +488,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             }
 
             foreach ($filesystemPaths as $filesystemPath) {
-                $children[] = array('path' => $path, 'filesystemPath' => $filesystemPath);
+                $children[] = array('path' => $path, 'filesystemPath' => $this->makePathAbsolute($filesystemPath));
             }
         }
 

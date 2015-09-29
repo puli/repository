@@ -24,6 +24,7 @@ use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\GlobFilterIterator;
 use Webmozart\Glob\Iterator\RegexFilterIterator;
+use Webmozart\PathUtil\Path;
 
 /**
  * An optimized path mapping resource repository.
@@ -168,7 +169,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
         $resource->attachTo($this, $path);
 
         // Add the resource before adding its children, so that the array stays sorted
-        $this->store->set($path, $resource->getFilesystemPath());
+        $this->store->set($path, $this->makePathRelative($resource->getFilesystemPath()));
 
         $basePath = '/' === $path ? $path : $path.'/';
 

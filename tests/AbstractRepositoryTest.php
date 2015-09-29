@@ -68,6 +68,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(true);
     }
 
+    protected function assertPathsEquals($expected, $actual)
+    {
+        $this->assertEquals(
+            str_replace(DIRECTORY_SEPARATOR, '/', $expected),
+            str_replace(DIRECTORY_SEPARATOR, '/', $actual)
+        );
+    }
+
     public function testContainsPath()
     {
         $repo = $this->createPrefilledRepository($this->buildStructure($this->createDirectory('/')));
