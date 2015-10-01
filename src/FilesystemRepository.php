@@ -364,7 +364,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
 
         if (is_link($filesystemPath)) {
             $baseDir = rtrim($this->baseDir, '/');
-            $targetFilesystemPath = readlink($filesystemPath);
+            $targetFilesystemPath = $this->readLink($filesystemPath);
 
             if (Path::isBasePath($baseDir, $targetFilesystemPath)) {
                 $targetPath = '/'.Path::makeRelative($targetFilesystemPath, $baseDir);
@@ -542,7 +542,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
 
     private function replaceLinkByCopy($path, array $dirsToKeep = array())
     {
-        $target = Path::makeAbsolute(readlink($path), Path::getDirectory($path));
+        $target = Path::makeAbsolute($this->readLink($path), Path::getDirectory($path));
         $this->filesystem->remove($path);
         $this->filesystem->mkdir($path);
         $this->symlinkMirror($target, $path, $dirsToKeep);
@@ -560,5 +560,24 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         }
 
         return false;
+    }
+
+    private function readLink($filesystemPath)
+    {
+        // On Windows, transitive links are resolved to the final target by
+        // readlink(). realpath(), however, returns the target link on Windows,
+        // but not on Unix.
+
+        // /link1 -> /link2 -> /file
+
+        // Windows: readlink(/link1) => /file
+        //          realpath(/link1) => /link2
+
+        // Unix:    readlink(/link1) => /link2
+        //          realpath(/link1) => /file
+
+        // Consistency FTW!
+
+        return '\\' === DIRECTORY_SEPARATOR ? realpath($filesystemPath) : readlink($filesystemPath);
     }
 }
