@@ -11,9 +11,13 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\PathMappingRepository;
+use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
+use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
+use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
@@ -48,6 +52,13 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
      */
     protected static $createdFiles = 0;
 
+    /**
+     * Counter to avoid collisions during tests on directories.
+     *
+     * @var int
+     */
+    protected static $createdDirectories = 0;
+
     protected function setUp()
     {
         parent::setUp();
@@ -67,6 +78,66 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
 
         $filesystem = new Filesystem();
         $filesystem->remove($this->tempDir);
+    }
+
+    protected function createFile($path = null, $body = TestFilesystemFile::BODY)
+    {
+        return new TestFilesystemFile($path, $body);
+    }
+
+    protected function createDirectory($path = null, array $children = array())
+    {
+        return new TestFilesystemDirectory($path, $children);
+    }
+
+    protected function buildStructure(Resource $root)
+    {
+        return $this->buildRecursive($root);
+    }
+
+    /**
+     * @param TestFilesystemFile|TestFilesystemDirectory $resource
+     * @param string                                     $parentPath
+     *
+     * @return DirectoryResource|FileResource
+     */
+    protected function buildRecursive($resource, $parentPath = '')
+    {
+        if ($resource instanceof TestFilesystemDirectory) {
+            if ($resource->getPath() !== null) {
+                $dirname = rtrim($parentPath.$resource->getPath(), '/');
+            } else {
+                $dirname = $parentPath.'/dir'.self::$createdDirectories;
+                ++self::$createdDirectories;
+            }
+
+            if (!is_dir($this->tempDir.$dirname)) {
+                mkdir($this->tempDir.$dirname, 0777, true);
+            }
+
+            foreach ($resource->listChildren() as $child) {
+                $this->buildRecursive($child, $dirname);
+            }
+
+            return new DirectoryResource($this->tempDir.$dirname, $resource->getPath());
+        } else {
+            if ($resource->getPath() !== null) {
+                $filename = rtrim($parentPath.$resource->getPath(), '/');
+            } else {
+                $filename = $parentPath.'/file'.self::$createdFiles;
+                ++self::$createdFiles;
+            }
+
+            $dirname = dirname($this->tempDir.$filename);
+
+            if (!is_dir($dirname)) {
+                mkdir($dirname, 0777, true);
+            }
+
+            file_put_contents($this->tempDir.$filename, $resource->getBody());
+
+            return new FileResource($this->tempDir.$filename, $resource->getPath());
+        }
     }
 
     /**

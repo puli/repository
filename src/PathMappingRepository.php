@@ -214,10 +214,10 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
 
             if (is_array($filesystemPaths) && count($filesystemPaths) > 0) {
                 if ($onlyFirst) {
-                    return $this->makePathsAbsolute(array(reset($filesystemPaths)));
+                    return $this->resolveRelativePaths(array(reset($filesystemPaths)));
                 }
 
-                return $this->makePathsAbsolute($filesystemPaths);
+                return $this->resolveRelativePaths($filesystemPaths);
             }
 
             return array(null);
@@ -239,7 +239,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 continue;
             }
 
-            $filesystemBasePaths = $this->makePathsAbsolute((array) $this->store->get($basePath));
+            $filesystemBasePaths = $this->resolveRelativePaths((array) $this->store->get($basePath));
             $basePathLength = strlen(rtrim($basePath, '/').'/');
 
             foreach ($filesystemBasePaths as $filesystemBasePath) {
@@ -251,13 +251,13 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                     $filesystemPaths[] = $filesystemPath;
 
                     if ($onlyFirst) {
-                        return $this->makePathsAbsolute($filesystemPaths);
+                        return $this->resolveRelativePaths($filesystemPaths);
                     }
                 }
             }
         }
 
-        return $this->makePathsAbsolute($filesystemPaths);
+        return $this->resolveRelativePaths($filesystemPaths);
     }
 
     /**
@@ -488,7 +488,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
             }
 
             foreach ($filesystemPaths as $filesystemPath) {
-                $children[] = array('path' => $path, 'filesystemPath' => $this->makePathAbsolute($filesystemPath));
+                $children[] = array('path' => $path, 'filesystemPath' => $this->resolveRelativePath($filesystemPath));
             }
         }
 

@@ -169,7 +169,7 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
         $resource->attachTo($this, $path);
 
         // Add the resource before adding its children, so that the array stays sorted
-        $this->store->set($path, $this->makePathRelative($resource->getFilesystemPath()));
+        $this->store->set($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
 
         $basePath = '/' === $path ? $path : $path.'/';
 

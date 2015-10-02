@@ -50,7 +50,7 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Creates a new repository.
      *
-     * @param KeyValueStore $store
+     * @param KeyValueStore $store         The store of all the paths.
      * @param string        $baseDirectory The store of all the paths.
      */
     public function __construct(KeyValueStore $store, $baseDirectory)
@@ -107,18 +107,14 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
 
         if ($resource instanceof LinkResource) {
             $this->addLinkResource($path, $resource);
-        } else {
-            // Check resource is in base directory
-            if (!Path::isBasePath($this->baseDirectory, $resource->getFilesystemPath())) {
-                throw new UnsupportedResourceException(sprintf(
-                    'This path-mapping repository is based on directory "%s" and '.
-                    'therefore does not support filesystem resource "%s"',
-                    $this->baseDirectory,
-                    $resource->getFilesystemPath()
-                ));
-            }
-
+        } elseif (Path::isBasePath($this->baseDirectory, $resource->getFilesystemPath())) {
             $this->addFilesystemResource($path, $resource);
+        } else {
+            throw new UnsupportedResourceException(sprintf(
+                'Can only add resources from %s. Tried to add %s.',
+                $this->baseDirectory,
+                $resource->getFilesystemPath()
+            ));
         }
     }
 
@@ -225,7 +221,7 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
 
         // Filesystem resource
         if (is_string($filesystemPath)) {
-            $filesystemPath = $this->makePathAbsolute($filesystemPath);
+            $filesystemPath = $this->resolveRelativePath($filesystemPath);
 
             if (file_exists($filesystemPath)) {
                 return $this->createFilesystemResource($filesystemPath, $path);
@@ -305,23 +301,11 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Transform a relative path into an absolute path.
      *
-     * @param string $absolutePath
-     *
-     * @return string
-     */
-    protected function makePathRelative($absolutePath)
-    {
-        return Path::makeRelative($absolutePath, $this->baseDirectory);
-    }
-
-    /**
-     * Transform a relative path into an absolute path.
-     *
      * @param string $relativePath
      *
      * @return string
      */
-    protected function makePathAbsolute($relativePath)
+    protected function resolveRelativePath($relativePath)
     {
         if (0 === strpos($relativePath, 'l:')) {
             // Link
@@ -334,14 +318,14 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Transform a collection of relative paths into a collection of absolute paths.
      *
-     * @param array $relativePaths
+     * @param string[] $relativePaths
      *
-     * @return array
+     * @return string[]
      */
-    protected function makePathsAbsolute($relativePaths)
+    protected function resolveRelativePaths($relativePaths)
     {
         foreach ($relativePaths as $key => $relativePath) {
-            $relativePaths[$key] = $this->makePathAbsolute($relativePath);
+            $relativePaths[$key] = $this->resolveRelativePath($relativePath);
         }
 
         return $relativePaths;

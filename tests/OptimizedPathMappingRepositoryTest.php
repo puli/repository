@@ -16,10 +16,9 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
-use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
+use Webmozart\PathUtil\Path;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -34,7 +33,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
 
     protected function createPrefilledRepository(Resource $root)
     {
-        $repo = new OptimizedPathMappingRepository(new ArrayStore(), ('\\' === DIRECTORY_SEPARATOR) ? 'C:/' : '/');
+        $repo = new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);
 
         return $repo;
@@ -42,27 +41,12 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
 
     protected function createWriteRepository()
     {
-        return new OptimizedPathMappingRepository(new ArrayStore(), ('\\' === DIRECTORY_SEPARATOR) ? 'C:/' : '/');
+        return new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
     {
         return $writeRepo;
-    }
-
-    protected function createFile($path = null, $body = TestFilesystemFile::BODY)
-    {
-        $filesystemPath = $this->tempDir.'/file'.self::$createdFiles;
-
-        file_put_contents($filesystemPath, $body);
-        ++self::$createdFiles;
-
-        return new FileResource($filesystemPath, $path);
-    }
-
-    protected function createDirectory($path = null, array $children = array())
-    {
-        return new TestFilesystemDirectory($path, $children);
     }
 
     public function testAddDirectoryCompletelyResolveChildren()
@@ -81,8 +65,8 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
     {
         $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
-        $file = $this->createFile('/file');
-        $file->attachTo($otherRepo);
+        $file = new FileResource(__DIR__.'/Fixtures/dir1/file1');
+        $file->attachTo($otherRepo, '/file');
 
         $this->repo->add('/webmozart/puli/file', $file);
 
@@ -132,8 +116,16 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
         $this->assertTrue($repo->contains('/webmozart/dir'));
         $this->assertEquals('dir1/file1', $this->store->get('/webmozart/file'));
         $this->assertEquals('dir2', $this->store->get('/webmozart/dir'));
-        $this->assertPathsEquals(__DIR__.'/Fixtures/dir1/file1', $repo->get('/webmozart/file')->getFilesystemPath());
-        $this->assertPathsEquals(__DIR__.'/Fixtures/dir2', $repo->get('/webmozart/dir')->getFilesystemPath());
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir1/file1'),
+            $repo->get('/webmozart/file')->getFilesystemPath()
+        );
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir2'),
+            $repo->get('/webmozart/dir')->getFilesystemPath()
+        );
     }
 
     public function testCreateWithFilledStore()
@@ -147,7 +139,15 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
         $this->assertTrue($repo->contains('/webmozart/file'));
         $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $repo->get('/webmozart/dir'));
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $repo->get('/webmozart/file'));
-        $this->assertPathsEquals(__DIR__.'/Fixtures/dir5', $repo->get('/webmozart/dir')->getFilesystemPath());
-        $this->assertPathsEquals(__DIR__.'/Fixtures/dir5/file1', $repo->get('/webmozart/file')->getFilesystemPath());
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir5'),
+            $repo->get('/webmozart/dir')->getFilesystemPath()
+        );
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir5/file1'),
+            $repo->get('/webmozart/file')->getFilesystemPath()
+        );
     }
 }
