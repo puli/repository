@@ -43,13 +43,20 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     protected $store;
 
     /**
+     * @var string
+     */
+    protected $baseDirectory;
+
+    /**
      * Creates a new repository.
      *
-     * @param KeyValueStore $store The store of all the paths.
+     * @param KeyValueStore $store         The store of all the paths.
+     * @param string        $baseDirectory The store of all the paths.
      */
-    public function __construct(KeyValueStore $store)
+    public function __construct(KeyValueStore $store, $baseDirectory)
     {
         $this->store = $store;
+        $this->baseDirectory = $baseDirectory;
 
         $this->createRoot();
     }
@@ -100,8 +107,14 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
 
         if ($resource instanceof LinkResource) {
             $this->addLinkResource($path, $resource);
-        } else {
+        } elseif (Path::isBasePath($this->baseDirectory, $resource->getFilesystemPath())) {
             $this->addFilesystemResource($path, $resource);
+        } else {
+            throw new UnsupportedResourceException(sprintf(
+                'Can only add resources from %s. Tried to add %s.',
+                $this->baseDirectory,
+                $resource->getFilesystemPath()
+            ));
         }
     }
 
@@ -201,12 +214,18 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      */
     protected function createResource($filesystemPath, $path = null)
     {
+        // Link resource
         if (0 === strpos($filesystemPath, 'l:')) {
             return $this->createLinkResource(substr($filesystemPath, 2), $path);
         }
 
-        if ($filesystemPath && file_exists($filesystemPath)) {
-            return $this->createFilesystemResource($filesystemPath, $path);
+        // Filesystem resource
+        if (is_string($filesystemPath)) {
+            $filesystemPath = $this->resolveRelativePath($filesystemPath);
+
+            if (file_exists($filesystemPath)) {
+                return $this->createFilesystemResource($filesystemPath, $path);
+            }
         }
 
         return $this->createVirtualResource($path);
@@ -277,5 +296,38 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
         $resource->attachTo($this, $path);
 
         return $resource;
+    }
+
+    /**
+     * Transform a relative path into an absolute path.
+     *
+     * @param string $relativePath
+     *
+     * @return string
+     */
+    protected function resolveRelativePath($relativePath)
+    {
+        if (0 === strpos($relativePath, 'l:')) {
+            // Link
+            return $relativePath;
+        }
+
+        return Path::makeAbsolute($relativePath, $this->baseDirectory);
+    }
+
+    /**
+     * Transform a collection of relative paths into a collection of absolute paths.
+     *
+     * @param string[] $relativePaths
+     *
+     * @return string[]
+     */
+    protected function resolveRelativePaths($relativePaths)
+    {
+        foreach ($relativePaths as $key => $relativePath) {
+            $relativePaths[$key] = $this->resolveRelativePath($relativePath);
+        }
+
+        return $relativePaths;
     }
 }

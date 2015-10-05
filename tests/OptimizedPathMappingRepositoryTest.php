@@ -16,62 +16,24 @@ use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
-use Puli\Repository\Tests\Resource\TestFilesystemFile;
-use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\Glob\Test\TestUtil;
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 use Webmozart\KeyValueStore\ArrayStore;
+use Webmozart\PathUtil\Path;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
+class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
 {
-    /**
-     * @var ArrayStore
-     */
-    protected $store;
-
-    /**
-     * @var OptimizedPathMappingRepository
-     */
-    protected $repo;
-
-    /**
-     * Temporary directory for test filess.
-     *
-     * @var string
-     */
-    protected $tempDir;
-
-    /**
-     * Counter to avoid collisions during tests on files.
-     *
-     * @var int
-     */
-    protected static $createdFiles = 0;
-
-    protected function setUp()
+    protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory)
     {
-        parent::setUp();
-
-        $this->tempDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
-        $this->store = new ArrayStore();
-        $this->repo = new OptimizedPathMappingRepository($this->store);
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $filesystem = new Filesystem();
-        $filesystem->remove($this->tempDir);
+        return new OptimizedPathMappingRepository($store, $baseDirectory);
     }
 
     protected function createPrefilledRepository(Resource $root)
     {
-        $repo = new OptimizedPathMappingRepository(new ArrayStore());
+        $repo = new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);
 
         return $repo;
@@ -79,39 +41,12 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function createWriteRepository()
     {
-        return new OptimizedPathMappingRepository(new ArrayStore());
+        return new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
     {
         return $writeRepo;
-    }
-
-    protected function createFile($path = null, $body = TestFilesystemFile::BODY)
-    {
-        $filesystemPath = $this->tempDir.'/file'.self::$createdFiles;
-
-        file_put_contents($filesystemPath, $body);
-        ++self::$createdFiles;
-
-        return new FileResource($filesystemPath, $path);
-    }
-
-    protected function createDirectory($path = null, array $children = array())
-    {
-        return new TestFilesystemDirectory($path, $children);
-    }
-
-    public function testCreateWithFilledStore()
-    {
-        $store = new ArrayStore();
-        $store->set('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));
-        $store->set('/webmozart/file1', new FileResource(__DIR__.'/Fixtures/dir5/file1'));
-
-        $repo = new OptimizedPathMappingRepository($store);
-
-        $this->assertTrue($repo->contains('/webmozart'));
-        $this->assertTrue($repo->contains('/webmozart/file1'));
     }
 
     public function testAddDirectoryCompletelyResolveChildren()
@@ -130,8 +65,8 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     {
         $otherRepo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
-        $file = $this->createFile('/file');
-        $file->attachTo($otherRepo);
+        $file = new FileResource(__DIR__.'/Fixtures/dir1/file1');
+        $file->attachTo($otherRepo, '/file');
 
         $this->repo->add('/webmozart/puli/file', $file);
 
@@ -169,5 +104,50 @@ class OptimizedPathMappingRepositoryTest extends AbstractEditableRepositoryTest
     public function testRemoveFailsIfLanguageNotGlob()
     {
         $this->writeRepo->remove('/*', 'foobar');
+    }
+
+    public function testAddRelativePathInStore()
+    {
+        $repo = $this->createBaseDirectoryRepository($this->store, __DIR__.'/Fixtures');
+        $repo->add('/webmozart/file', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $repo->add('/webmozart/dir', new DirectoryResource(__DIR__.'/Fixtures/dir2'));
+
+        $this->assertTrue($repo->contains('/webmozart/file'));
+        $this->assertTrue($repo->contains('/webmozart/dir'));
+        $this->assertEquals('dir1/file1', $this->store->get('/webmozart/file'));
+        $this->assertEquals('dir2', $this->store->get('/webmozart/dir'));
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir1/file1'),
+            $repo->get('/webmozart/file')->getFilesystemPath()
+        );
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir2'),
+            $repo->get('/webmozart/dir')->getFilesystemPath()
+        );
+    }
+
+    public function testCreateWithFilledStore()
+    {
+        $this->store->set('/webmozart/dir', 'dir5');
+        $this->store->set('/webmozart/file', 'dir5/file1');
+
+        $repo = $this->createBaseDirectoryRepository($this->store, __DIR__.'/Fixtures');
+
+        $this->assertTrue($repo->contains('/webmozart/dir'));
+        $this->assertTrue($repo->contains('/webmozart/file'));
+        $this->assertInstanceOf('Puli\Repository\Resource\DirectoryResource', $repo->get('/webmozart/dir'));
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $repo->get('/webmozart/file'));
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir5'),
+            $repo->get('/webmozart/dir')->getFilesystemPath()
+        );
+
+        $this->assertEquals(
+            Path::normalize(__DIR__.'/Fixtures/dir5/file1'),
+            $repo->get('/webmozart/file')->getFilesystemPath()
+        );
     }
 }
