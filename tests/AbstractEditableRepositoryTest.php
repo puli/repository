@@ -447,6 +447,12 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/file', $link->getTargetPath());
         $this->assertSame($this->readRepo, $link->getRepository());
 
+        $target = $link->getTarget();
+
+        $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $target);
+        $this->assertSame('/webmozart/file', $target->getPath());
+        $this->assertSame($this->readRepo, $target->getRepository());
+
         $target = $this->readRepo->get($link->getTargetPath());
 
         $this->assertInstanceOf('Puli\Repository\Resource\FileResource', $target);
@@ -472,5 +478,14 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/link/foo', $target->getPath());
         $this->assertSame($this->readRepo, $target->getRepository());
         $this->assertCount(2, $target->listChildren());
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testLinkTargetWithoutRepository()
+    {
+        $link = new LinkResource('/webmozart/file');
+        $link->getTarget();
     }
 }

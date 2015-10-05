@@ -52,6 +52,18 @@ class LinkResource extends GenericResource implements Resource
     /**
      * {@inheritdoc}
      */
+    public function getTarget()
+    {
+        if (!$this->getRepository()) {
+            throw ResourceNotFoundException::forPath($this->getTargetPath());
+        }
+
+        return $this->getRepository()->get($this->getTargetPath());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getChild($relPath)
     {
         if (!$this->getRepository()) {
