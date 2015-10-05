@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* 1.0.0-beta8 (2015-10-05)
+
+ * fixed problem with slash handling in `PathMappingRepository`
+ * added `LinkResource`
+
 * 1.0.0-beta7 (2015-08-24)
 
  * improved Windows compatibility
