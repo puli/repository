@@ -27,7 +27,7 @@ install:
   - echo memory_limit=1G >> php.ini
   - cd c:\projects\puli\repository
   - php -r "readfile('http://getcomposer.org/installer');" | php
-  - php composer.phar update %COMPOSER_FLAGS% --no-interaction --no-progress
+  - php composer.phar update %COMPOSER_FLAGS% --prefer-source --no-interaction --no-progress
 
 test_script:
   - cd c:\projects\puli\repository
