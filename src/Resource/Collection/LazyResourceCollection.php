@@ -14,7 +14,7 @@ namespace Puli\Repository\Resource\Collection;
 use BadMethodCallException;
 use IteratorAggregate;
 use OutOfBoundsException;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
@@ -32,7 +32,7 @@ use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 class LazyResourceCollection implements IteratorAggregate, ResourceCollection
 {
     /**
-     * @var string[]|Resource[]
+     * @var string[]|PuliResource[]
      */
     private $resources;
 
@@ -63,11 +63,11 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param Resource $resource The resource to add.
+     * @param PuliResource $resource The resource to add.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
-    public function add(Resource $resource)
+    public function add(PuliResource $resource)
     {
         throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
@@ -77,12 +77,12 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param int      $key      The collection key.
-     * @param Resource $resource The resource to add.
+     * @param int          $key      The collection key.
+     * @param PuliResource $resource The resource to add.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
-    public function set($key, Resource $resource)
+    public function set($key, PuliResource $resource)
     {
         throw new BadMethodCallException(
             'Lazy resource collections cannot be modified.'
@@ -101,7 +101,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
             ));
         }
 
-        if (!$this->resources[$key] instanceof Resource) {
+        if (!$this->resources[$key] instanceof PuliResource) {
             $this->resources[$key] = $this->repo->get($this->resources[$key]);
         }
 
@@ -157,8 +157,8 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param Resource[] $resources The resources to replace the
-     *                              collection contents with.
+     * @param PuliResource[] $resources The resources to replace the
+     *                                  collection contents with.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
@@ -172,8 +172,8 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param Resource[] $resources The resources to merge into the
-     *                              collection.
+     * @param PuliResource[] $resources The resources to merge into the
+     *                                  collection.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
@@ -211,8 +211,8 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param string   $key      The collection key to set.
-     * @param Resource $resource The resource to set.
+     * @param string       $key      The collection key to set.
+     * @param PuliResource $resource The resource to set.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
@@ -247,7 +247,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
         }
 
         return array_map(
-            function (Resource $resource) { return $resource->getPath(); },
+            function (PuliResource $resource) { return $resource->getPath(); },
             $this->resources
         );
     }
@@ -262,7 +262,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
         }
 
         return array_map(
-            function (Resource $resource) { return $resource->getName(); },
+            function (PuliResource $resource) { return $resource->getName(); },
             $this->resources
         );
     }
@@ -305,7 +305,7 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     private function load()
     {
         foreach ($this->resources as $key => $resource) {
-            if (!$resource instanceof Resource) {
+            if (!$resource instanceof PuliResource) {
                 $this->resources[$key] = $this->repo->get($resource);
             }
         }

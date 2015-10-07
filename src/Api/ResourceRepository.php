@@ -12,12 +12,12 @@
 namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 
 /**
- * Stores {@link Resource} objects.
+ * Stores {@link PuliResource} objects.
  *
- * A resource repository is similar to a filesystem. It stores {@link Resource}
+ * A resource repository is similar to a filesystem. It stores {@link PuliResource}
  * objects, each of which has a path in the repository:
  *
  * ```php
@@ -47,7 +47,7 @@ interface ResourceRepository
      * @param string $path The path to the resource. Must start with "/". "."
      *                     and ".." segments in the path are supported.
      *
-     * @return Resource The resource at this path.
+     * @return PuliResource The resource at this path.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
      * @throws InvalidArgumentException  If the path is invalid. The path must

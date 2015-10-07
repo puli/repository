@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Resource;
 
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\Resource\ResourceMetadata;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
@@ -24,7 +24,7 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class GenericResource implements Resource
+class GenericResource implements PuliResource
 {
     /**
      * @var ResourceRepository

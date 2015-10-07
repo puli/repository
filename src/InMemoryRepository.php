@@ -13,7 +13,7 @@ namespace Puli\Repository;
 
 use ArrayIterator;
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedResourceException;
@@ -44,7 +44,7 @@ use Webmozart\PathUtil\Path;
 class InMemoryRepository extends AbstractRepository implements EditableRepository
 {
     /**
-     * @var Resource[]
+     * @var PuliResource[]
      */
     private $resources = array();
 
@@ -127,7 +127,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
             return;
         }
 
-        if ($resource instanceof Resource) {
+        if ($resource instanceof PuliResource) {
             $this->ensureDirectoryExists(Path::getDirectory($path));
             $this->addResource($path, $resource);
 
@@ -137,7 +137,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a Resource or ResourceCollection. Got: %s',
+            'The passed resource must be a PuliResource or ResourceCollection. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }
@@ -217,7 +217,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         }
     }
 
-    private function addResource($path, Resource $resource)
+    private function addResource($path, PuliResource $resource)
     {
         // Don't modify resources attached to other repositories
         if ($resource->isAttached()) {
@@ -240,7 +240,7 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         }
     }
 
-    private function removeResource(Resource $resource)
+    private function removeResource(PuliResource $resource)
     {
         $path = $resource->getPath();
 
@@ -263,11 +263,11 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
     /**
      * Returns an iterator for the children of a resource.
      *
-     * @param Resource $resource The resource.
+     * @param PuliResource $resource The resource.
      *
      * @return RegexFilterIterator The iterator.
      */
-    private function getChildIterator(Resource $resource)
+    private function getChildIterator(PuliResource $resource)
     {
         $staticPrefix = rtrim($resource->getPath(), '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';

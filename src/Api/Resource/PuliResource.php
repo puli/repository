@@ -48,7 +48,7 @@ use Serializable;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface Resource extends Serializable
+interface PuliResource extends Serializable
 {
     /**
      * Returns the path of the resource.
@@ -80,7 +80,7 @@ interface Resource extends Serializable
      *
      * @param string $relPath The relative resource path.
      *
-     * @return Resource The resource with the given path.
+     * @return PuliResource The resource with the given path.
      *
      * @throws ResourceNotFoundException If the resource cannot be found.
      */
@@ -133,7 +133,7 @@ interface Resource extends Serializable
      *
      * The repository path is the path that the resource is mapped to once
      * attached to a repository. The result of this method is different from
-     * {@link getPath()} for resource references. Resource references return
+     * {@link getPath()} for resource references. PuliResource references return
      * the path of the referenced resource here, while {@link getPath()} returns
      * the path of the reference itself.
      *

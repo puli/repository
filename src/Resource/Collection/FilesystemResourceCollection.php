@@ -12,7 +12,7 @@
 namespace Puli\Repository\Resource\Collection;
 
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 
 /**
  * A collection of resources on the filesystem.
@@ -43,7 +43,7 @@ class FilesystemResourceCollection extends ArrayResourceCollection
             },
             array_filter(
                 $this->toArray(),
-                function (Resource $r) {
+                function (PuliResource $r) {
                     return $r instanceof FilesystemResource && null !== $r->getFilesystemPath();
                 }
             )

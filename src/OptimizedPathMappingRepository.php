@@ -15,7 +15,7 @@ use ArrayIterator;
 use Iterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedLanguageException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
@@ -210,11 +210,11 @@ class OptimizedPathMappingRepository extends AbstractPathMappingRepository imple
     /**
      * Returns an iterator for the children paths of a resource.
      *
-     * @param Resource $resource The resource.
+     * @param PuliResource $resource The resource.
      *
      * @return RegexFilterIterator The iterator of paths.
      */
-    private function getChildIterator(Resource $resource)
+    private function getChildIterator(PuliResource $resource)
     {
         $staticPrefix = rtrim($resource->getPath(), '/').'/';
         $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';

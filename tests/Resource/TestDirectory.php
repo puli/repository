@@ -20,7 +20,7 @@ use Puli\Repository\Resource\GenericResource;
 class TestDirectory extends GenericResource
 {
     /**
-     * @var Resource[]
+     * @var PuliResource[]
      */
     private $children = array();
 

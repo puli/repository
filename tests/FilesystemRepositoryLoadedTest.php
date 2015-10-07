@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\LinkResource;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,7 +40,7 @@ class FilesystemRepositoryLoadedTest extends AbstractEditableRepositoryTest
         $filesystem->remove($this->tempDir);
     }
 
-    protected function createPrefilledRepository(Resource $root)
+    protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new FilesystemRepository($this->tempDir, false);
         $repo->add('/', $root);

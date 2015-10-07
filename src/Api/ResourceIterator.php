@@ -12,10 +12,10 @@
 namespace Puli\Repository\Api;
 
 use Iterator;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 
 /**
- * An iterator over {@link Resource} objects.
+ * An iterator over {@link PuliResource} objects.
  *
  * @since  1.0
  *
@@ -26,7 +26,7 @@ interface ResourceIterator extends Iterator
     /**
      * Returns the resource at the current position of the iterator.
      *
-     * @return Resource The resource at the current position.
+     * @return PuliResource The resource at the current position.
      */
     public function getCurrentResource();
 }

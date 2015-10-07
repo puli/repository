@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\PathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
@@ -90,7 +90,7 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
         return new TestFilesystemDirectory($path, $children);
     }
 
-    protected function buildStructure(Resource $root)
+    protected function buildStructure(PuliResource $root)
     {
         return $this->buildRecursive($root);
     }

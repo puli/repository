@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use PHPUnit_Framework_TestCase;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Tests\Resource\TestDirectory;
 use Puli\Repository\Tests\Resource\TestFile;
@@ -23,11 +23,11 @@ use Puli\Repository\Tests\Resource\TestFile;
 abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @param Resource $root
+     * @param PuliResource $root
      *
      * @return ResourceRepository
      */
-    abstract protected function createPrefilledRepository(Resource $root);
+    abstract protected function createPrefilledRepository(PuliResource $root);
 
     /**
      * @param string $path
@@ -54,11 +54,11 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
     /**
      * Build the real backend structure.
      *
-     * @param Resource $root
+     * @param PuliResource $root
      *
-     * @return Resource
+     * @return PuliResource
      */
-    protected function buildStructure(Resource $root)
+    protected function buildStructure(PuliResource $root)
     {
         return $root;
     }
@@ -217,7 +217,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $resource = $repo->get('/webmozart');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $resource);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $resource);
         $this->assertSame('/webmozart', $resource->getPath());
         $this->assertSame($repo, $resource->getRepository());
         $this->assertTrue($resource->hasChildren());

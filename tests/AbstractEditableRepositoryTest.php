@@ -92,7 +92,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $root = $this->readRepo->get('/');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $root);
         $this->assertCount(0, $root->listChildren());
         $this->assertSame('/', $root->getPath());
     }
@@ -105,7 +105,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $dir = $this->readRepo->get('/webmozart/puli');
         $file = $this->readRepo->get('/webmozart/puli/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
         $this->assertSame($this->readRepo, $dir->getRepository());
 
@@ -135,7 +135,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertTrue($this->readRepo->hasChildren('/webmozart/puli'));
         $this->assertCount(3, $this->readRepo->listChildren('/webmozart/puli'));
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $dir);
         $this->assertSame('/webmozart/puli', $dir->getPath());
 
         $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $file1);
@@ -210,12 +210,12 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $dir = $this->readRepo->get('/webmozart');
         $file = $this->readRepo->get('/webmozart/file');
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $root);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $root);
         $this->assertSame('/', $root->getPath());
         $this->assertSame($this->readRepo, $root->getRepository());
         $this->assertCount(1, $root->listChildren());
 
-        $this->assertInstanceOf('Puli\Repository\Api\Resource\Resource', $dir);
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\PuliResource', $dir);
         $this->assertSame('/webmozart', $dir->getPath());
         $this->assertSame($this->readRepo, $dir->getRepository());
         $this->assertCount(1, $dir->listChildren());

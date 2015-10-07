@@ -31,7 +31,7 @@ abstract class AbstractFilesystemResourceTest extends AbstractResourceTest
     /**
      * @param string|null $path
      *
-     * @return Resource
+     * @return PuliResource
      */
     protected function createResource($path = null)
     {

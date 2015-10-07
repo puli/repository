@@ -20,7 +20,7 @@ namespace Puli\Repository\Api\Resource;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface FilesystemResource extends Resource
+interface FilesystemResource extends PuliResource
 {
     /**
      * Returns the path on the file system.

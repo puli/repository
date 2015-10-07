@@ -21,7 +21,7 @@ use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 class TestFilesystemDirectory extends AbstractFilesystemResource
 {
     /**
-     * @var Resource[]
+     * @var PuliResource[]
      */
     private $children = array();
 

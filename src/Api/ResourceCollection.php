@@ -15,11 +15,11 @@ use ArrayAccess;
 use Countable;
 use InvalidArgumentException;
 use OutOfBoundsException;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Traversable;
 
 /**
- * A collection of {@link Resource} instances.
+ * A collection of {@link PuliResource} instances.
  *
  * @since  1.0
  *
@@ -30,24 +30,24 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Adds a resource to the collection.
      *
-     * @param Resource $resource The added resource.
+     * @param PuliResource $resource The added resource.
      */
-    public function add(Resource $resource);
+    public function add(PuliResource $resource);
 
     /**
      * Sets a resource at a collection key.
      *
-     * @param int      $key      The collection key.
-     * @param Resource $resource The resource to set.
+     * @param int          $key      The collection key.
+     * @param PuliResource $resource The resource to set.
      */
-    public function set($key, Resource $resource);
+    public function set($key, PuliResource $resource);
 
     /**
      * Returns the resource for a collection key.
      *
      * @param int $key The collection key.
      *
-     * @return Resource The resource at the key.
+     * @return PuliResource The resource at the key.
      *
      * @throws OutOfBoundsException If the key does not exist.
      */
@@ -84,26 +84,26 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Replaces the collection contents with the given resources.
      *
-     * @param Resource[] $resources The resources to write into the
-     *                              collection.
+     * @param PuliResource[] $resources The resources to write into the
+     *                                  collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array and
      *                                      not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
-     *                                      {@link Resource}.
+     *                                      {@link PuliResource}.
      */
     public function replace($resources);
 
     /**
      * Merges the given resources into the collection.
      *
-     * @param Resource[] $resources The resources to merge into the
-     *                              collection.
+     * @param PuliResource[] $resources The resources to merge into the
+     *                                  collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array
      *                                      and not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
-     *                                      {@link Resource}.
+     *                                      {@link PuliResource}.
      */
     public function merge($resources);
 
@@ -121,7 +121,7 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
      *
      * @return string[] The paths of the resources in the collection.
      *
-     * @see Resource::getPath
+     * @see PuliResource::getPath
      */
     public function getPaths();
 
@@ -132,14 +132,14 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
      *
      * @return string[] The names of the resources in the collection.
      *
-     * @see Resource::getName
+     * @see PuliResource::getName
      */
     public function getNames();
 
     /**
      * Returns the collection contents as array.
      *
-     * @return Resource[] The resources in the collection.
+     * @return PuliResource[] The resources in the collection.
      */
     public function toArray();
 }

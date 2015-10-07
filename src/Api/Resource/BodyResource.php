@@ -18,7 +18,7 @@ namespace Puli\Repository\Api\Resource;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-interface BodyResource extends Resource
+interface BodyResource extends PuliResource
 {
     /**
      * Returns the body of the resource.
