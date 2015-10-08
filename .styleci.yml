@@ -6,6 +6,3 @@ enabled:
 
 disabled:
     - empty_return
-
-    # To avoid Resource / resource confusion
-    - phpdoc_types
