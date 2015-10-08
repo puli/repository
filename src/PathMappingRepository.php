@@ -16,7 +16,6 @@ use BadMethodCallException;
 use FilesystemIterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\Resource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\LinkResource;

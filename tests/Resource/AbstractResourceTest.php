@@ -29,7 +29,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
     /**
      * @param string|null $path
      *
-     * @return Resource
+     * @return PuliResource
      */
     abstract protected function createResource($path = null);
 
@@ -440,7 +440,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     public function testGetChild()
     {
-        $child = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $child = $this->getMock('Puli\Repository\Api\Resource\PuliResource');
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())
@@ -456,7 +456,7 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
 
     public function testGetChildWithReference()
     {
-        $child = $this->getMock('Puli\Repository\Api\Resource\Resource');
+        $child = $this->getMock('Puli\Repository\Api\Resource\PuliResource');
         $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
 
         $repo->expects($this->once())

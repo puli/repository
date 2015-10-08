@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
@@ -33,7 +33,7 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         $this->repo = new InMemoryRepository();
     }
 
-    protected function createPrefilledRepository(Resource $root)
+    protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new InMemoryRepository();
         $repo->add('/', $root);

@@ -11,7 +11,7 @@
 
 namespace Puli\Repository\Resource\Iterator;
 
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 
 /**
@@ -55,7 +55,7 @@ use Puli\Repository\Api\ResourceCollection;
 class ResourceCollectionIterator implements RecursiveResourceIterator
 {
     /**
-     * Return {@link Resource} instances as values.
+     * Return {@link PuliResource} instances as values.
      */
     const CURRENT_AS_RESOURCE = 1;
 
@@ -83,7 +83,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
     const KEY_AS_CURSOR = 128;
 
     /**
-     * @var Resource[]
+     * @var PuliResource[]
      */
     protected $resources;
 
@@ -98,7 +98,7 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
      * The following constants can be used to configure the values returned by
      * the iterator:
      *
-     *  * {@link CURRENT_AS_RESOURCE}: The {@link Resource} objects are
+     *  * {@link CURRENT_AS_RESOURCE}: The {@link PuliResource} objects are
      *                                 returned as values;
      *  * {@link CURRENT_AS_PATH}: The resource paths are returned as values;
      *  * {@link CURRENT_AS_NAME}: The resource names are returned as values.
@@ -132,8 +132,8 @@ class ResourceCollectionIterator implements RecursiveResourceIterator
     /**
      * Returns the current value of the iterator.
      *
-     * @return Resource|string The current value as configured in
-     *                         {@link __construct}.
+     * @return PuliResource|string The current value as configured in
+     *                             {@link __construct}.
      */
     public function current()
     {

@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\PathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -39,7 +39,7 @@ class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
         return new PathMappingRepository($store, $baseDirectory);
     }
 
-    protected function createPrefilledRepository(Resource $root)
+    protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new PathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);

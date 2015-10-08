@@ -14,7 +14,7 @@ namespace Puli\Repository\Api;
 use RuntimeException;
 
 /**
- * Thrown when a specific implementation of {@link Resource} is not accepted by
+ * Thrown when a specific implementation of {@link Resource\PuliResource} is not accepted by
  * the invoked method.
  *
  * @since  1.0

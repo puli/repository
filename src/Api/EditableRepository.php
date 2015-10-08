@@ -12,7 +12,7 @@
 namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 
 /**
  * A repository that supports the addition and removal of resources.
@@ -26,12 +26,12 @@ interface EditableRepository extends ResourceRepository
     /**
      * Adds a new resource to the repository.
      *
-     * All resources passed to this method must implement {@link Resource}.
+     * All resources passed to this method must implement {@link PuliResource}.
      *
-     * @param string                      $path     The path at which to add the
-     *                                              resource.
-     * @param Resource|ResourceCollection $resource The resource(s) to add at
-     *                                              that path.
+     * @param string                          $path     The path at which to
+     *                                                  add the resource.
+     * @param PuliResource|ResourceCollection $resource The resource(s) to add
+     *                                                  at that path.
      *
      * @throws InvalidArgumentException     If the path is invalid. The path
      *                                      must be  a non-empty string starting

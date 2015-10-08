@@ -15,7 +15,7 @@ use Iterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedOperationException;
@@ -215,7 +215,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
             return;
         }
 
-        if ($resource instanceof Resource) {
+        if ($resource instanceof PuliResource) {
             $this->ensureDirectoryExists(Path::getDirectory($path));
             $this->addResource($path, $resource);
 
@@ -223,7 +223,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         }
 
         throw new UnsupportedResourceException(sprintf(
-            'The passed resource must be a Resource or ResourceCollection. Got: %s',
+            'The passed resource must be a PuliResource or ResourceCollection. Got: %s',
             is_object($resource) ? get_class($resource) : gettype($resource)
         ));
     }
@@ -278,7 +278,7 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         }
     }
 
-    private function addResource($path, Resource $resource, $checkParentsForSymlinks = true)
+    private function addResource($path, PuliResource $resource, $checkParentsForSymlinks = true)
     {
         $pathInBaseDir = $this->baseDir.$path;
         $hasChildren = $resource->hasChildren();

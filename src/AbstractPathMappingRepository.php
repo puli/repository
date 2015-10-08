@@ -12,7 +12,7 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
@@ -88,8 +88,8 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Add the resource (internal method after checks of add()).
      *
-     * @param string   $path
-     * @param Resource $resource
+     * @param string       $path
+     * @param PuliResource $resource
      */
     private function addResource($path, $resource)
     {

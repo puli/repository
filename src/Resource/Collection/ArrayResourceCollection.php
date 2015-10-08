@@ -14,14 +14,14 @@ namespace Puli\Repository\Resource\Collection;
 use InvalidArgumentException;
 use IteratorAggregate;
 use OutOfBoundsException;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
 use Webmozart\Assert\Assert;
 
 /**
- * A collection of {@link Resource} instances backed by an array.
+ * A collection of {@link PuliResource} instances backed by an array.
  *
  * @since  1.0
  *
@@ -30,7 +30,7 @@ use Webmozart\Assert\Assert;
 class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
 {
     /**
-     * @var Resource[]
+     * @var PuliResource[]
      */
     private $resources;
 
@@ -40,12 +40,12 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      * You can pass the resources that you want to initially store in the
      * collection as argument.
      *
-     * @param Resource[] $resources The resources to store in the collection.
+     * @param PuliResource[] $resources The resources to store in the collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array
      *                                      and not a traversable object.
      * @throws UnsupportedResourceException If a resource does not implement
-     *                                      {@link Resource}.
+     *                                      {@link PuliResource}.
      */
     public function __construct($resources = array())
     {
@@ -55,7 +55,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * {@inheritdoc}
      */
-    public function add(Resource $resource)
+    public function add(PuliResource $resource)
     {
         $this->resources[] = $resource;
     }
@@ -63,7 +63,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * {@inheritdoc}
      */
-    public function set($key, Resource $resource)
+    public function set($key, PuliResource $resource)
     {
         $this->resources[$key] = $resource;
     }
@@ -120,7 +120,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      */
     public function replace($resources)
     {
-        Assert::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\Resource');
+        Assert::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\PuliResource');
 
         $this->resources = is_array($resources) ? $resources : iterator_to_array($resources);
     }
@@ -130,7 +130,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      */
     public function merge($resources)
     {
-        Assert::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\Resource');
+        Assert::allIsInstanceOf($resources, 'Puli\Repository\Api\Resource\PuliResource');
 
         // only start merging after validating all resources
         foreach ($resources as $resource) {
@@ -188,7 +188,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function getPaths()
     {
         return array_map(
-            function (Resource $resource) { return $resource->getPath(); },
+            function (PuliResource $resource) { return $resource->getPath(); },
             $this->resources
         );
     }
@@ -199,7 +199,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
     public function getNames()
     {
         return array_map(
-            function (Resource $resource) { return $resource->getName(); },
+            function (PuliResource $resource) { return $resource->getName(); },
             $this->resources
         );
     }

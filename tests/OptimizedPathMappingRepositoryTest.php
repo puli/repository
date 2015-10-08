@@ -12,7 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\Resource;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\OptimizedPathMappingRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -31,7 +31,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
         return new OptimizedPathMappingRepository($store, $baseDirectory);
     }
 
-    protected function createPrefilledRepository(Resource $root)
+    protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);
