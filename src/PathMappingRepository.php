@@ -201,7 +201,7 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
      * @param string $path      The repository path.
      * @param bool   $onlyFirst Should the method stop on the first path found?
      *
-     * @return array
+     * @return string[]|null[]
      */
     private function resolveFilesystemPaths($path, $onlyFirst = true)
     {

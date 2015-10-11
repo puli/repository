@@ -18,6 +18,7 @@ use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Traversable;
 
 /**
  * A resource collection which loads its resources on demand.
@@ -157,8 +158,8 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param PuliResource[] $resources The resources to replace the
-     *                                  collection contents with.
+     * @param PuliResource[]|Traversable $resources The resources to replace the
+     *                                              collection contents with.
      *
      * @throws BadMethodCallException The collection is read-only.
      */
@@ -172,8 +173,8 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
     /**
      * Not supported.
      *
-     * @param PuliResource[] $resources The resources to merge into the
-     *                                  collection.
+     * @param PuliResource[]|Traversable $resources The resources to merge into
+     *                                              the collection.
      *
      * @throws BadMethodCallException The collection is read-only.
      */

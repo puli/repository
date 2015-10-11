@@ -84,8 +84,8 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Replaces the collection contents with the given resources.
      *
-     * @param PuliResource[] $resources The resources to write into the
-     *                                  collection.
+     * @param PuliResource[]|Traversable $resources The resources to write into
+     *                                              the collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array and
      *                                      not a traversable object.
@@ -97,8 +97,8 @@ interface ResourceCollection extends Traversable, ArrayAccess, Countable
     /**
      * Merges the given resources into the collection.
      *
-     * @param PuliResource[] $resources The resources to merge into the
-     *                                  collection.
+     * @param PuliResource[]|Traversable $resources The resources to merge into
+     *                                              the collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array
      *                                      and not a traversable object.
