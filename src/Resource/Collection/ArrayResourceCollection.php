@@ -18,6 +18,7 @@ use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\Iterator\ResourceCollectionIterator;
+use Traversable;
 use Webmozart\Assert\Assert;
 
 /**
@@ -30,7 +31,7 @@ use Webmozart\Assert\Assert;
 class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
 {
     /**
-     * @var PuliResource[]
+     * @var PuliResource[]|Traversable
      */
     private $resources;
 
@@ -40,7 +41,7 @@ class ArrayResourceCollection implements IteratorAggregate, ResourceCollection
      * You can pass the resources that you want to initially store in the
      * collection as argument.
      *
-     * @param PuliResource[] $resources The resources to store in the collection.
+     * @param PuliResource[]|Traversable $resources The resources to store in the collection.
      *
      * @throws InvalidArgumentException     If the resources are not an array
      *                                      and not a traversable object.

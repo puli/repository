@@ -208,7 +208,7 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Create a filesystem or generic resource.
      *
-     * @param string $filesystemPath
+     * @param string|null $filesystemPath
      *
      * @return DirectoryResource|FileResource|GenericResource
      */
@@ -234,8 +234,8 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Create a link resource to another resource of the repository.
      *
-     * @param string $targetPath The target path.
-     * @param string $path       The repository path.
+     * @param string      $targetPath The target path.
+     * @param string|null $path       The repository path.
      *
      * @return LinkResource The link resource.
      *
@@ -256,8 +256,8 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
      * If the filesystem path is a file, a FileResource will be created.
      * If the filesystem does not exists, a GenericResource will be created.
      *
-     * @param string $filesystemPath The filesystem path.
-     * @param string $path           The repository path.
+     * @param string      $filesystemPath The filesystem path.
+     * @param string|null $path           The repository path.
      *
      * @return DirectoryResource|FileResource The created resource.
      *
