@@ -16,6 +16,7 @@ matrix:
       env: COMPOSER_FLAGS='--prefer-lowest --prefer-stable'
     - php: hhvm
     - php: nightly
+    - php: 7.0
   allow_failures:
     - php: hhvm
     - php: nightly
