@@ -13,6 +13,7 @@ namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
 use Puli\Repository\Api\Resource\PuliResource;
+use Puli\Repository\ChangeStream\ChangeStream;
 
 /**
  * A repository that supports the addition and removal of resources.
@@ -60,4 +61,11 @@ interface EditableRepository extends ResourceRepository
      * @return int The number of resources removed from the repository.
      */
     public function clear();
+
+    /**
+     * Set the change stream of this repository to log versions of resources as they change.
+     *
+     * @param ChangeStream|null $changeStream
+     */
+    public function setChangeStream(ChangeStream $changeStream = null);
 }

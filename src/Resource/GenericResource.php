@@ -125,6 +125,18 @@ class GenericResource implements PuliResource
     /**
      * {@inheritdoc}
      */
+    public function getStack()
+    {
+        if (!$this->getRepository()) {
+            throw ResourceNotFoundException::forPath($this->getRepositoryPath());
+        }
+
+        return $this->getRepository()->getStack($this->getRepositoryPath());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getMetadata()
     {
         return new ResourceMetadata();

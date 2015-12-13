@@ -12,7 +12,6 @@
 namespace Puli\Repository;
 
 use Iterator;
-use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
@@ -20,6 +19,7 @@ use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -61,7 +61,7 @@ use Webmozart\PathUtil\Path;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepository extends AbstractRepository implements EditableRepository
+class FilesystemRepository extends AbstractEditableRepository
 {
     /**
      * @var bool|null
@@ -112,19 +112,23 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
     /**
      * Creates a new repository.
      *
-     * @param string $baseDir  The base directory of the repository on the file
-     *                         system.
-     * @param bool   $symlink  Whether to use symbolic links for added files. If
-     *                         symbolic links are not supported on the current
-     *                         system, the repository will create hard copies
-     *                         instead.
-     * @param bool   $relative Whether to create relative symbolic links. If
-     *                         relative links are not supported on the current
-     *                         system, the repository will create absolute links
-     *                         instead.
+     * @param string            $baseDir      The base directory of the repository on the file
+     *                                        system.
+     * @param bool              $symlink      Whether to use symbolic links for added files. If
+     *                                        symbolic links are not supported on the current
+     *                                        system, the repository will create hard copies
+     *                                        instead.
+     * @param bool              $relative     Whether to create relative symbolic links. If
+     *                                        relative links are not supported on the current
+     *                                        system, the repository will create absolute links
+     *                                        instead.
+     * @param ChangeStream|null $changeStream If provided, the repository will log
+     *                                        resources changes in this change stream.
      */
-    public function __construct($baseDir = '/', $symlink = true, $relative = true)
+    public function __construct($baseDir = '/', $symlink = true, $relative = true, ChangeStream $changeStream = null)
     {
+        parent::__construct($changeStream);
+
         Assert::directory($baseDir);
         Assert::boolean($symlink);
 
@@ -306,6 +310,8 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
 
+            $this->logChange($path, $resource);
+
             return;
         }
 
@@ -320,11 +326,15 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
 
             $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
 
+            $this->logChange($path, $resource);
+
             return;
         }
 
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
+
+            $this->logChange($path, $resource);
 
             return;
         }
@@ -340,6 +350,8 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         foreach ($resource->listChildren() as $child) {
             $this->addResource($path.'/'.$child->getName(), $child, false);
         }
+
+        $this->logChange($path, $resource);
     }
 
     private function removeResource($filesystemPath, &$removed)

@@ -12,6 +12,7 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -487,5 +488,34 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $link = new LinkResource('/webmozart/file');
         $link->getTarget();
+    }
+
+    public function testChangeStreamGetStack()
+    {
+        $stream = new ChangeStream();
+
+        $this->writeRepo = $this->createWriteRepository();
+        $this->writeRepo->setChangeStream($stream);
+
+        $this->writeRepo->add('/path', $v1 = new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $this->writeRepo->add('/path', $v2 = new FileResource(__DIR__.'/Fixtures/dir1/file2'));
+        $this->writeRepo->add('/path', $v3 = new FileResource(__DIR__.'/Fixtures/dir2/file2'));
+
+        $resourceStack = $this->writeRepo->getStack('/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $resourceStack);
+        $this->assertCount(3, $resourceStack);
+        $this->assertFileResourcesEquals($v1, $resourceStack->getFirstVersion());
+        $this->assertFileResourcesEquals($v1, $resourceStack->getVersion(0));
+        $this->assertFileResourcesEquals($v2, $resourceStack->getVersion(1));
+        $this->assertFileResourcesEquals($v3, $resourceStack->getVersion(2));
+        $this->assertFileResourcesEquals($v3, $resourceStack->getCurrentVersion());
+        $this->assertEquals(array(0, 1, 2), $resourceStack->getAvailableVersions());
+    }
+
+    private function assertFileResourcesEquals(FileResource $excepted, $actual)
+    {
+        $this->assertInstanceOf(get_class($excepted), $actual);
+        $this->assertEquals($excepted->getFilesystemPath(), $actual->getFilesystemPath());
     }
 }

@@ -718,4 +718,25 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
 
         $repo->find(new \stdClass());
     }
+
+    public function testChangeStreamGetStack()
+    {
+        $repo = $this->createPrefilledRepository($this->buildStructure($this->createDirectory('/', array(
+            $this->createDirectory('/webmozart', array(
+                $this->createDirectory('/puli', array(
+                    $this->createFile('/file1'),
+                    $this->createFile('/file2'),
+                )),
+            )),
+        ))));
+
+        $stack = $repo->getStack('/webmozart/puli/file1');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
+        $this->assertCount(1, $stack);
+        $this->assertEquals('/webmozart/puli/file1', $stack->getFirstVersion()->getPath());
+        $this->assertEquals('/webmozart/puli/file1', $stack->getVersion(0)->getPath());
+        $this->assertEquals('/webmozart/puli/file1', $stack->getCurrentVersion()->getPath());
+        $this->assertEquals(array(0), $stack->getAvailableVersions());
+    }
 }

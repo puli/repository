@@ -14,6 +14,7 @@ namespace Puli\Repository\Api\Resource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\ChangeStream\ResourceStack;
 use Serializable;
 
 /**
@@ -108,6 +109,13 @@ interface PuliResource extends Serializable
      * @return ResourceCollection The child resources indexed by their names.
      */
     public function listChildren();
+
+    /**
+     * Build and return a stack of versions for this resource.
+     *
+     * @return ResourceStack The stack of this resource.
+     */
+    public function getStack();
 
     /**
      * Returns metadata about a resource.

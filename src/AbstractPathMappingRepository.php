@@ -15,6 +15,7 @@ use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -35,7 +36,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-abstract class AbstractPathMappingRepository extends AbstractRepository
+abstract class AbstractPathMappingRepository extends AbstractEditableRepository
 {
     /**
      * @var KeyValueStore
@@ -50,11 +51,15 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
     /**
      * Creates a new repository.
      *
-     * @param KeyValueStore $store         The store of all the paths.
-     * @param string        $baseDirectory The store of all the paths.
+     * @param KeyValueStore     $store         The store of all the paths.
+     * @param string            $baseDirectory The base directory of the resources of this repository.
+     * @param ChangeStream|null $changeStream  If provided, the repository will log
+     *                                         resources changes in this change stream.
      */
-    public function __construct(KeyValueStore $store, $baseDirectory)
+    public function __construct(KeyValueStore $store, $baseDirectory, ChangeStream $changeStream = null)
     {
+        parent::__construct($changeStream);
+
         $this->store = $store;
         $this->baseDirectory = $baseDirectory;
 
@@ -116,6 +121,8 @@ abstract class AbstractPathMappingRepository extends AbstractRepository
                 $resource->getFilesystemPath()
             ));
         }
+
+        $this->logChange($path, $resource);
     }
 
     /**

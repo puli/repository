@@ -13,6 +13,7 @@ namespace Puli\Repository;
 
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
+use Puli\Repository\ChangeStream\ResourceStack;
 use Webmozart\Assert\Assert;
 use Webmozart\PathUtil\Path;
 
@@ -26,6 +27,15 @@ use Webmozart\PathUtil\Path;
  */
 abstract class AbstractRepository implements ResourceRepository
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getStack($path)
+    {
+        // The basic repositories are not editable: you cannot have multiple versions of the same resource.
+        return new ResourceStack(array($this->get($path)));
+    }
+
     /**
      * Validate a language is usable to search in repositories.
      *
