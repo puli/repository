@@ -131,6 +131,103 @@ class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
         $this->assertEquals(Path::normalize(__DIR__.'/Fixtures/dir5/sub'), $resource->getFilesystemPath());
     }
 
+    public function testMergeDirectParent()
+    {
+        $root = __DIR__.'/Fixtures/dir5';
+
+        $this->store->set('/', null);
+        $this->store->set('/webmozart', array($root));
+        $this->store->set('/webmozart/sub', null);
+        $this->store->set('/webmozart/sub/file1', array($root.'/file1'));
+
+        /*
+         * /webmozart/sub should have three children:
+         *      -   file1 from the virtual children
+         *          (directly resolve /webmozart/sub/file1 to /Fixtures/dir5/file1)
+         *      -   file3 and file4 from the real children
+         *          (resolve /webmozart to /Fixtures/dir5 and then list children of /Fixtures/dir5/sub)
+         */
+        $resources = $this->repo->listChildren('/webmozart/sub');
+        $this->assertCount(3, $resources);
+
+        $paths = $resources->getPaths();
+        sort($paths);
+
+        $this->assertSame('/webmozart/sub/file1', $paths[0]);
+        $this->assertSame('/webmozart/sub/file3', $paths[1]);
+        $this->assertSame('/webmozart/sub/file4', $paths[2]);
+    }
+
+    public function testMergeSubParents()
+    {
+        $root = __DIR__.'/Fixtures';
+
+        $this->store->set('/', null);
+        $this->store->set('/webmozart', array($root));
+        $this->store->set('/webmozart/dir5', null);
+        $this->store->set('/webmozart/dir5/sub', null);
+        $this->store->set('/webmozart/dir5/sub/file1', array($root.'/file1'));
+
+        /*
+         * /webmozart/dir5/sub should have three children:
+         *      -   file1 from the virtual children
+         *          (directly resolve /webmozart/dir5/sub/file1 to /Fixtures/dir5/file1)
+         *      -   file3 and file4 from the real children
+         *          (resolve /webmozart to /Fixtures and then list children of /Fixtures/dir5/sub)
+         */
+        $resources = $this->repo->listChildren('/webmozart/dir5/sub');
+        $this->assertCount(3, $resources);
+
+        $paths = $resources->getPaths();
+        sort($paths);
+
+        $this->assertSame('/webmozart/dir5/sub/file1', $paths[0]);
+        $this->assertSame('/webmozart/dir5/sub/file3', $paths[1]);
+        $this->assertSame('/webmozart/dir5/sub/file4', $paths[2]);
+    }
+
+    public function testMergeMultipleParents()
+    {
+        $root = __DIR__.'/Fixtures';
+
+        $this->store->set('/', null);
+        $this->store->set('/webmozart', array($root, $root.'/dir3', $root.'/dir4', $root.'/dir5', $root.'/dir1'));
+        $this->store->set('/webmozart/sub', null);
+        $this->store->set('/webmozart/sub/virtualfile1', array($root.'/dir1/file1'));
+        $this->store->set('/webmozart/sub/virtualfile2', array($root.'/dir1/file2'));
+
+        /*
+         * /webmozart/sub should be resolved to:
+         *      /Fixtures/sub
+         *      /Fixtures/dir3/sub
+         *      /Fixtures/dir4/sub
+         *      /Fixtures/dir5/sub
+         *      /Fixtures/dir1/sub
+         *
+         * As /Fixtures/sub and /Fixtures/dir1/sub don't have children and
+         * there are two virtual files under /webmozart/sub, the listing of
+         * children of /webmozart/sub shoudl return:
+         *      /Fixtures/dir3/sub/file1
+         *      /Fixtures/dir4/sub/file2 (override /Fixtures/dir3/sub/file2)
+         *      /Fixtures/dir5/sub/file3 (override /Fixtures/dir4/sub/file3)
+         *      /Fixtures/dir5/sub/file4
+         *      /Fixtures/dir1/file1 (from first virtual file)
+         *      /Fixtures/dir1/file2 (from second virtual file)
+         */
+        $resources = $this->repo->listChildren('/webmozart/sub');
+        $this->assertCount(6, $resources);
+
+        $paths = $resources->getPaths();
+        sort($paths);
+
+        $this->assertEquals('/webmozart/sub/file1', $paths[0]);
+        $this->assertEquals('/webmozart/sub/file2', $paths[1]);
+        $this->assertEquals('/webmozart/sub/file3', $paths[2]);
+        $this->assertEquals('/webmozart/sub/file4', $paths[3]);
+        $this->assertEquals('/webmozart/sub/virtualfile1', $paths[4]);
+        $this->assertEquals('/webmozart/sub/virtualfile2', $paths[5]);
+    }
+
     public function testListVirtualResourceChildren()
     {
         $this->writeRepo->add('/webmozart', new DirectoryResource(__DIR__.'/Fixtures/dir5'));

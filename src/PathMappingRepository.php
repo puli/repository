@@ -219,6 +219,10 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
                 return $this->resolveRelativePaths($filesystemPaths);
             }
 
+            if (null === $filesystemPaths && '/' !== $path) {
+                return $this->mergeMixedParent($path, $onlyFirst);
+            }
+
             return array(null);
         }
 
@@ -257,6 +261,42 @@ class PathMappingRepository extends AbstractPathMappingRepository implements Edi
         }
 
         return $this->resolveRelativePaths($filesystemPaths);
+    }
+
+    /**
+     * If the resource has a parent that's a reference to a directory, then
+     * I'll resolve it and append the filesystem part.
+     *
+     * @param string $path      The repository path.
+     * @param bool   $onlyFirst Should the method stop on the first path found?
+     *
+     * @return string[]|null[]
+     */
+    private function mergeMixedParent($path, $onlyFirst = true)
+    {
+        $resolvedFilesystemPaths = array();
+        $resolvedFilesystemPathsPart = array();
+        $parentPath = $path;
+
+        for ($i = 0; $i < substr_count($path, '/') - 1; ++$i) {
+            $parentPath = dirname($parentPath);
+
+            if ($this->store->exists($parentPath)) {
+                $resolvedFilesystemPathsPart = $this->resolveFilesystemPaths($parentPath, $onlyFirst);
+
+                foreach ($resolvedFilesystemPathsPart as $key => $value) {
+                    $resolvedFilesystemPathsPart[$key] = $value;
+                }
+            }
+        }
+
+        foreach ($resolvedFilesystemPathsPart as $key => $value) {
+            if (is_dir($value)) {
+                $resolvedFilesystemPaths[$key] = $value.substr($path, strlen($parentPath));
+            }
+        }
+
+        return $resolvedFilesystemPaths ?: array(null);
     }
 
     /**
