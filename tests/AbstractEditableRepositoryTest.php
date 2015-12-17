@@ -11,8 +11,9 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\ChangeStream\ChangeStream;
+use Puli\Repository\ChangeStream\InMemoryChangeStream;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -59,9 +60,11 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
+     * @param ChangeStream|null $stream
+     *
      * @return EditableRepository
      */
-    abstract protected function createWriteRepository();
+    abstract protected function createWriteRepository(ChangeStream $stream = null);
 
     /**
      * @param EditableRepository $writeRepo
@@ -492,11 +495,9 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
     public function testChangeStreamGetStack()
     {
-        $stream = new ChangeStream();
+        $stream = new InMemoryChangeStream();
 
-        $this->writeRepo = $this->createWriteRepository();
-        $this->writeRepo->setChangeStream($stream);
-
+        $this->writeRepo = $this->createWriteRepository($stream);
         $this->writeRepo->add('/path', $v1 = new FileResource(__DIR__.'/Fixtures/dir1/file1'));
         $this->writeRepo->add('/path', $v2 = new FileResource(__DIR__.'/Fixtures/dir1/file2'));
         $this->writeRepo->add('/path', $v3 = new FileResource(__DIR__.'/Fixtures/dir2/file2'));
@@ -504,7 +505,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $resourceStack = $this->writeRepo->getStack('/path');
 
         $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $resourceStack);
-        $this->assertCount(3, $resourceStack);
+        $this->assertCount(3, $resourceStack->getAvailableVersions());
         $this->assertFileResourcesEquals($v1, $resourceStack->getFirstVersion());
         $this->assertFileResourcesEquals($v1, $resourceStack->getVersion(0));
         $this->assertFileResourcesEquals($v2, $resourceStack->getVersion(1));

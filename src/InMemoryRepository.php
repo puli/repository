@@ -12,11 +12,11 @@
 namespace Puli\Repository;
 
 use ArrayIterator;
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 use Webmozart\Assert\Assert;
@@ -244,7 +244,7 @@ class InMemoryRepository extends AbstractEditableRepository
             $this->addResource($basePath.$name, $child);
         }
 
-        $this->logChange($path, $resource);
+        $this->appendToChangeStream($path, $resource);
     }
 
     private function removeResource(PuliResource $resource)

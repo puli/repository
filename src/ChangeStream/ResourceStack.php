@@ -12,7 +12,6 @@
 namespace Puli\Repository\ChangeStream;
 
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use RuntimeException;
 use Webmozart\Assert\Assert;
 
@@ -26,8 +25,23 @@ use Webmozart\Assert\Assert;
  *
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class ResourceStack extends ArrayResourceCollection
+class ResourceStack
 {
+    /**
+     * @var array
+     */
+    private $stack;
+
+    /**
+     * @param array $stack
+     */
+    public function __construct($stack)
+    {
+        Assert::isArray($stack, 'Built resource stack must be an array.');
+
+        $this->stack = $stack;
+    }
+
     /**
      * Get the last version from the stack.
      *
@@ -35,13 +49,11 @@ class ResourceStack extends ArrayResourceCollection
      */
     public function getCurrentVersion()
     {
-        $stack = $this->toArray();
-
-        if (!is_array($stack) || 0 === count($stack)) {
-            throw new RuntimeException('Impossible to find the current version of an empty stack.');
+        if (0 === count($this->stack)) {
+            throw new RuntimeException('Could not retrieve the current version of an empty stack.');
         }
 
-        return end($stack);
+        return end($this->stack);
     }
 
     /**
@@ -51,13 +63,11 @@ class ResourceStack extends ArrayResourceCollection
      */
     public function getFirstVersion()
     {
-        $stack = $this->toArray();
-
-        if (!is_array($stack) || 0 === count($stack)) {
-            throw new RuntimeException('Impossible to find the first version of an empty stack.');
+        if (0 === count($this->stack)) {
+            throw new RuntimeException('Could not retrieve the first version of an empty stack.');
         }
 
-        return reset($stack);
+        return reset($this->stack);
     }
 
     /**
@@ -69,15 +79,16 @@ class ResourceStack extends ArrayResourceCollection
      */
     public function getVersion($versionNumber)
     {
-        $stack = $this->toArray();
-
-        if (!is_array($stack) || 0 === count($stack)) {
-            throw new RuntimeException(sprintf('Impossible to find the version %s of an empty stack.', $versionNumber));
+        if (0 === count($this->stack)) {
+            throw new RuntimeException(sprintf(
+                'Could not retrieve the version %s of an empty stack.',
+                $versionNumber
+            ));
         }
 
-        Assert::oneOf($versionNumber, $this->getAvailableVersions(), 'Impossible to find version %s (stack: %s).');
+        Assert::oneOf($versionNumber, $this->getAvailableVersions(), 'Could not retrieve the version %s (stack: %s).');
 
-        return $stack[$versionNumber];
+        return $this->stack[$versionNumber];
     }
 
     /**
@@ -87,6 +98,16 @@ class ResourceStack extends ArrayResourceCollection
      */
     public function getAvailableVersions()
     {
-        return $this->keys();
+        return array_keys($this->stack);
+    }
+
+    /**
+     * Returns the stack contents as array.
+     *
+     * @return PuliResource[] The resources in the stack.
+     */
+    public function toArray()
+    {
+        return $this->stack;
     }
 }

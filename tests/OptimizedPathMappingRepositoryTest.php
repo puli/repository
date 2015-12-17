@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\OptimizedPathMappingRepository;
@@ -39,9 +40,9 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
         return $repo;
     }
 
-    protected function createWriteRepository()
+    protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
+        return new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__), $stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

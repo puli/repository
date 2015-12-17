@@ -11,11 +11,11 @@
 
 namespace Puli\Repository;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -122,7 +122,7 @@ abstract class AbstractPathMappingRepository extends AbstractEditableRepository
             ));
         }
 
-        $this->logChange($path, $resource);
+        $this->appendToChangeStream($path, $resource);
     }
 
     /**

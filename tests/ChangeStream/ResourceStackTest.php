@@ -13,11 +13,12 @@ namespace Puli\Repository\Tests\ChangeStream;
 
 use Puli\Repository\ChangeStream\ResourceStack;
 use Puli\Repository\Tests\Resource\Collection\ArrayResourceCollectionTest;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class ResourceStackTest extends ArrayResourceCollectionTest
+class ResourceStackTest extends PHPUnit_Framework_TestCase
 {
     public function testGetCurrentVersion()
     {

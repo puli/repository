@@ -13,7 +13,6 @@ namespace Puli\Repository;
 
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
@@ -64,13 +63,6 @@ class NullRepository implements EditableRepository
     public function getStack($path)
     {
         throw ResourceNotFoundException::forPath($path);
-    }
-
-    /**
-     * @param ChangeStream $changeStream
-     */
-    public function setChangeStream(ChangeStream $changeStream = null)
-    {
     }
 
     /**

@@ -12,8 +12,8 @@
 namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
-use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\ChangeStream\ResourceStack;
+use Puli\Repository\Api\Resource\PuliResource;
 
 /**
  * Stores {@link PuliResource} objects.

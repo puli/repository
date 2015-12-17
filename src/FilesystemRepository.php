@@ -12,6 +12,7 @@
 namespace Puli\Repository;
 
 use Iterator;
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
@@ -19,7 +20,6 @@ use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedOperationException;
 use Puli\Repository\Api\UnsupportedResourceException;
-use Puli\Repository\ChangeStream\ChangeStream;
 use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -310,7 +310,7 @@ class FilesystemRepository extends AbstractEditableRepository
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
 
-            $this->logChange($path, $resource);
+            $this->appendToChangeStream($path, $resource);
 
             return;
         }
@@ -326,7 +326,7 @@ class FilesystemRepository extends AbstractEditableRepository
 
             $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
 
-            $this->logChange($path, $resource);
+            $this->appendToChangeStream($path, $resource);
 
             return;
         }
@@ -334,7 +334,7 @@ class FilesystemRepository extends AbstractEditableRepository
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
 
-            $this->logChange($path, $resource);
+            $this->appendToChangeStream($path, $resource);
 
             return;
         }
@@ -351,7 +351,7 @@ class FilesystemRepository extends AbstractEditableRepository
             $this->addResource($path.'/'.$child->getName(), $child, false);
         }
 
-        $this->logChange($path, $resource);
+        $this->appendToChangeStream($path, $resource);
     }
 
     private function removeResource($filesystemPath, &$removed)
