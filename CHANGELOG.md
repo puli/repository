@@ -1,6 +1,12 @@
 Changelog
 =========
 
+* 1.0.0-beta9 (@release_date@)
+
+ * renamed `AbstractPathMappingRepository` to `AbstractJsonRepository`
+ * renamed `PathMappingRepository` to `JsonRepository`
+ * renamed `OptimizedPathMappingRepository` to `OptimizedJsonRepository`
+
 * 1.0.0-beta8 (2015-10-05)
 
  * fixed problem with slash handling in `PathMappingRepository`

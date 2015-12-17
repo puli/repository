@@ -47,7 +47,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepository extends AbstractPathMappingRepository implements EditableRepository
+class OptimizedJsonRepository extends AbstractJsonRepository implements EditableRepository
 {
     /**
      * {@inheritdoc}

@@ -14,7 +14,7 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\OptimizedPathMappingRepository;
+use Puli\Repository\OptimizedJsonRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Webmozart\KeyValueStore\Api\KeyValueStore;
@@ -25,16 +25,16 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
+class OptimizedJsonRepositoryTest extends AbstractJsonRepositoryTest
 {
     protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory)
     {
-        return new OptimizedPathMappingRepository($store, $baseDirectory);
+        return new OptimizedJsonRepository($store, $baseDirectory);
     }
 
     protected function createPrefilledRepository(PuliResource $root)
     {
-        $repo = new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
+        $repo = new OptimizedJsonRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);
 
         return $repo;
@@ -42,7 +42,7 @@ class OptimizedPathMappingRepositoryTest extends AbstractPathMappingRepositoryTe
 
     protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new OptimizedPathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__), $stream);
+        return new OptimizedJsonRepository(new ArrayStore(), Path::getRoot(__DIR__), $stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

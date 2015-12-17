@@ -12,8 +12,8 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\OptimizedPathMappingRepository;
-use Puli\Repository\PathMappingRepository;
+use Puli\Repository\OptimizedJsonRepository;
+use Puli\Repository\JsonRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
@@ -26,7 +26,7 @@ use Webmozart\KeyValueStore\ArrayStore;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-abstract class AbstractPathMappingRepositoryTest extends AbstractEditableRepositoryTest
+abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
 {
     /**
      * @var ArrayStore
@@ -34,7 +34,7 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
     protected $store;
 
     /**
-     * @var OptimizedPathMappingRepository
+     * @var OptimizedJsonRepository
      */
     protected $repo;
 
@@ -144,7 +144,7 @@ abstract class AbstractPathMappingRepositoryTest extends AbstractEditableReposit
      * @param KeyValueStore $store
      * @param string        $baseDirectory
      *
-     * @return PathMappingRepository|OptimizedPathMappingRepository
+     * @return JsonRepository|OptimizedJsonRepository
      */
     abstract protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory);
 

@@ -14,7 +14,7 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\PathMappingRepository;
+use Puli\Repository\JsonRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
@@ -26,7 +26,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
+class JsonRepositoryTest extends AbstractJsonRepositoryTest
 {
     /**
      * Counter to avoid collisions during tests on directories.
@@ -37,12 +37,12 @@ class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
 
     protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory)
     {
-        return new PathMappingRepository($store, $baseDirectory);
+        return new JsonRepository($store, $baseDirectory);
     }
 
     protected function createPrefilledRepository(PuliResource $root)
     {
-        $repo = new PathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__));
+        $repo = new JsonRepository(new ArrayStore(), Path::getRoot(__DIR__));
         $repo->add('/', $root);
 
         return $repo;
@@ -50,7 +50,7 @@ class PathMappingRepositoryTest extends AbstractPathMappingRepositoryTest
 
     protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new PathMappingRepository(new ArrayStore(), Path::getRoot(__DIR__), $stream);
+        return new JsonRepository(new ArrayStore(), Path::getRoot(__DIR__), $stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

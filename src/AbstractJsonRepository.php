@@ -36,7 +36,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-abstract class AbstractPathMappingRepository extends AbstractEditableRepository
+abstract class AbstractJsonRepository extends AbstractEditableRepository
 {
     /**
      * @var KeyValueStore
