@@ -16,14 +16,14 @@
         "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "webmozart/key-value-store": "^1.0.0-beta5",
+        "webmozart/json": "^1.0",
         "symfony/filesystem": "^2.0|^3.0",
         "phpunit/phpunit": "^4.6",
         "sebastian/version": "^1.0.1"
     },
     "suggest": {
-        "webmozart/key-value-store": "to use the path mapping repositories",
-        "symfony/filesystem": "to use the FilesystemRepository"
+        "webmozart/json": "to use the JSON repositories",
+        "symfony/filesystem": "to use the filesystem repository"
     },
     "autoload": {
         "psr-4": {

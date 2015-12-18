@@ -54,13 +54,19 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function get($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $path = $this->sanitizePath($path);
 
-        if (!$this->store->exists($path)) {
+        if (!array_key_exists($path, $this->data)) {
             throw ResourceNotFoundException::forPath($path);
         }
 
-        return $this->createResource($this->store->get($path), $path);
+        $data = $this->data[$path];
+
+        return $this->createResource(is_array($data) ? $data[count($data) - 1] : $data, $path);
     }
 
     /**
@@ -68,6 +74,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function find($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $this->validateSearchLanguage($language);
 
         $query = $this->sanitizePath($query);
@@ -75,9 +85,9 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
 
         if (Glob::isDynamic($query)) {
             $resources = $this->iteratorToCollection($this->getGlobIterator($query));
-        } elseif ($this->store->exists($query)) {
+        } elseif (array_key_exists($query, $this->data)) {
             $resources = new ArrayResourceCollection(array(
-                $this->createResource($this->store->get($query), $query),
+                $this->createResource($this->data[$query], $query),
             ));
         }
 
@@ -89,6 +99,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function contains($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         if ('glob' !== $language) {
             throw UnsupportedLanguageException::forLanguage($language);
         }
@@ -102,7 +116,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
             return $iterator->valid();
         }
 
-        return $this->store->exists($query);
+        return array_key_exists($query, $this->data);
     }
 
     /**
@@ -110,6 +124,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function remove($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $this->validateSearchLanguage($language);
 
         $query = $this->sanitizePath($query);
@@ -122,7 +140,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
 
         if (Glob::isDynamic($query)) {
             $paths = $this->getGlobIterator($query);
-        } elseif ($this->store->exists($query)) {
+        } elseif (array_key_exists($query, $this->data)) {
             $paths = array($query);
         }
 
@@ -133,6 +151,8 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
             $this->removePath($path);
         }
 
+        $this->flush();
+
         return $nbOfResources - $this->countStore();
     }
 
@@ -141,6 +161,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function listChildren($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $iterator = $this->getChildIterator($this->get($path));
 
         return $this->iteratorToCollection($iterator);
@@ -151,6 +175,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     public function hasChildren($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $iterator = $this->getChildIterator($this->get($path));
         $iterator->rewind();
 
@@ -169,7 +197,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         $resource->attachTo($this, $path);
 
         // Add the resource before adding its children, so that the array stays sorted
-        $this->store->set($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
+        $this->data[$path] = Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory);
 
         $basePath = '/' === $path ? $path : $path.'/';
 
@@ -184,7 +212,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     protected function addLinkResource($path, LinkResource $resource)
     {
         $resource->attachTo($this, $path);
-        $this->store->set($path, 'l:'.$resource->getTargetPath());
+        $this->data[$path] = 'l:'.$resource->getTargetPath();
     }
 
     /**
@@ -192,7 +220,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     private function removePath($path)
     {
-        if (!$this->store->exists($path)) {
+        if (!array_key_exists($path, $this->data)) {
             return;
         }
 
@@ -200,11 +228,11 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         $children = $this->getRecursivePathChildIterator($path);
 
         foreach ($children as $child) {
-            $this->store->remove($child);
+            unset($this->data[$child]);
         }
 
         // Remove the resource
-        $this->store->remove($path);
+        unset($this->data[$path]);
     }
 
     /**
@@ -222,7 +250,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         return new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new ArrayIterator($this->store->keys())
+            new ArrayIterator(array_keys($this->data))
         );
     }
 
@@ -241,7 +269,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         return new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new ArrayIterator($this->store->keys())
+            new ArrayIterator(array_keys($this->data))
         );
     }
 
@@ -256,7 +284,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     {
         return new GlobFilterIterator(
             $glob,
-            new ArrayIterator($this->store->keys())
+            new ArrayIterator(array_keys($this->data))
         );
     }
 
@@ -269,11 +297,10 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
      */
     private function iteratorToCollection(Iterator $iterator)
     {
-        $filesystemPaths = $this->store->getMultiple(iterator_to_array($iterator));
         $collection = new ArrayResourceCollection();
 
-        foreach ($filesystemPaths as $path => $filesystemPath) {
-            $collection->add($this->createResource($filesystemPath, $path));
+        foreach ($iterator as $path) {
+            $collection->add($this->createResource($this->data[$path], $path));
         }
 
         return $collection;

@@ -54,6 +54,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function get($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $path = $this->sanitizePath($path);
         $filesystemPaths = $this->resolveFilesystemPaths($path);
 
@@ -69,6 +73,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function find($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $this->validateSearchLanguage($language);
         $query = $this->sanitizePath($query);
 
@@ -80,6 +88,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function contains($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $this->validateSearchLanguage($language);
         $query = $this->sanitizePath($query);
 
@@ -91,6 +103,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function remove($query, $language = 'glob')
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $query = $this->sanitizePath($query);
 
         Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
@@ -99,7 +115,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         $invalid = array();
 
         foreach ($results as $result) {
-            if (!$this->store->exists($result->getPath())) {
+            if (!array_key_exists($result->getPath(), $this->data)) {
                 $invalid[] = $result->getFilesystemPath();
             }
         }
@@ -118,15 +134,19 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         foreach ($results as $result) {
             foreach ($this->getVirtualPathChildren($result->getPath(), true) as $virtualChild) {
-                if ($this->store->remove($virtualChild['path'])) {
+                if (array_key_exists($virtualChild['path'], $this->data)) {
+                    unset($this->data[$virtualChild['path']]);
                     ++$removed;
                 }
             }
 
-            if ($this->store->remove($result->getPath())) {
+            if (array_key_exists($result->getPath(), $this->data)) {
+                unset($this->data[$result->getPath()]);
                 ++$removed;
             }
         }
+
+        $this->flush();
 
         return $removed;
     }
@@ -136,6 +156,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function listChildren($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         if (!$this->isPathResolvable($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
@@ -148,6 +172,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     public function hasChildren($path)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         if (!$this->isPathResolvable($path)) {
             throw ResourceNotFoundException::forPath($path);
         }
@@ -181,17 +209,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     private function storeUnshift($path, $targetPath)
     {
-        $previousPaths = array();
-
-        if ($this->store->exists($path)) {
-            $previousPaths = (array) $this->store->get($path);
+        if (!isset($this->data[$path])) {
+            $this->data[$path] = array();
         }
 
-        if (!in_array($targetPath, $previousPaths, true)) {
-            array_unshift($previousPaths, $targetPath);
+        if (!in_array($targetPath, $this->data[$path], true)) {
+            array_unshift($this->data[$path], $targetPath);
         }
-
-        $this->store->set($path, $previousPaths);
     }
 
     /**
@@ -208,8 +232,8 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         /*
          * If the path exists in the store, return it directly
          */
-        if ($this->store->exists($path)) {
-            $filesystemPaths = $this->store->get($path);
+        if (array_key_exists($path, $this->data)) {
+            $filesystemPaths = $this->data[$path];
 
             if (is_array($filesystemPaths) && count($filesystemPaths) > 0) {
                 if ($onlyFirst) {
@@ -234,7 +258,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
          *          file or directory on the filesystem and if we do find one,
          *          we stop
          */
-        $basePaths = array_reverse($this->store->keys());
+        $basePaths = array_reverse(array_keys($this->data));
         $filesystemPaths = array();
 
         foreach ($basePaths as $key => $basePath) {
@@ -242,7 +266,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 continue;
             }
 
-            $filesystemBasePaths = $this->resolveRelativePaths((array) $this->store->get($basePath));
+            $filesystemBasePaths = $this->resolveRelativePaths((array) $this->data[$basePath]);
             $basePathLength = strlen(rtrim($basePath, '/').'/');
 
             foreach ($filesystemBasePaths as $filesystemBasePath) {
@@ -281,7 +305,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         for ($i = 0; $i < substr_count($path, '/') - 1; ++$i) {
             $parentPath = dirname($parentPath);
 
-            if ($this->store->exists($parentPath)) {
+            if (array_key_exists($parentPath, $this->data)) {
                 $resolvedFilesystemPathsPart = $this->resolveFilesystemPaths($parentPath, $onlyFirst);
 
                 foreach ($resolvedFilesystemPathsPart as $key => $value) {
@@ -513,13 +537,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         $iterator = new RegexFilterIterator(
             $regExp,
             $staticPrefix,
-            new ArrayIterator($this->store->keys())
+            new ArrayIterator(array_keys($this->data))
         );
 
         $children = array();
 
         foreach ($iterator as $path) {
-            $filesystemPaths = $this->store->get($path);
+            $filesystemPaths = $this->data[$path];
 
             if (!is_array($filesystemPaths)) {
                 $children[] = array('path' => $path, 'filesystemPath' => null);

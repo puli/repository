@@ -19,8 +19,7 @@ use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
 use Puli\Repository\Tests\Resource\TestFilesystemFile;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
-use Webmozart\KeyValueStore\ArrayStore;
+use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -29,21 +28,28 @@ use Webmozart\KeyValueStore\ArrayStore;
 abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
 {
     /**
-     * @var ArrayStore
+     * @var string
      */
-    protected $store;
+    protected $path;
 
     /**
-     * @var OptimizedJsonRepository
-     */
-    protected $repo;
-
-    /**
-     * Temporary directory for test filess.
-     *
      * @var string
      */
     protected $tempDir;
+
+    /**
+     * Contains a copy of the static fixtures.
+     *
+     * @var string
+     */
+    protected $fixtureDir;
+
+    /**
+     * Contains dynamically created fixtures.
+     *
+     * @var string
+     */
+    protected $tempFixtureDir;
 
     /**
      * Counter to avoid collisions during tests on files.
@@ -61,15 +67,16 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function setUp()
     {
-        parent::setUp();
-
-        $this->tempDir = __DIR__.'/Fixtures/tmp';
+        $this->tempDir = TestUtil::makeTempDir('puli-respository', __CLASS__);
+        $this->fixtureDir = $this->tempDir.'/fixtures';
+        $this->tempFixtureDir = $this->tempDir.'/temp-fixtures';
+        $this->path = $this->tempDir.'/puli.json';
 
         $filesystem = new Filesystem();
-        $filesystem->mkdir($this->tempDir);
+        $filesystem->mkdir($this->tempFixtureDir);
+        $filesystem->mirror(__DIR__.'/Fixtures', $this->fixtureDir);
 
-        $this->store = new ArrayStore();
-        $this->repo = $this->createBaseDirectoryRepository($this->store, __DIR__.'/Fixtures');
+        parent::setUp();
     }
 
     protected function tearDown()
@@ -90,9 +97,9 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
         return new TestFilesystemDirectory($path, $children);
     }
 
-    protected function buildStructure(PuliResource $root)
+    protected function prepareFixtures(PuliResource $root)
     {
-        return $this->buildRecursive($root);
+        return $this->recursivePrepareFixtures($root);
     }
 
     /**
@@ -101,7 +108,7 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
      *
      * @return DirectoryResource|FileResource
      */
-    protected function buildRecursive($resource, $parentPath = '')
+    private function recursivePrepareFixtures($resource, $parentPath = '')
     {
         if ($resource instanceof TestFilesystemDirectory) {
             if ($resource->getPath() !== null) {
@@ -111,15 +118,15 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
                 ++self::$createdDirectories;
             }
 
-            if (!is_dir($this->tempDir.$dirname)) {
-                mkdir($this->tempDir.$dirname, 0777, true);
+            if (!is_dir($this->tempFixtureDir.$dirname)) {
+                mkdir($this->tempFixtureDir.$dirname, 0777, true);
             }
 
             foreach ($resource->listChildren() as $child) {
-                $this->buildRecursive($child, $dirname);
+                $this->recursivePrepareFixtures($child, $dirname);
             }
 
-            return new DirectoryResource($this->tempDir.$dirname, $resource->getPath());
+            return new DirectoryResource($this->tempFixtureDir.$dirname, $resource->getPath());
         } else {
             if ($resource->getPath() !== null) {
                 $filename = rtrim($parentPath.$resource->getPath(), '/');
@@ -128,32 +135,15 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
                 ++self::$createdFiles;
             }
 
-            $dirname = dirname($this->tempDir.$filename);
+            $dirname = dirname($this->tempFixtureDir.$filename);
 
             if (!is_dir($dirname)) {
                 mkdir($dirname, 0777, true);
             }
 
-            file_put_contents($this->tempDir.$filename, $resource->getBody());
+            file_put_contents($this->tempFixtureDir.$filename, $resource->getBody());
 
-            return new FileResource($this->tempDir.$filename, $resource->getPath());
+            return new FileResource($this->tempFixtureDir.$filename, $resource->getPath());
         }
-    }
-
-    /**
-     * @param KeyValueStore $store
-     * @param string        $baseDirectory
-     *
-     * @return JsonRepository|OptimizedJsonRepository
-     */
-    abstract protected function createBaseDirectoryRepository(KeyValueStore $store, $baseDirectory);
-
-    /**
-     * @expectedException \Puli\Repository\Api\UnsupportedResourceException
-     */
-    public function testBaseDirectoryException()
-    {
-        $repository = $this->createBaseDirectoryRepository($this->store, __DIR__.'/Fixtures/dir1');
-        $repository->add('/webmozart/foo/bar', new FileResource(__DIR__.'/Fixtures/dir2/file2'));
     }
 }

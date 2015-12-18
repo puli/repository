@@ -21,11 +21,8 @@ use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Resource\LinkResource;
 use RuntimeException;
-use Webmozart\KeyValueStore\Api\CountableStore;
-use Webmozart\KeyValueStore\Api\KeyValueStore;
-use Webmozart\KeyValueStore\Api\SortableStore;
-use Webmozart\KeyValueStore\Decorator\CountableDecorator;
-use Webmozart\KeyValueStore\Decorator\SortableDecorator;
+use Webmozart\Json\JsonDecoder;
+use Webmozart\Json\JsonEncoder;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -39,9 +36,9 @@ use Webmozart\PathUtil\Path;
 abstract class AbstractJsonRepository extends AbstractEditableRepository
 {
     /**
-     * @var KeyValueStore
+     * @var array
      */
-    protected $store;
+    protected $data;
 
     /**
      * @var string
@@ -49,19 +46,43 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     protected $baseDirectory;
 
     /**
+     * @var string
+     */
+    private $path;
+
+    /**
+     * @var string
+     */
+    private $schemaPath;
+
+    /**
+     * @var JsonEncoder
+     */
+    private $encoder;
+
+    /**
      * Creates a new repository.
      *
-     * @param KeyValueStore     $store         The store of all the paths.
-     * @param string            $baseDirectory The base directory of the resources of this repository.
-     * @param ChangeStream|null $changeStream  If provided, the repository will log
-     *                                         resources changes in this change stream.
+     * @param string            $path          The path to the JSON file. If
+     *                                         relative, it must be relative to
+     *                                         the base directory.
+     * @param string            $baseDirectory The base directory of the store.
+     *                                         Paths inside that directory are
+     *                                         stored as relative paths. Paths
+     *                                         outside that directory are stored
+     *                                         as absolute paths.
+     * @param ChangeStream|null $changeStream  If provided, the repository will
+     *                                         append resource changes to this
+     *                                         change stream.
      */
-    public function __construct(KeyValueStore $store, $baseDirectory, ChangeStream $changeStream = null)
+    public function __construct($path, $baseDirectory, ChangeStream $changeStream = null)
     {
         parent::__construct($changeStream);
 
-        $this->store = $store;
         $this->baseDirectory = $baseDirectory;
+        $this->path = Path::makeAbsolute($path, $baseDirectory);
+//        $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
+        $this->encoder = new JsonEncoder();
 
         $this->createRoot();
     }
@@ -71,6 +92,10 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     public function add($path, $resource)
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         $path = $this->sanitizePath($path);
 
         if ($resource instanceof ResourceCollection) {
@@ -88,6 +113,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->ensureDirectoryExists(Path::getDirectory($path));
         $this->addResource($path, $resource);
         $this->sortStore();
+
+        $this->flush();
     }
 
     /**
@@ -112,14 +139,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
 
         if ($resource instanceof LinkResource) {
             $this->addLinkResource($path, $resource);
-        } elseif (Path::isBasePath($this->baseDirectory, $resource->getFilesystemPath())) {
-            $this->addFilesystemResource($path, $resource);
         } else {
-            throw new UnsupportedResourceException(sprintf(
-                'Can only add resources from %s. Tried to add %s.',
-                $this->baseDirectory,
-                $resource->getFilesystemPath()
-            ));
+            $this->addFilesystemResource($path, $resource);
         }
 
         $this->appendToChangeStream($resource);
@@ -146,11 +167,17 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     public function clear()
     {
+        if (null === $this->data) {
+            $this->load();
+        }
+
         // Subtract root
         $removed = $this->countStore() - 1;
 
-        $this->store->clear();
+        $this->data = array();
         $this->createRoot();
+
+        $this->flush();
 
         return $removed;
     }
@@ -162,7 +189,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     protected function ensureDirectoryExists($path)
     {
-        if ($this->store->exists($path)) {
+        if (array_key_exists($path, $this->data)) {
             return;
         }
 
@@ -171,7 +198,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
             $this->ensureDirectoryExists(Path::getDirectory($path));
         }
 
-        $this->store->set($path, null);
+        $this->data[$path] = null;
     }
 
     /**
@@ -179,11 +206,15 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     protected function createRoot()
     {
-        if ($this->store->exists('/')) {
+        if (null === $this->data) {
+            $this->load();
+        }
+
+        if (isset($this->data['/'])) {
             return;
         }
 
-        $this->store->set('/', null);
+        $this->data['/'] = null;
     }
 
     /**
@@ -193,11 +224,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     protected function countStore()
     {
-        if (!$this->store instanceof CountableStore) {
-            $this->store = new CountableDecorator($this->store);
-        }
-
-        return $this->store->count();
+        return count($this->data);
     }
 
     /**
@@ -205,11 +232,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     protected function sortStore()
     {
-        if (!$this->store instanceof SortableStore) {
-            $this->store = new SortableDecorator($this->store);
-        }
-
-        $this->store->sort();
+        ksort($this->data);
     }
 
     /**
@@ -336,5 +359,20 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         }
 
         return $relativePaths;
+    }
+
+    protected function load()
+    {
+        $decoder = new JsonDecoder();
+        $decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
+
+        $this->data = file_exists($this->path)
+            ? $decoder->decodeFile($this->path, $this->schemaPath)
+            : array();
+    }
+
+    protected function flush()
+    {
+        $this->encoder->encodeFile($this->data, $this->path, $this->schemaPath);
     }
 }
