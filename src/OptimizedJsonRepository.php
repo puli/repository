@@ -34,9 +34,9 @@ use Webmozart\PathUtil\Path;
  * Resources can be added with the method {@link add()}:
  *
  * ```php
- * use Puli\Repository\OptimizedPathMappingRepository;
+ * use Puli\Repository\OptimizedJsonRepository;
  *
- * $repo = new OptimizedPathMappingRepository();
+ * $repo = new OptimizedJsonRepository();
  * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
