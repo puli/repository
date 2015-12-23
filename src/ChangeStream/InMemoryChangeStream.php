@@ -32,13 +32,13 @@ class InMemoryChangeStream implements ChangeStream
     /**
      * {@inheritdoc}
      */
-    public function append($path, PuliResource $resource)
+    public function append(PuliResource $resource)
     {
-        if (!array_key_exists($path, $this->stack)) {
-            $this->stack[$path] = array();
+        if (!array_key_exists($resource->getPath(), $this->stack)) {
+            $this->stack[$resource->getPath()] = array();
         }
 
-        $this->stack[$path][] = $resource;
+        $this->stack[$resource->getPath()][] = $resource;
     }
 
     /**
@@ -47,7 +47,14 @@ class InMemoryChangeStream implements ChangeStream
     public function buildStack(ResourceRepository $repository, $path)
     {
         if (isset($this->stack[$path])) {
-            return new ResourceStack($this->stack[$path]);
+            $resources = array();
+
+            foreach ($this->stack[$path] as $resource) {
+                $resource->attachTo($repository, $path);
+                $resources[] = $resource;
+            }
+
+            return new ResourceStack($resources);
         }
 
         return new ResourceStack(array());

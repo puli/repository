@@ -16,7 +16,7 @@ use RuntimeException;
 use Webmozart\Assert\Assert;
 
 /**
- * Represents a versionned stack of resources for a given path.
+ * Represents a versioned stack of resources for a given path.
  *
  * You can access different versions of a resource using a ChangeStream
  * that will return you resource stacks.
@@ -43,52 +43,78 @@ class ResourceStack
     }
 
     /**
-     * Get the last version from the stack.
+     * Get the current version resource.
      *
      * @return PuliResource
+     */
+    public function getCurrent()
+    {
+        return $this->get($this->getCurrentVersion());
+    }
+
+    /**
+     * Get the current version number.
+     *
+     * @return integer
      */
     public function getCurrentVersion()
     {
-        if (0 === count($this->stack)) {
+        $versions = $this->getVersions();
+
+        if (0 === count($versions)) {
             throw new RuntimeException('Could not retrieve the current version of an empty stack.');
         }
 
-        return end($this->stack);
+        return end($versions);
     }
 
     /**
-     * Get the first version from the stack.
+     * Get the current version resource.
      *
      * @return PuliResource
+     */
+    public function getFirst()
+    {
+        return $this->get($this->getFirstVersion());
+    }
+
+    /**
+     * Get the first version number.
+     *
+     * @return integer
      */
     public function getFirstVersion()
     {
-        if (0 === count($this->stack)) {
+        $versions = $this->getVersions();
+
+        if (0 === count($versions)) {
             throw new RuntimeException('Could not retrieve the first version of an empty stack.');
         }
 
-        return reset($this->stack);
+        return reset($versions);
     }
 
     /**
-     * Get a specific version from the stack.
+     * Get a specific version resource from the stack by its version number.
      *
-     * @param int $versionNumber The version number (first is 0).
+     * @param int $version The version number (first is 0).
      *
      * @return PuliResource
      */
-    public function getVersion($versionNumber)
+    public function get($version)
     {
-        if (0 === count($this->stack)) {
+        $versions = $this->getVersions();
+
+        if (0 === count($versions)) {
             throw new RuntimeException(sprintf(
                 'Could not retrieve the version %s of an empty stack.',
-                $versionNumber
+                $version
             ));
         }
 
-        Assert::oneOf($versionNumber, $this->getAvailableVersions(), 'Could not retrieve the version %s (stack: %s).');
+        Assert::oneOf($version, $versions, 'Could not retrieve the version %s (stack: %s).');
 
-        return $this->stack[$versionNumber];
+        return $this->stack[$version];
     }
 
     /**
@@ -96,7 +122,7 @@ class ResourceStack
      *
      * @return array
      */
-    public function getAvailableVersions()
+    public function getVersions()
     {
         return array_keys($this->stack);
     }

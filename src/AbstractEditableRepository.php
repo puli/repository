@@ -29,7 +29,7 @@ abstract class AbstractEditableRepository extends AbstractRepository implements 
     /**
      * @var ChangeStream
      */
-    protected $changeStream;
+    private $changeStream;
 
     /**
      * Create the repository.
@@ -67,7 +67,7 @@ abstract class AbstractEditableRepository extends AbstractRepository implements 
     protected function appendToChangeStream($path, PuliResource $resource)
     {
         if ($this->changeStream) {
-            $this->changeStream->append($path, $resource);
+            $this->changeStream->append($resource);
         }
     }
 }

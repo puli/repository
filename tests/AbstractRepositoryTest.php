@@ -735,8 +735,8 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
         $this->assertCount(1, $stack);
         $this->assertEquals('/webmozart/puli/file1', $stack->getFirstVersion()->getPath());
-        $this->assertEquals('/webmozart/puli/file1', $stack->getVersion(0)->getPath());
+        $this->assertEquals('/webmozart/puli/file1', $stack->get(0)->getPath());
         $this->assertEquals('/webmozart/puli/file1', $stack->getCurrentVersion()->getPath());
-        $this->assertEquals(array(0), $stack->getAvailableVersions());
+        $this->assertEquals(array(0), $stack->getVersions());
     }
 }

@@ -27,10 +27,9 @@ interface ChangeStream
     /**
      * Store a version of a resource in the ChangeStream to retrieve it if needed.
      *
-     * @param string       $path
      * @param PuliResource $resource
      */
-    public function append($path, PuliResource $resource);
+    public function append(PuliResource $resource);
 
     /**
      * Create a stack of resources for the given path.

@@ -29,47 +29,98 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
      */
     abstract protected function createChangeStream();
 
-    public function testBuildResourceStack()
+    public function testBuildStack()
     {
         $stream = $this->createChangeStream();
-        $stream->append('/path', $v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
-        $stream->append('/path', $v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
-        $stream->append('/path', $v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
+        $stream->append($v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append($v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
+        $stream->append($v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
 
-        $resourceStack = $stream->buildStack(new InMemoryRepository(), '/path');
+        $repository = new InMemoryRepository();
 
-        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $resourceStack);
-        $this->assertCount(3, $resourceStack->getAvailableVersions());
-        $this->assertFileResourcesEquals($v1, $resourceStack->getFirstVersion());
-        $this->assertFileResourcesEquals($v1, $resourceStack->getVersion(0));
-        $this->assertFileResourcesEquals($v2, $resourceStack->getVersion(1));
-        $this->assertFileResourcesEquals($v3, $resourceStack->getVersion(2));
-        $this->assertFileResourcesEquals($v3, $resourceStack->getCurrentVersion());
-        $this->assertEquals(array(0, 1, 2), $resourceStack->getAvailableVersions());
+        $stack = $stream->buildStack($repository, '/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
+        $this->assertEquals(array(0, 1, 2), $stack->getVersions());
+    }
+
+    public function testGetVersion()
+    {
+        $stream = $this->createChangeStream();
+        $stream->append($v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append($v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
+        $stream->append($v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
+
+        $repository = new InMemoryRepository();
+
+        $stack = $stream->buildStack($repository, '/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
+
+        $this->assertFileResourcesEquals($v1, $stack->get(0));
+        $this->assertSame($repository, $stack->get(0)->getRepository());
+        $this->assertFileResourcesEquals($v2, $stack->get(1));
+        $this->assertSame($repository, $stack->get(1)->getRepository());
+        $this->assertFileResourcesEquals($v3, $stack->get(2));
+        $this->assertSame($repository, $stack->get(2)->getRepository());
+    }
+
+    public function testGetCurrentVersion()
+    {
+        $stream = $this->createChangeStream();
+        $stream->append($v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append($v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
+        $stream->append($v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
+
+        $repository = new InMemoryRepository();
+
+        $stack = $stream->buildStack($repository, '/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
+        $this->assertSame(2, $stack->getCurrentVersion());
+        $this->assertSame($v3, $stack->getCurrent());
+        $this->assertSame($repository, $stack->getCurrent()->getRepository());
+    }
+
+    public function testGetFirstVersion()
+    {
+        $stream = $this->createChangeStream();
+        $stream->append($v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append($v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
+        $stream->append($v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
+
+        $repository = new InMemoryRepository();
+
+        $stack = $stream->buildStack($repository, '/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
+        $this->assertSame(0, $stack->getFirstVersion());
+        $this->assertSame($v1, $stack->getFirst());
+        $this->assertSame($repository, $stack->getFirst()->getRepository());
     }
 
     public function testLogFile()
     {
         $stream = $this->createChangeStream();
-        $stream->append('/path', new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append(new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
     }
 
     public function testLogDirectory()
     {
         $stream = $this->createChangeStream();
-        $stream->append('/path', new DirectoryResource(__DIR__.'/../Fixtures/dir1', '/path'));
+        $stream->append(new DirectoryResource(__DIR__.'/../Fixtures/dir1', '/path'));
     }
 
     public function testLogLink()
     {
         $stream = $this->createChangeStream();
-        $stream->append('/path', new LinkResource(__DIR__.'/../Fixtures/dir1', '/path'));
+        $stream->append(new LinkResource(__DIR__.'/../Fixtures/dir1', '/path'));
     }
 
     public function testLogGeneric()
     {
         $stream = $this->createChangeStream();
-        $stream->append('/path', new GenericResource('/path'));
+        $stream->append(new GenericResource('/path'));
     }
 
     protected function assertFileResourcesEquals(FileResource $excepted, $actual)
