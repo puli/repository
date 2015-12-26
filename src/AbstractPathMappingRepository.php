@@ -122,7 +122,7 @@ abstract class AbstractPathMappingRepository extends AbstractEditableRepository
             ));
         }
 
-        $this->appendToChangeStream($path, $resource);
+        $this->appendToChangeStream($resource);
     }
 
     /**

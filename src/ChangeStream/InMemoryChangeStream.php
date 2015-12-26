@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\ChangeStream;
 
+use InvalidArgumentException;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
@@ -34,7 +35,7 @@ class InMemoryChangeStream implements ChangeStream
      */
     public function append(PuliResource $resource)
     {
-        if (!array_key_exists($resource->getPath(), $this->stack)) {
+        if (!isset($this->stack[$resource->getPath()])) {
             $this->stack[$resource->getPath()] = array();
         }
 
@@ -46,17 +47,17 @@ class InMemoryChangeStream implements ChangeStream
      */
     public function buildStack(ResourceRepository $repository, $path)
     {
-        if (isset($this->stack[$path])) {
-            $resources = array();
-
-            foreach ($this->stack[$path] as $resource) {
-                $resource->attachTo($repository, $path);
-                $resources[] = $resource;
-            }
-
-            return new ResourceStack($resources);
+        if (!isset($this->stack[$path])) {
+            throw new InvalidArgumentException(sprintf('No version of path %s were found in the ChangeStream', $path));
         }
 
-        return new ResourceStack(array());
+        $resources = array();
+
+        foreach ($this->stack[$path] as $resource) {
+            $resource->attachTo($repository, $path);
+            $resources[] = $resource;
+        }
+
+        return new ResourceStack($resources);
     }
 }

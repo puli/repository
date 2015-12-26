@@ -14,7 +14,6 @@ namespace Puli\Repository;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\Api\UnsupportedOperationException;
 
 /**
  * Abstract base for editable repositories providing tools to avoid code duplication.
@@ -48,11 +47,7 @@ abstract class AbstractEditableRepository extends AbstractRepository implements 
     public function getStack($path)
     {
         if (!$this->changeStream) {
-            throw new UnsupportedOperationException(sprintf(
-                'Could not retrieve the resource stack for path "%s" as no ChangeStream was passed to the '.
-                'constructor of the repository.',
-                $path
-            ));
+            return parent::getStack($path);
         }
 
         return $this->changeStream->buildStack($this, $path);
@@ -61,10 +56,9 @@ abstract class AbstractEditableRepository extends AbstractRepository implements 
     /**
      * Append a change to the ChangeStream if possible.
      *
-     * @param string       $path
      * @param PuliResource $resource
      */
-    protected function appendToChangeStream($path, PuliResource $resource)
+    protected function appendToChangeStream(PuliResource $resource)
     {
         if ($this->changeStream) {
             $this->changeStream->append($resource);

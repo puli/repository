@@ -145,4 +145,22 @@ class LinkResourceTest extends AbstractResourceTest
 
         $this->assertEquals($resource->getTargetPath(), $deserialized->getTargetPath());
     }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testGetTargetFailsIfNoRepository()
+    {
+        $resource = $this->createResource('/path');
+        $resource->getTarget();
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testGetChildFailsIfNoRepository()
+    {
+        $resource = $this->createResource('/path');
+        $resource->getChild('/child');
+    }
 }

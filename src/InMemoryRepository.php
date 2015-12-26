@@ -244,7 +244,7 @@ class InMemoryRepository extends AbstractEditableRepository
             $this->addResource($basePath.$name, $child);
         }
 
-        $this->appendToChangeStream($path, $resource);
+        $this->appendToChangeStream($resource);
     }
 
     private function removeResource(PuliResource $resource)

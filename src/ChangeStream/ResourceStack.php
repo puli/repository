@@ -11,8 +11,8 @@
 
 namespace Puli\Repository\ChangeStream;
 
+use OutOfBoundsException;
 use Puli\Repository\Api\Resource\PuliResource;
-use RuntimeException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -35,11 +35,12 @@ class ResourceStack
     /**
      * @param array $stack
      */
-    public function __construct($stack)
+    public function __construct(array $stack)
     {
-        Assert::isArray($stack, 'Built resource stack must be an array.');
+        Assert::allIsInstanceOf($stack, 'Puli\Repository\Api\Resource\PuliResource');
+        Assert::greaterThanEq(count($stack), 1, 'A ResourceStack cannot be empty');
 
-        $this->stack = $stack;
+        $this->stack = array_values($stack);
     }
 
     /**
@@ -55,17 +56,11 @@ class ResourceStack
     /**
      * Get the current version number.
      *
-     * @return integer
+     * @return int
      */
     public function getCurrentVersion()
     {
-        $versions = $this->getVersions();
-
-        if (0 === count($versions)) {
-            throw new RuntimeException('Could not retrieve the current version of an empty stack.');
-        }
-
-        return end($versions);
+        return count($this->stack) - 1;
     }
 
     /**
@@ -81,17 +76,11 @@ class ResourceStack
     /**
      * Get the first version number.
      *
-     * @return integer
+     * @return int
      */
     public function getFirstVersion()
     {
-        $versions = $this->getVersions();
-
-        if (0 === count($versions)) {
-            throw new RuntimeException('Could not retrieve the first version of an empty stack.');
-        }
-
-        return reset($versions);
+        return 0;
     }
 
     /**
@@ -103,16 +92,9 @@ class ResourceStack
      */
     public function get($version)
     {
-        $versions = $this->getVersions();
-
-        if (0 === count($versions)) {
-            throw new RuntimeException(sprintf(
-                'Could not retrieve the version %s of an empty stack.',
-                $version
-            ));
+        if (!isset($this->stack[$version])) {
+            throw new OutOfBoundsException('Could not retrieve the version %s (stack: %s).');
         }
-
-        Assert::oneOf($version, $versions, 'Could not retrieve the version %s (stack: %s).');
 
         return $this->stack[$version];
     }

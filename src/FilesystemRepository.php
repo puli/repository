@@ -317,7 +317,7 @@ class FilesystemRepository extends AbstractEditableRepository
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
 
-            $this->appendToChangeStream($path, $resource);
+            $this->appendToChangeStream($resource);
 
             return;
         }
@@ -333,7 +333,7 @@ class FilesystemRepository extends AbstractEditableRepository
 
             $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
 
-            $this->appendToChangeStream($path, $resource);
+            $this->appendToChangeStream($resource);
 
             return;
         }
@@ -341,7 +341,7 @@ class FilesystemRepository extends AbstractEditableRepository
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
 
-            $this->appendToChangeStream($path, $resource);
+            $this->appendToChangeStream($resource);
 
             return;
         }
@@ -358,7 +358,7 @@ class FilesystemRepository extends AbstractEditableRepository
             $this->addResource($path.'/'.$child->getName(), $child, false);
         }
 
-        $this->appendToChangeStream($path, $resource);
+        $this->appendToChangeStream($resource);
     }
 
     private function removeResource($filesystemPath, &$removed)

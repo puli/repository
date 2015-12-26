@@ -11,34 +11,28 @@
 
 namespace Puli\Repository\Tests\ChangeStream;
 
-use Puli\Repository\ChangeStream\ResourceStack;
-use Puli\Repository\Tests\Resource\Collection\ArrayResourceCollectionTest;
 use PHPUnit_Framework_TestCase;
+use Puli\Repository\ChangeStream\ResourceStack;
 
 /**
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
 class ResourceStackTest extends PHPUnit_Framework_TestCase
 {
-    public function testGetCurrent()
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testEmptyStackFails()
     {
-        $stack = new ResourceStack(array(
-            $v1 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
-            $v2 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
-            $v3 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
-            $v4 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
-        ));
-
-        $this->assertSame($v4, $stack->getCurrent());
+        new ResourceStack(array());
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \InvalidArgumentException
      */
-    public function testGetCurrentFails()
+    public function testInvalidStackFails()
     {
-        $stack = new ResourceStack(array());
-        $stack->getCurrent();
+        new ResourceStack(array(new \stdClass()));
     }
 
     public function testGetCurrentVersion()
@@ -53,16 +47,7 @@ class ResourceStackTest extends PHPUnit_Framework_TestCase
         $this->assertSame(3, $stack->getCurrentVersion());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetCurrentVersionFails()
-    {
-        $stack = new ResourceStack(array());
-        $stack->getCurrentVersion();
-    }
-
-    public function testGetFirst()
+    public function testGetCurrent()
     {
         $stack = new ResourceStack(array(
             $v1 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
@@ -71,16 +56,8 @@ class ResourceStackTest extends PHPUnit_Framework_TestCase
             $v4 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
         ));
 
-        $this->assertSame($v1, $stack->getFirst());
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetFirstFails()
-    {
-        $stack = new ResourceStack(array());
-        $stack->getFirst();
+        $this->assertSame($v4, $stack->getCurrent());
+        $this->assertSame($stack->get($stack->getCurrentVersion()), $stack->getCurrent());
     }
 
     public function testGetFirstVersion()
@@ -95,13 +72,17 @@ class ResourceStackTest extends PHPUnit_Framework_TestCase
         $this->assertSame(0, $stack->getFirstVersion());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetFirstVersionFails()
+    public function testGetFirst()
     {
-        $stack = new ResourceStack(array());
-        $stack->getCurrentVersion();
+        $stack = new ResourceStack(array(
+            $v1 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
+            $v2 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
+            $v3 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
+            $v4 = $this->getMock('Puli\Repository\Api\Resource\PuliResource'),
+        ));
+
+        $this->assertSame($v1, $stack->getFirst());
+        $this->assertSame($stack->get($stack->getFirstVersion()), $stack->getFirst());
     }
 
     public function testGet()
@@ -120,16 +101,7 @@ class ResourceStackTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetFailsEmpty()
-    {
-        $stack = new ResourceStack(array());
-        $stack->get(0);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \OutOfBoundsException
      */
     public function testGetFailsInvalid()
     {

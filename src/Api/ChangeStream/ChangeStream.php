@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Api\ChangeStream;
 
+use InvalidArgumentException;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\ChangeStream\ResourceStack;
@@ -38,6 +39,8 @@ interface ChangeStream
      * @param string             $path
      *
      * @return ResourceStack
+     *
+     * @throws InvalidArgumentException When the given path has no version in the change stream.
      */
     public function buildStack(ResourceRepository $repository, $path);
 }

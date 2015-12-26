@@ -547,12 +547,11 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
-     * @expectedException \Puli\Repository\Api\UnsupportedOperationException
+     * @expectedException \InvalidArgumentException
      */
-    public function testWithoutChangeStreamGetStack()
+    public function testChangeStreamBuildStackOfInvalidResource()
     {
-        $this->writeRepo = $this->createWriteRepository();
-        $this->writeRepo->add('/path', new FileResource(__DIR__.'/Fixtures/dir1/file1'));
-        $this->writeRepo->getStack('/path');
+        $this->writeRepo = $this->createWriteRepository(new InMemoryChangeStream());
+        $this->writeRepo->getStack('/invalid');
     }
 }

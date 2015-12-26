@@ -44,6 +44,19 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(0, 1, 2), $stack->getVersions());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testBuildStackFails()
+    {
+        $stream = $this->createChangeStream();
+        $stream->append($v1 = new FileResource(__DIR__.'/../Fixtures/dir1/file1', '/path'));
+        $stream->append($v2 = new FileResource(__DIR__.'/../Fixtures/dir1/file2', '/path'));
+        $stream->append($v3 = new FileResource(__DIR__.'/../Fixtures/dir2/file2', '/path'));
+
+        $stream->buildStack(new InMemoryRepository(), '/invalid');
+    }
+
     public function testGetVersion()
     {
         $stream = $this->createChangeStream();
