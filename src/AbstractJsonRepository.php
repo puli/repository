@@ -15,6 +15,7 @@ use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
+use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedResourceException;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -38,12 +39,17 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     /**
      * @var array
      */
-    protected $data;
+    protected $json;
 
     /**
      * @var string
      */
     protected $baseDirectory;
+
+    /**
+     * @var PuliResource[]
+     */
+    protected $resources = array();
 
     /**
      * @var string
@@ -83,8 +89,6 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->path = Path::makeAbsolute($path, $baseDirectory);
 //        $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
         $this->encoder = new JsonEncoder();
-
-        $this->createRoot();
     }
 
     /**
@@ -92,7 +96,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     public function add($path, $resource)
     {
-        if (null === $this->data) {
+        if (null === $this->json) {
             $this->load();
         }
 
@@ -105,45 +109,34 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
                 $this->addResource($path.'/'.$child->getName(), $child);
             }
 
-            $this->sortStore();
+            ksort($this->json);
+            ksort($this->resources);
 
             return;
         }
 
         $this->ensureDirectoryExists(Path::getDirectory($path));
         $this->addResource($path, $resource);
-        $this->sortStore();
+
+        ksort($this->json);
+        ksort($this->resources);
 
         $this->flush();
     }
 
-    /**
-     * Add the resource (internal method after checks of add()).
-     *
-     * @param string       $path
-     * @param PuliResource $resource
-     */
-    private function addResource($path, $resource)
+    protected function getResource($path)
     {
-        if (!($resource instanceof FilesystemResource || $resource instanceof LinkResource)) {
-            throw new UnsupportedResourceException(sprintf(
-                'PathMapping repositories only supports FilesystemResource and LinkedResource. Got: %s',
-                is_object($resource) ? get_class($resource) : gettype($resource)
-            ));
-        }
+            try {
+                // A resource that points to a file could be found
+                return $this->createResource(
+                    $this->getReferences($path),
+                    $path
+                );
+            } catch (ResourceNotFoundException $e) {
+                // No resource pointing to a file could be found
+                // Maybe we are dealing with a virtual node?
+            }
 
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
-        if ($resource instanceof LinkResource) {
-            $this->addLinkResource($path, $resource);
-        } else {
-            $this->addFilesystemResource($path, $resource);
-        }
-
-        $this->appendToChangeStream($resource);
     }
 
     /**
@@ -163,102 +156,21 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     abstract protected function addLinkResource($path, LinkResource $resource);
 
     /**
-     * {@inheritdoc}
-     */
-    public function clear()
-    {
-        if (null === $this->data) {
-            $this->load();
-        }
-
-        // Subtract root
-        $removed = $this->countStore() - 1;
-
-        $this->data = array();
-        $this->createRoot();
-
-        $this->flush();
-
-        return $removed;
-    }
-
-    /**
-     * Recursively creates a directory for a path.
-     *
-     * @param string $path A directory path.
-     */
-    protected function ensureDirectoryExists($path)
-    {
-        if (array_key_exists($path, $this->data)) {
-            return;
-        }
-
-        // Recursively initialize parent directories
-        if ('/' !== $path) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-        }
-
-        $this->data[$path] = null;
-    }
-
-    /**
-     * Create the repository root.
-     */
-    protected function createRoot()
-    {
-        if (null === $this->data) {
-            $this->load();
-        }
-
-        if (isset($this->data['/'])) {
-            return;
-        }
-
-        $this->data['/'] = null;
-    }
-
-    /**
-     * Count the number of elements in the store.
-     *
-     * @return int
-     */
-    protected function countStore()
-    {
-        return count($this->data);
-    }
-
-    /**
-     * Sort the store by keys.
-     */
-    protected function sortStore()
-    {
-        ksort($this->data);
-    }
-
-    /**
      * Create a filesystem or generic resource.
      *
-     * @param string|null $filesystemPath
+     * @param string|null $reference
      *
      * @return DirectoryResource|FileResource|GenericResource
      */
-    protected function createResource($filesystemPath, $path = null)
+    protected function createResource($reference, $path = null)
     {
         // Link resource
-        if (0 === strpos($filesystemPath, 'l:')) {
-            return $this->createLinkResource(substr($filesystemPath, 2), $path);
+        if (isset($reference{0}) && '@' === $reference{0}) {
+            return $this->createLinkResource(substr($reference, 2), $path);
         }
 
         // Filesystem resource
-        if (is_string($filesystemPath)) {
-            $filesystemPath = $this->resolveRelativePath($filesystemPath);
-
-            if (file_exists($filesystemPath)) {
-                return $this->createFilesystemResource($filesystemPath, $path);
-            }
-        }
-
-        return $this->createVirtualResource($path);
+        return $this->createFilesystemResource($reference, $path);
     }
 
     /**
@@ -328,51 +240,61 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         return $resource;
     }
 
-    /**
-     * Transform a relative path into an absolute path.
-     *
-     * @param string $relativePath
-     *
-     * @return string
-     */
-    protected function resolveRelativePath($relativePath)
-    {
-        if (0 === strpos($relativePath, 'l:')) {
-            // Link
-            return $relativePath;
-        }
-
-        return Path::makeAbsolute($relativePath, $this->baseDirectory);
-    }
-
-    /**
-     * Transform a collection of relative paths into a collection of absolute paths.
-     *
-     * @param string[] $relativePaths
-     *
-     * @return string[]
-     */
-    protected function resolveRelativePaths($relativePaths)
-    {
-        foreach ($relativePaths as $key => $relativePath) {
-            $relativePaths[$key] = $this->resolveRelativePath($relativePath);
-        }
-
-        return $relativePaths;
-    }
-
     protected function load()
     {
         $decoder = new JsonDecoder();
         $decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
 
-        $this->data = file_exists($this->path)
+        $this->json = file_exists($this->path)
             ? $decoder->decodeFile($this->path, $this->schemaPath)
             : array();
     }
 
     protected function flush()
     {
-        $this->encoder->encodeFile($this->data, $this->path, $this->schemaPath);
+        $this->encoder->encodeFile($this->json, $this->path, $this->schemaPath);
+    }
+
+    private function ensureDirectoryExists($path)
+    {
+        if (array_key_exists($path, $this->json)) {
+            return;
+        }
+
+        // Recursively initialize parent directories
+        if ('/' !== $path) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
+        }
+
+        $this->json[$path] = null;
+    }
+
+    /**
+     * Add the resource (internal method after checks of add()).
+     *
+     * @param string       $path
+     * @param PuliResource $resource
+     */
+    private function addResource($path, $resource)
+    {
+        if (!($resource instanceof FilesystemResource || $resource instanceof LinkResource)) {
+            throw new UnsupportedResourceException(sprintf(
+                'PathMapping repositories only supports FilesystemResource and LinkedResource. Got: %s',
+                is_object($resource) ? get_class($resource) : gettype($resource)
+            ));
+        }
+
+        // Don't modify resources attached to other repositories
+        if ($resource->isAttached()) {
+            $resource = clone $resource;
+        }
+
+        if ($resource instanceof LinkResource) {
+            $this->addLinkResource($path, $resource);
+        } else {
+            $this->addFilesystemResource($path, $resource);
+        }
+
+        $this->appendToChangeStream($resource);
     }
 }

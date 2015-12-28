@@ -106,8 +106,6 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
     {
         $json = <<<JSON
 {
-    "/": null,
-    "/webmozart": null,
     "/webmozart/foo": ["fixtures/dir5"]
 }
 
@@ -138,9 +136,7 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/": null,
     "/webmozart": ["fixtures/dir5"],
-    "/webmozart/sub": null,
     "/webmozart/sub/file1": ["fixtures/dir5/file1"]
 }
 
@@ -172,10 +168,7 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/": null,
     "/webmozart": ["fixtures"],
-    "/webmozart/dir5": null,
-    "/webmozart/dir5/sub": null,
     "/webmozart/dir5/sub/file1": ["fixtures/dir5/file1"]
 }
 
@@ -207,9 +200,7 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/": null,
     "/webmozart": ["fixtures", "fixtures/dir3", "fixtures/dir4", "fixtures/dir5", "fixtures/dir1"],
-    "/webmozart/sub": null,
     "/webmozart/sub/virtualfile1": ["fixtures/dir1/file1"],
     "/webmozart/sub/virtualfile2": ["fixtures/dir1/file2"]
 }
@@ -262,8 +253,8 @@ JSON;
         $this->assertCount(4, $dirlist);
         $this->assertEquals('/webmozart/file1', $dirlist->get(0)->getPath());
         $this->assertEquals('/webmozart/file2', $dirlist->get(1)->getPath());
-        $this->assertEquals('/webmozart/sub', $dirlist->get(2)->getPath());
-        $this->assertEquals('/webmozart/foo', $dirlist->get(3)->getPath());
+        $this->assertEquals('/webmozart/foo', $dirlist->get(2)->getPath());
+        $this->assertEquals('/webmozart/sub', $dirlist->get(3)->getPath());
 
         $dirlist = $this->writeRepo->listChildren('/webmozart/foo');
 
@@ -359,8 +350,6 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/": null,
-    "/webmozart": null,
     "/webmozart/dir": ["fixtures/dir5"],
     "/webmozart/file": ["fixtures/dir5/file1"]
 }
