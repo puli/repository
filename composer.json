@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.9",
+        "php": "^5.3.9|^7.0",
         "webmozart/path-util": "^2.2",
         "webmozart/glob": "^3.1",
         "webmozart/assert": "^1.0"
