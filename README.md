@@ -41,8 +41,6 @@ The following [`Resource`] implementations are currently supported:
 * [`DirectoryResource`]
 * [`LinkResource`]
 
-Read [Puli at a Glance] to learn more about Puli.
-
 Authors
 -------
 
@@ -81,9 +79,8 @@ All contents of this package are licensed under the [MIT license].
 [Puli]: http://puli.io
 [Bernhard Schussek]: http://webmozarts.com
 [The Community Contributors]: https://github.com/puli/repository/graphs/contributors
-[Getting Started]: http://docs.puli.io/en/latest/getting-started.html
+[Installation guide]: http://docs.puli.io/en/latest/installation.html
 [Puli Documentation]: http://docs.puli.io/en/latest/index.html
-[Puli at a Glance]: http://docs.puli.io/en/latest/at-a-glance.html
 [issue tracker]: https://github.com/puli/issues/issues
 [Git repository]: https://github.com/puli/repository
 [@webmozart]: https://twitter.com/webmozart
