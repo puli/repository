@@ -31,7 +31,7 @@ class FollowLinksInnerIterator extends IteratorIterator implements RecursiveIter
     {
         parent::__construct($iterator);
 
-        $this->json = $json;
+        $this->json = &$json;
         $this->baseDirectory = $baseDirectory;
     }
 

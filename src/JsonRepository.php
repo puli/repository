@@ -15,17 +15,10 @@ use BadMethodCallException;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Json\CreateResourcesIterator;
-use Puli\Repository\Json\DiscardDuplicateKeysIterator;
-use Puli\Repository\Json\FilterMatchesIterator;
-use Puli\Repository\Json\FilterPathIterator;
-use Puli\Repository\Json\FilterReferencesIterator;
-use Puli\Repository\Json\FollowLinksIterator;
-use Puli\Repository\Json\ListDirectoriesIterator;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Resource\LinkResource;
 use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\PathUtil\Path;
@@ -63,15 +56,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
 
         $path = $this->sanitizePath($path);
-        $iterator = new CreateResourcesIterator($this->getPathIterator($path), $this);
-        $iterator->rewind();
+        $references = $this->getReferencesForPath($path);
 
-        if ($iterator->valid()) {
-            return $iterator->current();
-        }
-
-        if ('/' === $path) {
-            return new GenericResource('/');
+        // Might be null, don't use isset()
+        if (array_key_exists($path, $references)) {
+            return $this->createResource($references[$path], $path);
         }
 
         throw ResourceNotFoundException::forPath($path);
@@ -88,8 +77,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         $this->validateSearchLanguage($language);
         $query = $this->sanitizePath($query);
-        $iterator = new CreateResourcesIterator($this->getGlobIterator($query), $this);
-        $results = iterator_to_array($iterator);
+        $results = $this->createResources($this->getReferencesForGlob($query));
 
         ksort($results);
 
@@ -107,14 +95,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         $this->validateSearchLanguage($language);
         $query = $this->sanitizePath($query);
-        $iterator = $this->getGlobIterator($query);
-        $iterator->rewind();
 
-        if ($iterator->valid()) {
-            return true;
-        }
+        // Stop on the first result
+        $results = $this->getReferencesForGlob($query, true);
 
-        return '/' === $query;
+        return !empty($results);
     }
 
     /**
@@ -131,10 +116,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
 
-        $checkIterator = $this->getGlobIterator($query);
+        $checkResults = $this->getReferencesForGlob($query);
         $nonDeletablePaths = array();
 
-        foreach ($checkIterator as $path => $filesystemPath) {
+        foreach ($checkResults as $path => $filesystemPath) {
             if (!array_key_exists($path, $this->json)) {
                 $nonDeletablePaths[] = $filesystemPath;
             }
@@ -150,12 +135,14 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             ));
         }
 
-        // Copy to array since we cannot run two iterators at the same time
-        $deletedPaths = iterator_to_array($this->getDeleteIterator($query.'{,/**/*}'));
+        // Don't stop on the first result
+        // Don't list directories. We only want to list the mappings that exist
+        // in the JSON here.
+        $deletedPaths = $this->getReferencesForGlob($query.'{,/**/*}', false, false);
         $removed = 0;
 
         foreach ($deletedPaths as $path => $filesystemPath) {
-            $removed += 1 + iterator_count($this->getGlobIterator($path.'/**/*'));
+            $removed += 1 + count($this->getReferencesForGlob($path.'/**/*'));
 
             unset($this->json[$path]);
         }
@@ -175,7 +162,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
 
         // Subtract root which is not deleted
-        $removed = iterator_count($this->getGlobIterator('/**/*')) - 1;
+        $removed = count($this->getReferencesForGlob('/**/*')) - 1;
 
         $this->json = array();
 
@@ -194,14 +181,12 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
 
         $path = $this->sanitizePath($path);
-        $iterator = new CreateResourcesIterator($this->getChildIterator($path), $this);
-        $results = iterator_to_array($iterator);
+        $results = $this->createResources($this->getReferencesInDirectory($path));
 
         if (empty($results)) {
-            $checkIterator = $this->getPathIterator($path);
-            $checkIterator->rewind();
+            $pathResults = $this->getReferencesForPath($path);
 
-            if (!$checkIterator->valid()) {
+            if (empty($pathResults)) {
                 throw ResourceNotFoundException::forPath($path);
             }
         }
@@ -221,14 +206,14 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
 
         $path = $this->sanitizePath($path);
-        $iterator = $this->getChildIterator($path);
-        $iterator->rewind();
 
-        if (!$iterator->valid()) {
-            $checkIterator = $this->getPathIterator($path);
-            $checkIterator->rewind();
+        // Stop on the first result
+        $results = $this->getReferencesInDirectory($path, true);
 
-            if (!$checkIterator->valid()) {
+        if (empty($results)) {
+            $pathResults = $this->getReferencesForPath($path);
+
+            if (empty($pathResults)) {
                 throw ResourceNotFoundException::forPath($path);
             }
 
@@ -273,80 +258,336 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
     }
 
-    private function getPathIterator($path)
+    private function createResources(array $references)
     {
-        return new FilterPathIterator(
-            new ListDirectoriesIterator(
-                new FollowLinksIterator(
-                    new FilterReferencesIterator(
-                        $this->json,
-                        $path,
-                        $this->baseDirectory
-                    ),
-                    $this->json,
-                    $this->baseDirectory
-                )
-            ),
-            $path
-        );
-    }
-
-    private function getGlobIterator($query)
-    {
-        if (!Glob::isDynamic($query)) {
-            return $this->getPathIterator($query);
+        foreach ($references as $path => $reference) {
+            $references[$path] = $this->createResource($reference, $path);
         }
 
-        return new DiscardDuplicateKeysIterator(
-            new FilterMatchesIterator(
-                new ListDirectoriesIterator(
-                    new FollowLinksIterator(
-                        new FilterReferencesIterator(
-                            $this->json,
-                            Glob::getBasePath($query),
-                            $this->baseDirectory
-                        ),
-                        $this->json,
-                        $this->baseDirectory
-                    )
-                ),
-                Glob::toRegEx($query)
-            )
+        return $references;
+    }
+
+    private function getReferencesForPath($path)
+    {
+        // Stop on first result and flatten
+        return $this->flatten($this->filterReferences($path, true));
+    }
+
+    private function getReferencesForGlob($glob, $stopOnFirst = false, $listDirectories = true)
+    {
+        if (!Glob::isDynamic($glob)) {
+            return $this->getReferencesForPath($glob);
+        }
+
+        return $this->flattenWithFilter(
+            // Include nested path mappings and match them against the pattern
+            $this->filterReferences(Glob::getBasePath($glob), $stopOnFirst, true),
+            Glob::toRegEx($glob),
+            // List directories and match their contents against the pattern
+            $listDirectories
         );
     }
 
-    private function getChildIterator($path)
+    private function getReferencesInDirectory($path, $stopOnFirst = false)
     {
-        return new DiscardDuplicateKeysIterator(
-            new FilterMatchesIterator(
-                new ListDirectoriesIterator(
-                    new FollowLinksIterator(
-                        new FilterReferencesIterator(
-                            $this->json,
-                            $path,
-                            $this->baseDirectory
-                        ),
-                        $this->json,
-                        $this->baseDirectory
+        return $this->flattenWithFilter(
+            // Include nested path matches and test them against the pattern
+            $this->filterReferences($path, $stopOnFirst, true),
+            '~^'.preg_quote(rtrim($path, '/'), '~').'/[^/]+$~',
+            // List directories and match their contents against the glob
+            true,
+            // Limit the directory exploration to the depth of the path + 1
+            $this->getPathDepth($path) + 1
+        );
+    }
+
+    private function flatten(array $references)
+    {
+        $result = array();
+
+        foreach ($references as $currentPath => $currentReferences) {
+            if (!isset($result[$currentPath])) {
+                $result[$currentPath] = reset($currentReferences);
+            }
+        }
+
+        return $result;
+    }
+
+    private function flattenWithFilter(array $references, $regex, $listDirectories = false, $maxDepth = 0)
+    {
+        $result = array();
+
+        foreach ($references as $currentPath => $currentReferences) {
+            // Check whether the current entry matches the pattern
+            if (!isset($result[$currentPath]) && preg_match($regex, $currentPath)) {
+                // If yes, the first stored reference is returned
+                $result[$currentPath] = reset($currentReferences);
+            }
+
+            if (!$listDirectories) {
+                continue;
+            }
+
+            // First follow any links before we check which of them is a directory
+            $currentReferences = $this->followLinks($currentReferences);
+            $currentPath = rtrim($currentPath, '/');
+
+            // Search the nested entries if desired
+            foreach ($currentReferences as $baseFilesystemPath) {
+                // Ignore null values and file paths
+                if (!is_dir($baseFilesystemPath)) {
+                    continue;
+                }
+
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator(
+                        $baseFilesystemPath,
+                        RecursiveDirectoryIterator::CURRENT_AS_PATHNAME
+                            | RecursiveDirectoryIterator::SKIP_DOTS
                     ),
-                    // Limit the recursion to the depth of the path + 1
-                    substr_count($path, '/') + 1
-                ),
-                '~^'.preg_quote(rtrim($path, '/'), '~').'/[^/]+$~'
-            )
-        );
+                    RecursiveIteratorIterator::SELF_FIRST
+                );
+
+                if (0 !== $maxDepth) {
+                    $currentDepth = $this->getPathDepth($currentPath);
+                    $maxIteratorDepth = $maxDepth - $currentDepth;
+
+                    if ($maxIteratorDepth < 1) {
+                        continue;
+                    }
+
+                    $iterator->setMaxDepth($maxIteratorDepth);
+                }
+
+                $basePathLength = strlen($baseFilesystemPath);
+
+                foreach ($iterator as $nestedFilesystemPath) {
+                    $nestedPath = substr_replace($nestedFilesystemPath, $currentPath, 0, $basePathLength);
+
+                    if (!isset($result[$nestedPath]) && preg_match($regex, $nestedPath)) {
+                        $result[$nestedPath] = $nestedFilesystemPath;
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 
-    private function getDeleteIterator($query)
+    private function followLinks(array $references, $stopOnFirst = false)
     {
-        return new FilterMatchesIterator(
-            new FilterReferencesIterator(
-                $this->json,
-                Glob::getBasePath($query),
-                $this->baseDirectory
-            ),
-            Glob::toRegEx($query)
-        );
+        $result = array();
+
+        foreach ($references as $key => $reference) {
+            // Not a link
+            if (!isset($reference{0}) || '@' !== $reference{0}) {
+                $result[] = $reference;
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            $referencedPath = substr($reference, 1);
+
+            // Get all the file system paths that this link points to
+            // and append them to the result
+            foreach ($this->filterReferences($referencedPath, $stopOnFirst) as $referencedReferences) {
+                // Follow links recursively
+                $referencedReferences = $this->followLinks($referencedReferences);
+
+                // Append all resulting target paths to the result
+                foreach ($referencedReferences as $referencedReference) {
+                    $result[] = $referencedReference;
+
+                    if ($stopOnFirst) {
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    private function filterReferences($searchPath, $stopOnFirst = false, $includeNested = false)
+    {
+        $result = array();
+        $foundMatchingMappings = false;
+        $searchPathForTest = rtrim($searchPath, '/').'/';
+
+        foreach ($this->json as $currentPath => $currentReferences) {
+            $currentPathForTest = rtrim($currentPath, '/').'/';
+
+            // We found a mapping that matches the search path
+            // e.g. mapping /a/b for path /a/b
+            if ($searchPathForTest === $currentPathForTest) {
+                $foundMatchingMappings = true;
+                $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst);
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            // We found a mapping that lies within the search path
+            // e.g. mapping /a/b/c for path /a/b
+            if ($includeNested && 0 === strpos($currentPathForTest, $searchPathForTest)) {
+                $foundMatchingMappings = true;
+                $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst);
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            // We found a mapping that is an ancestor of the search path
+            // e.g. mapping /a for path /a/b
+            if (0 === strpos($searchPathForTest, $currentPathForTest)) {
+                $foundMatchingMappings = true;
+                $nestedPath = substr($searchPath, strlen($currentPathForTest));
+                $currentPathWithNested = rtrim($currentPath, '/').'/'.$nestedPath;
+
+                // Follow links so that we can check the nested directories in
+                // the final transitive link targets
+                $currentReferencesResolved = $this->followLinks(
+                    // Never stop on first, since appendNestedPath() might
+                    // discard the first but accept the second entry
+                    $this->resolveReferences($currentReferences, false),
+                    // Never stop on first (see above)
+                    false
+                );
+
+                // Append the path and check which of the resulting paths exist
+                $nestedReferences = $this->appendPathAndFilterExisting(
+                    $currentReferencesResolved,
+                    $nestedPath,
+                    $stopOnFirst
+                );
+
+                // None of the results exists
+                if (empty($nestedReferences)) {
+                    continue;
+                }
+
+                if ($stopOnFirst) {
+                    return array($currentPathWithNested => $nestedReferences);
+                }
+
+                // We are traversing long keys before short keys
+                // It could be that this entry already exists. In that case,
+                // append our findings to the existing ones
+                if (isset($result[$currentPathWithNested])) {
+                    $result[$currentPathWithNested] = array_merge(
+                        $result[$currentPathWithNested],
+                        $nestedReferences
+                    );
+                } else {
+                    $result[$currentPathWithNested] = $nestedReferences;
+                }
+
+                continue;
+            }
+
+            // We did not find anything but previously found mappings
+            // The mappings are sorted alphabetically, so we can safely abort
+            if ($foundMatchingMappings) {
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    private function appendPathAndFilterExisting(array $references, $nestedPath, $stopOnFirst = false)
+    {
+        $result = array();
+
+        foreach ($references as $reference) {
+            $nestedReference = rtrim($reference, '/').'/'.$nestedPath;
+
+            if (file_exists($nestedReference)) {
+                $result[] = $nestedReference;
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Resolves a list of references stored in the JSON.
+     *
+     * @param string|string[] $references The reference(s).
+     *
+     * @return string[]|null[] The references indexed by numeric keys. Each
+     *                         reference is either a link starting with "@",
+     *                         an absolute file system path to a file or
+     *                         directory or `null` for virtual resources.
+     */
+    private function resolveReferences($references, $stopOnFirst = false)
+    {
+        $result = array();
+
+        if (!is_array($references)) {
+            $references = array($references);
+        }
+
+        foreach ($references as $key => $reference) {
+            if (null === $reference) {
+                $result[] = null;
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            if (isset($reference{0}) && '@' === $reference{0}) {
+                // Include links as they are
+                $result[] = $reference;
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            $filesystemPath = Path::makeAbsolute($reference, $this->baseDirectory);
+
+            if (!file_exists($filesystemPath)) {
+                // Houston we got a problem
+            }
+
+            $result[] = $filesystemPath;
+
+            if ($stopOnFirst) {
+                return $result;
+            }
+        }
+
+        return $result;
+    }
+
+    private function getPathDepth($path)
+    {
+        // / has depth 0
+        // /webmozart has depth 1
+        // /webmozart/puli has depth 2
+        // ...
+        return substr_count(rtrim($path, '/'), '/');
     }
 
 //
@@ -580,45 +821,4 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 //
 //        return $result;
 //    }
-
-    private function isMappedPath($path)
-    {
-        // The root is always considered mapped
-        if ('/' === $path) {
-            return true;
-        }
-
-        foreach ($this->json as $mappedPath => $reference) {
-            if (0 === strpos($mappedPath.'/', $path.'/')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function getDirectoryIterator($filesystemPath)
-    {
-        return new RecursiveDirectoryIterator(
-            $filesystemPath,
-            RecursiveDirectoryIterator::CURRENT_AS_PATHNAME | RecursiveDirectoryIterator::SKIP_DOTS
-        );
-    }
-
-    private function appendDirectoryEntries($path, $filesystemPath, array &$results, $firstResultOnly = false)
-    {
-        $directoryIterator = $this->getDirectoryIterator($filesystemPath);
-
-        foreach ($directoryIterator as $childFilesystemPath) {
-            $childPath = substr_replace($childFilesystemPath, $path, 0, strlen($filesystemPath));
-
-            if (!isset($results[$childPath])) {
-                $results[$childPath] = $this->createResource($childFilesystemPath, $childPath);
-
-                if ($firstResultOnly) {
-                    break;
-                }
-            }
-        }
-    }
 }

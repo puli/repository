@@ -109,17 +109,13 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
                 $this->addResource($path.'/'.$child->getName(), $child);
             }
 
-            ksort($this->json);
-            ksort($this->resources);
+            $this->flush();
 
             return;
         }
 
         $this->ensureDirectoryExists(Path::getDirectory($path));
         $this->addResource($path, $resource);
-
-        ksort($this->json);
-        ksort($this->resources);
 
         $this->flush();
     }
@@ -164,9 +160,13 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      */
     protected function createResource($reference, $path = null)
     {
+        if (null === $reference) {
+            return $this->createVirtualResource($path);
+        }
+
         // Link resource
         if (isset($reference{0}) && '@' === $reference{0}) {
-            return $this->createLinkResource(substr($reference, 2), $path);
+            return $this->createLinkResource(substr($reference, 1), $path);
         }
 
         // Filesystem resource
@@ -248,10 +248,26 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->json = file_exists($this->path)
             ? $decoder->decodeFile($this->path, $this->schemaPath)
             : array();
+
+        // The root node always exists
+        if (!isset($this->json['/'])) {
+            $this->json['/'] = null;
+        }
+
+        // Make sure the JSON is sorted in reverse order
+        krsort($this->json);
     }
 
     protected function flush()
     {
+        // The root node always exists
+        if (!isset($this->json['/'])) {
+            $this->json['/'] = null;
+        }
+
+        // Always save in reverse order
+        krsort($this->json);
+
         $this->encoder->encodeFile($this->json, $this->path, $this->schemaPath);
     }
 

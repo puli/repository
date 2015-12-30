@@ -21,8 +21,6 @@ use Webmozart\PathUtil\Path;
  */
 class ReferenceIterator extends ArrayIterator
 {
-    private $json;
-
     private $path;
 
     private $baseDirectory;
@@ -33,7 +31,6 @@ class ReferenceIterator extends ArrayIterator
 
         parent::__construct(is_array($reference) ? $reference : array($reference));
 
-        $this->json = &$json;
         $this->path = $path;
         $this->baseDirectory = $baseDirectory;
     }
