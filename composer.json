@@ -16,7 +16,7 @@
         "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "webmozart/json": "^1.0",
+        "webmozart/json": "^1.2",
         "symfony/filesystem": "^2.0|^3.0",
         "phpunit/phpunit": "^4.6",
         "sebastian/version": "^1.0.1"

@@ -35,7 +35,7 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
 
     protected function createPrefilledRepository(PuliResource $root)
     {
-        $repo = new JsonRepository($this->path, $this->tempDir);
+        $repo = new JsonRepository($this->path, $this->tempDir, null, true);
         $repo->add('/', $root);
 
         return $repo;
@@ -43,7 +43,7 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
 
     protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new JsonRepository($this->path, $this->tempDir, $stream);
+        return new JsonRepository($this->path, $this->tempDir, $stream, true);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
@@ -106,7 +106,7 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
     {
         $json = <<<JSON
 {
-    "/webmozart/foo": ["fixtures/dir5"]
+    "/webmozart/foo": "fixtures/dir5"
 }
 
 JSON;
@@ -136,8 +136,8 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/webmozart": ["fixtures/dir5"],
-    "/webmozart/sub/file1": ["fixtures/dir5/file1"]
+    "/webmozart": "fixtures/dir5",
+    "/webmozart/sub/file1": "fixtures/dir5/file1"
 }
 
 JSON;
@@ -168,8 +168,8 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/webmozart": ["fixtures"],
-    "/webmozart/dir5/sub/file1": ["fixtures/dir5/file1"]
+    "/webmozart": "fixtures",
+    "/webmozart/dir5/sub/file1": "fixtures/dir5/file1"
 }
 
 JSON;
@@ -201,8 +201,8 @@ JSON;
         $json = <<<JSON
 {
     "/webmozart": ["fixtures", "fixtures/dir3", "fixtures/dir4", "fixtures/dir5", "fixtures/dir1"],
-    "/webmozart/sub/virtualfile1": ["fixtures/dir1/file1"],
-    "/webmozart/sub/virtualfile2": ["fixtures/dir1/file2"]
+    "/webmozart/sub/virtualfile1": "fixtures/dir1/file1",
+    "/webmozart/sub/virtualfile2": "fixtures/dir1/file2"
 }
 
 JSON;
@@ -350,8 +350,8 @@ JSON;
     {
         $json = <<<JSON
 {
-    "/webmozart/dir": ["fixtures/dir5"],
-    "/webmozart/file": ["fixtures/dir5/file1"]
+    "/webmozart/dir": "fixtures/dir5",
+    "/webmozart/file": "fixtures/dir5/file1"
 }
 
 JSON;

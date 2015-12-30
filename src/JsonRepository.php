@@ -46,11 +46,32 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      */
     protected function insertReference($path, $reference)
     {
+        if ('@' !== $reference{0} && is_file($reference)) {
+            // Files replace anything that was in the repository previously
+            $this->json[$path] = $reference;
+
+            return;
+        }
+
         if (!isset($this->json[$path])) {
-            $this->json[$path] = array();
+            // Store first entries as simple reference
+            $this->json[$path] = $reference;
+
+            return;
+        }
+
+        if ($reference === $this->json[$path]) {
+            // Reference is already set
+            return;
+        }
+
+        if (!is_array($this->json[$path])) {
+            // Convert existing entries to arrays for follow ups
+            $this->json[$path] = array($this->json[$path]);
         }
 
         if (!in_array($reference, $this->json[$path], true)) {
+            // Insert at the beginning of the array
             array_unshift($this->json[$path], $reference);
         }
     }

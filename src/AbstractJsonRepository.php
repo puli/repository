@@ -77,15 +77,21 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      * @param ChangeStream|null $changeStream  If provided, the repository will
      *                                         append resource changes to this
      *                                         change stream.
+     * @param bool              $validateJson  Whether to validate the JSON file
+     *                                         against the schema. Slow but
+     *                                         spots problems.
      */
-    public function __construct($path, $baseDirectory, ChangeStream $changeStream = null)
+    public function __construct($path, $baseDirectory, ChangeStream $changeStream = null, $validateJson = false)
     {
         parent::__construct($changeStream);
 
         $this->baseDirectory = $baseDirectory;
         $this->path = Path::makeAbsolute($path, $baseDirectory);
-//        $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
         $this->encoder = new JsonEncoder();
+
+        if ($validateJson) {
+            $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
+        }
     }
 
     /**
@@ -270,9 +276,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      *
      * The path reference can be:
      *
-     *  * `null`
      *  * a link starting with `@`
-     *  * a filesystem path relative to the base directory
      *  * an absolute filesystem path
      *
      * @param string      $path      The Puli path.
@@ -375,86 +379,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     {
         $resource->attachTo($this, $path);
 
-        $this->insertReference($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
-    }
-
-    /**
-     * Resolves a list of references stored in the JSON.
-     *
-     * Each reference passed in can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * a filesystem path relative to the base directory
-     *  * an absolute filesystem path
-     *
-     * Each reference returned by this method can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * an absolute filesystem path
-     *
-     * Additionally, the results are guaranteed to be an array. If the
-     * argument `$stopOnFirst` is set, that array has a maximum size of 1.
-     *
-     * @param mixed $references  The reference(s).
-     * @param bool  $stopOnFirst Whether to stop after finding a first result.
-     *
-     * @return string[]|null[] The resolved references.
-     */
-    private function resolveReferences($references, $stopOnFirst = false)
-    {
-        if (!is_array($references)) {
-            $references = array($references);
-        }
-
-        foreach ($references as $key => $reference) {
-            if (null !== $reference && !(isset($reference{0}) && '@' === $reference{0})) {
-                $reference = Path::makeAbsolute($reference, $this->baseDirectory);
-
-                // Ignore non-existing files. Not sure this is the right
-                // thing to do.
-                if (file_exists($reference)) {
-                    $references[$key] = $reference;
-                }
-            }
-
-            if ($stopOnFirst) {
-                return $references;
-            }
-        }
-
-        return $references;
-    }
-
-    /**
-     * Resolves a reference stored in the JSON.
-     *
-     * The passed reference can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * a filesystem path relative to the base directory
-     *  * an absolute filesystem path
-     *
-     * The returned reference can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * an absolute filesystem path
-     *
-     * @param string|null $reference The reference stored in the JSON.
-     *
-     * @return string|null The resolved reference.
-     */
-    protected function resolveReference($reference)
-    {
-        // Keep null and links
-        if (null === $reference || (isset($reference{0}) && '@' === $reference{0})) {
-            return $reference;
-        }
-
-        return Path::makeAbsolute($reference, $this->baseDirectory);
+        $this->insertReference($path, $resource->getFilesystemPath());
     }
 
     /**
@@ -488,10 +413,9 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     private function load()
     {
         $decoder = new JsonDecoder();
-        $decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
 
         $this->json = file_exists($this->path)
-            ? $decoder->decodeFile($this->path, $this->schemaPath)
+            ? (array) $decoder->decodeFile($this->path, $this->schemaPath)
             : array();
 
         // The root node always exists
@@ -516,7 +440,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         // Always save in reverse order
         krsort($this->json);
 
-        $this->encoder->encodeFile($this->json, $this->path, $this->schemaPath);
+        $this->encoder->encodeFile((object) $this->json, $this->path, $this->schemaPath);
     }
 
     /**

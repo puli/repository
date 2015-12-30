@@ -27,7 +27,7 @@ class OptimizedJsonRepositoryTest extends AbstractJsonRepositoryTest
 {
     protected function createPrefilledRepository(PuliResource $root)
     {
-        $repo = new OptimizedJsonRepository($this->path, $this->tempDir);
+        $repo = new OptimizedJsonRepository($this->path, $this->tempDir, null, true);
         $repo->add('/', $root);
 
         return $repo;
@@ -35,7 +35,7 @@ class OptimizedJsonRepositoryTest extends AbstractJsonRepositoryTest
 
     protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new OptimizedJsonRepository($this->path, $this->tempDir, $stream);
+        return new OptimizedJsonRepository($this->path, $this->tempDir, $stream, true);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
@@ -127,8 +127,8 @@ class OptimizedJsonRepositoryTest extends AbstractJsonRepositoryTest
 {
     "/": null,
     "/webmozart": null,
-    "/webmozart/dir": ["fixtures/dir5"],
-    "/webmozart/file": ["fixtures/dir5/file1"]
+    "/webmozart/dir": "fixtures/dir5",
+    "/webmozart/file": "fixtures/dir5/file1"
 }
 
 JSON;
