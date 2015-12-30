@@ -60,6 +60,14 @@ class NullRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
+    public function getStack($path)
+    {
+        throw ResourceNotFoundException::forPath($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function find($query, $language = 'glob')
     {
         return new ArrayResourceCollection();

@@ -12,7 +12,7 @@
 namespace Puli\Repository;
 
 use Iterator;
-use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\BodyResource;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
@@ -61,7 +61,7 @@ use Webmozart\PathUtil\Path;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepository extends AbstractRepository implements EditableRepository
+class FilesystemRepository extends AbstractEditableRepository
 {
     /**
      * @var bool|null
@@ -112,19 +112,23 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
     /**
      * Creates a new repository.
      *
-     * @param string $baseDir  The base directory of the repository on the file
-     *                         system.
-     * @param bool   $symlink  Whether to use symbolic links for added files. If
-     *                         symbolic links are not supported on the current
-     *                         system, the repository will create hard copies
-     *                         instead.
-     * @param bool   $relative Whether to create relative symbolic links. If
-     *                         relative links are not supported on the current
-     *                         system, the repository will create absolute links
-     *                         instead.
+     * @param string            $baseDir      The base directory of the repository on the file
+     *                                        system.
+     * @param bool              $symlink      Whether to use symbolic links for added files. If
+     *                                        symbolic links are not supported on the current
+     *                                        system, the repository will create hard copies
+     *                                        instead.
+     * @param bool              $relative     Whether to create relative symbolic links. If
+     *                                        relative links are not supported on the current
+     *                                        system, the repository will create absolute links
+     *                                        instead.
+     * @param ChangeStream|null $changeStream If provided, the repository will log
+     *                                        resources changes in this change stream.
      */
-    public function __construct($baseDir = '/', $symlink = true, $relative = true)
+    public function __construct($baseDir = '/', $symlink = true, $relative = true, ChangeStream $changeStream = null)
     {
+        parent::__construct($changeStream);
+
         Assert::directory($baseDir);
         Assert::boolean($symlink);
 
@@ -293,6 +297,13 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
             ));
         }
 
+        // Don't modify resources attached to other repositories
+        if ($resource->isAttached()) {
+            $resource = clone $resource;
+        }
+
+        $resource->attachTo($this, $path);
+
         if ($this->symlink && $checkParentsForSymlinks) {
             $this->replaceParentSymlinksByCopies($path);
         }
@@ -305,6 +316,8 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
             } else {
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
+
+            $this->appendToChangeStream($resource);
 
             return;
         }
@@ -320,11 +333,15 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
 
             $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
 
+            $this->appendToChangeStream($resource);
+
             return;
         }
 
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
+
+            $this->appendToChangeStream($resource);
 
             return;
         }
@@ -340,6 +357,8 @@ class FilesystemRepository extends AbstractRepository implements EditableReposit
         foreach ($resource->listChildren() as $child) {
             $this->addResource($path.'/'.$child->getName(), $child, false);
         }
+
+        $this->appendToChangeStream($resource);
     }
 
     private function removeResource($filesystemPath, &$removed)

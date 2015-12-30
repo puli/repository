@@ -15,6 +15,7 @@ use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\Resource\ResourceMetadata;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\ChangeStream\ResourceStack;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
@@ -120,6 +121,18 @@ class GenericResource implements PuliResource
         }
 
         return $children;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStack()
+    {
+        if (!$this->getRepository()) {
+            return new ResourceStack(array($this));
+        }
+
+        return $this->getRepository()->getStack($this->getRepositoryPath());
     }
 
     /**

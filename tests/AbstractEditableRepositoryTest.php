@@ -11,7 +11,10 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\ChangeStream\InMemoryChangeStream;
+use Puli\Repository\InMemoryRepository;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
@@ -58,9 +61,11 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
+     * @param ChangeStream|null $stream
+     *
      * @return EditableRepository
      */
-    abstract protected function createWriteRepository();
+    abstract protected function createWriteRepository(ChangeStream $stream = null);
 
     /**
      * @param EditableRepository $writeRepo
@@ -113,6 +118,31 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/file', $file->getPath());
         $this->assertSame($this->readRepo, $file->getRepository());
         $this->assertSame(TestFile::BODY, $file->getBody());
+    }
+
+    public function testAddAttachesResourceToRepository()
+    {
+        $resource = $this->buildStructure($this->createFile());
+
+        $this->writeRepo->add('/webmozart/puli/file', $resource);
+
+        $this->assertSame('/webmozart/puli/file', $resource->getPath());
+        $this->assertSame('/webmozart/puli/file', $resource->getRepositoryPath());
+        $this->assertSame($this->writeRepo, $resource->getRepository());
+    }
+
+    public function testAddClonesAlreadyAttachedResourceToRepository()
+    {
+        $otherRepo = new InMemoryRepository();
+
+        $resource = $this->buildStructure($this->createFile());
+        $resource->attachTo($otherRepo, '/other-repo-path');
+
+        $this->writeRepo->add('/webmozart/puli/file', $resource);
+
+        $this->assertSame('/other-repo-path', $resource->getPath());
+        $this->assertSame('/other-repo-path', $resource->getRepositoryPath());
+        $this->assertSame($otherRepo, $resource->getRepository());
     }
 
     public function testAddMergesResourceChildren()
@@ -487,5 +517,41 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $link = new LinkResource('/webmozart/file');
         $link->getTarget();
+    }
+
+    public function testChangeStreamGetStack()
+    {
+        $stream = new InMemoryChangeStream();
+
+        $this->writeRepo = $this->createWriteRepository($stream);
+        $this->writeRepo->add('/path', $v1 = new FileResource(__DIR__.'/Fixtures/dir1/file1'));
+        $this->writeRepo->add('/path', $v2 = new FileResource(__DIR__.'/Fixtures/dir1/file2'));
+        $this->writeRepo->add('/path', $v3 = new FileResource(__DIR__.'/Fixtures/dir2/file2'));
+
+        $resourceStack = $this->writeRepo->getStack('/path');
+
+        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $resourceStack);
+        $this->assertCount(3, $resourceStack->getVersions());
+        $this->assertFileResourcesEquals($v1, $resourceStack->getFirst());
+        $this->assertFileResourcesEquals($v1, $resourceStack->get(0));
+        $this->assertFileResourcesEquals($v2, $resourceStack->get(1));
+        $this->assertFileResourcesEquals($v3, $resourceStack->get(2));
+        $this->assertFileResourcesEquals($v3, $resourceStack->getCurrent());
+        $this->assertEquals(array(0, 1, 2), $resourceStack->getVersions());
+    }
+
+    private function assertFileResourcesEquals(FileResource $excepted, $actual)
+    {
+        $this->assertInstanceOf(get_class($excepted), $actual);
+        $this->assertEquals($excepted->getFilesystemPath(), $actual->getFilesystemPath());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testChangeStreamBuildStackOfInvalidResource()
+    {
+        $this->writeRepo = $this->createWriteRepository(new InMemoryChangeStream());
+        $this->writeRepo->getStack('/invalid');
     }
 }

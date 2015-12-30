@@ -13,6 +13,7 @@ namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
 use Puli\Repository\Api\Resource\PuliResource;
+use Puli\Repository\ChangeStream\ResourceStack;
 
 /**
  * Stores {@link PuliResource} objects.
@@ -38,6 +39,7 @@ use Puli\Repository\Api\Resource\PuliResource;
  * @since  1.0
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Titouan Galopin <galopintitouan@gmail.com>
  */
 interface ResourceRepository
 {
@@ -54,6 +56,17 @@ interface ResourceRepository
      *                                   be a non-empty string starting with "/".
      */
     public function get($path);
+
+    /**
+     * Build and return the resources stack of a given path.
+     *
+     * @param string $path The path to build the stack of.
+     *
+     * @throws UnsupportedOperationException If no ChangeStream is configured.
+     *
+     * @return ResourceStack The resource stack of the path.
+     */
+    public function getStack($path);
 
     /**
      * Returns the resources matching a query.

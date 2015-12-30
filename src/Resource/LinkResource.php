@@ -114,4 +114,18 @@ class LinkResource extends GenericResource implements PuliResource
 
         return $children;
     }
+
+    protected function preSerialize(array &$data)
+    {
+        parent::preSerialize($data);
+
+        $data[] = $this->targetPath;
+    }
+
+    protected function postUnserialize(array $data)
+    {
+        $this->targetPath = array_pop($data);
+
+        parent::postUnserialize($data);
+    }
 }

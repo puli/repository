@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\FilesystemRepository;
@@ -70,9 +71,9 @@ class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemReposito
         return $repo;
     }
 
-    protected function createWriteRepository()
+    protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new FilesystemRepository($this->tempDir, true, false);
+        return new FilesystemRepository($this->tempDir, true, false, $stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

@@ -12,7 +12,7 @@
 namespace Puli\Repository;
 
 use ArrayIterator;
-use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
@@ -41,7 +41,7 @@ use Webmozart\PathUtil\Path;
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class InMemoryRepository extends AbstractRepository implements EditableRepository
+class InMemoryRepository extends AbstractEditableRepository
 {
     /**
      * @var PuliResource[]
@@ -49,10 +49,15 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
     private $resources = array();
 
     /**
-     * Creates a new repository.
+     * Create the repository.
+     *
+     * @param ChangeStream|null $changeStream If provided, the repository will log
+     *                                        resources changes in this change stream.
      */
-    public function __construct()
+    public function __construct(ChangeStream $changeStream = null)
     {
+        parent::__construct($changeStream);
+
         $this->clear();
     }
 
@@ -238,6 +243,8 @@ class InMemoryRepository extends AbstractRepository implements EditableRepositor
         foreach ($children as $name => $child) {
             $this->addResource($basePath.$name, $child);
         }
+
+        $this->appendToChangeStream($resource);
     }
 
     private function removeResource(PuliResource $resource)

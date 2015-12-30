@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\InMemoryRepository;
@@ -41,9 +42,9 @@ class InMemoryRepositoryTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createWriteRepository()
+    protected function createWriteRepository(ChangeStream $stream = null)
     {
-        return new InMemoryRepository();
+        return new InMemoryRepository($stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

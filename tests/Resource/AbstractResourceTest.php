@@ -13,7 +13,9 @@ namespace Puli\Repository\Tests\Resource;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use PHPUnit_Framework_TestCase;
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
+use Puli\Repository\ChangeStream\ResourceStack;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
 /**
@@ -561,5 +563,23 @@ abstract class AbstractResourceTest extends PHPUnit_Framework_TestCase
         $resource = $this->createResource();
 
         $this->assertFalse($resource->hasChildren());
+    }
+
+    public function testGetStack()
+    {
+        $repo = $this->getMock('Puli\Repository\Api\ResourceRepository');
+
+        $resource = $this->createResource('/path');
+        $resource->attachTo($repo);
+
+        $stack = new ResourceStack(array($resource));
+
+        $repo->expects($this->once())
+            ->method('getStack')
+            // use the repository path, not the reference path
+            ->with('/path')
+            ->will($this->returnValue($stack));
+
+        $this->assertSame($stack, $repo->getStack('/path'));
     }
 }
