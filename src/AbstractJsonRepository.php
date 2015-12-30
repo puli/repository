@@ -17,11 +17,13 @@ use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\UnsupportedResourceException;
+use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\GenericResource;
 use Puli\Repository\Resource\LinkResource;
 use RuntimeException;
+use Webmozart\Assert\Assert;
 use Webmozart\Json\JsonDecoder;
 use Webmozart\Json\JsonEncoder;
 use Webmozart\PathUtil\Path;
@@ -45,11 +47,6 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      * @var string
      */
     protected $baseDirectory;
-
-    /**
-     * @var PuliResource[]
-     */
-    protected $resources = array();
 
     /**
      * @var string
@@ -120,127 +117,375 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->flush();
     }
 
-    protected function getResource($path)
+    /**
+     * {@inheritdoc}
+     */
+    public function get($path)
     {
-            try {
-                // A resource that points to a file could be found
-                return $this->createResource(
-                    $this->getReferences($path),
-                    $path
-                );
-            } catch (ResourceNotFoundException $e) {
-                // No resource pointing to a file could be found
-                // Maybe we are dealing with a virtual node?
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $path = $this->sanitizePath($path);
+        $references = $this->getReferencesForPath($path);
+
+        // Might be null, don't use isset()
+        if (array_key_exists($path, $references)) {
+            return $this->createResource($path, $references[$path]);
+        }
+
+        throw ResourceNotFoundException::forPath($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function find($query, $language = 'glob')
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $this->validateSearchLanguage($language);
+        $query = $this->sanitizePath($query);
+        $results = $this->createResources($this->getReferencesForGlob($query));
+
+        ksort($results);
+
+        return new ArrayResourceCollection(array_values($results));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function contains($query, $language = 'glob')
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $this->validateSearchLanguage($language);
+        $query = $this->sanitizePath($query);
+
+        // Stop on the first result
+        $results = $this->getReferencesForGlob($query, true);
+
+        return !empty($results);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove($query, $language = 'glob')
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $this->validateSearchLanguage($language);
+        $query = $this->sanitizePath($query);
+
+        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
+
+        $removed = $this->removeReferences($query);
+
+        $this->flush();
+
+        return $removed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        // Subtract root which is not deleted
+        $removed = count($this->getReferencesForRegex('/', '~.~')) - 1;
+
+        $this->json = array();
+
+        $this->flush();
+
+        return $removed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listChildren($path)
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $path = $this->sanitizePath($path);
+        $results = $this->createResources($this->getReferencesInDirectory($path));
+
+        if (empty($results)) {
+            $pathResults = $this->getReferencesForPath($path);
+
+            if (empty($pathResults)) {
+                throw ResourceNotFoundException::forPath($path);
+            }
+        }
+
+        ksort($results);
+
+        return new ArrayResourceCollection(array_values($results));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChildren($path)
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        $path = $this->sanitizePath($path);
+
+        // Stop on the first result
+        $results = $this->getReferencesInDirectory($path, true);
+
+        if (empty($results)) {
+            $pathResults = $this->getReferencesForPath($path);
+
+            if (empty($pathResults)) {
+                throw ResourceNotFoundException::forPath($path);
             }
 
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Add the filesystem resource.
+     * Inserts a path reference into the JSON file.
      *
-     * @param string             $path
-     * @param FilesystemResource $resource
+     * The path reference can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path relative to the base directory
+     *  * an absolute filesystem path
+     *
+     * @param string      $path      The Puli path.
+     * @param string|null $reference The path reference.
      */
-    abstract protected function addFilesystemResource($path, FilesystemResource $resource);
+    abstract protected function insertReference($path, $reference);
 
     /**
-     * Add the link resource.
+     * Removes all path references matching the given glob from the JSON file.
      *
-     * @param string       $path
-     * @param LinkResource $resource
+     * @param string $glob The glob for a list of Puli paths.
      */
-    abstract protected function addLinkResource($path, LinkResource $resource);
+    abstract protected function removeReferences($glob);
 
     /**
-     * Create a filesystem or generic resource.
+     * Returns the references for a given Puli path.
      *
-     * @param string|null $reference
+     * Each reference returned by this method can be:
      *
-     * @return DirectoryResource|FileResource|GenericResource
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The result has either one entry or none, if no path was found. The key
+     * of the single entry is the path passed to this method.
+     *
+     * @param string $path The Puli path.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys. The array has at most one entry.
      */
-    protected function createResource($reference, $path = null)
+    abstract protected function getReferencesForPath($path);
+
+    /**
+     * Returns the references matching a given Puli path glob.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param string $glob        The glob.
+     * @param bool   $stopOnFirst Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
+    abstract protected function getReferencesForGlob($glob, $stopOnFirst = false);
+
+    /**
+     * Returns the references matching a given Puli path regular expression.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param string $staticPrefix The static prefix of all Puli paths matching
+     *                             the regular expression.
+     * @param string $regex        The regular expression.
+     * @param bool   $stopOnFirst  Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
+    abstract protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false);
+
+    /**
+     * Returns the references in a given Puli path.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param string $path        The Puli path.
+     * @param bool   $stopOnFirst Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
+    abstract protected function getReferencesInDirectory($path, $stopOnFirst = false);
+
+    /**
+     * Adds a filesystem resource to the JSON file.
+     *
+     * @param string             $path     The Puli path.
+     * @param FilesystemResource $resource The resource to add.
+     */
+    protected function addFilesystemResource($path, FilesystemResource $resource)
     {
-        if (null === $reference) {
-            return $this->createVirtualResource($path);
-        }
-
-        // Link resource
-        if (isset($reference{0}) && '@' === $reference{0}) {
-            return $this->createLinkResource(substr($reference, 1), $path);
-        }
-
-        // Filesystem resource
-        return $this->createFilesystemResource($reference, $path);
-    }
-
-    /**
-     * Create a link resource to another resource of the repository.
-     *
-     * @param string      $targetPath The target path.
-     * @param string|null $path       The repository path.
-     *
-     * @return LinkResource The link resource.
-     *
-     * @throws RuntimeException If the targeted resource does not exist.
-     */
-    protected function createLinkResource($targetPath, $path = null)
-    {
-        $resource = new LinkResource($targetPath);
         $resource->attachTo($this, $path);
 
-        return $resource;
+        $this->insertReference($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
     }
 
     /**
-     * Create a resource using its filesystem path.
+     * Resolves a list of references stored in the JSON.
      *
-     * If the filesystem path is a directory, a DirectoryResource will be created.
-     * If the filesystem path is a file, a FileResource will be created.
-     * If the filesystem does not exists, a GenericResource will be created.
+     * Each reference passed in can be:
      *
-     * @param string      $filesystemPath The filesystem path.
-     * @param string|null $path           The repository path.
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path relative to the base directory
+     *  * an absolute filesystem path
      *
-     * @return DirectoryResource|FileResource The created resource.
+     * Each reference returned by this method can be:
      *
-     * @throws RuntimeException If the file / directory does not exist.
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * Additionally, the results are guaranteed to be an array. If the
+     * argument `$stopOnFirst` is set, that array has a maximum size of 1.
+     *
+     * @param mixed $references  The reference(s).
+     * @param bool  $stopOnFirst Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] The resolved references.
      */
-    protected function createFilesystemResource($filesystemPath, $path = null)
+    private function resolveReferences($references, $stopOnFirst = false)
     {
-        $resource = null;
-
-        if (is_dir($filesystemPath)) {
-            $resource = new DirectoryResource($filesystemPath);
-        } elseif (is_file($filesystemPath)) {
-            $resource = new FileResource($filesystemPath);
+        if (!is_array($references)) {
+            $references = array($references);
         }
 
-        if ($resource) {
-            $resource->attachTo($this, $path);
+        foreach ($references as $key => $reference) {
+            if (null !== $reference && !(isset($reference{0}) && '@' === $reference{0})) {
+                $reference = Path::makeAbsolute($reference, $this->baseDirectory);
 
-            return $resource;
+                // Ignore non-existing files. Not sure this is the right
+                // thing to do.
+                if (file_exists($reference)) {
+                    $references[$key] = $reference;
+                }
+            }
+
+            if ($stopOnFirst) {
+                return $references;
+            }
         }
 
-        throw new RuntimeException(sprintf(
-            'Trying to create a FilesystemResource on a non-existing file or directory "%s"',
-            $filesystemPath
-        ));
+        return $references;
     }
 
     /**
-     * @param string|null $path
+     * Resolves a reference stored in the JSON.
      *
-     * @return GenericResource
+     * The passed reference can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path relative to the base directory
+     *  * an absolute filesystem path
+     *
+     * The returned reference can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * @param string|null $reference The reference stored in the JSON.
+     *
+     * @return string|null The resolved reference.
      */
-    protected function createVirtualResource($path = null)
+    protected function resolveReference($reference)
     {
-        $resource = new GenericResource();
-        $resource->attachTo($this, $path);
+        // Keep null and links
+        if (null === $reference || (isset($reference{0}) && '@' === $reference{0})) {
+            return $reference;
+        }
 
-        return $resource;
+        return Path::makeAbsolute($reference, $this->baseDirectory);
     }
 
-    protected function load()
+    /**
+     * Returns whether a reference contains a link.
+     *
+     * @param string $reference The reference.
+     *
+     * @return bool Whether the reference contains a link.
+     */
+    protected function isLinkReference($reference)
+    {
+        return isset($reference{0}) && '@' === $reference{0};
+    }
+
+    /**
+     * Returns whether a reference contains an absolute or relative filesystem
+     * path.
+     *
+     * @param string $reference The reference.
+     *
+     * @return bool Whether the reference contains a filesystem path.
+     */
+    protected function isFilesystemReference($reference)
+    {
+        return null !== $reference && !$this->isLinkReference($reference);
+    }
+
+    /**
+     * Loads the JSON file.
+     */
+    private function load()
     {
         $decoder = new JsonDecoder();
         $decoder->setObjectDecoding(JsonDecoder::ASSOC_ARRAY);
@@ -258,7 +503,10 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         krsort($this->json);
     }
 
-    protected function flush()
+    /**
+     * Writes the JSON file.
+     */
+    private function flush()
     {
         // The root node always exists
         if (!isset($this->json['/'])) {
@@ -271,6 +519,11 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->encoder->encodeFile($this->json, $this->path, $this->schemaPath);
     }
 
+    /**
+     * Adds all ancestor directories of a path to the repository.
+     *
+     * @param string $path A Puli path.
+     */
     private function ensureDirectoryExists($path)
     {
         if (array_key_exists($path, $this->json)) {
@@ -286,17 +539,74 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     }
 
     /**
-     * Add the resource (internal method after checks of add()).
+     * Turns a reference into a resource.
      *
-     * @param string       $path
-     * @param PuliResource $resource
+     * @param string      $path      The Puli path.
+     * @param string|null $reference The reference.
+     *
+     * @return PuliResource The resource.
+     */
+    private function createResource($path, $reference)
+    {
+        if (null === $reference) {
+            $resource = new GenericResource();
+        } elseif (isset($reference{0}) && '@' === $reference{0}) {
+            $resource = new LinkResource(substr($reference, 1));
+        } elseif (is_dir($reference)) {
+            $resource = new DirectoryResource($reference);
+        } elseif (is_file($reference)) {
+            $resource = new FileResource($reference);
+        } else {
+            throw new RuntimeException(sprintf(
+                'Trying to create a FilesystemResource on a non-existing file or directory "%s"',
+                $reference
+            ));
+        }
+
+        $resource->attachTo($this, $path);
+
+        return $resource;
+    }
+
+    /**
+     * Turns a list of references into a list of resources.
+     *
+     * The references are expected to be in the format returned by
+     * {@link getReferencesForPath()}, {@link getReferencesForGlob()} and
+     * {@link getReferencesInDirectory()}.
+     *
+     * The result contains Puli paths as keys and {@link PuliResource}
+     * implementations as values. The order of the results is undefined.
+     *
+     * @param string[]|null[] $references The references indexed by Puli paths.
+     *
+     * @return array
+     */
+    private function createResources(array $references)
+    {
+        foreach ($references as $path => $reference) {
+            $references[$path] = $this->createResource($path, $reference);
+        }
+
+        return $references;
+    }
+
+    /**
+     * Adds a resource to the repository.
+     *
+     * @param string                          $path     The Puli path to add the
+     *                                                  resource at.
+     * @param FilesystemResource|LinkResource $resource The resource to add.
      */
     private function addResource($path, $resource)
     {
-        if (!($resource instanceof FilesystemResource || $resource instanceof LinkResource)) {
+        if (!$resource instanceof FilesystemResource && !$resource instanceof LinkResource) {
             throw new UnsupportedResourceException(sprintf(
-                'PathMapping repositories only supports FilesystemResource and LinkedResource. Got: %s',
-                is_object($resource) ? get_class($resource) : gettype($resource)
+                'The %s only supports adding FilesystemResource and '.
+                'LinkedResource instances. Got: %s',
+                // Get the short class name
+                $this->getShortClassName(get_class($this)),
+                $this->getShortClassName(get_class($resource))
             ));
         }
 
@@ -306,11 +616,30 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         }
 
         if ($resource instanceof LinkResource) {
-            $this->addLinkResource($path, $resource);
+            $resource->attachTo($this, $path);
+
+            $this->insertReference($path, '@'.$resource->getTargetPath());
         } else {
+            // Extension point for the optimized repository
             $this->addFilesystemResource($path, $resource);
         }
 
         $this->appendToChangeStream($resource);
+    }
+
+    /**
+     * Returns the short name of a fully-qualified class name.
+     *
+     * @param string $className The fully-qualified class name.
+     *
+     * @return string The short class name.
+     */
+    private function getShortClassName($className)
+    {
+        if (false !== ($pos = strrpos($className, '\\'))) {
+            return substr($className, $pos + 1);
+        }
+
+        return $className;
     }
 }

@@ -13,13 +13,8 @@ namespace Puli\Repository;
 
 use BadMethodCallException;
 use Puli\Repository\Api\EditableRepository;
-use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\LinkResource;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
 use Webmozart\PathUtil\Path;
 
@@ -49,205 +44,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * {@inheritdoc}
      */
-    public function get($path)
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $path = $this->sanitizePath($path);
-        $references = $this->getReferencesForPath($path);
-
-        // Might be null, don't use isset()
-        if (array_key_exists($path, $references)) {
-            return $this->createResource($references[$path], $path);
-        }
-
-        throw ResourceNotFoundException::forPath($path);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function find($query, $language = 'glob')
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $this->validateSearchLanguage($language);
-        $query = $this->sanitizePath($query);
-        $results = $this->createResources($this->getReferencesForGlob($query));
-
-        ksort($results);
-
-        return new ArrayResourceCollection(array_values($results));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function contains($query, $language = 'glob')
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $this->validateSearchLanguage($language);
-        $query = $this->sanitizePath($query);
-
-        // Stop on the first result
-        $results = $this->getReferencesForGlob($query, true);
-
-        return !empty($results);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function remove($query, $language = 'glob')
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $this->validateSearchLanguage($language);
-        $query = $this->sanitizePath($query);
-
-        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
-
-        $checkResults = $this->getReferencesForGlob($query);
-        $nonDeletablePaths = array();
-
-        foreach ($checkResults as $path => $filesystemPath) {
-            if (!array_key_exists($path, $this->json)) {
-                $nonDeletablePaths[] = $filesystemPath;
-            }
-        }
-
-        if (count($nonDeletablePaths) === 1) {
-            throw new BadMethodCallException(sprintf(
-                'The remove query "%s" matched a resource that is not a path mapping', $query
-            ));
-        } elseif (count($nonDeletablePaths) > 1) {
-            throw new BadMethodCallException(sprintf(
-                'The remove query "%s" matched %s resources that are not path mappings', $query, count($nonDeletablePaths)
-            ));
-        }
-
-        // Don't stop on the first result
-        // Don't list directories. We only want to list the mappings that exist
-        // in the JSON here.
-        $deletedPaths = $this->getReferencesForGlob($query.'{,/**/*}', false, false);
-        $removed = 0;
-
-        foreach ($deletedPaths as $path => $filesystemPath) {
-            $removed += 1 + count($this->getReferencesForGlob($path.'/**/*'));
-
-            unset($this->json[$path]);
-        }
-
-        $this->flush();
-
-        return $removed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function clear()
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        // Subtract root which is not deleted
-        $removed = count($this->getReferencesForGlob('/**/*')) - 1;
-
-        $this->json = array();
-
-        $this->flush();
-
-        return $removed;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function listChildren($path)
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $path = $this->sanitizePath($path);
-        $results = $this->createResources($this->getReferencesInDirectory($path));
-
-        if (empty($results)) {
-            $pathResults = $this->getReferencesForPath($path);
-
-            if (empty($pathResults)) {
-                throw ResourceNotFoundException::forPath($path);
-            }
-        }
-
-        ksort($results);
-
-        return new ArrayResourceCollection(array_values($results));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasChildren($path)
-    {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $path = $this->sanitizePath($path);
-
-        // Stop on the first result
-        $results = $this->getReferencesInDirectory($path, true);
-
-        if (empty($results)) {
-            $pathResults = $this->getReferencesForPath($path);
-
-            if (empty($pathResults)) {
-                throw ResourceNotFoundException::forPath($path);
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function addFilesystemResource($path, FilesystemResource $resource)
-    {
-        $resource->attachTo($this, $path);
-        $this->insertReference($path, Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function addLinkResource($path, LinkResource $resource)
-    {
-        $resource->attachTo($this, $path);
-        $this->insertReference($path, '@'.$resource->getTargetPath());
-    }
-
-    /**
-     * Add a target path (link or filesystem path) to the beginning of the stack in the store at a path.
-     *
-     * @param string $path
-     * @param string $reference
-     */
-    private function insertReference($path, $reference)
+    protected function insertReference($path, $reference)
     {
         if (!isset($this->json[$path])) {
             $this->json[$path] = array();
@@ -259,119 +56,99 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     }
 
     /**
-     * Turns a list of references into a list of resources.
-     *
-     * The references are expected to be in the format returned by
-     * {@link getReferencesForPath()}, {@link getReferencesForGlob()} and
-     * {@link getReferencesInDirectory()}.
-     *
-     * The result contains Puli paths as keys and {@link PuliResource}
-     * implementations as values. The order of the results is undefined.
-     *
-     * @param string[]|null[] $references The references indexed by Puli paths.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    private function createResources(array $references)
+    protected function removeReferences($glob)
     {
-        foreach ($references as $path => $reference) {
-            $references[$path] = $this->createResource($reference, $path);
+        $checkResults = $this->getReferencesForGlob($glob);
+        $nonDeletablePaths = array();
+
+        foreach ($checkResults as $path => $filesystemPath) {
+            if (!array_key_exists($path, $this->json)) {
+                $nonDeletablePaths[] = $filesystemPath;
+            }
         }
 
-        return $references;
+        if (count($nonDeletablePaths) === 1) {
+            throw new BadMethodCallException(sprintf(
+                'The remove query "%s" matched a resource that is not a path mapping', $glob
+            ));
+        } elseif (count($nonDeletablePaths) > 1) {
+            throw new BadMethodCallException(sprintf(
+                'The remove query "%s" matched %s resources that are not path mappings', $glob, count($nonDeletablePaths)
+            ));
+        }
+
+        // Don't stop on the first result
+        // Don't list directories. We only want to list the mappings that exist
+        // in the JSON here.
+        $deletedPaths = $this->getReferencesForGlob($glob.'{,/**/*}', false, false);
+        $removed = 0;
+
+        foreach ($deletedPaths as $path => $filesystemPath) {
+            $removed += 1 + count($this->getReferencesForGlob($path.'/**/*'));
+
+            unset($this->json[$path]);
+        }
+
+        return $removed;
     }
 
     /**
-     * Returns the references for a given Puli path.
-     *
-     * Each reference returned by this method can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * an absolute filesystem path
-     *
-     * The result has either one entry or none, if no path was found. The key
-     * of the single entry is the path passed to this method.
-     *
-     * @param string $path The Puli path.
-     *
-     * @return string[]|null[] A one-level array of references with Puli paths
-     *                         as keys. The array has at most one entry.
+     * {@inheritdoc}
      */
-    private function getReferencesForPath($path)
+    protected function getReferencesForPath($path)
     {
         // Stop on first result and flatten
         return $this->flatten($this->searchReferences($path, true));
     }
 
     /**
-     * Returns the references matching a given Puli path glob.
-     *
-     * Each reference returned by this method can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * an absolute filesystem path
-     *
-     * The keys of the returned array are Puli paths. Their order is undefined.
-     *
-     * @param string $glob                The glob.
-     * @param bool   $stopOnFirst         Whether to stop after finding a first
-     *                                    result.
-     * @param bool   $traverseDirectories Whether to search the contents of
-     *                                    directories mapped in the JSON for
-     *                                    matches.
-     *
-     * @return string[]|null[] A one-level array of references with Puli paths
-     *                         as keys.
+     * {@inheritdoc}
      */
-    private function getReferencesForGlob($glob, $stopOnFirst = false, $traverseDirectories = true)
+    protected function getReferencesForGlob($glob, $stopOnFirst = false, $traverseDirectories = true)
     {
         if (!Glob::isDynamic($glob)) {
             return $this->getReferencesForPath($glob);
         }
 
-        return $this->flattenWithFilter(
-            // Never stop on the first result before applying the filter since
-            // the filter may reject the only returned path
-            // Include nested path mappings and match them against the pattern
-            $this->searchReferences(Glob::getBasePath($glob), false, true),
+        return $this->getReferencesForRegex(
+            Glob::getBasePath($glob),
             Glob::toRegEx($glob),
-            // Stop on first after applying the filter
             $stopOnFirst,
-            // List directories and match their contents against the pattern
             $traverseDirectories
         );
     }
 
     /**
-     * Returns the references in a given Puli path.
-     *
-     * Each reference returned by this method can be:
-     *
-     *  * `null`
-     *  * a link starting with `@`
-     *  * an absolute filesystem path
-     *
-     * The keys of the returned array are Puli paths. Their order is undefined.
-     *
-     * @param string $path        The Puli path.
-     * @param bool   $stopOnFirst Whether to stop after finding a first result.
-     *
-     * @return string[]|null[] A one-level array of references with Puli paths
-     *                         as keys.
+     * {@inheritdoc}
      */
-    private function getReferencesInDirectory($path, $stopOnFirst = false)
+    protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false, $traverseDirectories = true, $maxDepth = 0)
     {
         return $this->flattenWithFilter(
             // Never stop on the first result before applying the filter since
             // the filter may reject the only returned path
-            // Include nested path matches and test them against the pattern
-            $this->searchReferences($path, false, true),
-            '~^'.preg_quote(rtrim($path, '/'), '~').'/[^/]+$~',
-            // Stop on first after applying the filter
+            // Include nested path mappings and match them against the pattern
+            $this->searchReferences($staticPrefix, false, true),
+            $regex,
             $stopOnFirst,
-            // List directories and match their contents against the glob
+            $traverseDirectories,
+            $maxDepth
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getReferencesInDirectory($path, $stopOnFirst = false)
+    {
+        $basePath = rtrim($path, '/');
+
+        return $this->getReferencesForRegex(
+            $basePath.'/',
+            '~^'.preg_quote($basePath, '~').'/[^/]+$~',
+            $stopOnFirst,
+            // Traverse directories and match their contents against the glob
             true,
             // Limit the directory exploration to the depth of the path + 1
             $this->getPathDepth($path) + 1
@@ -563,7 +340,8 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     {
         $result = array();
         $foundMatchingMappings = false;
-        $searchPathForTest = rtrim($searchPath, '/').'/';
+        $searchPath = rtrim($searchPath, '/');
+        $searchPathForTest = $searchPath.'/';
 
         foreach ($this->json as $currentPath => $currentReferences) {
             $currentPathForTest = rtrim($currentPath, '/').'/';
@@ -680,7 +458,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         foreach ($references as $key => $reference) {
             // Not a link
-            if (!isset($reference{0}) || '@' !== $reference{0}) {
+            if (!$this->isLinkReference($reference)) {
                 $result[] = $reference;
 
                 if ($stopOnFirst) {
@@ -789,7 +567,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
 
         foreach ($references as $key => $reference) {
-            if (null !== $reference && !(isset($reference{0}) && '@' === $reference{0})) {
+            if ($this->isFilesystemReference($reference)) {
                 $reference = Path::makeAbsolute($reference, $this->baseDirectory);
 
                 // Ignore non-existing files. Not sure this is the right

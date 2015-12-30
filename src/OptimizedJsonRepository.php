@@ -52,237 +52,150 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     /**
      * {@inheritdoc}
      */
-    public function find($query, $language = 'glob')
+    protected function insertReference($path, $reference)
     {
-        if (null === $this->json) {
-            $this->load();
-        }
-
-        $this->validateSearchLanguage($language);
-
-        $query = $this->sanitizePath($query);
-        $resources = new ArrayResourceCollection();
-
-        if (Glob::isDynamic($query)) {
-            $resources = $this->iteratorToCollection($this->getGlobIterator($query));
-        } elseif (array_key_exists($query, $this->json)) {
-            $resources = new ArrayResourceCollection(array(
-                $this->createResource($this->json[$query], $query),
-            ));
-        }
-
-        return $resources;
+        $this->json[$path] = $reference;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function contains($query, $language = 'glob')
+    protected function removeReferences($glob)
     {
-        if (null === $this->json) {
-            $this->load();
+        $removed = 0;
+
+        foreach ($this->getReferencesForGlob($glob.'{,/**/*}') as $path => $reference) {
+            ++$removed;
+
+            unset($this->json[$path]);
         }
 
-        if ('glob' !== $language) {
-            throw UnsupportedLanguageException::forLanguage($language);
-        }
-
-        $query = $this->sanitizePath($query);
-
-        if (Glob::isDynamic($query)) {
-            $iterator = $this->getGlobIterator($query);
-            $iterator->rewind();
-
-            return $iterator->valid();
-        }
-
-        return array_key_exists($query, $this->json);
+        return $removed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($query, $language = 'glob')
+    protected function getReferencesForPath($path)
     {
-        if (null === $this->json) {
-            $this->load();
+        if (!array_key_exists($path, $this->json)) {
+            return array();
         }
 
-        $this->validateSearchLanguage($language);
+        $reference = $this->json[$path];
 
-        $query = $this->sanitizePath($query);
-
-        Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
-
-        // Find resources to remove
-        // (more efficient that find() as we do not need to unserialize them)
-        $paths = array();
-
-        if (Glob::isDynamic($query)) {
-            $paths = $this->getGlobIterator($query);
-        } elseif (array_key_exists($query, $this->json)) {
-            $paths = array($query);
+        // We're only interested in the first entry of eventual arrays
+        if (is_array($reference)) {
+            $reference = reset($reference);
         }
 
-        // Remove the resources found
-        $nbOfResources = $this->countStore();
+        if ($this->isFilesystemReference($reference)) {
+            $reference = Path::makeAbsolute($reference, $this->baseDirectory);
 
-        foreach ($paths as $path) {
-            $this->removePath($path);
+            // Ignore non-existing files. Not sure this is the right
+            // thing to do.
+            if (!file_exists($reference)) {
+                return array();
+            }
         }
 
-        $this->flush();
-
-        return $nbOfResources - $this->countStore();
+        return array($path => $reference);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function listChildren($path)
+    protected function getReferencesForGlob($glob, $stopOnFirst = false)
     {
-        if (null === $this->json) {
-            $this->load();
+        if (!Glob::isDynamic($glob)) {
+            return $this->getReferencesForPath($glob);
         }
 
-        $iterator = $this->getChildIterator($this->get($path));
-
-        return $this->iteratorToCollection($iterator);
+        return $this->getReferencesForRegex(
+            Glob::getStaticPrefix($glob),
+            Glob::toRegEx($glob),
+            $stopOnFirst
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasChildren($path)
+    protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false)
     {
-        if (null === $this->json) {
-            $this->load();
+        $result = array();
+        $foundMappingsWithPrefix = false;
+
+        foreach ($this->json as $path => $reference) {
+            if (0 === strpos($path, $staticPrefix)) {
+                $foundMappingsWithPrefix = true;
+
+                if (preg_match($regex, $path)) {
+                    // We're only interested in the first entry of eventual arrays
+                    if (is_array($reference)) {
+                        $reference = reset($reference);
+                    }
+
+                    if ($this->isFilesystemReference($reference)) {
+                        $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+
+                        // Ignore non-existing files. Not sure this is the right
+                        // thing to do.
+                        if (!file_exists($reference)) {
+                            continue;
+                        }
+                    }
+
+                    $result[$path] = $reference;
+
+                    if ($stopOnFirst) {
+                        return $result;
+                    }
+                }
+
+                continue;
+            }
+
+            // We did not find anything but previously found mappings with the
+            // static prefix
+            // The mappings are sorted alphabetically, so we can safely abort
+            if ($foundMappingsWithPrefix) {
+                break;
+            }
         }
 
-        $iterator = $this->getChildIterator($this->get($path));
-        $iterator->rewind();
-
-        return $iterator->valid();
+        return $result;
     }
 
     /**
-     * @param string             $path
-     * @param FilesystemResource $resource
+     * {@inheritdoc}
+     */
+    protected function getReferencesInDirectory($path, $stopOnFirst = false)
+    {
+        $basePath = rtrim($path, '/');
+
+        return $this->getReferencesForRegex(
+            $basePath.'/',
+            '~^'.preg_quote($basePath, '~').'/[^/]+$~',
+            $stopOnFirst
+        );
+    }
+
+    /**
+     * {@inheritdoc}
      */
     protected function addFilesystemResource($path, FilesystemResource $resource)
     {
         // Read children before attaching the resource to this repository
         $children = $resource->listChildren();
 
-        $resource->attachTo($this, $path);
+        parent::addFilesystemResource($path, $resource);
 
-        // Add the resource before adding its children, so that the array stays sorted
-        $this->json[$path] = Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory);
-
+        // Recursively add all child resources
         $basePath = '/' === $path ? $path : $path.'/';
 
         foreach ($children as $name => $child) {
             $this->addFilesystemResource($basePath.$name, $child);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function addLinkResource($path, LinkResource $resource)
-    {
-        $resource->attachTo($this, $path);
-        $this->json[$path] = 'l:'.$resource->getTargetPath();
-    }
-
-    /**
-     * @param string $path
-     */
-    private function removePath($path)
-    {
-        if (!array_key_exists($path, $this->json)) {
-            return;
-        }
-
-        // Remove children first
-        $children = $this->getRecursivePathChildIterator($path);
-
-        foreach ($children as $child) {
-            unset($this->json[$child]);
-        }
-
-        // Remove the resource
-        unset($this->json[$path]);
-    }
-
-    /**
-     * Returns an iterator for the children paths of a resource.
-     *
-     * @param PuliResource $resource The resource.
-     *
-     * @return RegexFilterIterator The iterator of paths.
-     */
-    private function getChildIterator(PuliResource $resource)
-    {
-        $staticPrefix = rtrim($resource->getPath(), '/').'/';
-        $regExp = '~^'.preg_quote($staticPrefix, '~').'[^/]+$~';
-
-        return new RegexFilterIterator(
-            $regExp,
-            $staticPrefix,
-            new ArrayIterator(array_keys($this->json))
-        );
-    }
-
-    /**
-     * Returns a recursive iterator for the children paths under a given path.
-     *
-     * @param string $path The path.
-     *
-     * @return RegexFilterIterator The iterator of paths.
-     */
-    private function getRecursivePathChildIterator($path)
-    {
-        $staticPrefix = rtrim($path, '/').'/';
-        $regExp = '~^'.preg_quote($staticPrefix, '~').'.+$~';
-
-        return new RegexFilterIterator(
-            $regExp,
-            $staticPrefix,
-            new ArrayIterator(array_keys($this->json))
-        );
-    }
-
-    /**
-     * Returns an iterator for a glob.
-     *
-     * @param string $glob The glob.
-     *
-     * @return GlobFilterIterator The iterator of paths.
-     */
-    private function getGlobIterator($glob)
-    {
-        return new GlobFilterIterator(
-            $glob,
-            new ArrayIterator(array_keys($this->json))
-        );
-    }
-
-    /**
-     * Transform an iterator of paths into a collection of resources.
-     *
-     * @param Iterator $iterator
-     *
-     * @return ArrayResourceCollection
-     */
-    private function iteratorToCollection(Iterator $iterator)
-    {
-        $collection = new ArrayResourceCollection();
-
-        foreach ($iterator as $path) {
-            $collection->add($this->createResource($this->json[$path], $path));
-        }
-
-        return $collection;
     }
 }
