@@ -258,6 +258,20 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         }
     }
 
+    /**
+     * Turns a list of references into a list of resources.
+     *
+     * The references are expected to be in the format returned by
+     * {@link getReferencesForPath()}, {@link getReferencesForGlob()} and
+     * {@link getReferencesInDirectory()}.
+     *
+     * The result contains Puli paths as keys and {@link PuliResource}
+     * implementations as values. The order of the results is undefined.
+     *
+     * @param string[]|null[] $references The references indexed by Puli paths.
+     *
+     * @return array
+     */
     private function createResources(array $references)
     {
         foreach ($references as $path => $reference) {
@@ -267,33 +281,96 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         return $references;
     }
 
+    /**
+     * Returns the references for a given Puli path.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The result has either one entry or none, if no path was found. The key
+     * of the single entry is the path passed to this method.
+     *
+     * @param string $path The Puli path.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys. The array has at most one entry.
+     */
     private function getReferencesForPath($path)
     {
         // Stop on first result and flatten
-        return $this->flatten($this->filterReferences($path, true));
+        return $this->flatten($this->searchReferences($path, true));
     }
 
-    private function getReferencesForGlob($glob, $stopOnFirst = false, $listDirectories = true)
+    /**
+     * Returns the references matching a given Puli path glob.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param string $glob                The glob.
+     * @param bool   $stopOnFirst         Whether to stop after finding a first
+     *                                    result.
+     * @param bool   $traverseDirectories Whether to search the contents of
+     *                                    directories mapped in the JSON for
+     *                                    matches.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
+    private function getReferencesForGlob($glob, $stopOnFirst = false, $traverseDirectories = true)
     {
         if (!Glob::isDynamic($glob)) {
             return $this->getReferencesForPath($glob);
         }
 
         return $this->flattenWithFilter(
+            // Never stop on the first result before applying the filter since
+            // the filter may reject the only returned path
             // Include nested path mappings and match them against the pattern
-            $this->filterReferences(Glob::getBasePath($glob), $stopOnFirst, true),
+            $this->searchReferences(Glob::getBasePath($glob), false, true),
             Glob::toRegEx($glob),
+            // Stop on first after applying the filter
+            $stopOnFirst,
             // List directories and match their contents against the pattern
-            $listDirectories
+            $traverseDirectories
         );
     }
 
+    /**
+     * Returns the references in a given Puli path.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param string $path        The Puli path.
+     * @param bool   $stopOnFirst Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
     private function getReferencesInDirectory($path, $stopOnFirst = false)
     {
         return $this->flattenWithFilter(
+            // Never stop on the first result before applying the filter since
+            // the filter may reject the only returned path
             // Include nested path matches and test them against the pattern
-            $this->filterReferences($path, $stopOnFirst, true),
+            $this->searchReferences($path, false, true),
             '~^'.preg_quote(rtrim($path, '/'), '~').'/[^/]+$~',
+            // Stop on first after applying the filter
+            $stopOnFirst,
             // List directories and match their contents against the glob
             true,
             // Limit the directory exploration to the depth of the path + 1
@@ -301,6 +378,26 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         );
     }
 
+    /**
+     * Flattens a two-level reference array into a one-level array.
+     *
+     * For each entry on the first level, only the first entry of the second
+     * level is included in the result.
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param array $references A two-level reference array as returned by
+     *                          {@link searchReferences()}.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
     private function flatten(array $references)
     {
         $result = array();
@@ -314,7 +411,46 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         return $result;
     }
 
-    private function flattenWithFilter(array $references, $regex, $listDirectories = false, $maxDepth = 0)
+    /**
+     * Flattens a two-level reference array into a one-level array and filters
+     * out any references that don't match the given regular expression.
+     *
+     * This method takes a two-level reference array as returned by
+     * {@link searchReferences()}. The references are scanned for Puli paths
+     * matching the given regular expression. Those matches are returned.
+     *
+     * If a matching path refers to more than one reference, the first reference
+     * is returned in the resulting array.
+     *
+     * If `$listDirectories` is set to `true`, all references that contain
+     * directory paths are traversed recursively and scanned for more paths
+     * matching the regular expression. This recursive traversal can be limited
+     * by passing a `$maxDepth` (see {@link getPathDepth()}).
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * @param array  $references          A two-level reference array as
+     *                                    returned by {@link searchReferences()}.
+     * @param string $regex               A regular expression used to filter
+     *                                    Puli paths.
+     * @param bool   $stopOnFirst         Whether to stop after finding a first
+     *                                    result.
+     * @param bool   $traverseDirectories Whether to search the contents of
+     *                                    directory references for more matches.
+     * @param int    $maxDepth            The maximum path depth when searching
+     *                                    the contents of directory references.
+     *                                    If 0, the depth is unlimited.
+     *
+     * @return string[]|null[] A one-level array of references with Puli paths
+     *                         as keys.
+     */
+    private function flattenWithFilter(array $references, $regex, $stopOnFirst = false, $traverseDirectories = false, $maxDepth = 0)
     {
         $result = array();
 
@@ -323,9 +459,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if (!isset($result[$currentPath]) && preg_match($regex, $currentPath)) {
                 // If yes, the first stored reference is returned
                 $result[$currentPath] = reset($currentReferences);
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
             }
 
-            if (!$listDirectories) {
+            if (!$traverseDirectories) {
                 continue;
             }
 
@@ -367,6 +507,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
                     if (!isset($result[$nestedPath]) && preg_match($regex, $nestedPath)) {
                         $result[$nestedPath] = $nestedFilesystemPath;
+
+                        if ($stopOnFirst) {
+                            return $result;
+                        }
                     }
                 }
             }
@@ -375,45 +519,47 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         return $result;
     }
 
-    private function followLinks(array $references, $stopOnFirst = false)
-    {
-        $result = array();
-
-        foreach ($references as $key => $reference) {
-            // Not a link
-            if (!isset($reference{0}) || '@' !== $reference{0}) {
-                $result[] = $reference;
-
-                if ($stopOnFirst) {
-                    return $result;
-                }
-
-                continue;
-            }
-
-            $referencedPath = substr($reference, 1);
-
-            // Get all the file system paths that this link points to
-            // and append them to the result
-            foreach ($this->filterReferences($referencedPath, $stopOnFirst) as $referencedReferences) {
-                // Follow links recursively
-                $referencedReferences = $this->followLinks($referencedReferences);
-
-                // Append all resulting target paths to the result
-                foreach ($referencedReferences as $referencedReference) {
-                    $result[] = $referencedReference;
-
-                    if ($stopOnFirst) {
-                        return $result;
-                    }
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    private function filterReferences($searchPath, $stopOnFirst = false, $includeNested = false)
+    /**
+     * Filters the JSON file for all references relevant to a given search path.
+     *
+     * The JSON is scanned starting with the longest mapped Puli path.
+     *
+     * If the search path is "/a/b", the result includes:
+     *
+     *  * The references of the mapped path "/a/b".
+     *  * The references of any mapped super path "/a" with the sub-path "/b"
+     *    appended.
+     *
+     * If the argument `$includeNested` is set to `true`, the result
+     * additionally includes:
+     *
+     *  * The references of any mapped sub path "/a/b/c".
+     *
+     * This is useful if you want to look for the children of "/a/b" or scan
+     * all descendants for paths matching a given pattern.
+     *
+     * The result of this method is an array with two levels:
+     *
+     *  * The first level has Puli paths as keys.
+     *  * The second level contains all references for that path, where the
+     *    first reference has the highest, the last reference the lowest
+     *    priority. The keys of the second level are integers. There may be
+     *    holes between any two keys.
+     *
+     * The references of the second level contain:
+     *
+     *  * `null` values for virtual resources
+     *  * strings starting with "@" for links
+     *  * absolute filesystem paths for filesystem resources
+     *
+     * @param string $searchPath    The path to search.
+     * @param bool   $stopOnFirst   Whether to stop after finding a first result.
+     * @param bool   $includeNested Whether to include the references of path
+     *                              mappings for nested paths.
+     *
+     * @return array An array with two levels.
+     */
+    private function searchReferences($searchPath, $stopOnFirst = false, $includeNested = false)
     {
         $result = array();
         $foundMatchingMappings = false;
@@ -478,6 +624,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 }
 
                 if ($stopOnFirst) {
+                    // The nested references already have size 1
                     return array($currentPathWithNested => $nestedReferences);
                 }
 
@@ -506,11 +653,97 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         return $result;
     }
 
+    /**
+     * Follows any link in a list of references.
+     *
+     * This method takes all the given references, checks for links starting
+     * with "@" and recursively expands those links to their target references.
+     * The target references may be `null` or absolute filesystem paths.
+     *
+     * Null values are returned unchanged.
+     *
+     * Absolute filesystem paths are returned unchanged.
+     *
+     * @param string[]|null[] $references  The references.
+     * @param bool            $stopOnFirst Whether to stop after finding a first
+     *                                     result.
+     *
+     * @return string[]|null[] The references with all links replaced by their
+     *                         target references. If any link pointed to more
+     *                         than one target reference, the returned array
+     *                         is larger than the passed array (unless the
+     *                         argument `$stopOnFirst` was set to `true`).
+     */
+    private function followLinks(array $references, $stopOnFirst = false)
+    {
+        $result = array();
+
+        foreach ($references as $key => $reference) {
+            // Not a link
+            if (!isset($reference{0}) || '@' !== $reference{0}) {
+                $result[] = $reference;
+
+                if ($stopOnFirst) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            $referencedPath = substr($reference, 1);
+
+            // Get all the file system paths that this link points to
+            // and append them to the result
+            foreach ($this->searchReferences($referencedPath, $stopOnFirst) as $referencedReferences) {
+                // Follow links recursively
+                $referencedReferences = $this->followLinks($referencedReferences);
+
+                // Append all resulting target paths to the result
+                foreach ($referencedReferences as $referencedReference) {
+                    $result[] = $referencedReference;
+
+                    if ($stopOnFirst) {
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Appends nested paths to references and filters out the existing ones.
+     *
+     * This method takes all the given references, appends the nested path to
+     * each of them and then filters out the results that actually exist on the
+     * filesystem.
+     *
+     * Null references are filtered out.
+     *
+     * Link references should be followed with {@link followLinks()} before
+     * calling this method.
+     *
+     * @param string[]|null[] $references  The references.
+     * @param string          $nestedPath  The nested path to append without
+     *                                     leading slash ("/").
+     * @param bool            $stopOnFirst Whether to stop after finding a first
+     *                                     result.
+     *
+     * @return string[] The references with the nested path appended. Each
+     *                  reference is guaranteed to exist on the filesystem.
+     */
     private function appendPathAndFilterExisting(array $references, $nestedPath, $stopOnFirst = false)
     {
         $result = array();
 
         foreach ($references as $reference) {
+            // Filter out null values
+            // Links should be followed before calling this method
+            if (null === $reference) {
+                continue;
+            }
+
             $nestedReference = rtrim($reference, '/').'/'.$nestedPath;
 
             if (file_exists($nestedReference)) {
@@ -528,59 +761,69 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * Resolves a list of references stored in the JSON.
      *
-     * @param string|string[] $references The reference(s).
+     * Each reference passed in can be:
      *
-     * @return string[]|null[] The references indexed by numeric keys. Each
-     *                         reference is either a link starting with "@",
-     *                         an absolute file system path to a file or
-     *                         directory or `null` for virtual resources.
+     *  * `null`
+     *  * a link starting with `@`
+     *  * a filesystem path relative to the base directory
+     *  * an absolute filesystem path
+     *
+     * Each reference returned by this method can be:
+     *
+     *  * `null`
+     *  * a link starting with `@`
+     *  * an absolute filesystem path
+     *
+     * Additionally, the results are guaranteed to be an array. If the
+     * argument `$stopOnFirst` is set, that array has a maximum size of 1.
+     *
+     * @param mixed $references  The reference(s).
+     * @param bool  $stopOnFirst Whether to stop after finding a first result.
+     *
+     * @return string[]|null[] The resolved references.
      */
     private function resolveReferences($references, $stopOnFirst = false)
     {
-        $result = array();
-
         if (!is_array($references)) {
             $references = array($references);
         }
 
         foreach ($references as $key => $reference) {
-            if (null === $reference) {
-                $result[] = null;
+            if (null !== $reference && !(isset($reference{0}) && '@' === $reference{0})) {
+                $reference = Path::makeAbsolute($reference, $this->baseDirectory);
 
-                if ($stopOnFirst) {
-                    return $result;
+                // Ignore non-existing files. Not sure this is the right
+                // thing to do.
+                if (file_exists($reference)) {
+                    $references[$key] = $reference;
                 }
-
-                continue;
             }
-
-            if (isset($reference{0}) && '@' === $reference{0}) {
-                // Include links as they are
-                $result[] = $reference;
-
-                if ($stopOnFirst) {
-                    return $result;
-                }
-
-                continue;
-            }
-
-            $filesystemPath = Path::makeAbsolute($reference, $this->baseDirectory);
-
-            if (!file_exists($filesystemPath)) {
-                // Houston we got a problem
-            }
-
-            $result[] = $filesystemPath;
 
             if ($stopOnFirst) {
-                return $result;
+                return $references;
             }
         }
 
-        return $result;
+        return $references;
     }
 
+    /**
+     * Returns the depth of a Puli path.
+     *
+     * The depth is used in order to limit the recursion when recursively
+     * iterating directories.
+     *
+     * The depth starts at 0 for the root:
+     *
+     * /                0
+     * /webmozart       1
+     * /webmozart/puli  2
+     * ...
+     *
+     * @param string $path A Puli path.
+     *
+     * @return int The depth starting with 0 for the root node.
+     */
     private function getPathDepth($path)
     {
         // / has depth 0
@@ -589,236 +832,4 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         // ...
         return substr_count(rtrim($path, '/'), '/');
     }
-
-//
-//    /**
-//     * Search for resources by querying their path.
-//     *
-//     * @param string $query           The glob query.
-//     * @param bool   $firstResultOnly Should this method stop after finding a
-//     *                             first result, for performances.
-//     *
-//     * @return ArrayResourceCollection The results of search.
-//     */
-//    private function getDirectChildren($path, $firstResultOnly = false)
-//    {
-//        // If the glob is dynamic, we search
-//        $results = array();
-//        $foundMatchingMappings = false;
-//        $regExp = '~^'.preg_quote($path, '~').'/[^/]+$~';
-//
-//        for (
-//            $reference = end($this->json), $mappedPath = key($this->json);
-//            null !== $mappedPath;
-//            $reference = prev($this->json), $mappedPath = key($this->json)
-//        ) {
-//            $mappedPath = rtrim($mappedPath, '/');
-//
-//            // We matched the path itself. Iterate through it.
-//            if ($path === $mappedPath) {
-//                $foundMatchingMappings = true;
-//
-//                // false: return all results
-//                // true: follow links
-//                // true: directories only
-//                foreach ($this->expandReference($reference, false, true, true) as $filesystemPath) {
-//                    $this->appendDirectoryEntries($path, $filesystemPath, $results, $firstResultOnly);
-//                }
-//
-//                continue;
-//            }
-//
-//            // We matched a child of the path
-//            // e.g. /a/b/c of /a/b
-//            if (preg_match($regExp, $mappedPath, $matches)) {
-//                $foundMatchingMappings = true;
-//
-//                // true: return first result only
-//                // true: follow links
-//                // false: files and directories
-//                foreach ($this->expandReference($reference, true, true, false) as $ref) {
-//                    $results[$mappedPath] = $this->createResource($ref, $mappedPath);
-//
-//                    if ($firstResultOnly) {
-//                        break;
-//                    }
-//                }
-//
-//                continue;
-//            }
-//
-//            // We matched an ancestor of the path
-//            // e.g. /a of /a/b
-//            if (0 === strpos($path.'/', $mappedPath.'/')) {
-//                $foundMatchingMappings = true;
-//
-//                // false: return all results
-//                // true: follow links
-//                // true: directories only
-//                foreach ($this->expandReference($reference, false, true, true) as $filesystemPath) {
-//                    // Does the directory exist under the ancestor?
-//                    $directoryPath = substr_replace($path, $filesystemPath, 0, strlen($mappedPath));
-//
-//                    if (is_dir($directoryPath)) {
-//                        $this->appendDirectoryEntries($path, $directoryPath, $results, $firstResultOnly);
-//                    }
-//                }
-//            }
-//
-//            // We did not find anything but previously found mappings
-//            // The mappings are sorted alphabetically, so we can safely abort
-//            if ($foundMatchingMappings) {
-//                break;
-//            }
-//        }
-//
-//        ksort($results);
-//
-//        return new ArrayResourceCollection(array_values($results));
-//    }
-
-//    /**
-//     * @param string $path
-//     * @param bool   $searchChildren
-//     *
-//     * @return string[]
-//     *
-//     * @throws ResourceNotFoundException
-//     */
-//    private function getReferences($path, $firstResultOnly = false, $searchChildren = true, $followLinks = false, $directoriesOnly = false)
-//    {
-//        $result = array();
-//
-//        // If the path is mapped in the JSON file, return it
-//        if (isset($this->json[$path])) {
-//            if (is_array($this->json[$path])) {
-//                $result = $this->expandMergedDirectory(
-//                    $this->json[$path],
-//                    $firstResultOnly,
-//                    $followLinks
-//                );
-//            } else {
-//                $result = $this->expandSingleReference(
-//                    $this->json[$path],
-//                    $firstResultOnly,
-//                    $followLinks,
-//                    $directoriesOnly
-//                );
-//            }
-//        }
-//
-//        if ($firstResultOnly && 1 === count($result)) {
-//            return $result;
-//        }
-//
-//        if (!$searchChildren) {
-//            return $result;
-//        }
-//
-//        // If the path is not mapped, look inside the other mappings
-//        $basePath = $path;
-//        $remainder = '';
-//
-//        while (false !== $pos = strrpos($basePath, '/')) {
-//            $segment = substr($basePath, $pos + 1);
-//            $basePath = substr($basePath, 0, $pos);
-//            $remainder = '/'.$segment.$remainder;
-//
-//            // false: Return all results, not just the first one
-//            // false: Don't search the children of the JSON mappings
-//            // true: Follow and expand links to their final target
-//            // true: Return directories only
-//            foreach ($this->getReferences($basePath ?: '/', false, false, true, true) as $directoryPath) {
-//                $filesystemPath = $directoryPath.$remainder;
-//
-//                if (file_exists($filesystemPath) && (!$directoriesOnly || is_dir($filesystemPath))) {
-//                    $result[] = $filesystemPath;
-//
-//                    if ($firstResultOnly) {
-//                        return $result;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return $result;
-//    }
-
-//    private function expandReference($reference, $firstResultOnly = false, $followLinks = false, $directoriesOnly = false)
-//    {
-//        if (is_array($reference)) {
-//            return $this->expandMergedDirectory($reference, $firstResultOnly, $followLinks);
-//        }
-//
-//        return $this->expandSingleReference($reference, $firstResultOnly, $followLinks, $directoriesOnly);
-//    }
-
-    /**
-     * @param string $reference
-     *
-     * @return string[]
-     *
-     * @throws ResourceNotFoundException
-     */
-//    private function expandSingleReference($reference, $firstResultOnly = false, $followLinks = false, $directoriesOnly = false)
-//    {
-//        if ('@' === substr($reference, 0, 1)) {
-//            try {
-//                if ($followLinks) {
-//                    return $this->getReferences(
-//                        substr($reference, 1),
-//                        $firstResultOnly,
-//                        true, // include children of mapped paths in the search
-//                        $followLinks,
-//                        $directoriesOnly
-//                    );
-//                }
-//
-//                return array($reference);
-//            } catch (ResourceNotFoundException $e) {
-//                // throw link not found
-//            }
-//        }
-//
-//        $filesystemPath = Path::makeAbsolute($reference, $this->baseDirectory);
-//
-//        if (!file_exists($filesystemPath)) {
-//            // Houston we got a problem
-//        }
-//
-//        if ($directoriesOnly && !is_dir($filesystemPath)) {
-//            // error not a directory
-//        }
-//
-//        return array($filesystemPath);
-//    }
-
-    /**
-     * @param string[] $references
-     * @param bool     $firstResultOnly
-     * @param bool     $followLinks
-     *
-     * @return string[]
-     */
-//    private function expandMergedDirectory(array $references, $firstResultOnly = false, $followLinks = false)
-//    {
-//        $result = array();
-//
-//        foreach ($references as $reference) {
-//            $filesystemPaths = $this->expandSingleReference(
-//                $reference,
-//                $firstResultOnly,
-//                $followLinks,
-//                true // directories only
-//            );
-//
-//            if ($firstResultOnly && 1 === count($filesystemPaths)) {
-//                return $filesystemPaths;
-//            }
-//
-//            $result = array_merge($result, $filesystemPaths);
-//        }
-//
-//        return $result;
-//    }
 }
