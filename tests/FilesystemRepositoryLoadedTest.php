@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\FilesystemRepository;
@@ -49,9 +48,9 @@ class FilesystemRepositoryLoadedTest extends AbstractEditableRepositoryTest
         return $repo;
     }
 
-    protected function createWriteRepository(ChangeStream $stream = null)
+    protected function createWriteRepository()
     {
-        return new FilesystemRepository($this->tempDir, false, true, $stream);
+        return new FilesystemRepository($this->tempDir, false, true, $this->stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)

@@ -719,7 +719,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $repo->find(new \stdClass());
     }
 
-    public function testChangeStreamGetStack()
+    public function testGetDefaultStack()
     {
         $repo = $this->createPrefilledRepository($this->prepareFixtures($this->createDirectory('/', array(
             $this->createDirectory('/webmozart', array(
@@ -730,12 +730,13 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
             )),
         ))));
 
+        $resource = $repo->get('/webmozart/puli/file1');
         $stack = $repo->getStack('/webmozart/puli/file1');
 
         $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
         $this->assertEquals(array(0), $stack->getVersions());
-        $this->assertEquals('/webmozart/puli/file1', $stack->getFirst()->getPath());
-        $this->assertEquals('/webmozart/puli/file1', $stack->get(0)->getPath());
-        $this->assertEquals('/webmozart/puli/file1', $stack->getCurrent()->getPath());
+        $this->assertEquals($resource, $stack->getFirst());
+        $this->assertEquals($resource, $stack->getCurrent());
+        $this->assertEquals($resource, $stack->get(0));
     }
 }

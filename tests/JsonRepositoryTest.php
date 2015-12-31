@@ -11,7 +11,6 @@
 
 namespace Puli\Repository\Tests;
 
-use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\JsonRepository;
@@ -35,20 +34,20 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
 
     protected function createPrefilledRepository(PuliResource $root)
     {
-        $repo = new JsonRepository($this->path, $this->tempDir, null, true);
+        $repo = new JsonRepository($this->path, $this->tempDir, true);
         $repo->add('/', $root);
 
         return $repo;
     }
 
-    protected function createWriteRepository(ChangeStream $stream = null)
+    protected function createWriteRepository()
     {
-        return new JsonRepository($this->path, $this->tempDir, $stream, true);
+        return new JsonRepository($this->path, $this->tempDir, true, $this->stream);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
     {
-        return $writeRepo;
+        return new JsonRepository($this->path, $this->tempDir, true, $this->stream);
     }
 
     public function testResolveMultipleBasePath()

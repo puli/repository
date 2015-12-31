@@ -74,14 +74,14 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      *                                         stored as relative paths. Paths
      *                                         outside that directory are stored
      *                                         as absolute paths.
-     * @param ChangeStream|null $changeStream  If provided, the repository will
-     *                                         append resource changes to this
-     *                                         change stream.
      * @param bool              $validateJson  Whether to validate the JSON file
      *                                         against the schema. Slow but
      *                                         spots problems.
+     * @param ChangeStream|null $changeStream  If provided, the repository will
+     *                                         append resource changes to this
+     *                                         change stream.
      */
-    public function __construct($path, $baseDirectory, ChangeStream $changeStream = null, $validateJson = false)
+    public function __construct($path, $baseDirectory, $validateJson = false, ChangeStream $changeStream = null)
     {
         parent::__construct($changeStream);
 
@@ -380,6 +380,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $resource->attachTo($this, $path);
 
         $this->insertReference($path, $resource->getFilesystemPath());
+
+        $this->appendToChangeStream($resource);
     }
 
     /**
@@ -543,12 +545,12 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
             $resource->attachTo($this, $path);
 
             $this->insertReference($path, '@'.$resource->getTargetPath());
+
+            $this->appendToChangeStream($resource);
         } else {
             // Extension point for the optimized repository
             $this->addFilesystemResource($path, $resource);
         }
-
-        $this->appendToChangeStream($resource);
     }
 
     /**

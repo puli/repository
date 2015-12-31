@@ -73,4 +73,14 @@ class NullRepositoryTest extends PHPUnit_Framework_TestCase
 
         $this->repo->get('/path');
     }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testGetStackAlwaysThrowsException()
+    {
+        $this->repo->add('/path', new TestFile());
+
+        $this->repo->getStack('/path');
+    }
 }
