@@ -118,6 +118,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         }
 
         $this->ensureDirectoryExists(Path::getDirectory($path));
+
         $this->addResource($path, $resource);
 
         $this->flush();
