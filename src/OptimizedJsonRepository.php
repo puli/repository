@@ -11,19 +11,9 @@
 
 namespace Puli\Repository;
 
-use ArrayIterator;
-use Iterator;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\FilesystemResource;
-use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\Api\UnsupportedLanguageException;
-use Puli\Repository\Resource\Collection\ArrayResourceCollection;
-use Puli\Repository\Resource\LinkResource;
-use Webmozart\Assert\Assert;
 use Webmozart\Glob\Glob;
-use Webmozart\Glob\Iterator\GlobFilterIterator;
-use Webmozart\Glob\Iterator\RegexFilterIterator;
 use Webmozart\PathUtil\Path;
 
 /**

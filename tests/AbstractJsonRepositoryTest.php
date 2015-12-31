@@ -12,8 +12,6 @@
 namespace Puli\Repository\Tests;
 
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\OptimizedJsonRepository;
-use Puli\Repository\JsonRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
