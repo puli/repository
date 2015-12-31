@@ -42,12 +42,12 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
 
     protected function createWriteRepository()
     {
-        return new JsonRepository($this->path, $this->tempDir, true, $this->stream);
+        return new JsonRepository($this->path, $this->tempDir, true);
     }
 
     protected function createReadRepository(EditableRepository $writeRepo)
     {
-        return new JsonRepository($this->path, $this->tempDir, true, $this->stream);
+        return new JsonRepository($this->path, $this->tempDir, true);
     }
 
     public function testResolveMultipleBasePath()

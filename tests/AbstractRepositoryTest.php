@@ -739,4 +739,14 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($resource, $stack->getCurrent());
         $this->assertEquals($resource, $stack->get(0));
     }
+
+    /**
+     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     */
+    public function testGetStackExpectsExistingResourceDefaultStack()
+    {
+        $repo = $this->createPrefilledRepository($this->prepareFixtures($this->createDirectory('/')));
+
+        $repo->get('/foo/bar');
+    }
 }

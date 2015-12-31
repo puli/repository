@@ -384,6 +384,66 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->appendToChangeStream($resource);
     }
 
+
+    /**
+     * Loads the JSON file.
+     */
+    protected function load()
+    {
+        $decoder = new JsonDecoder();
+
+        $this->json = file_exists($this->path)
+            ? (array) $decoder->decodeFile($this->path, $this->schemaPath)
+            : array();
+
+        if (isset($this->json['_order'])) {
+            $this->json['_order'] = (array) $this->json['_order'];
+
+            foreach ($this->json['_order'] as $path => $entries) {
+                foreach ($entries as $key => $entry) {
+                    $this->json['_order'][$path][$key] = (array) $entry;
+                }
+            }
+        }
+
+        // The root node always exists
+        if (!isset($this->json['/'])) {
+            $this->json['/'] = null;
+        }
+
+        // Make sure the JSON is sorted in reverse order
+        krsort($this->json);
+    }
+
+    /**
+     * Writes the JSON file.
+     */
+    protected function flush()
+    {
+        // The root node always exists
+        if (!isset($this->json['/'])) {
+            $this->json['/'] = null;
+        }
+
+        // Always save in reverse order
+        krsort($this->json);
+
+        // Comply to schema
+        $json = (object) $this->json;
+
+        if (isset($json->{'_order'})) {
+            foreach ($json->{'_order'} as $path => $entries) {
+                foreach ($entries as $key => $entry) {
+                    $json->{'_order'}[$path][$key] = (object) $entry;
+                }
+            }
+
+            $json->{'_order'} = (object) $json->{'_order'};
+        }
+
+        $this->encoder->encodeFile($json, $this->path, $this->schemaPath);
+    }
+
     /**
      * Returns whether a reference contains a link.
      *
@@ -410,61 +470,6 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     }
 
     /**
-     * Loads the JSON file.
-     */
-    private function load()
-    {
-        $decoder = new JsonDecoder();
-
-        $this->json = file_exists($this->path)
-            ? (array) $decoder->decodeFile($this->path, $this->schemaPath)
-            : array();
-
-        // The root node always exists
-        if (!isset($this->json['/'])) {
-            $this->json['/'] = null;
-        }
-
-        // Make sure the JSON is sorted in reverse order
-        krsort($this->json);
-    }
-
-    /**
-     * Writes the JSON file.
-     */
-    private function flush()
-    {
-        // The root node always exists
-        if (!isset($this->json['/'])) {
-            $this->json['/'] = null;
-        }
-
-        // Always save in reverse order
-        krsort($this->json);
-
-        $this->encoder->encodeFile((object) $this->json, $this->path, $this->schemaPath);
-    }
-
-    /**
-     * Adds all ancestor directories of a path to the repository.
-     *
-     * @param string $path A Puli path.
-     */
-    private function ensureDirectoryExists($path)
-    {
-        if (array_key_exists($path, $this->json)) {
-            return;
-        }
-
-        // Recursively initialize parent directories
-        if ('/' !== $path) {
-            $this->ensureDirectoryExists(Path::getDirectory($path));
-        }
-
-        $this->json[$path] = null;
-    }
-
-    /**
      * Turns a reference into a resource.
      *
      * @param string      $path      The Puli path.
@@ -472,7 +477,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      *
      * @return PuliResource The resource.
      */
-    private function createResource($path, $reference)
+    protected function createResource($path, $reference)
     {
         if (null === $reference) {
             $resource = new GenericResource();
@@ -515,6 +520,25 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         }
 
         return $references;
+    }
+
+    /**
+     * Adds all ancestor directories of a path to the repository.
+     *
+     * @param string $path A Puli path.
+     */
+    private function ensureDirectoryExists($path)
+    {
+        if (array_key_exists($path, $this->json)) {
+            return;
+        }
+
+        // Recursively initialize parent directories
+        if ('/' !== $path) {
+            $this->ensureDirectoryExists(Path::getDirectory($path));
+        }
+
+        $this->json[$path] = null;
     }
 
     /**

@@ -39,6 +39,33 @@
             "uniqueItems": true
         }
     },
+    "properties": {
+        "_order": {
+            "type": "object",
+            "patternProperties": {
+                "^\\/(([^\\/]+\\/)*[^\\/]+)?$": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                        "description": "An entry of the order array",
+                        "type": "object",
+                        "properties": {
+                            "path": {
+                                "description": "One of the mapped paths in this file",
+                                "type": "string",
+                                "pattern": "^/(([^/]+/)*[^/]+)?$"
+                            },
+                            "references": {
+                                "description": "The number of references to use at this slot of the order",
+                                "type": "integer",
+                                "min": 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
     "patternProperties": {
         "^\\/(([^\\/]+\\/)*[^\\/]+)?$": {
             "oneOf": [

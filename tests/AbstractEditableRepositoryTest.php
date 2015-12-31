@@ -421,9 +421,15 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
 
         $this->writeRepo->add('/webmozart/puli/file', $this->prepareFixtures($this->createFile('/file', 'BODY2')));
 
+        $this->writeRepo->add('/webmozart', $this->prepareFixtures($this->createDirectory('/dir3', array(
+            $this->createDirectory('/puli', array(
+                $this->createFile('/file', 'BODY3'),
+            ))
+        ))));
+
         $stack = $this->readRepo->getStack('/webmozart/puli/file');
 
-        $this->assertSame(array(0, 1, 2), $stack->getVersions());
+        $this->assertSame(array(0, 1, 2, 3), $stack->getVersions());
 
         $v0 = $stack->get(0);
 
@@ -445,6 +451,13 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame('/webmozart/puli/file', $v2->getPath());
         $this->assertSame($this->readRepo, $v2->getRepository());
         $this->assertSame('BODY2', $v2->getBody());
+
+        $v3 = $stack->get(3);
+
+        $this->assertInstanceOf('Puli\Repository\Api\Resource\BodyResource', $v3);
+        $this->assertSame('/webmozart/puli/file', $v3->getPath());
+        $this->assertSame($this->readRepo, $v3->getRepository());
+        $this->assertSame('BODY3', $v3->getBody());
     }
 
     public function testRemoveFile()
@@ -690,14 +703,5 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
     {
         $link = new LinkResource('/webmozart/file');
         $link->getTarget();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testChangeStreamBuildStackOfInvalidResource()
-    {
-        $this->writeRepo = $this->createWriteRepository(new InMemoryChangeStream());
-        $this->writeRepo->getStack('/invalid');
     }
 }

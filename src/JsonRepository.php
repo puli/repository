@@ -13,6 +13,9 @@ namespace Puli\Repository;
 
 use BadMethodCallException;
 use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\Resource\PuliResource;
+use Puli\Repository\Api\ResourceNotFoundException;
+use Puli\Repository\ChangeStream\ResourceStack;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Webmozart\Glob\Glob;
@@ -42,17 +45,133 @@ use Webmozart\PathUtil\Path;
 class JsonRepository extends AbstractJsonRepository implements EditableRepository
 {
     /**
+     * @var bool
+     */
+    private $versioning;
+
+    /**
+     * Creates a new repository.
+     *
+     * @param string $path          The path to the JSON file. If relative, it
+     *                              must be relative to the base directory.
+     * @param string $baseDirectory The base directory of the store. Paths
+     *                              inside that directory are stored as relative
+     *                              paths. Paths outside that directory are
+     *                              stored as absolute paths.
+     * @param bool   $validateJson  Whether to validate the JSON file against
+     *                              the schema. Slow but spots problems.
+     */
+    public function __construct($path, $baseDirectory, $validateJson = false)
+    {
+        // Does not accept ChangeStream objects
+        // The ChangeStream functionality is implemented by the repository itself
+        parent::__construct($path, $baseDirectory, $validateJson);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStack($path)
+    {
+        if (!$this->json) {
+            $this->load();
+        }
+
+        $references = $this->searchReferences($path);
+
+        if (!isset($references[$path])) {
+            throw ResourceNotFoundException::forPath($path);
+        }
+
+        $resources = array();
+        $pathReferences = $references[$path];
+
+        // The first reference is the last (current) version
+        // Hence traverse in reverse order
+        for ($ref = end($pathReferences); null !== key($pathReferences); $ref = prev($pathReferences)) {
+            $resources[] = $this->createResource($path, $ref);
+        }
+
+        return new ResourceStack($resources);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function appendToChangeStream(PuliResource $resource)
+    {
+        $path = $resource->getPath();
+        $trimmedPath = rtrim($path, '/');
+
+        // If a mapping exists for a sub-path of this resource
+        // (e.g. $path = /a, mapped sub-path = /a/b)
+        // we need to record the order, since by default sub-paths are
+        // preferred over super paths
+
+        $subReferences = $this->getReferencesForRegex(
+            $trimmedPath.'/',
+            '~^'.preg_quote($trimmedPath, '~').'/.+~',
+            // Get all mappings, don't stop on first
+            false,
+            // Don't traverse directories. We're just interested in JSON mappings.
+            false
+        );
+
+        if (empty($subReferences)) {
+            return;
+        }
+
+        foreach ($subReferences as $currentPath => $currentReferences) {
+            // Copy the order of an ancestor, if defined
+            if (!isset($this->json['_order'][$currentPath])) {
+                $parentPath = $currentPath;
+
+                do {
+                    $parentPath = Path::getDirectory($parentPath);
+
+                    if (isset($this->json['_order'][$parentPath])) {
+                        $this->json['_order'][$currentPath] = $this->json['_order'][$parentPath];
+                        break;
+                    }
+                } while ('/' !== $parentPath);
+
+                $currentEntry = array(
+                    'path' => $currentPath,
+                    'references' => count($currentReferences)
+                );
+
+                if (!isset($this->json['_order'][$currentPath])) {
+                    // If no ancestor has a defined order, start with the $subPath
+                    $this->json['_order'][$currentPath] = array($currentEntry);
+                } else {
+                    // Else insert the $subPath before the ancestor paths
+                    array_unshift($this->json['_order'][$currentPath], $currentEntry);
+                }
+            }
+
+            $lastEntry = reset($this->json['_order'][$currentPath]);
+
+            if ($path === $lastEntry['path']) {
+                // If the first entry matches the new one, add the reference
+                // of the current resource to the limit
+                $lastEntry['references']++;
+            } else {
+                // Else add a new entry at the beginning
+                $newEntry = array(
+                    'path' => $path,
+                    'references' => 1,
+                );
+
+                array_unshift($this->json['_order'][$currentPath], $newEntry);
+            }
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function insertReference($path, $reference)
     {
-        if ('@' !== $reference{0} && is_file($reference)) {
-            // Files replace anything that was in the repository previously
-            $this->json[$path] = $reference;
-
-            return;
-        }
-
         if (!isset($this->json[$path])) {
             // Store first entries as simple reference
             $this->json[$path] = $reference;
@@ -373,7 +492,9 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 $foundMatchingMappings = true;
                 $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst);
 
-                if ($stopOnFirst) {
+                // Return unless an explicit mapping order is defined
+                // In that case, the ancestors need to be searched as well
+                if ($stopOnFirst && !isset($this->json['_order'][$currentPath])) {
                     return $result;
                 }
 
@@ -386,7 +507,9 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 $foundMatchingMappings = true;
                 $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst);
 
-                if ($stopOnFirst) {
+                // Return unless an explicit mapping order is defined
+                // In that case, the ancestors need to be searched as well
+                if ($stopOnFirst && !isset($this->json['_order'][$currentPath])) {
                     return $result;
                 }
 
@@ -422,22 +545,43 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                     continue;
                 }
 
-                if ($stopOnFirst) {
+                // Return unless an explicit mapping order is defined
+                // In that case, the ancestors need to be searched as well
+                if ($stopOnFirst && !isset($this->json['_order'][$currentPathWithNested])) {
                     // The nested references already have size 1
                     return array($currentPathWithNested => $nestedReferences);
                 }
 
                 // We are traversing long keys before short keys
-                // It could be that this entry already exists. In that case,
-                // append our findings to the existing ones
-                if (isset($result[$currentPathWithNested])) {
+                // It could be that this entry already exists.
+                if (!isset($result[$currentPathWithNested])) {
+                    $result[$currentPathWithNested] = $nestedReferences;
+
+                    continue;
+                }
+
+                // If no explicit mapping order is defined, simply append the
+                // new references to the existing ones
+                if (!isset($this->json['_order'][$currentPathWithNested])) {
                     $result[$currentPathWithNested] = array_merge(
                         $result[$currentPathWithNested],
                         $nestedReferences
                     );
-                } else {
-                    $result[$currentPathWithNested] = $nestedReferences;
+
+                    continue;
                 }
+
+                // If an explicit mapping order is defined, store the paths
+                // of the mappings that generated each reference set and
+                // resolve the order later on
+                if (!isset($result[$currentPathWithNested][$currentPathWithNested])) {
+                    $result[$currentPathWithNested] = array(
+                        $currentPathWithNested => $result[$currentPathWithNested],
+                    );
+                }
+
+                // Add the new references generated by the current mapping
+                $result[$currentPathWithNested][$currentPath] = $nestedReferences;
 
                 continue;
             }
@@ -447,6 +591,40 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if ($foundMatchingMappings) {
                 break;
             }
+        }
+
+        // Resolve the order where it is explicitly set
+        if (!isset($this->json['_order'])) {
+            return $result;
+        }
+
+        foreach ($result as $currentPath => $referencesByMappedPath) {
+            // If no order is defined for the path or if only one mapped path
+            // generated references, there's nothing to do
+            if (!isset($this->json['_order'][$currentPath]) || !is_array($referencesByMappedPath)) {
+                continue;
+            }
+
+            $orderedReferences = array();
+
+            foreach ($this->json['_order'][$currentPath] as $orderEntry) {
+                if (!isset($referencesByMappedPath[$orderEntry['path']])) {
+                    continue;
+                }
+
+                for ($i = 0; $i < $orderEntry['references'] && count($referencesByMappedPath[$orderEntry['path']]) > 0; ++$i) {
+                    $orderedReferences[] = array_shift($referencesByMappedPath[$orderEntry['path']]);
+                }
+
+                // Only include references of the first mapped path
+                // Since $stopOnFirst is set, those references have a
+                // maximum size of 1
+                if ($stopOnFirst) {
+                    break;
+                }
+            }
+
+            $result[$currentPath] = $orderedReferences;
         }
 
         return $result;
