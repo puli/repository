@@ -334,7 +334,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->writeRepo->add('/webmozart', $this->prepareFixtures($this->createDirectory('/dir2', array(
             $this->createDirectory('/puli', array(
                 $this->createFile('/file', 'BODY2'),
-            ))
+            )),
         ))));
 
         $stack = $this->readRepo->getStack('/webmozart/puli/file');
@@ -368,7 +368,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->writeRepo->add('/webmozart', $this->prepareFixtures($this->createDirectory('/dir1', array(
             $this->createDirectory('/puli', array(
                 $this->createFile('/file', 'BODY0'),
-            ))
+            )),
         ))));
 
         $this->writeRepo->add('/webmozart/puli', $this->prepareFixtures($this->createDirectory('/dir2', array(
@@ -416,7 +416,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->writeRepo->add('/webmozart', $this->prepareFixtures($this->createDirectory('/dir2', array(
             $this->createDirectory('/puli', array(
                 $this->createFile('/file', 'BODY1'),
-            ))
+            )),
         ))));
 
         $this->writeRepo->add('/webmozart/puli/file', $this->prepareFixtures($this->createFile('/file', 'BODY2')));
@@ -424,7 +424,7 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->writeRepo->add('/webmozart', $this->prepareFixtures($this->createDirectory('/dir3', array(
             $this->createDirectory('/puli', array(
                 $this->createFile('/file', 'BODY3'),
-            ))
+            )),
         ))));
 
         $stack = $this->readRepo->getStack('/webmozart/puli/file');

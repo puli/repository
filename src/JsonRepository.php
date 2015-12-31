@@ -137,7 +137,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
                 $currentEntry = array(
                     'path' => $currentPath,
-                    'references' => count($currentReferences)
+                    'references' => count($currentReferences),
                 );
 
                 if (!isset($this->json['_order'][$currentPath])) {
@@ -154,7 +154,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if ($path === $lastEntry['path']) {
                 // If the first entry matches the new one, add the reference
                 // of the current resource to the limit
-                $lastEntry['references']++;
+                ++$lastEntry['references'];
             } else {
                 // Else add a new entry at the beginning
                 $newEntry = array(

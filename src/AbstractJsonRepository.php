@@ -384,7 +384,6 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->appendToChangeStream($resource);
     }
 
-
     /**
      * Loads the JSON file.
      */
