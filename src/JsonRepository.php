@@ -123,78 +123,52 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             return array(null) !== $currentReferences;
         });
 
+        // The $references contain:
+        // - any sub references (e.g. /a/b/c, /a/b/d)
+        // - the reference itself at $pos (e.g. /a/b)
+        // - non-null parent references (e.g. /a)
+        // (in that order, since long paths are sorted before short paths)
         $pos = array_search($path, array_keys($references), true);
 
-        $subReferences = array_slice($references, 0, $pos);
-        $parentReferences = array_slice($references, $pos + 1);
-
-        // We need to do two things:
+        // We need to do three things:
 
         // 1. If any parent mapping has an order defined, inherit that order
 
-        if (count($parentReferences) > 0) {
-            foreach ($parentReferences as $currentPath => $currentReferences) {
-                if (isset($this->json['_order'][$currentPath])) {
-                    $this->json['_order'][$path] = $this->json['_order'][$currentPath];
+        if ($pos + 1 < count($references)) {
+            // Inherit the parent order if necessary
+            if (!isset($this->json['_order'][$path])) {
+                $parentReferences = array_slice($references, $pos + 1);
 
-                    $this->insertOrderEntry($path, $path);
-
-                    break;
-                }
+                $this->initWithParentOrder($path, $parentReferences);
             }
-        }
 
-        if (empty($subReferences)) {
-            return;
+            // A parent order was inherited. Insert the path itself.
+            if (isset($this->json['_order'][$path])) {
+                $this->prependOrderEntry($path, $path);
+            }
         }
 
         // 2. If there are child mappings, insert the current path into their order
 
-        foreach ($subReferences as $currentPath => $currentReferences) {
-            if (isset($this->json['_order'][$currentPath])) {
-                continue;
+        if ($pos > 0) {
+            $subReferences = array_slice($references, 0, $pos);
+
+            foreach ($subReferences as $subPath => $_) {
+                if (isset($this->json['_order'][$subPath])) {
+                    continue;
+                }
+
+                if (isset($this->json['_order'][$path])) {
+                    $this->json['_order'][$subPath] = $this->json['_order'][$path];
+                } else {
+                    $this->initWithDefaultOrder($subPath, $path, $references);
+                }
             }
 
-            // Insert the default order, if none exists
-            // i.e. long paths /a/b/c before short paths /a/b
-            $parentPath = $currentPath;
-
-            do {
-                // If an order is defined for the parent path, take that
-                // order. This happens when adding a long path /a/b/c
-                // after adding /a/b and /a. Here, /a/b has the order
-                // [/a, /a/b] defined. The long path should end up with
-                // the order [/a/b, /a, /a/b].
-                if (isset($this->json['_order'][$parentPath])) {
-                    $this->json['_order'][$currentPath] = $this->json['_order'][$parentPath];
-
-                    break;
-                }
-
-                // Otherwise continue to build the default order
-                $parentEntry = array(
-                    'path' => $parentPath,
-                    'references' => count($references[$parentPath]),
-                );
-
-                // Edge case: $parentPath equals $path. In this case we have
-                // to subtract the entry that we're adding below in $newEntry
-                if ($parentPath === $path) {
-                    --$parentEntry['references'];
-
-                    // No references to insert, break
-                    if (0 === $parentEntry['references']) {
-                        break;
-                    }
-                }
-
-                $this->json['_order'][$currentPath][] = $parentEntry;
-            } while ('/' !== $parentPath && ($parentPath = Path::getDirectory($parentPath)) && isset($references[$parentPath]));
-        }
-
-        // After initializing all order entries, insert the new one
-        foreach ($subReferences as $currentPath => $currentReferences) {
-            $this->insertOrderEntry($path, $currentPath);
+            // After initializing all order entries, insert the new one
+            foreach ($subReferences as $subPath => $_) {
+                $this->prependOrderEntry($subPath, $path);
+            }
         }
     }
 
@@ -810,8 +784,10 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * Additionally, the results are guaranteed to be an array. If the
      * argument `$stopOnFirst` is set, that array has a maximum size of 1.
      *
-     * @param mixed $references  The reference(s).
-     * @param bool  $stopOnFirst Whether to stop after finding a first result.
+     * @param mixed $references      The reference(s).
+     * @param bool  $stopOnFirst     Whether to stop after finding a first result.
+     * @param bool  $checkFilesystem whether to filter out references that don't
+     *                               exist on the filesystem.
      *
      * @return string[]|null[] The resolved references.
      */
@@ -869,22 +845,88 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * Inserts a path at the beginning of the order list of a mapped path.
      *
-     * @param string $insertedPath The path of the mapping to insert.
-     * @param string $mappedPath   The path of the mapping where to insert.
+     * @param string $path          The path of the mapping where to prepend.
+     * @param string $prependedPath The path of the mapping to prepend.
      */
-    private function insertOrderEntry($insertedPath, $mappedPath)
+    private function prependOrderEntry($path, $prependedPath)
     {
-        $lastEntry = reset($this->json['_order'][$mappedPath]);
+        $lastEntry = reset($this->json['_order'][$path]);
 
-        if ($insertedPath === $lastEntry['path']) {
+        if ($prependedPath === $lastEntry['path']) {
             // If the first entry matches the new one, add the reference
             // of the current resource to the limit
             ++$lastEntry['references'];
         } else {
-            array_unshift($this->json['_order'][$mappedPath], array(
-                'path' => $insertedPath,
+            array_unshift($this->json['_order'][$path], array(
+                'path' => $prependedPath,
                 'references' => 1,
             ));
         }
+    }
+
+    /**
+     * Initializes a path with the order of the closest parent path.
+     *
+     * @param string $path             The path to initialize.
+     * @param array  $parentReferences The defined references for parent paths,
+     *                                 with long paths /a/b sorted before short
+     *                                 paths /a.
+     */
+    private function initWithParentOrder($path, array $parentReferences)
+    {
+        foreach ($parentReferences as $parentPath => $_) {
+            // Look for the first parent entry for which an order is defined
+            if (isset($this->json['_order'][$parentPath])) {
+                // Inherit that order
+                $this->json['_order'][$path] = $this->json['_order'][$parentPath];
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * Initializes the order of a path with the default order.
+     *
+     * This is necessary if we want to insert a non-default order entry for
+     * the first time.
+     *
+     * @param string $path         The path to initialize.
+     * @param string $insertedPath The path that is being inserted.
+     * @param array  $references   The references for each defined path mapping
+     *                             in the path chain.
+     */
+    private function initWithDefaultOrder($path, $insertedPath, $references)
+    {
+        $this->json['_order'][$path] = array();
+
+        // Insert the default order, if none exists
+        // i.e. long paths /a/b/c before short paths /a/b
+        $parentPath = $path;
+
+        while (true) {
+            if (isset($references[$parentPath])) {
+                $parentEntry = array(
+                    'path' => $parentPath,
+                    'references' => count($references[$parentPath]),
+                );
+
+                // Edge case: $parentPath equals $insertedPath. In this case we have
+                // to subtract the entry that we're adding
+                if ($parentPath === $insertedPath) {
+                    --$parentEntry['references'];
+                }
+
+                if (0 !== $parentEntry['references']) {
+                    $this->json['_order'][$path][] = $parentEntry;
+                }
+            }
+
+            if ('/' === $parentPath) {
+                break;
+            }
+
+            $parentPath = Path::getDirectory($parentPath);
+        };
     }
 }
