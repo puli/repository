@@ -16,9 +16,9 @@ use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\ChangeStream\ResourceStack;
-use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Webmozart\Glob\Glob;
+use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
 
 /**
