@@ -374,4 +374,14 @@ JSON;
             $this->writeRepo->get('/webmozart/file')->getFilesystemPath()
         );
     }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveFailsWhenPassingPathsThatAreNoMappings()
+    {
+        $this->writeRepo->add('/webmozart', new DirectoryResource($this->fixtureDir.'/dir1'));
+
+        $this->writeRepo->remove('/webmozart/file1');
+    }
 }

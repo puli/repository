@@ -11,7 +11,7 @@
 
 namespace Puli\Repository;
 
-use BadMethodCallException;
+use InvalidArgumentException;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceNotFoundException;
@@ -264,13 +264,14 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             }
         }
 
-        if (count($nonDeletablePaths) === 1) {
-            throw new BadMethodCallException(sprintf(
-                'The remove query "%s" matched a resource that is not a path mapping', $glob
-            ));
-        } elseif (count($nonDeletablePaths) > 1) {
-            throw new BadMethodCallException(sprintf(
-                'The remove query "%s" matched %s resources that are not path mappings', $glob, count($nonDeletablePaths)
+        if (count($nonDeletablePaths) > 0) {
+            throw new InvalidArgumentException(sprintf(
+                'You cannot remove resources that are not mapped in the JSON '.
+                'file. Tried to remove %s%s.',
+                reset($nonDeletablePaths),
+                count($nonDeletablePaths) > 1
+                    ? ' and '.(count($nonDeletablePaths) - 1).' more'
+                    : ''
             ));
         }
 
