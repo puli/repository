@@ -14,10 +14,10 @@ namespace Puli\Repository\Tests;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Puli\Repository\Tests\Resource\TestFilesystemDirectory;
-use Puli\Repository\Tests\Resource\TestFilesystemFile;
+use Puli\Repository\Tests\Resource\TestDirectory;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Glob\Test\TestUtil;
+use Webmozart\PathUtil\Path;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -54,14 +54,14 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
      *
      * @var int
      */
-    protected static $createdFiles = 0;
+    protected static $nextFileId = 0;
 
     /**
      * Counter to avoid collisions during tests on directories.
      *
      * @var int
      */
-    protected static $createdDirectories = 0;
+    protected static $nextDirectoryId = 0;
 
     protected function setUp()
     {
@@ -85,63 +85,70 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
         $filesystem->remove($this->tempDir);
     }
 
-    protected function createFile($path = null, $body = TestFilesystemFile::BODY)
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testContainsFailsIfLanguageNotGlob()
     {
-        return new TestFilesystemFile($path, $body);
+        $this->readRepo->contains('/*', 'foobar');
     }
 
-    protected function createDirectory($path = null, array $children = array())
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testFindFailsIfLanguageNotGlob()
     {
-        return new TestFilesystemDirectory($path, $children);
+        $this->readRepo->find('/*', 'foobar');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\UnsupportedLanguageException
+     * @expectedExceptionMessage foobar
+     */
+    public function testRemoveFailsIfLanguageNotGlob()
+    {
+        $this->writeRepo->remove('/*', 'foobar');
     }
 
     protected function prepareFixtures(PuliResource $root)
     {
-        return $this->recursivePrepareFixtures($root);
+        return $this->copyToFilesystem($root);
     }
 
     /**
-     * @param TestFilesystemFile|TestFilesystemDirectory $resource
-     * @param string                                     $parentPath
+     * @param PuliResource $resource
+     * @param string       $parentPath
      *
      * @return DirectoryResource|FileResource
      */
-    private function recursivePrepareFixtures($resource, $parentPath = '')
+    private function copyToFilesystem($resource, $parentPath = '')
     {
-        if ($resource instanceof TestFilesystemDirectory) {
-            if ($resource->getPath() !== null) {
-                $dirname = rtrim($parentPath.$resource->getPath(), '/');
-            } else {
-                $dirname = $parentPath.'/dir'.self::$createdDirectories;
-                ++self::$createdDirectories;
-            }
+        $filesystem = new Filesystem();
 
-            if (!is_dir($this->tempFixtureDir.$dirname)) {
-                mkdir($this->tempFixtureDir.$dirname, 0777, true);
-            }
+        if ($resource instanceof TestDirectory) {
+            $directoryPath = null === $resource->getPath()
+                ? $parentPath.'/dir'.(self::$nextDirectoryId++)
+                : $parentPath.rtrim($resource->getPath(), '/');
+
+            $filesystem->mkdir($this->tempFixtureDir.$directoryPath);
 
             foreach ($resource->listChildren() as $child) {
-                $this->recursivePrepareFixtures($child, $dirname);
+                $this->copyToFilesystem($child, $directoryPath);
             }
 
-            return new DirectoryResource($this->tempFixtureDir.$dirname, $resource->getPath());
-        } else {
-            if ($resource->getPath() !== null) {
-                $filename = rtrim($parentPath.$resource->getPath(), '/');
-            } else {
-                $filename = $parentPath.'/file'.self::$createdFiles;
-                ++self::$createdFiles;
-            }
-
-            $dirname = dirname($this->tempFixtureDir.$filename);
-
-            if (!is_dir($dirname)) {
-                mkdir($dirname, 0777, true);
-            }
-
-            file_put_contents($this->tempFixtureDir.$filename, $resource->getBody());
-
-            return new FileResource($this->tempFixtureDir.$filename, $resource->getPath());
+            return new DirectoryResource($this->tempFixtureDir.$directoryPath, $resource->getPath());
         }
+
+        $filePath = null === $resource->getPath()
+            ? $parentPath.'/file'.(self::$nextFileId++)
+            : $parentPath.rtrim($resource->getPath(), '/');
+
+        $filesystem->mkdir(Path::getDirectory($this->tempFixtureDir.$filePath));
+
+        file_put_contents($this->tempFixtureDir.$filePath, $resource->getBody());
+
+        return new FileResource($this->tempFixtureDir.$filePath, $resource->getPath());
     }
 }

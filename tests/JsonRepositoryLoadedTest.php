@@ -9,13 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Puli\Repository\Tests\Resource;
+namespace Puli\Repository\Tests;
 
-use Puli\Repository\Resource\AbstractFilesystemResource;
+use Puli\Repository\Api\EditableRepository;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-class TestFilesystemResource extends AbstractFilesystemResource
+class JsonRepositoryLoadedTest extends JsonRepositoryTest
 {
+    protected function createReadRepository(EditableRepository $writeRepo)
+    {
+        return $writeRepo;
+    }
 }
