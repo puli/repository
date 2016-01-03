@@ -17,20 +17,49 @@ use Webmozart\Glob\Glob;
 use Webmozart\PathUtil\Path;
 
 /**
- * An optimized path mapping resource repository.
- * When a resource is added, all its children are resolved
- * and getting them is much faster.
+ * A repository backed by a JSON file optimized for reading.
+ *
+ * The generated JSON file is described by res/schema/repository-schema-1.0.json.
  *
  * Resources can be added with the method {@link add()}:
  *
  * ```php
- * use Puli\Repository\OptimizedJsonRepository;
+ * use Puli\Repository\JsonRepository;
  *
- * $repo = new OptimizedJsonRepository();
+ * $repo = new JsonRepository('/path/to/repository.json', '/path/to/project');
  * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
- * This repository only supports instances of FilesystemResource.
+ * When adding a resource, the added filesystem path is stored in the JSON file
+ * under the key of the Puli path. The path is stored relatively to the base
+ * directory passed to the constructor. Directories will be expanded and all
+ * nested files will be added to the mapping file as well:
+ *
+ * ```json
+ * {
+ *     "/css": "res/css",
+ *     "/css/style.css": "res/css/style.css"
+ * }
+ * ```
+ *
+ * Mapped resources can be read with the method {@link get()}:
+ *
+ * ```php
+ * $cssPath = $repo->get('/css')->getFilesystemPath();
+ * ```
+ *
+ * You can also access nested files:
+ *
+ * ```php
+ * echo $repo->get('/css/style.css')->getBody();
+ * ```
+ *
+ * Since nested files are searched during {@link add()} and added to the JSON
+ * file, this repository does not detect any files that you add to a directory
+ * after adding that directory to the repository. This means that accessing
+ * files is very fast, but also that the usage of this repository implementation
+ * can be cumbersome in development environments. There you are recommended to
+ * use {@link JsonRepository} instead.
  *
  * @since  1.0
  *

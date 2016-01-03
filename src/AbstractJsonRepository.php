@@ -29,7 +29,9 @@ use Webmozart\Json\JsonEncoder;
 use Webmozart\PathUtil\Path;
 
 /**
- * Abstract base for Path mapping repositories.
+ * Base class for repositories backed by a JSON file.
+ *
+ * The generated JSON file is described by res/schema/repository-schema-1.0.json.
  *
  * @since  1.0
  *
@@ -97,7 +99,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->encoder = new JsonEncoder();
 
         if ($validateJson) {
-            $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
+            $this->schemaPath = realpath(__DIR__.'/../res/schema/repository-schema-1.0.json');
         }
     }
 

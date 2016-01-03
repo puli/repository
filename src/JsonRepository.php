@@ -22,20 +22,45 @@ use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
 use Webmozart\PathUtil\Path;
 
 /**
- * A development path mapping resource repository.
- * Each resource is resolved at `get()` time to improve
- * developer experience.
+ * A repository backed by a JSON file optimized for development.
+ *
+ * The generated JSON file is described by res/schema/repository-schema-1.0.json.
  *
  * Resources can be added with the method {@link add()}:
  *
  * ```php
  * use Puli\Repository\JsonRepository;
  *
- * $repo = new JsonRepository();
+ * $repo = new JsonRepository('/path/to/repository.json', '/path/to/project');
  * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
- * This repository only supports instances of FilesystemResource.
+ * When adding a resource, the added filesystem path is stored in the JSON file
+ * under the key of the Puli path. The path is stored relatively to the base
+ * directory passed to the constructor:
+ *
+ * ```json
+ * {
+ *     "/css": "res/css"
+ * }
+ * ```
+ *
+ * Mapped resources can be read with the method {@link get()}:
+ *
+ * ```php
+ * $cssPath = $repo->get('/css')->getFilesystemPath();
+ * ```
+ *
+ * You can also access nested files:
+ *
+ * ```php
+ * echo $repo->get('/css/style.css')->getBody();
+ * ```
+ *
+ * Nested files are searched during {@link get()}. As a consequence, this
+ * implementation should not be used in production environments. Use
+ * {@link OptimizedJsonRepository} instead which searches nested files during
+ * {@link add()} and has much faster read performance.
  *
  * @since  1.0
  *
@@ -59,14 +84,14 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     const NO_CHECK_FILE_EXISTS = 4;
 
     /**
-     * Flag: Include the references for mapped ancestor paths /a of a path /a/b
+     * Flag: Include the references for mapped ancestor paths /a of a path /a/b.
      *
      * @internal
      */
     const INCLUDE_ANCESTORS = 8;
 
     /**
-     * Flag: Include the references for mapped nested paths /a/b of a path /a
+     * Flag: Include the references for mapped nested paths /a/b of a path /a.
      *
      * @internal
      */
@@ -739,11 +764,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * Link references should be followed with {@link followLinks()} before
      * calling this method.
      *
-     * @param string[]|null[] $references  The references.
-     * @param string          $nestedPath  The nested path to append without
-     *                                     leading slash ("/").
-     * @param int             $flags       A bitwise combination of the flag
-     *                                     constants in this class.
+     * @param string[]|null[] $references The references.
+     * @param string          $nestedPath The nested path to append without
+     *                                    leading slash ("/").
+     * @param int             $flags      A bitwise combination of the flag
+     *                                    constants in this class.
      *
      * @return string[] The references with the nested path appended. Each
      *                  reference is guaranteed to exist on the filesystem.
