@@ -432,13 +432,15 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $json = (object) $this->json;
 
         if (isset($json->{'_order'})) {
-            foreach ($json->{'_order'} as $path => $entries) {
+            $order = $json->{'_order'};
+
+            foreach ($order as $path => $entries) {
                 foreach ($entries as $key => $entry) {
-                    $json->{'_order'}[$path][$key] = (object) $entry;
+                    $order[$path][$key] = (object) $entry;
                 }
             }
 
-            $json->{'_order'} = (object) $json->{'_order'};
+            $json->{'_order'} = (object) $order;
         }
 
         $this->encoder->encodeFile($json, $this->path, $this->schemaPath);
