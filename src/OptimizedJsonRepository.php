@@ -120,27 +120,29 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
             if (0 === strpos($path, $staticPrefix)) {
                 $foundMappingsWithPrefix = true;
 
-                if (preg_match($regex, $path)) {
-                    // We're only interested in the first entry of eventual arrays
-                    if (is_array($reference)) {
-                        $reference = reset($reference);
+                if (!preg_match($regex, $path)) {
+                    continue;
+                }
+
+                // We're only interested in the first entry of eventual arrays
+                if (is_array($reference)) {
+                    $reference = reset($reference);
+                }
+
+                if ($this->isFilesystemReference($reference)) {
+                    $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+
+                    // Ignore non-existing files. Not sure this is the right
+                    // thing to do.
+                    if (!file_exists($reference)) {
+                        continue;
                     }
+                }
 
-                    if ($this->isFilesystemReference($reference)) {
-                        $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+                $result[$path] = $reference;
 
-                        // Ignore non-existing files. Not sure this is the right
-                        // thing to do.
-                        if (!file_exists($reference)) {
-                            continue;
-                        }
-                    }
-
-                    $result[$path] = $reference;
-
-                    if ($flags & self::STOP_ON_FIRST) {
-                        return $result;
-                    }
+                if ($flags & self::STOP_ON_FIRST) {
+                    return $result;
                 }
 
                 continue;
