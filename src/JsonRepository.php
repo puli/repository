@@ -45,6 +45,34 @@ use Webmozart\PathUtil\Path;
 class JsonRepository extends AbstractJsonRepository implements EditableRepository
 {
     /**
+     * Flag: Don't search the contents of mapped directories for matching paths.
+     *
+     * @internal
+     */
+    const NO_SEARCH_FILESYSTEM = 2;
+
+    /**
+     * Flag: Don't filter out references that don't exist on the filesystem.
+     *
+     * @internal
+     */
+    const NO_CHECK_FILE_EXISTS = 4;
+
+    /**
+     * Flag: Include the references for mapped ancestor paths /a of a path /a/b
+     *
+     * @internal
+     */
+    const INCLUDE_ANCESTORS = 8;
+
+    /**
+     * Flag: Include the references for mapped nested paths /a/b of a path /a
+     *
+     * @internal
+     */
+    const INCLUDE_NESTED = 16;
+
+    /**
      * Creates a new repository.
      *
      * @param string $path          The path to the JSON file. If relative, it
@@ -108,14 +136,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
         $references = $this->searchReferences(
             $path,
-            // Don't stop for the first result
-            false,
-            // Don't check the filesystem. We only want mappings
-            false,
-            // Include references mapped to nested paths
-            true,
-            // Include references mapped to ancestor paths
-            true
+            // Don't do filesystem checks here. We only check the filesystem
+            // when reading, not when adding.
+            self::NO_SEARCH_FILESYSTEM | self::NO_CHECK_FILE_EXISTS
+                // Include references for mapped ancestor and nested paths
+                | self::INCLUDE_ANCESTORS | self::INCLUDE_NESTED
         );
 
         // Filter virtual resources
@@ -224,10 +249,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             ));
         }
 
-        // Don't stop on the first result
-        // Don't list directories. We only want to list the mappings that exist
-        // in the JSON here.
-        $deletedPaths = $this->getReferencesForGlob($glob.'{,/**/*}', false, false);
+        $deletedPaths = $this->getReferencesForGlob($glob.'{,/**/*}', self::NO_SEARCH_FILESYSTEM);
         $removed = 0;
 
         foreach ($deletedPaths as $path => $filesystemPath) {
@@ -251,7 +273,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesForGlob($glob, $stopOnFirst = false, $traverseDirectories = true)
+    protected function getReferencesForGlob($glob, $flags = 0)
     {
         if (!Glob::isDynamic($glob)) {
             return $this->getReferencesForPath($glob);
@@ -260,25 +282,21 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         return $this->getReferencesForRegex(
             Glob::getBasePath($glob),
             Glob::toRegEx($glob),
-            $stopOnFirst,
-            $traverseDirectories
+            $flags
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false, $traverseDirectories = true, $maxDepth = 0)
+    protected function getReferencesForRegex($staticPrefix, $regex, $flags = 0, $maxDepth = 0)
     {
         return $this->flattenWithFilter(
             // Never stop on the first result before applying the filter since
             // the filter may reject the only returned path
-            // Check the filesystem
-            // Include nested path mappings and match them against the pattern
-            $this->searchReferences($staticPrefix, false, true, true),
+            $this->searchReferences($staticPrefix, self::INCLUDE_NESTED),
             $regex,
-            $stopOnFirst,
-            $traverseDirectories,
+            $flags,
             $maxDepth
         );
     }
@@ -286,16 +304,14 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesInDirectory($path, $stopOnFirst = false)
+    protected function getReferencesInDirectory($path, $flags = 0)
     {
         $basePath = rtrim($path, '/');
 
         return $this->getReferencesForRegex(
             $basePath.'/',
             '~^'.preg_quote($basePath, '~').'/[^/]+$~',
-            $stopOnFirst,
-            // Traverse directories and match their contents against the glob
-            true,
+            $flags,
             // Limit the directory exploration to the depth of the path + 1
             $this->getPathDepth($path) + 1
         );
@@ -358,22 +374,19 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
      *
-     * @param array  $references          A two-level reference array as
-     *                                    returned by {@link searchReferences()}.
-     * @param string $regex               A regular expression used to filter
-     *                                    Puli paths.
-     * @param bool   $stopOnFirst         Whether to stop after finding a first
-     *                                    result.
-     * @param bool   $traverseDirectories Whether to search the contents of
-     *                                    directory references for more matches.
-     * @param int    $maxDepth            The maximum path depth when searching
-     *                                    the contents of directory references.
-     *                                    If 0, the depth is unlimited.
+     * @param array  $references A two-level reference array as returned by
+     *                           {@link searchReferences()}.
+     * @param string $regex      A regular expression used to filter Puli paths.
+     * @param int    $flags      A bitwise combination of the flag constants in
+     *                           this class.
+     * @param int    $maxDepth   The maximum path depth when searching the
+     *                           contents of directory references. If 0, the
+     *                           depth is unlimited.
      *
      * @return string[]|null[] A one-level array of references with Puli paths
      *                         as keys.
      */
-    private function flattenWithFilter(array $references, $regex, $stopOnFirst = false, $traverseDirectories = false, $maxDepth = 0)
+    private function flattenWithFilter(array $references, $regex, $flags = 0, $maxDepth = 0)
     {
         $result = array();
 
@@ -383,12 +396,12 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 // If yes, the first stored reference is returned
                 $result[$currentPath] = reset($currentReferences);
 
-                if ($stopOnFirst) {
+                if ($flags & self::STOP_ON_FIRST) {
                     return $result;
                 }
             }
 
-            if (!$traverseDirectories) {
+            if ($flags & self::NO_SEARCH_FILESYSTEM) {
                 continue;
             }
 
@@ -431,7 +444,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                     if (!isset($result[$nestedPath]) && preg_match($regex, $nestedPath)) {
                         $result[$nestedPath] = $nestedFilesystemPath;
 
-                        if ($stopOnFirst) {
+                        if ($flags & self::STOP_ON_FIRST) {
                             return $result;
                         }
                     }
@@ -475,18 +488,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *  * strings starting with "@" for links
      *  * absolute filesystem paths for filesystem resources
      *
-     * @param string $searchPath       The path to search.
-     * @param bool   $stopOnFirst      Whether to stop after finding a first result.
-     * @param bool   $checkFilesystem  Whether to check directories of ancestor
-     *                                 references for the searched path.
-     * @param bool   $includeNested    Whether to include the references of path
-     *                                 mappings for nested paths.
-     * @param bool   $includeAncestors Whether to include the references of path
-     *                                 mappings for ancestor paths.
+     * @param string $searchPath The path to search.
+     * @param int    $flags      A bitwise combination of the flag constants in
+     *                           this class.
      *
      * @return array An array with two levels.
      */
-    private function searchReferences($searchPath, $stopOnFirst = false, $checkFilesystem = true, $includeNested = false, $includeAncestors = false)
+    private function searchReferences($searchPath, $flags = 0)
     {
         $result = array();
         $foundMatchingMappings = false;
@@ -500,11 +508,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             // e.g. mapping /a/b for path /a/b
             if ($searchPathForTest === $currentPathForTest) {
                 $foundMatchingMappings = true;
-                $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst, $checkFilesystem);
+                $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
 
                 // Return unless an explicit mapping order is defined
                 // In that case, the ancestors need to be searched as well
-                if ($stopOnFirst && !isset($this->json['_order'][$currentPath])) {
+                if (($flags & self::STOP_ON_FIRST) && !isset($this->json['_order'][$currentPath])) {
                     return $result;
                 }
 
@@ -513,13 +521,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
             // We found a mapping that lies within the search path
             // e.g. mapping /a/b/c for path /a/b
-            if ($includeNested && 0 === strpos($currentPathForTest, $searchPathForTest)) {
+            if (($flags & self::INCLUDE_NESTED) && 0 === strpos($currentPathForTest, $searchPathForTest)) {
                 $foundMatchingMappings = true;
-                $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst, $checkFilesystem);
+                $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
 
                 // Return unless an explicit mapping order is defined
                 // In that case, the ancestors need to be searched as well
-                if ($stopOnFirst && !isset($this->json['_order'][$currentPath])) {
+                if (($flags & self::STOP_ON_FIRST) && !isset($this->json['_order'][$currentPath])) {
                     return $result;
                 }
 
@@ -531,20 +539,20 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if (0 === strpos($searchPathForTest, $currentPathForTest)) {
                 $foundMatchingMappings = true;
 
-                if ($includeAncestors) {
+                if ($flags & self::INCLUDE_ANCESTORS) {
                     // Include the references of the ancestor
-                    $result[$currentPath] = $this->resolveReferences($currentReferences, $stopOnFirst, $checkFilesystem);
+                    $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
 
                     // Return unless an explicit mapping order is defined
                     // In that case, the ancestors need to be searched as well
-                    if ($stopOnFirst && !isset($this->json['_order'][$currentPath])) {
+                    if (($flags & self::STOP_ON_FIRST) && !isset($this->json['_order'][$currentPath])) {
                         return $result;
                     }
 
                     continue;
                 }
 
-                if (!$checkFilesystem) {
+                if ($flags & self::NO_SEARCH_FILESYSTEM) {
                     continue;
                 }
 
@@ -558,7 +566,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 $currentReferencesResolved = $this->followLinks(
                     // Never stop on first, since appendNestedPath() might
                     // discard the first but accept the second entry
-                    $this->resolveReferences($currentReferences, false, $checkFilesystem),
+                    $this->resolveReferences($currentReferences, $flags & (~self::STOP_ON_FIRST)),
                     // Never stop on first (see above)
                     false
                 );
@@ -567,7 +575,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 $nestedReferences = $this->appendPathAndFilterExisting(
                     $currentReferencesResolved,
                     $nestedPath,
-                    $stopOnFirst
+                    $flags
                 );
 
                 // None of the results exists
@@ -577,7 +585,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
                 // Return unless an explicit mapping order is defined
                 // In that case, the ancestors need to be searched as well
-                if ($stopOnFirst && !isset($this->json['_order'][$currentPathWithNested])) {
+                if (($flags & self::STOP_ON_FIRST) && !isset($this->json['_order'][$currentPathWithNested])) {
                     // The nested references already have size 1
                     return array($currentPathWithNested => $nestedReferences);
                 }
@@ -649,7 +657,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 // Only include references of the first mapped path
                 // Since $stopOnFirst is set, those references have a
                 // maximum size of 1
-                if ($stopOnFirst) {
+                if ($flags & self::STOP_ON_FIRST) {
                     break;
                 }
             }
@@ -671,9 +679,9 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *
      * Absolute filesystem paths are returned unchanged.
      *
-     * @param string[]|null[] $references  The references.
-     * @param bool            $stopOnFirst Whether to stop after finding a first
-     *                                     result.
+     * @param string[]|null[] $references The references.
+     * @param int             $flags      A bitwise combination of the flag
+     *                                    constants in this class.
      *
      * @return string[]|null[] The references with all links replaced by their
      *                         target references. If any link pointed to more
@@ -681,7 +689,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *                         is larger than the passed array (unless the
      *                         argument `$stopOnFirst` was set to `true`).
      */
-    private function followLinks(array $references, $stopOnFirst = false)
+    private function followLinks(array $references, $flags = 0)
     {
         $result = array();
 
@@ -690,7 +698,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if (!$this->isLinkReference($reference)) {
                 $result[] = $reference;
 
-                if ($stopOnFirst) {
+                if ($flags & self::STOP_ON_FIRST) {
                     return $result;
                 }
 
@@ -701,7 +709,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
             // Get all the file system paths that this link points to
             // and append them to the result
-            foreach ($this->searchReferences($referencedPath, $stopOnFirst) as $referencedReferences) {
+            foreach ($this->searchReferences($referencedPath, $flags) as $referencedReferences) {
                 // Follow links recursively
                 $referencedReferences = $this->followLinks($referencedReferences);
 
@@ -709,7 +717,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 foreach ($referencedReferences as $referencedReference) {
                     $result[] = $referencedReference;
 
-                    if ($stopOnFirst) {
+                    if ($flags & self::STOP_ON_FIRST) {
                         return $result;
                     }
                 }
@@ -734,13 +742,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * @param string[]|null[] $references  The references.
      * @param string          $nestedPath  The nested path to append without
      *                                     leading slash ("/").
-     * @param bool            $stopOnFirst Whether to stop after finding a first
-     *                                     result.
+     * @param int             $flags       A bitwise combination of the flag
+     *                                     constants in this class.
      *
      * @return string[] The references with the nested path appended. Each
      *                  reference is guaranteed to exist on the filesystem.
      */
-    private function appendPathAndFilterExisting(array $references, $nestedPath, $stopOnFirst = false)
+    private function appendPathAndFilterExisting(array $references, $nestedPath, $flags = 0)
     {
         $result = array();
 
@@ -756,7 +764,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             if (file_exists($nestedReference)) {
                 $result[] = $nestedReference;
 
-                if ($stopOnFirst) {
+                if ($flags & self::STOP_ON_FIRST) {
                     return $result;
                 }
             }
@@ -784,14 +792,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * Additionally, the results are guaranteed to be an array. If the
      * argument `$stopOnFirst` is set, that array has a maximum size of 1.
      *
-     * @param mixed $references      The reference(s).
-     * @param bool  $stopOnFirst     Whether to stop after finding a first result.
-     * @param bool  $checkFilesystem whether to filter out references that don't
-     *                               exist on the filesystem.
+     * @param mixed $references The reference(s).
+     * @param int   $flags      A bitwise combination of the flag constants in
+     *                          this class.
      *
      * @return string[]|null[] The resolved references.
      */
-    private function resolveReferences($references, $stopOnFirst = false, $checkFilesystem = true)
+    private function resolveReferences($references, $flags = 0)
     {
         if (!is_array($references)) {
             $references = array($references);
@@ -803,12 +810,12 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
                 // Ignore non-existing files. Not sure this is the right
                 // thing to do.
-                if (!$checkFilesystem || file_exists($reference)) {
+                if (($flags & self::NO_CHECK_FILE_EXISTS) || file_exists($reference)) {
                     $references[$key] = $reference;
                 }
             }
 
-            if ($stopOnFirst) {
+            if ($flags & self::STOP_ON_FIRST) {
                 return $references;
             }
         }

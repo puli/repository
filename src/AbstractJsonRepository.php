@@ -39,6 +39,13 @@ use Webmozart\PathUtil\Path;
 abstract class AbstractJsonRepository extends AbstractEditableRepository
 {
     /**
+     * Flag: Whether to stop after the first result.
+     *
+     * @internal
+     */
+    const STOP_ON_FIRST = 1;
+
+    /**
      * @var array
      */
     protected $json;
@@ -174,8 +181,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->validateSearchLanguage($language);
         $query = $this->sanitizePath($query);
 
-        // Stop on the first result
-        $results = $this->getReferencesForGlob($query, true);
+        $results = $this->getReferencesForGlob($query, self::STOP_ON_FIRST);
 
         return !empty($results);
     }
@@ -256,8 +262,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
 
         $path = $this->sanitizePath($path);
 
-        // Stop on the first result
-        $results = $this->getReferencesInDirectory($path, true);
+        $results = $this->getReferencesInDirectory($path, self::STOP_ON_FIRST);
 
         if (empty($results)) {
             $pathResults = $this->getReferencesForPath($path);
@@ -322,13 +327,14 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
      *
-     * @param string $glob        The glob.
-     * @param bool   $stopOnFirst Whether to stop after finding a first result.
+     * @param string $glob  The glob.
+     * @param int    $flags A bitwise combination of the flag constants in this
+     *                      class.
      *
      * @return string[]|null[] A one-level array of references with Puli paths
      *                         as keys.
      */
-    abstract protected function getReferencesForGlob($glob, $stopOnFirst = false);
+    abstract protected function getReferencesForGlob($glob, $flags = 0);
 
     /**
      * Returns the references matching a given Puli path regular expression.
@@ -344,12 +350,13 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      * @param string $staticPrefix The static prefix of all Puli paths matching
      *                             the regular expression.
      * @param string $regex        The regular expression.
-     * @param bool   $stopOnFirst  Whether to stop after finding a first result.
+     * @param int    $flags        A bitwise combination of the flag constants
+     *                             in this class.
      *
      * @return string[]|null[] A one-level array of references with Puli paths
      *                         as keys.
      */
-    abstract protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false);
+    abstract protected function getReferencesForRegex($staticPrefix, $regex, $flags = 0);
 
     /**
      * Returns the references in a given Puli path.
@@ -362,13 +369,14 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
      *
-     * @param string $path        The Puli path.
-     * @param bool   $stopOnFirst Whether to stop after finding a first result.
+     * @param string $path  The Puli path.
+     * @param int    $flags A bitwise combination of the flag constants in this
+     *                      class.
      *
      * @return string[]|null[] A one-level array of references with Puli paths
      *                         as keys.
      */
-    abstract protected function getReferencesInDirectory($path, $stopOnFirst = false);
+    abstract protected function getReferencesInDirectory($path, $flags = 0);
 
     /**
      * Adds a filesystem resource to the JSON file.

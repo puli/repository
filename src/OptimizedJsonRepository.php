@@ -95,7 +95,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesForGlob($glob, $stopOnFirst = false)
+    protected function getReferencesForGlob($glob, $flags = 0)
     {
         if (!Glob::isDynamic($glob)) {
             return $this->getReferencesForPath($glob);
@@ -104,14 +104,14 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         return $this->getReferencesForRegex(
             Glob::getStaticPrefix($glob),
             Glob::toRegEx($glob),
-            $stopOnFirst
+            $flags
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesForRegex($staticPrefix, $regex, $stopOnFirst = false)
+    protected function getReferencesForRegex($staticPrefix, $regex, $flags = 0)
     {
         $result = array();
         $foundMappingsWithPrefix = false;
@@ -138,7 +138,7 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
 
                     $result[$path] = $reference;
 
-                    if ($stopOnFirst) {
+                    if ($flags & self::STOP_ON_FIRST) {
                         return $result;
                     }
                 }
@@ -160,14 +160,14 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     /**
      * {@inheritdoc}
      */
-    protected function getReferencesInDirectory($path, $stopOnFirst = false)
+    protected function getReferencesInDirectory($path, $flags = 0)
     {
         $basePath = rtrim($path, '/');
 
         return $this->getReferencesForRegex(
             $basePath.'/',
             '~^'.preg_quote($basePath, '~').'/[^/]+$~',
-            $stopOnFirst
+            $flags
         );
     }
 
