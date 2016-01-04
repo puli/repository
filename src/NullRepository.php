@@ -12,6 +12,7 @@
 namespace Puli\Repository;
 
 use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\NoVersionFoundException;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 
@@ -60,9 +61,9 @@ class NullRepository implements EditableRepository
     /**
      * {@inheritdoc}
      */
-    public function getStack($path)
+    public function getVersions($path)
     {
-        throw ResourceNotFoundException::forPath($path);
+        throw NoVersionFoundException::forPath($path);
     }
 
     /**

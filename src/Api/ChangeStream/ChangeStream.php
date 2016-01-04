@@ -11,36 +11,58 @@
 
 namespace Puli\Repository\Api\ChangeStream;
 
-use InvalidArgumentException;
+use Puli\Repository\Api\NoVersionFoundException;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\ChangeStream\ResourceStack;
 
 /**
- * Stream to track repositories changes and fetch previous versions of resources.
+ * Tracks different versions of a resource.
  *
  * @since  1.0
  *
  * @author Titouan Galopin <galopintitouan@gmail.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  */
 interface ChangeStream
 {
     /**
-     * Store a version of a resource in the ChangeStream to retrieve it if needed.
+     * Stores a new version of a resource.
      *
-     * @param PuliResource $resource
+     * @param PuliResource $resource The resource to store.
      */
     public function append(PuliResource $resource);
 
     /**
-     * Create a stack of resources for the given path.
+     * Removes all versions stored for a path.
      *
-     * @param ResourceRepository $repository
-     * @param string             $path
-     *
-     * @return ResourceStack
-     *
-     * @throws InvalidArgumentException When the given path has no version in the change stream.
+     * @param string $path The Puli path.
      */
-    public function buildStack(ResourceRepository $repository, $path);
+    public function purge($path);
+
+    /**
+     * Returns whether the stream contains any version for a path.
+     *
+     * @param string $path The Puli path.
+     *
+     * @return bool Returns `true` if a version can be found and `false` otherwise.
+     */
+    public function contains($path);
+
+    /**
+     * Removes all contents of the stream.
+     */
+    public function clear();
+
+    /**
+     * Returns all versions of a resource.
+     *
+     * @param string             $path       The Puli path to look for.
+     * @param ResourceRepository $repository The repository to attach the
+     *                                       resources to.
+     *
+     * @return VersionList The versions of the resource.
+     *
+     * @throws NoVersionFoundException If no version is found for the path.
+     */
+    public function getVersions($path, ResourceRepository $repository = null);
 }

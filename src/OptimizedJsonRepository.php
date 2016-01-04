@@ -24,9 +24,9 @@ use Webmozart\PathUtil\Path;
  * Resources can be added with the method {@link add()}:
  *
  * ```php
- * use Puli\Repository\JsonRepository;
+ * use Puli\Repository\OptimizedJsonRepository;
  *
- * $repo = new JsonRepository('/path/to/repository.json', '/path/to/project');
+ * $repo = new OptimizedJsonRepository('/path/to/repository.json', '/path/to/project');
  * $repo->add('/css', new DirectoryResource('/path/to/project/res/css'));
  * ```
  *
@@ -71,6 +71,28 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
     /**
      * {@inheritdoc}
      */
+    public function clear()
+    {
+        if (null === $this->json) {
+            $this->load();
+        }
+
+        // Subtract root which is not deleted
+        $removed = count($this->json) - 1;
+
+        $this->json = array();
+
+        $this->flush();
+
+        $this->clearVersions();
+        $this->storeVersion($this->get('/'));
+
+        return $removed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function insertReference($path, $reference)
     {
         $this->json[$path] = $reference;
@@ -85,6 +107,8 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
 
         foreach ($this->getReferencesForGlob($glob.'{,/**/*}') as $path => $reference) {
             ++$removed;
+
+            $this->removeVersions($path);
 
             unset($this->json[$path]);
         }
@@ -109,13 +133,15 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
         }
 
         if ($this->isFilesystemReference($reference)) {
-            $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+            $absoluteReference = Path::makeAbsolute($reference, $this->baseDirectory);
 
-            // Ignore non-existing files. Not sure this is the right
-            // thing to do.
-            if (!file_exists($reference)) {
+            if (!file_exists($absoluteReference)) {
+                $this->logReferenceNotFound($path, $reference, $absoluteReference);
+
                 return array();
             }
+
+            $reference = $absoluteReference;
         }
 
         return array($path => $reference);
@@ -159,13 +185,15 @@ class OptimizedJsonRepository extends AbstractJsonRepository implements Editable
                 }
 
                 if ($this->isFilesystemReference($reference)) {
-                    $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+                    $absoluteReference = Path::makeAbsolute($reference, $this->baseDirectory);
 
-                    // Ignore non-existing files. Not sure this is the right
-                    // thing to do.
-                    if (!file_exists($reference)) {
+                    if (!file_exists($absoluteReference)) {
+                        $this->logReferenceNotFound($path, $reference, $absoluteReference);
+
                         continue;
                     }
+
+                    $reference = $absoluteReference;
                 }
 
                 $result[$path] = $reference;

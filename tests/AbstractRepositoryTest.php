@@ -719,7 +719,7 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         $repo->find(new \stdClass());
     }
 
-    public function testGetDefaultStack()
+    public function testGetVersions()
     {
         $repo = $this->createPrefilledRepository($this->prepareFixtures($this->createDirectory('/', array(
             $this->createDirectory('/webmozart', array(
@@ -731,22 +731,36 @@ abstract class AbstractRepositoryTest extends PHPUnit_Framework_TestCase
         ))));
 
         $resource = $repo->get('/webmozart/puli/file1');
-        $stack = $repo->getStack('/webmozart/puli/file1');
+        $versions = $repo->getVersions('/webmozart/puli/file1');
 
-        $this->assertInstanceOf('Puli\Repository\ChangeStream\ResourceStack', $stack);
-        $this->assertEquals(array(0), $stack->getVersions());
-        $this->assertEquals($resource, $stack->getFirst());
-        $this->assertEquals($resource, $stack->getCurrent());
-        $this->assertEquals($resource, $stack->get(0));
+        $this->assertInstanceOf('Puli\Repository\Api\ChangeStream\VersionList', $versions);
+        $this->assertEquals(array(0), $versions->getVersions());
+        $this->assertEquals($resource, $versions->getFirst());
+        $this->assertEquals($resource, $versions->getCurrent());
+        $this->assertEquals($resource, $versions->get(0));
+    }
+
+    public function testGetRootVersions()
+    {
+        $repo = $this->createPrefilledRepository($this->prepareFixtures($this->createDirectory()));
+
+        $resource = $repo->get('/');
+        $versions = $repo->getVersions('/');
+
+        $this->assertInstanceOf('Puli\Repository\Api\ChangeStream\VersionList', $versions);
+        $this->assertEquals(array(0), $versions->getVersions());
+        $this->assertEquals($resource, $versions->getFirst());
+        $this->assertEquals($resource, $versions->getCurrent());
+        $this->assertEquals($resource, $versions->get(0));
     }
 
     /**
-     * @expectedException \Puli\Repository\Api\ResourceNotFoundException
+     * @expectedException \Puli\Repository\Api\NoVersionFoundException
      */
-    public function testGetStackExpectsExistingResourceDefaultStack()
+    public function testGetVersionsFailsIfNoneFound()
     {
         $repo = $this->createPrefilledRepository($this->prepareFixtures($this->createDirectory('/')));
 
-        $repo->get('/foo/bar');
+        $repo->getVersions('/foo/bar');
     }
 }

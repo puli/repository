@@ -11,9 +11,11 @@
 
 namespace Puli\Repository;
 
+use Puli\Repository\Api\ChangeStream\VersionList;
+use Puli\Repository\Api\NoVersionFoundException;
+use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\Repository\Api\UnsupportedLanguageException;
-use Puli\Repository\ChangeStream\ResourceStack;
 use Webmozart\Assert\Assert;
 use Webmozart\PathUtil\Path;
 
@@ -30,10 +32,14 @@ abstract class AbstractRepository implements ResourceRepository
     /**
      * {@inheritdoc}
      */
-    public function getStack($path)
+    public function getVersions($path)
     {
-        // The basic repositories are not editable: you cannot have multiple versions of the same resource.
-        return new ResourceStack(array($this->get($path)));
+        // Non-editable repositories always contain only one version of a resource
+        try {
+            return new VersionList($path, array($this->get($path)));
+        } catch (ResourceNotFoundException $e) {
+            throw NoVersionFoundException::forPath($path, $e);
+        }
     }
 
     /**
@@ -41,7 +47,7 @@ abstract class AbstractRepository implements ResourceRepository
      *
      * @param string $language
      */
-    protected function validateSearchLanguage($language)
+    protected function failUnlessGlob($language)
     {
         if ('glob' !== $language) {
             throw UnsupportedLanguageException::forLanguage($language);

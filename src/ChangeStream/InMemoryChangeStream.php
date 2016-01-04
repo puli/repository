@@ -11,53 +11,83 @@
 
 namespace Puli\Repository\ChangeStream;
 
-use InvalidArgumentException;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
+use Puli\Repository\Api\ChangeStream\VersionList;
+use Puli\Repository\Api\NoVersionFoundException;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Api\ResourceRepository;
 
 /**
- * ChangeStream stored in memory (as an array).
+ * A change stream stored in memory.
  *
  * @since  1.0
  *
  * @author Titouan Galopin <galopintitouan@gmail.com>
+ * @author Bernhard Schussek <bschussek@gmail.com>
  */
 class InMemoryChangeStream implements ChangeStream
 {
     /**
      * @var array
      */
-    private $stack = array();
+    private $versions = array();
 
     /**
      * {@inheritdoc}
      */
     public function append(PuliResource $resource)
     {
-        if (!isset($this->stack[$resource->getPath()])) {
-            $this->stack[$resource->getPath()] = array();
+        if (!isset($this->versions[$resource->getPath()])) {
+            $this->versions[$resource->getPath()] = array();
         }
 
-        $this->stack[$resource->getPath()][] = $resource;
+        $this->versions[$resource->getPath()][] = $resource;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildStack(ResourceRepository $repository, $path)
+    public function purge($path)
     {
-        if (!isset($this->stack[$path])) {
-            throw new InvalidArgumentException(sprintf('No version of path %s were found in the ChangeStream', $path));
+        unset($this->versions[$path]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        $this->versions = array();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function contains($path)
+    {
+        return isset($this->versions[$path]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVersions($path, ResourceRepository $repository = null)
+    {
+        if (!isset($this->versions[$path])) {
+            throw NoVersionFoundException::forPath($path);
         }
 
-        $resources = array();
+        $versions = array();
 
-        foreach ($this->stack[$path] as $resource) {
-            $resource->attachTo($repository, $path);
-            $resources[] = $resource;
+        foreach ($this->versions[$path] as $resource) {
+            if (null !== $repository) {
+                $resource = clone $resource;
+                $resource->attachTo($repository, $path);
+            }
+
+            $versions[] = $resource;
         }
 
-        return new ResourceStack($resources);
+        return new VersionList($path, $versions);
     }
 }

@@ -24,7 +24,6 @@ use Puli\Repository\Resource\Collection\FilesystemResourceCollection;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
 use Puli\Repository\Resource\LinkResource;
-use RecursiveIteratorIterator;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\Assert\Assert;
@@ -72,6 +71,11 @@ class FilesystemRepository extends AbstractEditableRepository
      * @var string
      */
     private $baseDir;
+
+    /**
+     * @var int
+     */
+    private $baseDirLength;
 
     /**
      * @var bool
@@ -133,6 +137,7 @@ class FilesystemRepository extends AbstractEditableRepository
         Assert::boolean($symlink);
 
         $this->baseDir = rtrim(Path::canonicalize($baseDir), '/');
+        $this->baseDirLength = strlen($baseDir);
         $this->symlink = $symlink && self::isSymlinkSupported();
         $this->relative = $this->symlink && $relative;
         $this->filesystem = new Filesystem();
@@ -258,9 +263,14 @@ class FilesystemRepository extends AbstractEditableRepository
         $iterator = $this->getDirectoryIterator($this->baseDir);
         $removed = 0;
 
+        // Batch-delete all versions
+        $this->clearVersions();
+
         foreach ($iterator as $filesystemPath) {
             $this->removeResource($filesystemPath, $removed);
         }
+
+        $this->storeVersion($this->get('/'));
 
         return $removed;
     }
@@ -317,7 +327,7 @@ class FilesystemRepository extends AbstractEditableRepository
                 $this->filesystem->mirror($resource->getFilesystemPath(), $pathInBaseDir);
             }
 
-            $this->appendToChangeStream($resource);
+            $this->storeVersion($resource);
 
             return;
         }
@@ -333,7 +343,7 @@ class FilesystemRepository extends AbstractEditableRepository
 
             $this->filesystem->symlink($this->baseDir.$resource->getTargetPath(), $pathInBaseDir);
 
-            $this->appendToChangeStream($resource);
+            $this->storeVersion($resource);
 
             return;
         }
@@ -341,7 +351,7 @@ class FilesystemRepository extends AbstractEditableRepository
         if ($hasBody) {
             file_put_contents($pathInBaseDir, $resource->getBody());
 
-            $this->appendToChangeStream($resource);
+            $this->storeVersion($resource);
 
             return;
         }
@@ -358,7 +368,7 @@ class FilesystemRepository extends AbstractEditableRepository
             $this->addResource($path.'/'.$child->getName(), $child, false);
         }
 
-        $this->appendToChangeStream($resource);
+        $this->storeVersion($resource);
     }
 
     private function removeResource($filesystemPath, &$removed)
@@ -368,10 +378,17 @@ class FilesystemRepository extends AbstractEditableRepository
             return;
         }
 
+        $this->removeVersions($this->getPath($filesystemPath));
+
         ++$removed;
 
         if (is_dir($filesystemPath)) {
-            $removed += $this->countChildren($filesystemPath);
+            $iterator = $this->getDirectoryIterator($filesystemPath);
+
+            foreach ($iterator as $childFilesystemPath) {
+                // Remove children and child versions
+                $this->removeResource($childFilesystemPath, $removed);
+            }
         }
 
         $this->filesystem->remove($filesystemPath);
@@ -404,27 +421,8 @@ class FilesystemRepository extends AbstractEditableRepository
         return $resource;
     }
 
-    private function countChildren($filesystemPath)
-    {
-        $iterator = new RecursiveIteratorIterator(
-            $this->getDirectoryIterator($filesystemPath),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-
-        $iterator->rewind();
-        $count = 0;
-
-        while ($iterator->valid()) {
-            ++$count;
-            $iterator->next();
-        }
-
-        return $count;
-    }
-
     private function iteratorToCollection(Iterator $iterator)
     {
-        $offset = strlen($this->baseDir);
         $filesystemPaths = iterator_to_array($iterator);
         $resources = array();
 
@@ -432,11 +430,9 @@ class FilesystemRepository extends AbstractEditableRepository
         sort($filesystemPaths);
 
         foreach ($filesystemPaths as $filesystemPath) {
-            $path = substr($filesystemPath, $offset);
-
             $resource = is_dir($filesystemPath)
-                ? new DirectoryResource($filesystemPath, $path)
-                : new FileResource($filesystemPath, $path);
+                ? new DirectoryResource($filesystemPath, $this->getPath($filesystemPath))
+                : new FileResource($filesystemPath, $this->getPath($filesystemPath));
 
             $resource->attachTo($this);
 
@@ -460,7 +456,7 @@ class FilesystemRepository extends AbstractEditableRepository
 
     private function getGlobIterator($query, $language)
     {
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
 
         Assert::stringNotEmpty($query, 'The glob must be a non-empty string. Got: %s');
         Assert::startsWith($query, '/', 'The glob %s is not absolute.');
@@ -598,5 +594,10 @@ class FilesystemRepository extends AbstractEditableRepository
         // Consistency FTW!
 
         return '\\' === DIRECTORY_SEPARATOR ? realpath($filesystemPath) : readlink($filesystemPath);
+    }
+
+    private function getPath($filesystemPath)
+    {
+        return substr($filesystemPath, $this->baseDirLength);
     }
 }

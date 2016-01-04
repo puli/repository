@@ -11,10 +11,12 @@
 
 namespace Puli\Repository\Tests;
 
+use Psr\Log\LogLevel;
 use Puli\Repository\Api\EditableRepository;
 use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\JsonRepository;
 use Puli\Repository\Resource\DirectoryResource;
+use Puli\Repository\Resource\FileResource;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
@@ -22,13 +24,6 @@ use Puli\Repository\Resource\DirectoryResource;
  */
 class JsonRepositoryTest extends AbstractJsonRepositoryTest
 {
-    /**
-     * Counter to avoid collisions during tests on directories.
-     *
-     * @var int
-     */
-    protected static $nextDirectoryId = 0;
-
     protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new JsonRepository($this->path, $this->tempDir, true);
@@ -55,5 +50,24 @@ class JsonRepositoryTest extends AbstractJsonRepositoryTest
         $this->writeRepo->add('/webmozart', new DirectoryResource($this->fixtureDir.'/dir1'));
 
         $this->writeRepo->remove('/webmozart/file1');
+    }
+
+    /**
+     * @expectedException \Puli\Repository\Api\NoVersionFoundException
+     */
+    public function testGetVersionsLogsWarningIfReferenceNotFound()
+    {
+        $this->writeRepo->add('/file', new FileResource($this->fixtureDir.'/dir1/file1'));
+
+        unlink($this->fixtureDir.'/dir1/file1');
+
+        $logger = $this->getMock('Psr\Log\LoggerInterface');
+        $logger->expects($this->once())
+            ->method('log')
+            ->with(LogLevel::WARNING, $this->stringContains('"fixtures/dir1/file1"'));
+
+        $this->readRepo->setLogger($logger);
+
+        $this->readRepo->getVersions('/file');
     }
 }

@@ -13,7 +13,8 @@
         "php": "^5.3.9|^7.0",
         "webmozart/path-util": "^2.2",
         "webmozart/glob": "^4.1",
-        "webmozart/assert": "^1.0"
+        "webmozart/assert": "^1.0",
+        "psr/log": "^1.0"
     },
     "require-dev": {
         "webmozart/json": "^1.2@dev",

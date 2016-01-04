@@ -12,10 +12,10 @@
 namespace Puli\Repository;
 
 use InvalidArgumentException;
+use Puli\Repository\Api\ChangeStream\VersionList;
 use Puli\Repository\Api\EditableRepository;
+use Puli\Repository\Api\NoVersionFoundException;
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\Api\ResourceNotFoundException;
-use Puli\Repository\ChangeStream\ResourceStack;
 use RecursiveIteratorIterator;
 use Webmozart\Glob\Glob;
 use Webmozart\Glob\Iterator\RecursiveDirectoryIterator;
@@ -119,7 +119,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     /**
      * {@inheritdoc}
      */
-    public function getStack($path)
+    public function getVersions($path)
     {
         if (!$this->json) {
             $this->load();
@@ -128,7 +128,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
         $references = $this->searchReferences($path);
 
         if (!isset($references[$path])) {
-            throw ResourceNotFoundException::forPath($path);
+            throw NoVersionFoundException::forPath($path);
         }
 
         $resources = array();
@@ -140,13 +140,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             $resources[] = $this->createResource($path, $ref);
         }
 
-        return new ResourceStack($resources);
+        return new VersionList($path, $resources);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function appendToChangeStream(PuliResource $resource)
+    protected function storeVersion(PuliResource $resource)
     {
         $path = $resource->getPath();
 
@@ -293,7 +293,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
     protected function getReferencesForPath($path)
     {
         // Stop on first result and flatten
-        return $this->flatten($this->searchReferences($path, true));
+        return $this->flatten($this->searchReferences($path, self::STOP_ON_FIRST));
     }
 
     /**
@@ -534,7 +534,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             // e.g. mapping /a/b for path /a/b
             if ($searchPathForTest === $currentPathForTest) {
                 $foundMatchingMappings = true;
-                $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
+                $currentReferences = $this->resolveReferences($currentPath, $currentReferences, $flags);
+
+                if (empty($currentReferences)) {
+                    continue;
+                }
+
+                $result[$currentPath] = $currentReferences;
 
                 // Return unless an explicit mapping order is defined
                 // In that case, the ancestors need to be searched as well
@@ -549,7 +555,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             // e.g. mapping /a/b/c for path /a/b
             if (($flags & self::INCLUDE_NESTED) && 0 === strpos($currentPathForTest, $searchPathForTest)) {
                 $foundMatchingMappings = true;
-                $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
+                $currentReferences = $this->resolveReferences($currentPath, $currentReferences, $flags);
+
+                if (empty($currentReferences)) {
+                    continue;
+                }
+
+                $result[$currentPath] = $currentReferences;
 
                 // Return unless an explicit mapping order is defined
                 // In that case, the ancestors need to be searched as well
@@ -567,7 +579,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
 
                 if ($flags & self::INCLUDE_ANCESTORS) {
                     // Include the references of the ancestor
-                    $result[$currentPath] = $this->resolveReferences($currentReferences, $flags);
+                    $currentReferences = $this->resolveReferences($currentPath, $currentReferences, $flags);
+
+                    if (empty($currentReferences)) {
+                        continue;
+                    }
+
+                    $result[$currentPath] = $currentReferences;
 
                     // Return unless an explicit mapping order is defined
                     // In that case, the ancestors need to be searched as well
@@ -592,9 +610,7 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
                 $currentReferencesResolved = $this->followLinks(
                     // Never stop on first, since appendNestedPath() might
                     // discard the first but accept the second entry
-                    $this->resolveReferences($currentReferences, $flags & (~self::STOP_ON_FIRST)),
-                    // Never stop on first (see above)
-                    false
+                    $this->resolveReferences($currentPath, $currentReferences, $flags & (~self::STOP_ON_FIRST))
                 );
 
                 // Append the path and check which of the resulting paths exist
@@ -818,35 +834,50 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * Additionally, the results are guaranteed to be an array. If the
      * argument `$stopOnFirst` is set, that array has a maximum size of 1.
      *
-     * @param mixed $references The reference(s).
-     * @param int   $flags      A bitwise combination of the flag constants in
-     *                          this class.
+     * @param string $path       The mapped Puli path.
+     * @param mixed  $references The reference(s).
+     * @param int    $flags      A bitwise combination of the flag constants in
+     *                           this class.
      *
      * @return string[]|null[] The resolved references.
      */
-    private function resolveReferences($references, $flags = 0)
+    private function resolveReferences($path, $references, $flags = 0)
     {
+        $result = array();
+
         if (!is_array($references)) {
             $references = array($references);
         }
 
         foreach ($references as $key => $reference) {
-            if ($this->isFilesystemReference($reference)) {
-                $reference = Path::makeAbsolute($reference, $this->baseDirectory);
+            // Keep non-filesystem references as they are
+            if (!$this->isFilesystemReference($reference)) {
+                $result[] = $reference;
 
-                // Ignore non-existing files. Not sure this is the right
-                // thing to do.
-                if (($flags & self::NO_CHECK_FILE_EXISTS) || file_exists($reference)) {
-                    $references[$key] = $reference;
+                if ($flags & self::STOP_ON_FIRST) {
+                    return $result;
+                }
+
+                continue;
+            }
+
+            $absoluteReference = Path::makeAbsolute($reference, $this->baseDirectory);
+            $referenceExists = file_exists($absoluteReference);
+
+            if (($flags & self::NO_CHECK_FILE_EXISTS) || $referenceExists) {
+                $result[] = $absoluteReference;
+
+                if ($flags & self::STOP_ON_FIRST) {
+                    return $result;
                 }
             }
 
-            if ($flags & self::STOP_ON_FIRST) {
-                return $references;
+            if (!$referenceExists) {
+                $this->logReferenceNotFound($path, $reference, $absoluteReference);
             }
         }
 
-        return $references;
+        return $result;
     }
 
     /**

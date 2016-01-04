@@ -80,7 +80,7 @@ class InMemoryRepository extends AbstractEditableRepository
      */
     public function find($query, $language = 'glob')
     {
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
 
         $query = $this->sanitizePath($query);
         $resources = array();
@@ -99,7 +99,7 @@ class InMemoryRepository extends AbstractEditableRepository
      */
     public function contains($query, $language = 'glob')
     {
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
 
         $query = $this->sanitizePath($query);
 
@@ -178,6 +178,9 @@ class InMemoryRepository extends AbstractEditableRepository
 
         $this->resources = array('/' => $root);
 
+        $this->clearVersions();
+        $this->storeVersion($root);
+
         return $removed;
     }
 
@@ -244,19 +247,21 @@ class InMemoryRepository extends AbstractEditableRepository
             $this->addResource($basePath.$name, $child);
         }
 
-        $this->appendToChangeStream($resource);
+        $this->storeVersion($resource);
     }
 
     private function removeResource(PuliResource $resource)
     {
         $path = $resource->getPath();
 
+        $this->removeVersions($path);
+
         // Ignore non-existing resources
         if (!isset($this->resources[$path])) {
             return;
         }
 
-        // Recursively register directory contents
+        // Recursively remove directory contents
         foreach ($this->getChildIterator($resource) as $child) {
             $this->removeResource($child);
         }

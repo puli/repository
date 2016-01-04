@@ -44,24 +44,46 @@ abstract class AbstractEditableRepository extends AbstractRepository implements 
     /**
      * {@inheritdoc}
      */
-    public function getStack($path)
+    public function getVersions($path)
     {
-        if (!$this->changeStream) {
-            return parent::getStack($path);
+        if (null === $this->changeStream) {
+            return parent::getVersions($path);
         }
 
-        return $this->changeStream->buildStack($this, $path);
+        return $this->changeStream->getVersions($path, $this);
     }
 
     /**
-     * Append a change to the ChangeStream if possible.
+     * Stores a version of a resource in the change stream.
      *
-     * @param PuliResource $resource
+     * @param PuliResource $resource The resource version.
      */
-    protected function appendToChangeStream(PuliResource $resource)
+    protected function storeVersion(PuliResource $resource)
     {
-        if ($this->changeStream) {
+        if (null !== $this->changeStream) {
             $this->changeStream->append($resource);
+        }
+    }
+
+    /**
+     * Removes all versions of a resource from the change stream.
+     *
+     * @param string $path The Puli path.
+     */
+    protected function removeVersions($path)
+    {
+        if (null !== $this->changeStream) {
+            $this->changeStream->purge($path);
+        }
+    }
+
+    /**
+     * Clears the change stream.
+     */
+    protected function clearVersions()
+    {
+        if (null !== $this->changeStream) {
+            $this->changeStream->clear();
         }
     }
 }

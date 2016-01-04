@@ -11,6 +11,9 @@
 
 namespace Puli\Repository;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\Api\Resource\FilesystemResource;
 use Puli\Repository\Api\Resource\PuliResource;
@@ -38,7 +41,7 @@ use Webmozart\PathUtil\Path;
  * @author Bernhard Schussek <bschussek@gmail.com>
  * @author Titouan Galopin <galopintitouan@gmail.com>
  */
-abstract class AbstractJsonRepository extends AbstractEditableRepository
+abstract class AbstractJsonRepository extends AbstractEditableRepository implements LoggerAwareInterface
 {
     /**
      * Flag: Whether to stop after the first result.
@@ -73,6 +76,11 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     private $encoder;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * Creates a new repository.
      *
      * @param string            $path          The path to the JSON file. If
@@ -101,6 +109,14 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         if ($validateJson) {
             $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -162,7 +178,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
             $this->load();
         }
 
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
         $query = $this->sanitizePath($query);
         $results = $this->createResources($this->getReferencesForGlob($query));
 
@@ -180,7 +196,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
             $this->load();
         }
 
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
         $query = $this->sanitizePath($query);
 
         $results = $this->getReferencesForGlob($query, self::STOP_ON_FIRST);
@@ -197,7 +213,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
             $this->load();
         }
 
-        $this->validateSearchLanguage($language);
+        $this->failUnlessGlob($language);
         $query = $this->sanitizePath($query);
 
         Assert::notEmpty(trim($query, '/'), 'The root directory cannot be removed.');
@@ -381,6 +397,37 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     abstract protected function getReferencesInDirectory($path, $flags = 0);
 
     /**
+     * Logs a message.
+     *
+     * @param mixed  $level   One of the level constants in {@link LogLevel}.
+     * @param string $message The message.
+     */
+    protected function log($level, $message)
+    {
+        if (null !== $this->logger) {
+            $this->logger->log($level, $message);
+        }
+    }
+
+    /**
+     * Logs a warning that a reference could not be found.
+     *
+     * @param string $path              The Puli path of a path mapping.
+     * @param string $reference         The reference that was not found.
+     * @param string $absoluteReference The absolute filesystem path of the
+     *                                  reference.
+     */
+    protected function logReferenceNotFound($path, $reference, $absoluteReference)
+    {
+        $this->log(LogLevel::WARNING, sprintf(
+            'The reference "%s"%s mapped by the path %s could not be found.',
+            $reference,
+            $reference !== $absoluteReference ? ' ('.$absoluteReference.')' : '',
+            $path
+        ));
+    }
+
+    /**
      * Adds a filesystem resource to the JSON file.
      *
      * @param string             $path     The Puli path.
@@ -390,9 +437,11 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
     {
         $resource->attachTo($this, $path);
 
-        $this->insertReference($path, $resource->getFilesystemPath());
+        $relativePath = Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory);
 
-        $this->appendToChangeStream($resource);
+        $this->insertReference($path, $relativePath);
+
+        $this->storeVersion($resource);
     }
 
     /**
@@ -582,7 +631,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
 
             $this->insertReference($path, '@'.$resource->getTargetPath());
 
-            $this->appendToChangeStream($resource);
+            $this->storeVersion($resource);
         } else {
             // Extension point for the optimized repository
             $this->addFilesystemResource($path, $resource);
