@@ -13,6 +13,7 @@ Changelog
  * added `NoVersionFoundException`
  * added `InMemoryChangeStream`
  * added `KeyValueStoreChangeStream`
+ * added `JsonChangeStream`
 
 * 1.0.0-beta8 (2015-10-05)
 
