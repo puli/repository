@@ -29,7 +29,12 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
     /**
      * @var ChangeStream
      */
-    protected $stream;
+    protected $writeStream;
+
+    /**
+     * @var ChangeStream
+     */
+    protected $readStream;
 
     /**
      * @var string
@@ -39,22 +44,30 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->repo = new InMemoryRepository();
-        $this->stream = $this->createChangeStream();
+        $this->writeStream = $this->createWriteStream();
+        $this->readStream = $this->createReadStream($this->writeStream);
         $this->fixtureDir = __DIR__.'/../Fixtures';
     }
 
     /**
      * @return ChangeStream
      */
-    abstract protected function createChangeStream();
+    abstract protected function createWriteStream();
+
+    /**
+     * @param ChangeStream $writeStream
+     *
+     * @return ChangeStream
+     */
+    abstract protected function createReadStream(ChangeStream $writeStream);
 
     public function testAppend()
     {
-        $this->stream->append($v1 = new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
-        $this->stream->append($v2 = new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
-        $this->stream->append($v3 = new FileResource($this->fixtureDir.'/dir2/file2', '/path'));
+        $this->writeStream->append($v1 = new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append($v2 = new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+        $this->writeStream->append($v3 = new FileResource($this->fixtureDir.'/dir2/file2', '/path'));
 
-        $versions = $this->stream->getVersions('/path');
+        $versions = $this->readStream->getVersions('/path');
 
         $this->assertInstanceOf('Puli\Repository\Api\ChangeStream\VersionList', $versions);
         $this->assertSame('/path', $versions->getPath());
@@ -66,47 +79,49 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
 
     public function testContains()
     {
-        $this->assertFalse($this->stream->contains('/path'));
+        $this->assertFalse($this->readStream->contains('/path'));
 
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
 
-        $this->assertTrue($this->stream->contains('/path'));
+        $this->readStream = $this->createReadStream($this->writeStream);
+
+        $this->assertTrue($this->readStream->contains('/path'));
     }
 
     public function testPurge()
     {
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path1'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path1'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir2/file2', '/path2'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path1'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path1'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir2/file2', '/path2'));
 
-        $this->stream->purge('/path1');
+        $this->writeStream->purge('/path1');
 
-        $this->assertFalse($this->stream->contains('/path1'));
-        $this->assertTrue($this->stream->contains('/path2'));
+        $this->assertFalse($this->readStream->contains('/path1'));
+        $this->assertTrue($this->readStream->contains('/path2'));
     }
 
     public function testClear()
     {
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path1'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path1'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir2/file2', '/path2'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path1'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path1'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir2/file2', '/path2'));
 
-        $this->stream->clear();
+        $this->writeStream->clear();
 
-        $this->assertFalse($this->stream->contains('/path1'));
-        $this->assertFalse($this->stream->contains('/path2'));
+        $this->assertFalse($this->readStream->contains('/path1'));
+        $this->assertFalse($this->readStream->contains('/path2'));
     }
 
     public function testAppendAfterPurging()
     {
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
 
-        $this->stream->purge('/path');
+        $this->writeStream->purge('/path');
 
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
 
-        $this->assertTrue($this->stream->contains('/path'));
-        $this->assertCount(1, $this->stream->getVersions('/path'));
+        $this->assertTrue($this->readStream->contains('/path'));
+        $this->assertCount(1, $this->readStream->getVersions('/path'));
     }
 
     /**
@@ -114,7 +129,7 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testGetVersionsFailsIfNotFound()
     {
-        $this->stream->getVersions('/foobar');
+        $this->readStream->getVersions('/foobar');
     }
 
     /**
@@ -122,23 +137,51 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
      */
     public function testGetVersionsFailsAfterPurging()
     {
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
 
-        $this->stream->purge('/path');
+        $this->writeStream->purge('/path');
 
-        $this->stream->getVersions('/path');
+        $this->readStream->getVersions('/path');
+    }
+
+    public function testResourcesNotAttachedToRepositoryByDefault()
+    {
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+
+        $versions = $this->readStream->getVersions('/path');
+
+        $this->assertCount(2, $versions);
+        $this->assertNull($versions->get(0)->getRepository());
+        $this->assertNull($versions->get(1)->getRepository());
     }
 
     public function testResourcesAttachedToRepositoryIfPassed()
     {
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
-        $this->stream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
 
-        $versions = $this->stream->getVersions('/path', $this->repo);
+        $versions = $this->readStream->getVersions('/path', $this->repo);
 
         $this->assertCount(2, $versions);
         $this->assertSame($this->repo, $versions->get(0)->getRepository());
         $this->assertSame($this->repo, $versions->get(1)->getRepository());
+    }
+
+    public function testResourcesInStreamRemainDetached()
+    {
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file1', '/path'));
+        $this->writeStream->append(new FileResource($this->fixtureDir.'/dir1/file2', '/path'));
+
+        // attached versions
+        $this->readStream->getVersions('/path', $this->repo);
+
+        // still detached (clones)
+        $versions = $this->readStream->getVersions('/path');
+
+        $this->assertCount(2, $versions);
+        $this->assertNull($versions->get(0)->getRepository());
+        $this->assertNull($versions->get(1)->getRepository());
     }
 }

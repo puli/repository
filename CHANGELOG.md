@@ -8,6 +8,11 @@ Changelog
  * renamed `OptimizedPathMappingRepository` to `OptimizedJsonRepository`
  * changed constructor arguments of JSON repositories from `KeyValueStore`
    to paths of JSON files
+ * added `ChangeStream`
+ * added `VersionList`
+ * added `NoVersionFoundException`
+ * added `InMemoryChangeStream`
+ * added `KeyValueStoreChangeStream`
 
 * 1.0.0-beta8 (2015-10-05)
 

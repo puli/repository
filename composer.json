@@ -18,12 +18,14 @@
     },
     "require-dev": {
         "webmozart/json": "^1.2",
+        "webmozart/key-value-store": "^1.0-beta6",
         "symfony/filesystem": "^2.0|^3.0",
         "phpunit/phpunit": "^4.6",
         "sebastian/version": "^1.0.1"
     },
     "suggest": {
         "webmozart/json": "to use the JSON repositories",
+        "webmozart/key-value-store": "to use the key-value store change stream",
         "symfony/filesystem": "to use the filesystem repository"
     },
     "autoload": {
