@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests\Resource;
 
+use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\Resource\Collection\ArrayResourceCollection;
 use Puli\Repository\Resource\GenericResource;
 

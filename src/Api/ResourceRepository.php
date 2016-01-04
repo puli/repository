@@ -12,8 +12,8 @@
 namespace Puli\Repository\Api;
 
 use InvalidArgumentException;
+use Puli\Repository\Api\ChangeStream\VersionList;
 use Puli\Repository\Api\Resource\PuliResource;
-use Puli\Repository\ChangeStream\ResourceStack;
 
 /**
  * Stores {@link PuliResource} objects.
@@ -58,15 +58,17 @@ interface ResourceRepository
     public function get($path);
 
     /**
-     * Build and return the resources stack of a given path.
+     * Returns all versions of a resource.
      *
-     * @param string $path The path to build the stack of.
+     * @param string $path The path to the resource.
      *
-     * @throws UnsupportedOperationException If no ChangeStream is configured.
+     * @return VersionList The versions stored for this path.
      *
-     * @return ResourceStack The resource stack of the path.
+     * @throws NoVersionFoundException  If no version can be found.
+     * @throws InvalidArgumentException If the path is invalid. The path must
+     *                                  be a non-empty string starting with "/".
      */
-    public function getStack($path);
+    public function getVersions($path);
 
     /**
      * Returns the resources matching a query.

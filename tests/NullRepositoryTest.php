@@ -73,4 +73,14 @@ class NullRepositoryTest extends PHPUnit_Framework_TestCase
 
         $this->repo->get('/path');
     }
+
+    /**
+     * @expectedException \Puli\Repository\Api\NoVersionFoundException
+     */
+    public function testGetVersionsAlwaysThrowsException()
+    {
+        $this->repo->add('/path', new TestFile());
+
+        $this->repo->getVersions('/path');
+    }
 }

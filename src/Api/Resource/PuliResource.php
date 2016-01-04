@@ -11,10 +11,10 @@
 
 namespace Puli\Repository\Api\Resource;
 
+use Puli\Repository\Api\ChangeStream\VersionList;
 use Puli\Repository\Api\ResourceCollection;
 use Puli\Repository\Api\ResourceNotFoundException;
 use Puli\Repository\Api\ResourceRepository;
-use Puli\Repository\ChangeStream\ResourceStack;
 use Serializable;
 
 /**
@@ -111,11 +111,11 @@ interface PuliResource extends Serializable
     public function listChildren();
 
     /**
-     * Build and return a stack of versions for this resource.
+     * Returns the versions of this resource.
      *
-     * @return ResourceStack The stack of this resource.
+     * @return VersionList The resource versions.
      */
-    public function getStack();
+    public function getVersions();
 
     /**
      * Returns metadata about a resource.
