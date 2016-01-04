@@ -11,6 +11,7 @@
 
 namespace Puli\Repository\Tests\ChangeStream;
 
+use Puli\Repository\Api\ChangeStream\ChangeStream;
 use Puli\Repository\ChangeStream\InMemoryChangeStream;
 
 /**
@@ -18,8 +19,13 @@ use Puli\Repository\ChangeStream\InMemoryChangeStream;
  */
 class InMemoryChangeStreamTest extends AbstractChangeStreamTest
 {
-    protected function createChangeStream()
+    protected function createWriteStream()
     {
         return new InMemoryChangeStream();
+    }
+
+    protected function createReadStream(ChangeStream $writeStream)
+    {
+        return $writeStream;
     }
 }
