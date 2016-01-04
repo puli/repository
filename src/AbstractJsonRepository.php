@@ -99,7 +99,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository
         $this->encoder = new JsonEncoder();
 
         if ($validateJson) {
-            $this->schemaPath = realpath(__DIR__.'/../res/schema/repository-schema-1.0.json');
+            $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
         }
     }
 
