@@ -307,11 +307,7 @@ class FilesystemRepository extends AbstractEditableRepository
             ));
         }
 
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
+        $resource = clone $resource;
         $resource->attachTo($this, $path);
 
         if ($this->symlink && $checkParentsForSymlinks) {

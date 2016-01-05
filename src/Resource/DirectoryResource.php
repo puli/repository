@@ -51,9 +51,11 @@ class DirectoryResource extends AbstractFilesystemResource
             throw ResourceNotFoundException::forPath($this->getPath().'/'.$relPath);
         }
 
+        $childPath = null === $this->getPath() ? null : $this->getPath().'/'.$relPath;
+
         return is_dir($filesystemPath)
-            ? new self($filesystemPath)
-            : new FileResource($filesystemPath);
+            ? new self($filesystemPath, $childPath)
+            : new FileResource($filesystemPath, $childPath);
     }
 
     /**

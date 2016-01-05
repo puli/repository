@@ -437,6 +437,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
      */
     protected function addFilesystemResource($path, FilesystemResource $resource)
     {
+        $resource = clone $resource;
         $resource->attachTo($this, $path);
 
         $relativePath = Path::makeRelative($resource->getFilesystemPath(), $this->baseDirectory);
@@ -623,12 +624,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
             ));
         }
 
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
         if ($resource instanceof LinkResource) {
+            $resource = clone $resource;
             $resource->attachTo($this, $path);
 
             $this->insertReference($path, '@'.$resource->getTargetPath());

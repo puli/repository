@@ -123,29 +123,55 @@ abstract class AbstractEditableRepositoryTest extends AbstractRepositoryTest
         $this->assertSame(TestFile::BODY, $file->getBody());
     }
 
-    public function testAddAttachesResourceToRepository()
+    public function testAddDoesNotAttachResourceToRepository()
     {
-        $resource = $this->prepareFixtures($this->createFile());
+        $directory = $this->prepareFixtures($this->createDirectory('/dir', array(
+            $this->createFile('/file1'),
+            $this->createFile('/file2'),
+        )));
+        $file1 = $directory->getChild('file1');
+        $file2 = $directory->getChild('file2');
 
-        $this->writeRepo->add('/webmozart/puli/file', $resource);
+        $this->writeRepo->add('/webmozart', $directory);
 
-        $this->assertSame('/webmozart/puli/file', $resource->getPath());
-        $this->assertSame('/webmozart/puli/file', $resource->getRepositoryPath());
-        $this->assertSame($this->writeRepo, $resource->getRepository());
+        $this->assertNull($directory->getRepository());
+        $this->assertNull($file1->getRepository());
+        $this->assertNull($file2->getRepository());
+
+        $directory = $this->readRepo->get('/webmozart');
+        $file1 = $this->readRepo->get('/webmozart/file1');
+        $file2 = $this->readRepo->get('/webmozart/file2');
+
+        $this->assertSame($this->readRepo, $directory->getRepository());
+        $this->assertSame($this->readRepo, $file1->getRepository());
+        $this->assertSame($this->readRepo, $file2->getRepository());
     }
 
-    public function testAddClonesAlreadyAttachedResourceToRepository()
+    public function testAddDoesNotChangeAttachedRepository()
     {
         $otherRepo = new InMemoryRepository();
+        $otherRepo->add('/dir', $this->prepareFixtures($this->createDirectory('/', array(
+            $this->createFile('/file1'),
+            $this->createFile('/file2'),
+        ))));
 
-        $resource = $this->prepareFixtures($this->createFile());
-        $resource->attachTo($otherRepo, '/other-repo-path');
+        $directory = $otherRepo->get('/dir');
+        $file1 = $otherRepo->get('/dir/file1');
+        $file2 = $otherRepo->get('/dir/file2');
 
-        $this->writeRepo->add('/webmozart/puli/file', $resource);
+        $this->writeRepo->add('/webmozart', $directory);
 
-        $this->assertSame('/other-repo-path', $resource->getPath());
-        $this->assertSame('/other-repo-path', $resource->getRepositoryPath());
-        $this->assertSame($otherRepo, $resource->getRepository());
+        $this->assertSame($otherRepo, $directory->getRepository());
+        $this->assertSame($otherRepo, $file1->getRepository());
+        $this->assertSame($otherRepo, $file2->getRepository());
+
+        $directory = $this->readRepo->get('/webmozart');
+        $file1 = $this->readRepo->get('/webmozart/file1');
+        $file2 = $this->readRepo->get('/webmozart/file2');
+
+        $this->assertSame($this->readRepo, $directory->getRepository());
+        $this->assertSame($this->readRepo, $file1->getRepository());
+        $this->assertSame($this->readRepo, $file2->getRepository());
     }
 
     public function testAddMergesResourceChildren()
