@@ -227,16 +227,12 @@ class InMemoryRepository extends AbstractEditableRepository
 
     private function addResource($path, PuliResource $resource)
     {
-        // Don't modify resources attached to other repositories
-        if ($resource->isAttached()) {
-            $resource = clone $resource;
-        }
-
         $basePath = '/' === $path ? $path : $path.'/';
 
         // Read children before attaching the resource to this repository
         $children = $resource->listChildren();
 
+        $resource = clone $resource;
         $resource->attachTo($this, $path);
 
         // Add the resource before adding its children, so that the array
