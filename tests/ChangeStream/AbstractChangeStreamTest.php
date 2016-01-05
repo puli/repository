@@ -72,9 +72,9 @@ abstract class AbstractChangeStreamTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Puli\Repository\Api\ChangeStream\VersionList', $versions);
         $this->assertSame('/path', $versions->getPath());
         $this->assertEquals(array(0, 1, 2), $versions->getVersions());
-        $this->assertSame($v1, $versions->get(0));
-        $this->assertSame($v2, $versions->get(1));
-        $this->assertSame($v3, $versions->get(2));
+        $this->assertEquals($v1, $versions->get(0));
+        $this->assertEquals($v2, $versions->get(1));
+        $this->assertEquals($v3, $versions->get(2));
     }
 
     public function testContains()
