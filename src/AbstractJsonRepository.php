@@ -105,6 +105,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
         $this->baseDirectory = $baseDirectory;
         $this->path = Path::makeAbsolute($path, $baseDirectory);
         $this->encoder = new JsonEncoder();
+        $this->encoder->setPrettyPrinting(true);
+        $this->encoder->setEscapeSlash(false);
 
         if ($validateJson) {
             $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
