@@ -66,7 +66,7 @@ abstract class AbstractJsonRepositoryTest extends AbstractEditableRepositoryTest
 
     protected function setUp()
     {
-        $this->tempDir = TestUtil::makeTempDir('puli-respository', __CLASS__);
+        $this->tempDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
         $this->fixtureDir = $this->tempDir.'/fixtures';
         $this->tempFixtureDir = $this->tempDir.'/temp-fixtures';
         $this->path = $this->tempDir.'/puli.json';
