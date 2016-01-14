@@ -109,7 +109,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
         $this->encoder->setEscapeSlash(false);
 
         if ($validateJson) {
-            $this->schemaPath = realpath(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
+            $this->schemaPath = Path::canonicalize(__DIR__.'/../res/schema/path-mappings-schema-1.0.json');
         }
     }
 
