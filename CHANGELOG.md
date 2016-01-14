@@ -1,19 +1,28 @@
 Changelog
 =========
 
-* 1.0.0-beta9 (@release_date@)
+* 1.0.0-beta9 (2016-01-14)
 
+ * made compatible with Symfony 3.0
+ * added JSON schema for path mapping files: `path-mappings-schema-1.0.json`
+ * upgraded to webmozart/glob 4.1 to improve performance
+ * renamed `Resource` to `PuliResource`
  * renamed `AbstractPathMappingRepository` to `AbstractJsonRepository`
  * renamed `PathMappingRepository` to `JsonRepository`
  * renamed `OptimizedPathMappingRepository` to `OptimizedJsonRepository`
  * changed constructor arguments of JSON repositories from `KeyValueStore`
    to paths of JSON files
+ * added `AbstractEditableRepository`
  * added `ChangeStream`
  * added `VersionList`
  * added `NoVersionFoundException`
  * added `InMemoryChangeStream`
  * added `KeyValueStoreChangeStream`
  * added `JsonChangeStream`
+ * added `PuliResource::getVersions()`
+ * added `ResourceRepository::getVersions()`
+ * added `LinkResource::getTarget()`
+ * made `LinkResource` serializable
 
 * 1.0.0-beta8 (2015-10-05)
 
