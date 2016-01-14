@@ -40,7 +40,7 @@
         }
     },
     "patternProperties": {
-        "^\\/(([^\\/]+\\/)*[^\\/]+)?$": {
+        "^/(([^/]+/)*[^/]+)?$": {
             "description": "A mapping from a Puli path to one or more path references.",
             "oneOf": [
                 { "$ref": "#/definitions/singleReference" },
@@ -53,7 +53,7 @@
             "description": "Overrides the default resolution order. By default, mappings for longer paths (e.g. /a/b) have precedence over mapping for shorter paths (e.g. /a). This can be overridden here.",
             "type": "object",
             "patternProperties": {
-                "^\\/(([^\\/]+\\/)*[^\\/]+)?$": {
+                "^/(([^/]+/)*[^/]+)?$": {
                     "description": "Overrides the resolution order for a mapped Puli path. The repository will check the path mappings referred to by the entries of the array in the given order.",
                     "type": "array",
                     "minItems": 2,

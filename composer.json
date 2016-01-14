@@ -17,7 +17,7 @@
         "psr/log": "^1.0"
     },
     "require-dev": {
-        "webmozart/json": "^1.2",
+        "webmozart/json": "^1.2.1",
         "webmozart/key-value-store": "^1.0-beta6",
         "symfony/filesystem": "^2.0|^3.0",
         "phpunit/phpunit": "^4.6",
