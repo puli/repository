@@ -16,52 +16,12 @@ use Puli\Repository\Api\Resource\PuliResource;
 use Puli\Repository\FilesystemRepository;
 use Puli\Repository\Resource\DirectoryResource;
 use Puli\Repository\Resource\FileResource;
-use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\Glob\Test\TestUtil;
 
 /**
  * @author Bernhard Schussek <bschussek@gmail.com>
  */
-class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemRepositoryTest
+class FilesystemRepositoryAbsoluteSymlinkTest extends AbstractFilesystemRepositorySymlinkTest
 {
-    private $tempBaseDir;
-
-    private $tempDir;
-
-    /**
-     * Copy fixtures to temporary directory to prevent messing up the real
-     * fixtures when symlinks do not work.
-     */
-    private $tempFixtures;
-
-    protected function setUp()
-    {
-        $this->markAsSkippedIfSymlinkIsMissing();
-
-        $this->tempBaseDir = TestUtil::makeTempDir('puli-repository', __CLASS__);
-
-        // Create both directories in the same directory, so that relative links
-        // work from one to the other
-        $this->tempDir = $this->tempBaseDir.'/workspace';
-        $this->tempFixtures = $this->tempBaseDir.'/fixtures';
-
-        mkdir($this->tempDir);
-        mkdir($this->tempFixtures);
-
-        $filesystem = new Filesystem();
-        $filesystem->mirror(__DIR__.'/Fixtures', $this->tempFixtures);
-
-        parent::setUp();
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-
-        $filesystem = new Filesystem();
-        $filesystem->remove($this->tempBaseDir);
-    }
-
     protected function createPrefilledRepository(PuliResource $root)
     {
         $repo = new FilesystemRepository($this->tempDir, true, false);
