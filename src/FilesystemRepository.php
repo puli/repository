@@ -378,7 +378,7 @@ class FilesystemRepository extends AbstractEditableRepository
 
         ++$removed;
 
-        if (is_dir($filesystemPath)) {
+        if (is_dir($filesystemPath) && !is_link($filesystemPath)) {
             $iterator = $this->getDirectoryIterator($filesystemPath);
 
             foreach ($iterator as $childFilesystemPath) {
