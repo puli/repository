@@ -347,6 +347,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
      *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
      * @param string $glob  The glob.
      * @param int    $flags A bitwise combination of the flag constants in this
      *                      class.
@@ -366,6 +368,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
      *  * an absolute filesystem path
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      *
      * @param string $staticPrefix The static prefix of all Puli paths matching
      *                             the regular expression.
@@ -388,6 +392,8 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
      *  * an absolute filesystem path
      *
      * The keys of the returned array are Puli paths. Their order is undefined.
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
      *
      * @param string $path  The Puli path.
      * @param int    $flags A bitwise combination of the flag constants in this

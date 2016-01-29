@@ -387,10 +387,15 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * If a matching path refers to more than one reference, the first reference
      * is returned in the resulting array.
      *
-     * If `$listDirectories` is set to `true`, all references that contain
-     * directory paths are traversed recursively and scanned for more paths
-     * matching the regular expression. This recursive traversal can be limited
-     * by passing a `$maxDepth` (see {@link getPathDepth()}).
+     * All references that contain directory paths may be traversed recursively and
+     * scanned for more paths matching the regular expression. This recursive
+     * traversal can be limited by passing a `$maxDepth` (see {@link getPathDepth()}).
+     * By default, this `$maxDepth` is equal to zero (no recursive scan).
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
+     * The flag `NO_SEARCH_FILESYSTEM` may be used to check for whether the found
+     * paths actually exist on the filesystem.
      *
      * Each reference returned by this method can be:
      *
@@ -489,11 +494,15 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * If the search path is "/a/b", the result includes:
      *
      *  * The references of the mapped path "/a/b".
+     *
+     * If the flag `INCLUDE_ANCESTORS` is used, the result additionally
+     * includes:
+     *
      *  * The references of any mapped super path "/a" with the sub-path "/b"
      *    appended.
      *
-     * If the argument `$includeNested` is set to `true`, the result
-     * additionally includes:
+     * If the flag `INCLUDE_NESTED` is used, the result additionally
+     * includes:
      *
      *  * The references of any mapped sub path "/a/b/c".
      *
@@ -513,6 +522,11 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *  * `null` values for virtual resources
      *  * strings starting with "@" for links
      *  * absolute filesystem paths for filesystem resources
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
+     * The flag `NO_SEARCH_FILESYSTEM` may be used to check for whether the found
+     * paths actually exist on the filesystem.
      *
      * @param string $searchPath The path to search.
      * @param int    $flags      A bitwise combination of the flag constants in
@@ -721,6 +735,8 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *
      * Absolute filesystem paths are returned unchanged.
      *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
      * @param string[]|null[] $references The references.
      * @param int             $flags      A bitwise combination of the flag
      *                                    constants in this class.
@@ -781,6 +797,8 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      * Link references should be followed with {@link followLinks()} before
      * calling this method.
      *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     *
      * @param string[]|null[] $references The references.
      * @param string          $nestedPath The nested path to append without
      *                                    leading slash ("/").
@@ -831,8 +849,13 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
      *  * a link starting with `@`
      *  * an absolute filesystem path
      *
-     * Additionally, the results are guaranteed to be an array. If the
-     * argument `$stopOnFirst` is set, that array has a maximum size of 1.
+     * Additionally, the results are guaranteed to be an array.
+     *
+     * The flag `STOP_ON_FIRST` may be used to stop the search at the first result.
+     * In that case, the results array has a maximum size of 1.
+     *
+     * The flag `NO_SEARCH_FILESYSTEM` may be used to check for whether the found
+     * paths actually exist on the filesystem.
      *
      * @param string $path       The mapped Puli path.
      * @param mixed  $references The reference(s).
