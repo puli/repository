@@ -1,6 +1,11 @@
 Changelog
 =========
 
+* 1.0.0-beta10 (@release_date@)
+
+ * added `ResourceBinding`
+ * added `ResourceBindingInitializer`
+
 * 1.0.0-beta9 (2016-01-14)
 
  * made compatible with Symfony 3.0
