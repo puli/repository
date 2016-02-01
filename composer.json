@@ -17,6 +17,7 @@
         "psr/log": "^1.0"
     },
     "require-dev": {
+        "puli/discovery": "^1.0-beta10@dev",
         "webmozart/json": "^1.2.1",
         "webmozart/key-value-store": "^1.0-beta7",
         "symfony/filesystem": "^2.0|^3.0",
@@ -24,6 +25,7 @@
         "sebastian/version": "^1.0.1"
     },
     "suggest": {
+        "puli/discovery": "to provide and discover resources across modules",
         "webmozart/json": "to use the JSON repositories",
         "webmozart/key-value-store": "to use the key-value store change stream",
         "symfony/filesystem": "to use the filesystem repository"
