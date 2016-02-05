@@ -1,10 +1,15 @@
 Changelog
 =========
 
-* 1.0.0-beta10 (@release_date@)
+* 1.0.0-beta11 (@release_date@)
 
  * added `ResourceBinding`
  * added `ResourceBindingInitializer`
+
+* 1.0.0-beta10 (2016-02-05)
+
+ * fixed regression in `FilesystemRepository::clear()` which caused files in
+   symlinked directories to be deleted
 
 * 1.0.0-beta9 (2016-01-14)
 
