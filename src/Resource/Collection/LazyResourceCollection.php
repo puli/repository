@@ -248,7 +248,9 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
         }
 
         return array_map(
-            function (PuliResource $resource) { return $resource->getPath(); },
+            function (PuliResource $resource) {
+                return $resource->getPath();
+            },
             $this->resources
         );
     }
@@ -263,7 +265,9 @@ class LazyResourceCollection implements IteratorAggregate, ResourceCollection
         }
 
         return array_map(
-            function (PuliResource $resource) { return $resource->getName(); },
+            function (PuliResource $resource) {
+                return $resource->getName();
+            },
             $this->resources
         );
     }

@@ -523,7 +523,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
      */
     protected function isLinkReference($reference)
     {
-        return isset($reference{0}) && '@' === $reference{0};
+        return isset($reference[0]) && '@' === $reference[0];
     }
 
     /**
@@ -551,7 +551,7 @@ abstract class AbstractJsonRepository extends AbstractEditableRepository impleme
     {
         if (null === $reference) {
             $resource = new GenericResource();
-        } elseif (isset($reference{0}) && '@' === $reference{0}) {
+        } elseif (isset($reference[0]) && '@' === $reference[0]) {
             $resource = new LinkResource(substr($reference, 1));
         } elseif (is_dir($reference)) {
             $resource = new DirectoryResource($reference);
