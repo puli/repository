@@ -1014,6 +1014,6 @@ class JsonRepository extends AbstractJsonRepository implements EditableRepositor
             }
 
             $parentPath = Path::getDirectory($parentPath);
-        };
+        }
     }
 }
